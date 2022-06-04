@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/couchspace-cms/static/css/main.56793c35.css",
+    "main.js": "/couchspace-cms/static/js/main.131d03e3.js",
+    "static/js/787.2eae0e56.chunk.js": "/couchspace-cms/static/js/787.2eae0e56.chunk.js",
+    "static/media/photo.png": "/couchspace-cms/static/media/photo.b2b8f7a4e0453bb3a397.png",
+    "static/media/logo.png": "/couchspace-cms/static/media/logo.590c8fa3020edc6e7c97.png",
+    "index.html": "/couchspace-cms/index.html",
+    "main.56793c35.css.map": "/couchspace-cms/static/css/main.56793c35.css.map",
+    "main.131d03e3.js.map": "/couchspace-cms/static/js/main.131d03e3.js.map",
+    "787.2eae0e56.chunk.js.map": "/couchspace-cms/static/js/787.2eae0e56.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.56793c35.css",
+    "static/js/main.131d03e3.js"
+  ]
+}
