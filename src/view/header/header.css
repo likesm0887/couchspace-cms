@@ -1,0 +1,13 @@
+.logo{
+    width:10% ;
+    margin-top: 10px;
+    margin-left: 10px;
+    height: 30%;
+}
+.header{
+    height: 100px;
+}
+.bell{
+    width:auto;
+    height:inherit;
+}
