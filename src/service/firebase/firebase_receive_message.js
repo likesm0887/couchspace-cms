@@ -8,11 +8,8 @@ const messaging = getMessaging();
 
 export const onMessageListener = () =>
     new Promise((resolve) => {
-        console.log("123");
         onMessage(messaging, (payload) => {
-            console.log("get");
             resolve(payload);
-
         });
     });
 

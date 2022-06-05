@@ -1,0 +1,36 @@
+.Page{
+    float:bottom;
+
+}
+.Consultation{
+
+}
+table {
+    margin-top: 70px;
+    float: top;
+    border-collapse: collapse;
+    width: auto;
+}
+
+.listItemStyle{
+    width: 75px;
+}
+
+th{
+    font-weight:bold;
+    font-family: Microsoft JhengHei, sans-serif;
+    color:#859cc9;
+    font-size: 20px;
+}
+td  {
+    font-weight:bold;
+    color :#5F6363;
+    font-family: Microsoft JhengHei, sans-serif;
+    font-size: 15px;
+    text-align: center;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-top: 15px;
+}
+
+

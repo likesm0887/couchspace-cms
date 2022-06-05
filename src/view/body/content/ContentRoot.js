@@ -8,8 +8,8 @@ function ContentRoot() {
         <div className={"ContentRoot"}>
             <HashRouter>
                 <Routes>
-                    <Route path="/meditation" element={<Meditation/>}/>
-                    <Route path="/" element={<Consultation/>}/>
+                    <Route exact  path="/meditation" element={<Meditation/>}/>
+                    <Route exact  path="/" element={<Consultation/>}/>
                 </Routes>
             </HashRouter>
         </div>

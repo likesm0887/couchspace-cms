@@ -2,6 +2,8 @@ import Header from "./view/header/Header";
 import Body from "./view/body/Body";
 import {requestForToken} from "./service/firebase/firebase_fcm";
 import {onMessageListener} from "./service/firebase/firebase_receive_message";
+import {boot} from "./service/ServicePool";
+
 function askForNotificationPermission() {
     Notification.requestPermission(function(result) {
         // 這裡result只會有兩種結果：一個是用戶允許(granted)，另一個是用戶封鎖(denied)
@@ -19,6 +21,7 @@ function askForNotificationPermission() {
 function App() {
    // registerServiceWorker()
    // Notification()
+    boot()
     new Notification("Hi there! ", {
         body: '\\ ^o^ /',
         icon: '/firebase-logo.png',

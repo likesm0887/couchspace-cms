@@ -1,17 +1,28 @@
 import "./sidebar.css"
+import consultation from "../../img/slidebar/slidebar-consultation.png";
+import meditation from "../../img/slidebar/slidebar-meditation.png";
+import article from "../../img/slidebar/slidebar-article.png";
+import manager from "../../img/slidebar/slidebar-manager.png";
 
 function Sidebar() {
     return (
-        <menu className="sidebar">
-            <div >
-                <li>
-                    <a href="src/view/body/sidebar/Sidebar#/" className="w3-bar-item w3-button">諮商</a>
-                </li>
-                <li>
-                    <a href="src/view/body/sidebar/Sidebar#/meditation" className="w3-bar-item w3-button">冥想</a>
-                </li>
+
+            <div className="sidebar">
+                <ui>
+                    <a href="/"><img  className={"slide-item"} src={consultation} alt="測試圖片" border="0"/></a>
+                </ui>
+                <ui>
+                    <a href="#/meditation"><img  className={"slide-item"} src={meditation} alt="測試圖片" border="0"/></a>
+                </ui>
+                <ui>
+                    <a href="#/meditation"><img  className={"slide-item"} src={article} alt="測試圖片" border="0"/></a>
+                </ui>
+                <ui>
+                    <a href="#/meditation"><img  className={"slide-item"} src={manager} alt="測試圖片" border="0"/></a>
+                </ui>
+
             </div>
-        </menu>
+
 
     );
 
