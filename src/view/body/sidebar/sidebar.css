@@ -1,0 +1,63 @@
+.sidebar {
+    position: absolute;
+    left: 2.08%;
+    right: 87.46%;
+    top: 5.96%;
+    bottom: 74.9%;
+}
+
+image {
+    width: 30px;
+    height: 30px;
+}
+.lineContent{
+    position: absolute;
+    left: 0%;
+    margin-top: 24.28%;
+    text-align: left;
+}
+img{
+    width: 33px;
+    height: 33px;
+}
+.line{
+    position: absolute;
+    left: 0;
+    width: 400%;
+    height: 76px;
+    top: 16%;
+    text-align: left;
+}
+.slide-line {
+    padding-left: 10%;
+    background-color: #99A1D1;
+    height: 110%;
+    list-style: none;
+    border-radius: 30px;
+    margin-top: 2.28%;
+    align-items: center;
+    display: flex;
+}
+
+a {
+    margin-left: 10px;
+    font-family: 'GenYoGothic TW';
+    font-style: normal;
+    font-size: 20px;
+    line-height: 20px;
+    color: #F7F8F8;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.consultation {
+    width: 100px;
+    font-family: 'GenYoGothic TW', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 20px;
+    /* identical to box height */
+    color: #F7F8F8;
+}
+
