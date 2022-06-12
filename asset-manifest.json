@@ -1,17 +1,25 @@
 {
   "files": {
-    "main.css": "/couchspace-cms/static/css/main.56793c35.css",
-    "main.js": "/couchspace-cms/static/js/main.131d03e3.js",
+    "main.css": "/couchspace-cms/static/css/main.6c6dde70.css",
+    "main.js": "/couchspace-cms/static/js/main.649d880b.js",
     "static/js/787.2eae0e56.chunk.js": "/couchspace-cms/static/js/787.2eae0e56.chunk.js",
     "static/media/photo.png": "/couchspace-cms/static/media/photo.b2b8f7a4e0453bb3a397.png",
+    "static/media/login.svg": "/couchspace-cms/static/media/login.64ca03ca3c26ff8c14feb37eb9c013e4.svg",
     "static/media/logo.png": "/couchspace-cms/static/media/logo.590c8fa3020edc6e7c97.png",
+    "static/media/account.svg": "/couchspace-cms/static/media/account.e84b2bb5f95431dddac8b5720e29bd26.svg",
+    "static/media/article.svg": "/couchspace-cms/static/media/article.41303c08c6d4894d10a90663f72eb0b0.svg",
+    "static/media/password.svg": "/couchspace-cms/static/media/password.29e6f9e7c0ba36bcbe7ad710df55a62d.svg",
+    "static/media/consultation.svg": "/couchspace-cms/static/media/consultation.9d05cbc96283a146d3ee69ac2eaec8d6.svg",
+    "static/media/meditation.svg": "/couchspace-cms/static/media/meditation.b6a9809d1e742ee73721d71aaff558a9.svg",
     "index.html": "/couchspace-cms/index.html",
-    "main.56793c35.css.map": "/couchspace-cms/static/css/main.56793c35.css.map",
-    "main.131d03e3.js.map": "/couchspace-cms/static/js/main.131d03e3.js.map",
+    "static/media/edit.svg": "/couchspace-cms/static/media/edit.2f6d761e893541983d9762991a6e8b6b.svg",
+    "static/media/manager.svg": "/couchspace-cms/static/media/manager.f52b997ff11ed8e1a7bfa5bbc95d98e0.svg",
+    "main.6c6dde70.css.map": "/couchspace-cms/static/css/main.6c6dde70.css.map",
+    "main.649d880b.js.map": "/couchspace-cms/static/js/main.649d880b.js.map",
     "787.2eae0e56.chunk.js.map": "/couchspace-cms/static/js/787.2eae0e56.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.56793c35.css",
-    "static/js/main.131d03e3.js"
+    "static/css/main.6c6dde70.css",
+    "static/js/main.649d880b.js"
   ]
 }
