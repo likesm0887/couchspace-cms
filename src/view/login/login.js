@@ -5,7 +5,7 @@ import password from "../img/login/password.svg"
 function Login() {
 
     const login = () => {
-        window.location="/home"
+        window.location="couchspace-cms/home"
     }
     return (
         <div className={"content"}>

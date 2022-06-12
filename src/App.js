@@ -42,8 +42,8 @@ function App() {
         <BrowserRouter>
             <Routes>
                 <Route index element={<Login/>}/>
-                <Route path="/" element={<Login/>}/>
-                <Route path="home" element={<Home/>}>
+                <Route path="couchspace-cms/" element={<Login/>}/>
+                <Route path="couchspace-cms/home" element={<Home/>}>
                     <Route>
                         <Route index element={<Consultation/>}/>
                         <Route path="consultation" element={<Consultation/>}/>
