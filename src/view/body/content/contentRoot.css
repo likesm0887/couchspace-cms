@@ -1,15 +1,12 @@
 .ContentRoot {
-    background-color: white;
-    height: 70%;
-    float:left;
-    width: 70%;
-    alignment: right;
-    margin-bottom: 0%;
-    margin-top: 50px;
-    border-radius: 30px;
-    display: flex;
-    justify-content: center;
 
+    border-radius: 30px;
+    position: absolute;
+    left: 20.83%;
+    right: 2.08%;
+    top: 10.58%;
+    bottom: 5.86%;
+    background: #F7F8F8;
 }
 
 

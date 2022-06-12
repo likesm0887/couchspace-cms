@@ -1,7 +1,7 @@
 function Meditation() {
 
     return (
-        <div className="header">
+        <div>
 
         </div>
 

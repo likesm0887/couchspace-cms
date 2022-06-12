@@ -1,10 +1,11 @@
 .logo{
-    width:auto ;
-    margin-top: 30px;
-    height: 40px;
+    position: absolute;
+    left: 3.61%;
+    right: 81.25%;
+    top: 4.56%;
+    bottom: 91.94%;
+    width: 218px;
+    height: 26px;
 }
-.header{
-    height: 100px;
 
-}
 

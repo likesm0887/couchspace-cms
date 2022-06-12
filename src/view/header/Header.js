@@ -5,7 +5,7 @@ import Personal from "./Personal";
 
 function Header() {
     return (
-        <header className="header">
+        <header>
             <img src={logo} className="logo" alt="logo"/>
             <Personal></Personal>
         </header>

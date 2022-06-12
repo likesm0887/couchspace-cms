@@ -1,11 +1,11 @@
 import {useEffect, useState} from "react";
 import {appointmentService} from "../../../service/ServicePool";
-import {Pagination} from "@mui/material";
+import {createTheme, Pagination} from "@mui/material";
 import "./consultation.css"
-import startVideoButton from "../../img/content/start_video_button.png"
-
+import editButton from "../../img/content/edit.svg"
 
 function Consultation() {
+
     let pageSize = 7;
     const [allAppointments, setAllAppointments] = useState([]);
     const [currentPage, setCurrentPage] = useState(1)
@@ -29,6 +29,7 @@ function Consultation() {
         const res = await appointmentService.getAllAppointment()
         const data = await res.json();
         setAllAppointments(data)
+        console.log(data)
         setCurrentTableData(calCurrentTableData(data))
         setPagesSize(calPageSize(data.length))
     }
@@ -47,21 +48,30 @@ function Consultation() {
 
     function createListItem(currentTableData) {
         return currentTableData.map(allAppointment => {
-            return <tr className={"tr"} key={allAppointment.AppointmentID}>
+            return <tr key={allAppointment.AppointmentID}>
                 <td>   {allAppointment.UserName}</td>
                 <td> {allAppointment.Time.Date}</td>
-                <td> {allAppointment.Time.Total/60}</td>
-                <td> {allAppointment.Service}</td>
-                <td> {allAppointment.Status}</td>
-                <td> <img  src={startVideoButton} className="listItemStyle" alt={""}></img></td>
+                <td> {"0" + allAppointment.Time.Total / 60 + ":00:00"}</td>
+                <td> {allAppointment.Service === 0 ? "諮商" : "諮商"}</td>
+                <td style={{color: allAppointment.Status === "RoomCreated" ? "#88A1D2" : "#595757"}}> {allAppointment.Status === "RoomCreated" ? "已接受" : "待確認"}
+                    <img src={editButton} className={"editButton"}></img>
+                </td>
+                <td>
+                    <div>
+                        <button className={"startButton"}>
+                            開始
+                        </button>
+                    </div>
+                </td>
             </tr>
+
         })
     }
 
     function createListTitle() {
-        return <tr className={"List_title"}>
+        return <tr className={"listTitle"}>
             <th>預約人</th>
-            <th>預約時間</th>
+            <th>預約時間及日期</th>
             <th>時數</th>
             <th>諮商種類</th>
             <th>狀態</th>
@@ -77,7 +87,7 @@ function Consultation() {
             </table>
 
             <div className={"Page"}>
-                <Pagination count={pagesSize} defaultPage={1} onChange={handleChange}/>
+                <Pagination color="primary" count={pagesSize} defaultPage={1} onChange={handleChange}/>
             </div>
         </div>
 
