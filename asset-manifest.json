@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/couchspace-cms/static/css/main.6c6dde70.css",
-    "main.js": "/couchspace-cms/static/js/main.649d880b.js",
+    "main.js": "/couchspace-cms/static/js/main.ee71224a.js",
     "static/js/787.2eae0e56.chunk.js": "/couchspace-cms/static/js/787.2eae0e56.chunk.js",
     "static/media/photo.png": "/couchspace-cms/static/media/photo.b2b8f7a4e0453bb3a397.png",
     "static/media/login.svg": "/couchspace-cms/static/media/login.64ca03ca3c26ff8c14feb37eb9c013e4.svg",
@@ -15,11 +15,11 @@
     "static/media/edit.svg": "/couchspace-cms/static/media/edit.2f6d761e893541983d9762991a6e8b6b.svg",
     "static/media/manager.svg": "/couchspace-cms/static/media/manager.f52b997ff11ed8e1a7bfa5bbc95d98e0.svg",
     "main.6c6dde70.css.map": "/couchspace-cms/static/css/main.6c6dde70.css.map",
-    "main.649d880b.js.map": "/couchspace-cms/static/js/main.649d880b.js.map",
+    "main.ee71224a.js.map": "/couchspace-cms/static/js/main.ee71224a.js.map",
     "787.2eae0e56.chunk.js.map": "/couchspace-cms/static/js/787.2eae0e56.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.6c6dde70.css",
-    "static/js/main.649d880b.js"
+    "static/js/main.ee71224a.js"
   ]
 }
