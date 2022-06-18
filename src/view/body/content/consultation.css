@@ -1,28 +1,29 @@
-.Page {
-    position: absolute;
-    left: 40.25%;
-    right: 48.28%;
-    top: 92.83%;
-    bottom: 9.66%;
-    width: 50%;
-}
-
 .Consultation {
-    display: flex;
+    display:  flex;
+    flex-direction: column;
     justify-content: center;
 }
 
-table {
-    margin-top: 3%;
-    position: absolute;
-    width: 80%;
+.Page {
+    Display: inline-block;
+    margin-left: 45%;
+    margin-top: 15px;
+
+}
+.Consultation table tr:hover{
+
+    background-color: #F4F4F4;
+    cursor: pointer;
+    color: #000000;
+}
+
+.Consultation table {
+    table-layout:fixed;
+    margin-left: 60px;
+    vertical-align: center;
     border-collapse: separate;
     border-spacing:0px 15px
 
-}
-
-.listItemStyle {
-    width: 75px;
 }
 
 .lineItem {
@@ -39,7 +40,7 @@ table {
     font-size: 20px;
     line-height: 28px;
     background-color:#88A1D2 ;
-    margin-left: 0%;
+    margin-left: -10px;
     /* identical to box height */
     color: #F7F8F8;
 
@@ -49,37 +50,38 @@ table {
     width: 15px;
     height: 15px;
 }
-th {
+.Consultation th {
     font-weight: bold;
     font-family: Microsoft JhengHei, sans-serif;
     color: #859cc9;
+    background-color: #F7F8F8;
     font-size: 20px;
 }
 
-td:first-child {
+.Consultation td:first-child {
     border-top-left-radius: 20px;
 }
 
 
 
-td:first-child {
+.Consultation td:first-child {
     border-bottom-left-radius: 20px;
 }
 
-td:nth-last-child(2){
+.Consultation td:nth-last-child(2){
     border-top-right-radius: 20px;
 }
 
-td:nth-last-child(2){
+.Consultation td:nth-last-child(2){
     border-bottom-right-radius: 20px;
 }
 
-td:last-child{
+.Consultation td:last-child{
     background: #F7F8F8;
 }
 
 
-td {
+.Consultation td {
     font-family: 'Nunito';
     font-style: normal;
     font-weight: 800;
@@ -89,11 +91,9 @@ td {
     text-align: center;
 }
 
-.listTitle {
-    background: #F7F8F8;
-}
 
-tr {
+
+.Consultation tr {
     height: 53px;
     background-color: #FFFFFF;
 }

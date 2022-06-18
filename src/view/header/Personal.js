@@ -4,27 +4,38 @@ import {counselorService} from "../../service/ServicePool";
 import * as React from 'react';
 import "./Personal.css"
 
-import {Badge} from "@mui/material";
+import {Avatar, Badge, Menu, MenuItem} from "@mui/material";
 import {useEffect, useState} from "react";
 
 
 function Personal() {
     const tag = "@couchspace"
-    const [info, setInfo] = useState(null)
+    const [info, setInfo] = useState([])
+    const [name,setName]=useState("adsasd")
     const [show, setShow] = useState(false)
+    const getInfo = async () => {
+       return await counselorService.getGetCounselorInfo();
+    }
+    const [anchorEl, setAnchorEl] = React.useState(null);
     useEffect(() => {
-        counselorService.getGetCounselorInfo().then(
-            res => {
-                setInfo(res)
-            }
-        )
+        let mounted = true;
+        getInfo()
+            .then(info => {
+
+                if(mounted) {
+                    console.log(info)
+                    setInfo(info)
+                    setName(info.UserName.Name.FirstName + info.UserName.Name.LastName)
+                }
+            })
+        return () => mounted = false;
     }, [])
 
-        window.addEventListener('mouseup', (event) => {
-            if(event.target.className==="menu")
-                return
-           setShow(false)
-        });
+    window.addEventListener('mouseup', (event) => {
+        if (event.target.className === "menu")
+            return
+        setShow(false)
+    });
 
     const clickMemberManager = (event) => {
 
@@ -33,17 +44,41 @@ function Personal() {
     const clickLogout = (event) => {
         setShow(false)
     }
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
     return (
-        <div>
+        <div className={"personal-content"}>
+
             <img src={headshot} className="headshot" alt={"headshot"}/>
-            <div>
-                <a className={"name"}>{info?.UserName.Name?.FirstName + info?.UserName.Name?.LastName}</a>
-                <a className={"title"}>醫師</a>
-                <a className={"email"}> {tag}</a>
-                <div className="arrow_down" onClick={() => setShow(prevState => !prevState)}/>
-                {show && <span   className={"logout-wrap"}>
+            <div className={"info"}>
+                <div className={"nameAndTitle"}>
+                    <a className={"personal-name"}>{name}</a>
+                    <a className={"title"}>醫師</a>
+                </div>
+                <div className={"emailAndArrow"}>
+                    <a className={"email"}> {tag}</a>
+
+                    <div className="arrow_down" onClick={handleClick}/>
+                    <Menu
+                        id="simple-menu"
+                        anchorEl={anchorEl}
+                        keepMounted
+                        open={Boolean(anchorEl)}
+                        onClose={handleClose}
+                    >
+                        <MenuItem className={"logout"} onClick={handleClose}>會員管理</MenuItem>
+                        <MenuItem className={"logout"} onClick={handleClose}>登出</MenuItem>
+                    </Menu>
+                </div>
+
+                {show && <span className={"logout-wrap"}>
                   <span className="logout">
-                      <li className={"menu"} onClick={ clickMemberManager}>
+                      <li className={"menu"} onClick={clickMemberManager}>
                         會員管理
                       </li>
                         <li className={"menu"} onClick={clickLogout}>登出
@@ -61,6 +96,7 @@ function Personal() {
                     <img src={bell} className="bellImg"/>
                 </Badge>
             </div>
+
         </div>
     );
 

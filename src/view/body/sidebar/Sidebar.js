@@ -1,5 +1,6 @@
 import "./sidebar.css"
 import consultation from "../../img/slidebar/consultation.svg";
+import consultation_unselect from "../../img/slidebar/consulation_unselect.svg";
 import meditation from "../../img/slidebar/meditation.svg";
 import article from "../../img/slidebar/article.svg";
 import manager from "../../img/slidebar/manager.svg";
@@ -19,29 +20,32 @@ function Sidebar() {
         }
     }
     const getImage = (selected) => {
-        if (currentSelected === "meditation")
-            return consultation;
+        if (selected === "meditation")
+            return consultation_unselect;
+        else{
+            return consultation
+        }
     }
     return (
         <div className="sidebar">
             <div className={"line"}>
                 <li onClick={() => selectSlide("consultation")} className={"slide-line"}
                     style={getStyle("consultation")}>
-                    <img src={consultation} alt={"123"}></img>
-                    <Link to="/home/consultation" style={getStyle("consultation")} className={"consultation"}>諮商</Link>
+                    <img src={getImage("consultation")} alt={"123"}></img>
+                    <Link to="consultation" style={getStyle("consultation")} className={"consultation"}>諮商</Link>
                 </li>
                 <li onClick={() => selectSlide("meditation")} className={"slide-line"}
                     style={getStyle("meditation")}>
                     <img src={meditation} alt={"123"}></img>
-                    <Link to="/home/meditation" style={getStyle("meditation")} className={"meditation"}>冥想</Link>
+                    <Link to="meditation" style={getStyle("meditation")} className={"meditation"}>冥想</Link>
 
                 </li>
 
-                <li onClick={() => selectSlide("article")} className={"slide-line"}
-                    style={getStyle("article")}>
-                    <img src={article} alt={"123"}></img>
-                    <a href="/home/article" style={getStyle("article")} className={"article"}>文章</a>
-                </li>
+                {/*<li onClick={() => selectSlide("article")} className={"slide-line"}*/}
+                {/*    style={getStyle("article")}>*/}
+                {/*    <img src={article} alt={"123"}></img>*/}
+                {/*    <Link to="appointmentDetail" style={getStyle("article")} className={"article"}>文章</Link>*/}
+                {/*</li>*/}
                 <li onClick={() => selectSlide("manager")} className={"slide-line"}
                     style={getStyle("manager")}>
                     <img src={manager} alt={"123"}></img>

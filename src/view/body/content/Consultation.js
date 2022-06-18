@@ -3,10 +3,13 @@ import {appointmentService} from "../../../service/ServicePool";
 import {createTheme, Pagination} from "@mui/material";
 import "./consultation.css"
 import editButton from "../../img/content/edit.svg"
+import { useNavigate } from "react-router-dom";
+import { Button } from 'react-bootstrap';
 
 function Consultation() {
-
+    let navigate = useNavigate();
     let pageSize = 7;
+
     const [allAppointments, setAllAppointments] = useState([]);
     const [currentPage, setCurrentPage] = useState(1)
     const [currentTableData, setCurrentTableData] = useState([])
@@ -29,7 +32,6 @@ function Consultation() {
         const res = await appointmentService.getAllAppointment()
         const data = await res.json();
         setAllAppointments(data)
-        console.log(data)
         setCurrentTableData(calCurrentTableData(data))
         setPagesSize(calPageSize(data.length))
     }
@@ -45,14 +47,17 @@ function Consultation() {
     useEffect(() => {
         getData();
     }, [])
+    const clickItem = (appointmentID) => {
+        navigate("/couchspace-cms/home/consultation/:"+appointmentID, { replace: true });
+    }
 
     function createListItem(currentTableData) {
         return currentTableData.map(allAppointment => {
-            return <tr key={allAppointment.AppointmentID}>
-                <td>   {allAppointment.UserName}</td>
-                <td> {allAppointment.Time.Date}</td>
-                <td> {"0" + allAppointment.Time.Total / 60 + ":00:00"}</td>
-                <td> {allAppointment.Service === 0 ? "諮商" : "諮商"}</td>
+            return <tr key={allAppointment.AppointmentID} >
+                <td onClick={()=>clickItem(allAppointment.AppointmentID)}>   {allAppointment.UserName}</td>
+                <td onClick={()=>clickItem(allAppointment.AppointmentID)}> {allAppointment.Time.Date}</td>
+                <td onClick={()=>clickItem(allAppointment.AppointmentID)}> {"0" + allAppointment.Time.Total / 60 + ":00:00"}</td>
+                <td onClick={()=>clickItem(allAppointment.AppointmentID)}> {allAppointment.Service === 0 ? "諮商" : "諮商"}</td>
                 <td style={{color: allAppointment.Status === "RoomCreated" ? "#88A1D2" : "#595757"}}> {allAppointment.Status === "RoomCreated" ? "已接受" : "待確認"}
                     <img src={editButton} className={"editButton"}></img>
                 </td>
@@ -81,7 +86,7 @@ function Consultation() {
     return (
 
         <div className={"Consultation"}>
-            <table>
+            <table className="table table-striped">
                 {createListTitle()}
                 {createListItem(currentTableData)}
             </table>

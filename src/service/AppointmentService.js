@@ -8,7 +8,6 @@ export class AppointmentService {
     }
 
     getAllAppointment() {
-
         const api = this.base_url + "/api/v1/appointments"
         const requestOptions = {
             method: 'Get',
@@ -17,5 +16,14 @@ export class AppointmentService {
 
         return fetch(api, requestOptions)
 
+    }
+
+    getAppointment(AppointmentId){
+        const api = this.base_url + "/appointments/"+AppointmentId
+        const requestOptions = {
+            method: 'Get',
+            headers: {"Authorization":  this.token, 'Content-Type': 'application/json'},
+        };
+        return fetch(api, requestOptions)
     }
 }

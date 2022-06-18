@@ -5,9 +5,10 @@ import Body from "../body/Body";
 function Home() {
     return (
         <div>
-            <header>
-                <Header></Header>
-            </header>
+
+            <Header>
+            </Header>
+
             <Body>
             </Body>
         </div>

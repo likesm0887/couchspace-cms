@@ -25,8 +25,8 @@ function Login() {
             <span className={"login-wrap"}>
                 <button className={"login"} onClick={()=>login()}>登入</button>
             </span>
-
-
+            <h4 className={"register"}>申請帳號</h4>
+            <h4 className={"copyRight"}>Copyright © 2018 RoseWang All rights reserved</h4>
         </div>
 
     );
