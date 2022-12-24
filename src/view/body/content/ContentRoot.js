@@ -1,4 +1,4 @@
-import Consultation from "./Consultation";
+import Consultation from "./counsulation/Consultation";
 import Meditation from "./Meditation";
 import { Outlet } from "react-router-dom";
 import "./contentRoot.css"

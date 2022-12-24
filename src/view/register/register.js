@@ -5,6 +5,8 @@ import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import Personal from "../header/Personal";
+import PersonalInfo from "./personalInfo";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -20,17 +22,19 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function getSteps() {
-    return ['Select campaign settings', 'Create an ad group', 'Create an ad'];
+    return ['填寫個人資料', '填寫機構資料', '預約設定', '完成'];
 }
 
 function getStepContent(step) {
     switch (step) {
         case 0:
-            return 'Select campaign settings...';
+            return <PersonalInfo></PersonalInfo>;
         case 1:
-            return 'What is an ad group anyways?';
+            return '填寫機構資料';
         case 2:
-            return 'This is the bit I really care about!';
+            return '設定營業時間';
+        case 3:
+            return '設定營業時間';
         default:
             return 'Unknown step';
     }
@@ -65,34 +69,19 @@ export function Register() {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
     };
 
-    const handleSkip = () => {
-        if (!isStepOptional(activeStep)) {
-            // You probably want to guard against something like this,
-            // it should never occur unless someone's actively trying to break something.
-            throw new Error("You can't skip a step that isn't optional.");
-        }
 
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
-        setSkipped((prevSkipped) => {
-            const newSkipped = new Set(prevSkipped.values());
-            newSkipped.add(activeStep);
-            return newSkipped;
-        });
-    };
 
     const handleReset = () => {
         setActiveStep(0);
     };
 
     return (
-        <div className={classes.root}>
+        <div className={classes.root} style={{"max-width": '700px'}}>
             <Stepper activeStep={activeStep}>
                 {steps.map((label, index) => {
                     const stepProps = {};
                     const labelProps = {};
-                    if (isStepOptional(index)) {
-                        labelProps.optional = <Typography variant="caption">Optional</Typography>;
-                    }
+
                     if (isStepSkipped(index)) {
                         stepProps.completed = false;
                     }
@@ -107,10 +96,10 @@ export function Register() {
                 {activeStep === steps.length ? (
                     <div>
                         <Typography className={classes.instructions}>
-                            All steps completed - you&apos;re finished
+                           填寫已完成，待審核完畢，會再與您聯絡
                         </Typography>
                         <Button onClick={handleReset} className={classes.button}>
-                            Reset
+                            完成
                         </Button>
                     </div>
                 ) : (
@@ -118,18 +107,9 @@ export function Register() {
                         <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography>
                         <div>
                             <Button disabled={activeStep === 0} onClick={handleBack} className={classes.button}>
-                                Back
+                                上一步
                             </Button>
-                            {isStepOptional(activeStep) && (
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={handleSkip}
-                                    className={classes.button}
-                                >
-                                    Skip
-                                </Button>
-                            )}
+
 
                             <Button
                                 variant="contained"
@@ -137,7 +117,7 @@ export function Register() {
                                 onClick={handleNext}
                                 className={classes.button}
                             >
-                                {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+                                {activeStep === steps.length - 1 ? '完成' : '下一步'}
                             </Button>
                         </div>
                     </div>

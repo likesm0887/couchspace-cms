@@ -1,14 +1,13 @@
 import "./appointmentDetail.css"
-import userPhoto from "../../img/content/userPhoto.png"
-import location from "../../img/content/AppointmentDetail/location.svg"
-import mail from "../../img/content/AppointmentDetail/mail.svg"
-import nickname from "../../img/content/AppointmentDetail/nickname.svg"
-import phone from "../../img/content/AppointmentDetail/phone.svg"
+import userPhoto from "../../../img/content/userPhoto.png"
+import location from "../../../img/content/AppointmentDetail/location.svg"
+import mail from "../../../img/content/AppointmentDetail/mail.svg"
+import nickname from "../../../img/content/AppointmentDetail/nickname.svg"
+import phone from "../../../img/content/AppointmentDetail/phone.svg"
 import {Routes, Route, useParams, useNavigate} from 'react-router-dom';
-import {appointmentService} from "../../../service/ServicePool";
+import {appointmentService} from "../../../../service/ServicePool";
 import {useEffect, useState} from "react";
 import {
-    Button,
     createTheme,
     Dialog,
     DialogActions,

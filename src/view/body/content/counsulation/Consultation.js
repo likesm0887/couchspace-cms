@@ -1,15 +1,23 @@
 import {useEffect, useState} from "react";
-import {appointmentService} from "../../../service/ServicePool";
-import {createTheme, Pagination} from "@mui/material";
+import {appointmentService} from "../../../../service/ServicePool";
+import {Backdrop, CircularProgress, createTheme, Pagination} from "@mui/material";
 import "./consultation.css"
-import editButton from "../../img/content/edit.svg"
+import editButton from "../../../img/content/edit.svg"
 import { useNavigate } from "react-router-dom";
 import { Button } from 'react-bootstrap';
+import {makeStyles} from "@material-ui/core/styles";
+const useStyles = makeStyles((theme) => ({
+    backdrop: {
+        zIndex: theme.zIndex.drawer + 1,
+        color: '#fff',
+    },
+}));
 
 function Consultation() {
+    const classes = useStyles();
     let navigate = useNavigate();
     let pageSize = 7;
-
+    const [open, setOpen] = useState(false);
     const [allAppointments, setAllAppointments] = useState([]);
     const [currentPage, setCurrentPage] = useState(1)
     const [currentTableData, setCurrentTableData] = useState([])
@@ -50,7 +58,14 @@ function Consultation() {
     const clickItem = (appointmentID) => {
         navigate("/couchspace-cms/home/consultation/:"+appointmentID, { replace: true });
     }
+    const start=()=>{
+        setOpen(!open);
+        setTimeout(()=>{
+            navigate("/couchspace-cms/home/consultation/counseling", {replace: true});
+        },3000)
 
+
+    }
     function createListItem(currentTableData) {
         return currentTableData.map(allAppointment => {
             return <tr key={allAppointment.AppointmentID} >
@@ -63,7 +78,7 @@ function Consultation() {
                 </td>
                 <td>
                     <div>
-                        <button className={"startButton"}>
+                        <button className={"startButton"} onClick={()=>start()}>
                             開始
                         </button>
                     </div>
@@ -82,7 +97,9 @@ function Consultation() {
             <th>狀態</th>
         </tr>
     }
-
+    const handleClose = () => {
+        setOpen(false);
+    };
     return (
 
         <div className={"Consultation"}>
@@ -94,6 +111,10 @@ function Consultation() {
             <div className={"Page"}>
                 <Pagination color="primary" count={pagesSize} defaultPage={1} onChange={handleChange}/>
             </div>
+            <Backdrop className={classes.backdrop} open={open} >
+                <CircularProgress />
+                <p>正在檢查您的裝置</p>
+            </Backdrop>
         </div>
 
     );

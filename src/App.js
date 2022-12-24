@@ -7,9 +7,12 @@ import {BrowserRouter, Outlet ,HashRouter, Route, Routes} from "react-router-dom
 import Login from "./view/login/login";
 import Home from "./view/home/Home";
 import Meditation from "./view/body/content/Meditation";
-import Consultation from "./view/body/content/Consultation";
-import AppointmentDetail from "./view/body/content/AppointmentDetail";
+import Admin from "./view/body/admin/Admin";
+import Course from "./view/body/admin/Course";
+import Consultation from "./view/body/content/counsulation/Consultation";
+import AppointmentDetail from "./view/body/content/counsulation/AppointmentDetail";
 import {Register} from "./view/register/register";
+import Counseling from "./view/body/content/counsulation/Counseling";
 function askForNotificationPermission() {
     Notification.requestPermission(function (result) {
         // 這裡result只會有兩種結果：一個是用戶允許(granted)，另一個是用戶封鎖(denied)
@@ -52,13 +55,15 @@ function App() {
                             <Route path="consultation" element={<Consultation/>}/>
                             <Route>
                                 <Route path="consultation/:id" element={<AppointmentDetail/>}/>
+                                <Route path="consultation/counseling" element={<Counseling/>}/>
                             </Route>
                         </Route>
                         <Route path="meditation" element={<Meditation/>}/>
 
                     </Route>
                 </Route>
-
+                <Route path="couchspace-cms/admin" element={<Admin/>}></Route>
+                <Route path="couchspace-cms/course" element={<Course/>}></Route>
             </Routes>
         </BrowserRouter>
         // <div className="App">

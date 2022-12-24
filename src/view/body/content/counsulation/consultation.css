@@ -29,6 +29,12 @@
 .lineItem {
     background-color: #FFFFFF;
 }
+
+.startButton:hover{
+    cursor: pointer;
+    box-shadow: 0 3px 3px 3px #e3ebfa, 0 3px 1px -2px rgb(33 150 243 / 20%), 0 1px 5px 0 rgb(33 150 243 / 12%);
+
+}
 .startButton{
     width: 80px;
     height: 46px;
