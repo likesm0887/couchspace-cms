@@ -15,7 +15,8 @@ RUN npm install --legacy-peer-deps
 # Copying all the files in our project
 COPY . .
 
-EXPOSE 3000
+ENV PORT=$port
+EXPOSE $port
 
 # Starting our application
 CMD npm start
