@@ -23,14 +23,14 @@ jobs:
       uses: docker/login-action@v1
       with:
         registry: https://couchspacedev.azurecr.io/
-        username: ${{ secrets.AzureAppService_ContainerUsername_ab815370ecf045b7b6250eab65ee5101 }}
-        password: ${{ secrets.AzureAppService_ContainerPassword_2ec4dca6bb4049b694fdab94ed326efc }}
+        username: ${{ secrets.AzureAppService_ContainerUsername_397c8fe6a32642a390dcb8c392ed1779 }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_924ba22b41674242b83bf117324feb37 }}
 
     - name: Build and push container image to registry
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: couchspacedev.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_ab815370ecf045b7b6250eab65ee5101 }}/couchspacedev/couchspacedev/couchspace:${{ github.sha }}
+        tags: couchspacedev.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_397c8fe6a32642a390dcb8c392ed1779 }}/webimage:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
@@ -47,5 +47,5 @@ jobs:
       with:
         app-name: 'couchspace-cms'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_af2cbfc264f4468cbac726733e1d218c }}
-        images: 'couchspacedev.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_ab815370ecf045b7b6250eab65ee5101 }}/couchspacedev/couchspacedev/couchspace:${{ github.sha }}'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_199ea310b8aa468aa55fcdb8f83422d3 }}
+        images: 'couchspacedev.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_397c8fe6a32642a390dcb8c392ed1779 }}/webimage:${{ github.sha }}'
