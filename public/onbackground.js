@@ -16,5 +16,4 @@ onBackgroundMessage(messaging, (payload) => {
         tag: 'newArrival' // 設定標籤
     });
 
-
 });
