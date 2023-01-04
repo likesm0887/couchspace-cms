@@ -1,18 +1,19 @@
 import Header from "./view/header/Header";
 import Body from "./view/body/Body";
-import {requestForToken} from "./service/firebase/firebase_fcm";
-import {onMessageListener} from "./service/firebase/firebase_receive_message";
-import {boot} from "./service/ServicePool";
-import {BrowserRouter, Outlet ,HashRouter, Route, Routes} from "react-router-dom";
+import { requestForToken } from "./service/firebase/firebase_fcm";
+import { onMessageListener } from "./service/firebase/firebase_receive_message";
+import { boot } from "./service/ServicePool";
+import { BrowserRouter, Outlet, HashRouter, Route, Routes } from "react-router-dom";
 import Login from "./view/login/login";
 import Home from "./view/home/Home";
 import Meditation from "./view/body/content/Meditation";
+import Music from "./view/body/admin/Music";
 import Admin from "./view/body/admin/Admin";
-import Course from "./view/body/admin/Course";
 import Consultation from "./view/body/content/counsulation/Consultation";
 import AppointmentDetail from "./view/body/content/counsulation/AppointmentDetail";
-import {Register} from "./view/register/register";
+import { Register } from "./view/register/register";
 import Counseling from "./view/body/content/counsulation/Counseling";
+import Course from "./view/body/admin/Course.js";
 function askForNotificationPermission() {
     Notification.requestPermission(function (result) {
         // 這裡result只會有兩種結果：一個是用戶允許(granted)，另一個是用戶封鎖(denied)
@@ -45,25 +46,29 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route index element={<Login/>}/>
-                <Route path="couchspace-cms/register" element={<Register/>}/>
-                <Route path="couchspace-cms/" element={<Login/>}/>
-                <Route path="couchspace-cms/home" element={<Home/>}>
+                <Route index element={<Login />} />
+                <Route path="couchspace-cms/register" element={<Register />} />
+                <Route path="couchspace-cms/" element={<Login />} />
+                <Route path="couchspace-cms/home" element={<Home />}>
                     <Route>
-                        <Route index element={<Consultation/>}/>
+                        <Route index element={<Consultation />} />
                         <Route>
-                            <Route path="consultation" element={<Consultation/>}/>
+                            <Route path="consultation" element={<Consultation />} />
                             <Route>
-                                <Route path="consultation/:id" element={<AppointmentDetail/>}/>
-                                <Route path="consultation/counseling" element={<Counseling/>}/>
+                                <Route path="consultation/:id" element={<AppointmentDetail />} />
+                                <Route path="consultation/counseling" element={<Counseling />} />
                             </Route>
                         </Route>
-                        <Route path="meditation" element={<Meditation/>}/>
+                        <Route path="meditation" element={<Meditation />} />
 
                     </Route>
                 </Route>
-                <Route path="couchspace-cms/admin" element={<Admin/>}></Route>
-                <Route path="couchspace-cms/course" element={<Course/>}></Route>
+                <Route path="couchspace-cms/admin" element={<Admin />}>
+                    <Route path="course" element={<Course/>}></Route>
+                    <Route path="music" element={<Music/>}></Route>
+                </Route>
+                <Route path="music" element={<Course/>}></Route>
+                <Route path="course" element={<Music/>}></Route>
             </Routes>
         </BrowserRouter>
         // <div className="App">

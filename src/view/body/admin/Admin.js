@@ -1,246 +1,76 @@
 
-import React, { useEffect, useState } from "react";
-import { Space, Table, Input, Select, Image, Dropdown, Tag } from 'antd';
-import { Button, Modal } from 'antd';
-import { PlusCircleOutlined, EditOutlined } from '@ant-design/icons';
+import React, { Children, useEffect, useState } from "react";
+import Music from "./Music.js";
+import { useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
+import { Space, Table, Input, Select, Image, Tag, List, Avatar } from 'antd';
 import { meditationService } from "../../../service/ServicePool";
-import ReactAudioPlayer from 'react-audio-player';
-import { render } from "@testing-library/react";
-function Course() {
-    const [data, setData] = useState([])
-    const [modal1Open, setModal1Open] = useState(false);
-    const [modal2Open, setModal2Open] = useState(false);
-    const [shortImage, setShortImage] = useState(false);
-    const [shortMusic, setShortMusic] = useState(false);
-    const [music, setMusic] = useState(false);
-    const columns = [
-        {
-            title: '編輯',
-            dataIndex: 'editBtn',
-            key: 'editBtn',
-            render: (_, element) => <Button icon={<EditOutlined />} type="primary" onClick={() => openEdit(element)}>
+import {
+  DesktopOutlined,
+  FileOutlined,
+  PieChartOutlined,
+  TeamOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
+import { Breadcrumb, Layout, Menu, theme } from 'antd';
+const { Header, Content, Footer, Sider } = Layout;
 
-            </Button>,
-        },
+const items = [
+  getItem('系列', '1', <PieChartOutlined />),
+  getItem('音樂', '2', <DesktopOutlined />),
+  getItem('放鬆專區', 'sub1', <UserOutlined />, [
+    getItem('系列', '3'),
+    getItem('音樂', '4'),
+    getItem('分類', '5'),
+  ]),
+  getItem('諮商專區', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
+  getItem('行銷專去', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
+  getItem('系統設定', '9', <FileOutlined />),
+];
 
-        {
-            title: '圖片',
-            dataIndex: 'image',
-            key: 'image',
-            render: (image) => <Image src={image} width='70px' />,
-        },
-        {
-            title: '名稱',
-            dataIndex: 'name',
-            key: 'name',
-        },
-        {
-            title: '系列',
-            dataIndex: 'series',
-            key: 'series',
-            render: (_, { tags }) => (
-                <>
-                    {['主題', '技巧']?.map((tag) => {
-                        let color = tag.length > 5 ? 'geekblue' : 'green';
-                        if (tag === '主題') {
-                            color = 'volcano';
-                        }
-                        return (
-                            <Tag color={color} key={tag}>
-                                {tag.toUpperCase()}
-                            </Tag>
-                        );
-                    })}
-                </>
-            ),
+function getItem(label, key, icon, children) {
+  return {
+    key,
+    icon,
+    children,
+    label,
+  };
+}
+function Admin() {
 
-        },
-
-        {
-            title: '收費',
-            dataIndex: 'toll',
-            key: 'toll',
-        },
-        {
-            title: '收聽',
-            dataIndex: 'views',
-            key: 'views',
-        }, {
-            title: '音檔',
-            dataIndex: 'path',
-            key: 'path',
-            render: (path) => <ReactAudioPlayer src={path} controls />
-        }
-
-    ];
-    const openEdit = (e) => {
-        console.log(e)
-
-        setMusic({
-            key: e.key,
-            name: e.name,
-            image: e.image,
-            series: ['nice', 'developer'],
-            toll: e.toll,
-            path: e.path,
-        })
-        setModal1Open(true)
+  let navigate = useNavigate();
+  const [collapsed, setCollapsed] = useState(false);
+  const {
+    token: { colorBgContainer },
+  } = theme.useToken();
+  const [current, setCurrent] = useState('mail');
+  const onClick = (e) => {
+    console.log('click ', e);
+    if (e.key == 1 || e.key == 3) {
+      navigate("course", { replace: true });
     }
-    useEffect(() => {
-        getData();
-        //setitems('free','peirumn')
-    }, [])
-    const getData = async () => {
-        const res = await meditationService.getAllMusic()
-        console.log(res)
-        const result = res.map(element => ({
-            key: element._id,
-            name: element.Title,
-            image: element.Image,
-            series: ['nice', 'developer'],
-            toll: element.Free ? "Free" : "Premium",
-            path: element.Path,
-            views: element.TotalView
-        }
-        )
-        );
-        setData(result)
-
+    if (e.key == 2 || e.key == 4) {
+      navigate("music", { replace: true });
     }
-    const items = [
-        {
-            key: 'free',
-            label: (
-                <a size='10'>free</a>
-            ),
-        },
-        {
-            key: 'premium',
-            label: (
-                <a>premium</a>
-            ),
-        }
+  };
 
 
-    ];
-    const onImageChange = (e) => {
-        if (e.target.value.length > 10) {
-            setShortImage(e.target.value)
-        } else {
-            setShortImage('')
-        }
-    }
+  return (
+    <Layout style={{ minHeight: '100vh' }}>
+      <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
+        <div style={{ height: 32, margin: 16, background: 'rgba(255, 255, 255, 0.2)' }} />
+        <Menu onClick={onClick} selectedKeys={[current]} theme="dark" defaultSelectedKeys={['1']} mode="inline" items={items} />
+      </Sider>
+      <Layout className="site-layout">
+        <Header style={{ padding: 0, background: colorBgContainer }} />
+        <Content style={{ margin: '0 16px' }}>
+          <Outlet />
+        </Content>
 
-    const onshortMusicChange = (e) => {
-        if (e.target.value.length > 10) {
-            setShortMusic(e.target.value)
-        }
-    }
-    const openModal = (e) => {
-        console.log(e)
-        setMusic({})
-        setModal1Open(true)
-    }
-    return (
-
-        <div>
-            <Button icon={<PlusCircleOutlined />} type="primary" onClick={openModal}>
-
-            </Button>
-            <Modal
-                title="新增"
-                style={{
-                    top: 20,
-                }}
-                destroyOnClose={true}
-                open={modal1Open}
-                onOk={() => setModal1Open(false)}
-                onCancel={() => setModal1Open(false)}
-                cancelText='取消'
-                okText="確定"
-            >
-                <Space>
-                    <Input required  defaultValue={music.name} allowClear={true} placeholder="標題" size="big" />
-                </Space>
-                <p></p>
-                <Space>
-                    <Select
-
-                        placeholder="選擇系列"
-
-                        //onChange={onChange}
-                        //onSearch={onSearch}
-                        filterOption={(input, option) =>
-                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                        }
-                        options={[
-                            {
-                                value: '正念生活',
-                                label: '正念生活',
-                            },
-                            {
-                                value: '親子冥想',
-                                label: '親子冥想',
-                            }
-                        ]}
-                    />
-                </Space>
-                <p></p>
-                <Space>
-                    <Input placeholder="屬性" size="big" />
-                </Space>
-                <p></p>
-                <Image width='100px' src={shortImage}></Image>
-                <Input allowClear={true} defaultValue={music.image} placeholder="圖片" size="big" onFocus={onImageChange} />
-
-                <p></p>
-                <Space>
-                    <Input defaultValue={music.path} allowClear={true} placeholder="檔案" size="big" onFocus={onshortMusicChange} />
-                    <ReactAudioPlayer src={shortMusic} controls width='100px' />
-                </Space>
-                <p></p>
-                <Space>
-                    <Input allowClear={true} placeholder="熱門程度" size="big" />
-                </Space>
-                <p></p>
-                <Space>
-                    <Input placeholder="推薦" size="big" />
-                </Space>
-
-                <p></p>
-
-                <Select
-                    defaultValue={music.toll}
-                    placeholder="選擇收費"
-
-                    //onChange={onChange}
-                    //onSearch={onSearch}
-                    filterOption={(input, option) =>
-                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                    }
-                    options={[
-                        {
-                            value: 'Free',
-                            label: 'Free',
-                        },
-                        {
-                            value: 'Premium',
-                            label: 'Premium',
-                        }
-                    ]}
-                />
-
-                <p></p>
-
-            </Modal>
-            <Table columns={columns} dataSource={data} pagination={{ pageSize: 7 }}>
-            </Table>
-
-        </div>
-
-    );
-
+      </Layout>
+    </Layout>
+  );
 }
 
 
-export default Course;
+export default Admin;

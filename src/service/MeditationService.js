@@ -24,26 +24,87 @@ export class MeditationService {
         return fetch(api, requestOptions)
             .then(res => res.json())
             .then(res => {
-                cookie.save("Info", JSON.stringify(res))
                 return res
             })
 
     }
+
+    createCourse(course){
+        const api = this.base_url + "/api/v1/meditation/courses"
+        const requestOptions = {
+            method: 'Post',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(course)
+        };
+
+        return fetch(api,requestOptions)
+            .then(res => res.json())
+            .then((result) => {
+                return result
+            });
+    }
+
+    updateCourse(course){
+        const api = this.base_url + "/api/v1/meditation/course"
+        const requestOptions = {
+            method: 'Put',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(course)
+        };
+
+        return fetch(api,requestOptions)
+            .then(res => res.json())
+            .then((result) => {
+                
+            });
+    }
+
+    createMusic(music){
+        const api = this.base_url + "/api/v1/meditation/musics"
+        const requestOptions = {
+            method: 'Post',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(music)
+        };
+
+        return fetch(api,requestOptions)
+            .then(res => res.json())
+            .then((result) => {
+              
+            });
+    }
+
+    updateMusic(music){
+        console.log(music)
+        const api = this.base_url + "/api/v1/meditation/musics"
+        const requestOptions = {
+            method: 'Put',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(music)
+        };
+
+        return  fetch(api,requestOptions)
+            .then(res => res.json())
+            .then((result) => {
+              
+            });
+    }
+
     getAllCourse() {
 
         if (this.token === undefined) {
             return
         }
-        const api = this.base_url + "/api/v1/meditation/courses/searches?limit=15&offset=0&order_by=desc"
+        const api = this.base_url + "/api/v1/meditation/courses/searches?limit=1000&offset=0&order_by=desc"
         const requestOptions = {
             method: 'Post',
             headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
+    
         };
 
-        return fetch(api, requestOptions)
+       return  fetch(api, requestOptions)
             .then(res => res.json())
             .then(res => {
-                cookie.save("Info", JSON.stringify(res))
                 return res
             })
     }
@@ -62,10 +123,27 @@ export class MeditationService {
         return fetch(api, requestOptions)
             .then(res => res.json())
             .then(res => {
-                cookie.save("Info", JSON.stringify(res))
+            
                 return res
             })
     }
+
+    addMusicInCourse(addMusicInCourse){
+        console.log(addMusicInCourse)
+        const api = this.base_url + "/api/v1/meditation/courses/music"
+        const requestOptions = {
+            method: 'Post',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(addMusicInCourse)
+        };
+
+        return fetch(api,requestOptions)
+            .then(res => res.json())
+            .then((result) => {
+                return  result
+            });
+    }
+
     batchQueryMusic(musicIds) {
         
         if (this.token === undefined) {
@@ -82,7 +160,6 @@ export class MeditationService {
             .catch(err => console.log(err))
             .then(res => res.json())
             .then(res => {
-                cookie.save("Info", JSON.stringify(res))
                 return res
             })
     }
