@@ -56,6 +56,7 @@ function Admin() {
     if (e.key == 0 || e.key == 5) {
       navigate("Category", { replace: true });
     }
+    
   };
 
 
