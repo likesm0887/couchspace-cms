@@ -1,6 +1,6 @@
 
 # Fetching the latest node image on alpine linux
-FROM node:alpine as build
+FROM node:alpine as build-stage
 
 # Declaring env
 ENV NODE_ENV development
@@ -13,7 +13,12 @@ COPY package.json ./
 RUN npm install --legacy-peer-deps
 
 # Copying all the files in our project
-COPY . ./
+COPY . .
 
 RUN npm run build
-RUN npm start
+
+FROM nginx:1.21.5-alpine as production-stage
+COPY --from=build-stage /app/build /usr/share/nginx/html
+EXPOSE 80
+CMD ["npm","run" ,"start"]
+
