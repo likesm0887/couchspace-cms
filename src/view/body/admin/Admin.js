@@ -16,6 +16,7 @@ import { Breadcrumb, Layout, Menu, theme } from 'antd';
 const { Header, Content, Footer, Sider } = Layout;
 
 const items = [
+  getItem('分類', '0', <FileOutlined />),
   getItem('系列', '1', <PieChartOutlined />),
   getItem('音樂', '2', <DesktopOutlined />),
   getItem('放鬆專區', 'sub1', <UserOutlined />, [
@@ -51,6 +52,9 @@ function Admin() {
     }
     if (e.key == 2 || e.key == 4) {
       navigate("music", { replace: true });
+    }
+    if (e.key == 0 || e.key == 5) {
+      navigate("Category", { replace: true });
     }
   };
 

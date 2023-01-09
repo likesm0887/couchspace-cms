@@ -141,6 +141,11 @@ function Music() {
         setCurrentModel("New")
         setMusic({})
         setModal1Open(true)
+        
+        form.setFieldValue("name", "")
+        form.setFieldValue("image", "")
+        form.setFieldValue("path", "")
+        form.setFieldValue("size", "")
         //message.success('Success!');
     }
 
@@ -226,7 +231,7 @@ function Music() {
             />
             {/* <Spin spinning={loading}></Spin> */}
             <Drawer
-                title="新增"
+                title={currentModel=="Edit"?"編輯":"新增" }
                 style={{
                     top: 20,
                 }}

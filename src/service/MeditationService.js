@@ -127,7 +127,25 @@ export class MeditationService {
                 return res
             })
     }
+    getCourseById(courseId) {
 
+        if (this.token === undefined) {
+            return
+        }
+        const api = this.base_url + "/api/v1/meditation/courses/" + courseId
+
+        const requestOptions = {
+            method: 'Get',
+            headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
+        };
+
+        return fetch(api, requestOptions)
+            .then(res => res.json())
+            .then(res => {
+            
+                return res
+            })
+    }
     addMusicInCourse(addMusicInCourse){
         console.log(addMusicInCourse)
         const api = this.base_url + "/api/v1/meditation/courses/music"
@@ -162,6 +180,92 @@ export class MeditationService {
             .then(res => {
                 return res
             })
+    }
+
+    
+    batchQueryCourses(courseIds) {
+        
+        if (this.token === undefined) {
+            return
+        }
+        const api = this.base_url + "/api/v1/meditation/courses/batch"
+        const requestOptions = {
+            method: 'POST',
+            headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
+            body: JSON.stringify(courseIds)
+        };
+
+        return fetch(api, requestOptions)
+            .catch(err => console.log(err))
+            .then(res => res.json())
+            .then(res => {
+                return res
+            })
+    }
+
+    getAllCategory() {
+        // const info = cookie.load("Info");
+        // if (info !== undefined) {
+        //     return JSON.parse(info)
+        // }
+        if (this.token === undefined) {
+            return
+        }
+        const api = this.base_url + "/api/v1/meditation/categories"
+        const requestOptions = {
+            method: 'Get',
+            headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
+        };
+
+        return fetch(api, requestOptions)
+            .then(res => res.json())
+            .then(res => {
+                return res
+            })
+
+    }
+
+    createCategory(category) {
+        // const info = cookie.load("Info");
+        // if (info !== undefined) {
+        //     return JSON.parse(info)
+        // }
+        if (this.token === undefined) {
+            return
+        }
+        const api = this.base_url + "/api/v1/meditation/categories"
+        const requestOptions = {
+            method: 'Post',
+            headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
+            body: JSON.stringify(category)
+        };
+        
+
+        return fetch(api, requestOptions)
+            .then(res => res.json())
+            .then(res => {
+                return res
+            })
+
+    }
+    updateCategory(category) {
+       console.log(category)
+        if (this.token === undefined) {
+            return
+        }
+        const api = this.base_url + "/api/v1/meditation/categories"
+        const requestOptions = {
+            method: 'Put',
+            headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
+            body: JSON.stringify(category)
+        };
+
+        return fetch(api, requestOptions)
+            .then(res => res.json())
+            .then(res => {
+                return res
+            })
+
     }
 
 }

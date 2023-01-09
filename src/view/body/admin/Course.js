@@ -9,11 +9,6 @@ const { TextArea } = Input;
 function Course() {
     const [data, setData] = useState([])
     const [modal1Open, setModal1Open] = useState(false);
-    const [modal2Open, setModal2Open] = useState(false);
-    const [shortImage, setShortImage] = useState(false);
-    const [shortMusic, setShortMusic] = useState(false);
-    const [musicItem, setMusicItem] = useState();
-    const [allMusic, setAllMusic] = useState(false);
     const [messageApi, contextHolder] = message.useMessage();
     const [course, setCourse] = useState(false);
     const [allOption, setAllOption] = useState([]);
@@ -125,7 +120,6 @@ function Course() {
     const getData = async () => {
         const res = await meditationService.getAllCourse()
         const musics = await meditationService.getAllMusic()
-        setAllMusic(musics)
         createOptions(musics);
 
         const result = []
@@ -153,13 +147,7 @@ function Course() {
 
     }
 
-    const onImageChange = (e) => {
-        if (e.target.value.length > 10) {
-            setShortImage(e.target.value)
-        } else {
-            setShortImage('')
-        }
-    }
+   
 
 
     const openModal = (e) => {
@@ -313,7 +301,7 @@ function Course() {
             />
 
             <Drawer
-                title="新增"
+               title={currentModel=="Edit"?"編輯":"新增" }
                 style={{
                     top: 20,
                 }}
@@ -371,7 +359,7 @@ function Course() {
 
                     <Image width='100px' src={form.getFieldValue('image')}></Image>
                     <Form.Item name="image" >
-                        <Input allowClear={true} defaultValue={course.image} placeholder="系列圖片" size="big" onFocus={onImageChange} />
+                        <Input allowClear={true} defaultValue={course.image} placeholder="系列圖片" size="big" />
                     </Form.Item>
                     <p></p>
                     <Form.Item name="musics" label="音樂">
