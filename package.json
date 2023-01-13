@@ -2,7 +2,7 @@
   "name": "couchspace_cms",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://likesm0887.github.io/couchspace-cms",
+  "homepage": "./",
   "dependencies": {
     "@ant-design/icons": "^4.8.0",
     "@emotion/react": "^11.9.0",

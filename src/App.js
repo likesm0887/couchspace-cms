@@ -47,7 +47,13 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route index element={<Login />} />
+                
+                <Route index element={<Admin />} />
+                <Route path="admin" element={<Admin />}>
+                    <Route path="course" element={<Course/>}></Route>
+                    <Route path="music" element={<Music/>}></Route>
+                    <Route path="category" element={<Category/>}></Route>
+                </Route>
                 <Route path="couchspace-cms/register" element={<Register />} />
                 <Route path="couchspace-cms/" element={<Login />} />
                 <Route path="couchspace-cms/home" element={<Home />}>
@@ -64,13 +70,10 @@ function App() {
 
                     </Route>
                 </Route>
-                <Route path="couchspace-cms/admin" element={<Admin />}>
-                    <Route path="course" element={<Course/>}></Route>
-                    <Route path="music" element={<Music/>}></Route>
-                    <Route path="category" element={<Category/>}></Route>
-                </Route>
+                
                 <Route path="music" element={<Course/>}></Route>
                 <Route path="course" element={<Music/>}></Route>
+                <Route path="category" element={<Category/>}></Route>
             </Routes>
         </BrowserRouter>
         // <div className="App">
