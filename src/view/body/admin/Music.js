@@ -174,7 +174,7 @@ function Music() {
                 "Type": "Course",
                 "Free": form.getFieldValue('free') == 'Free',
                 "Image": form.getFieldValue('image'),
-                "Time": currentTime2
+                "Time":form.getFieldValue('size')
             }).then((e) => {
                 messageApi.open({
                     type: 'success',
@@ -199,7 +199,8 @@ function Music() {
                 Path: form.getFieldValue('path'),
                 Type: "Course",
                 Free: form.getFieldValue('free') == 'Free',
-                Image: form.getFieldValue('image')
+                Image: form.getFieldValue('image'),
+                Time:form.getFieldValue('size')
             }).then((e) => {
                 messageApi.open({
                     type: 'success',
