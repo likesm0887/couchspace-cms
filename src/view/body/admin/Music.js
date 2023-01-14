@@ -19,7 +19,9 @@ function Music() {
     const [currentModel, setCurrentModel] = useState("New")
     const [messageApi, contextHolder] = message.useMessage();
     const [loading, setLoading] = useState(false);
+    const [loading2, setLoading2] = useState(false);
     const [currentTime2, setCurrentTime2] = useState(false);
+    const [openSize,setOpenSize] = useState(true);
     const { Header, Footer, Sider, Content } = Layout;
     const toggle = (checked) => {
         setLoading(checked);
@@ -88,7 +90,7 @@ function Music() {
     const openEdit = (e) => {
         console.log(e)
         setCurrentModel("Edit")
-
+        setCurrentTime2("")
         setMusic({
             key: e.key,
             name: e.name,
@@ -101,7 +103,7 @@ function Music() {
         form.setFieldValue("name", e.name)
         form.setFieldValue("image", e.image)
         form.setFieldValue("path", e.path)
-        form.setFieldValue("size", currentTime2)
+        
         setModal1Open(true)
     }
 
@@ -138,6 +140,14 @@ function Music() {
         if (e.target.value.length > 10) {
             setShortMusic(e.target.value)
         }
+        
+    }
+    const onCanPlay=(e)=>{
+        setLoading2(false)
+    }
+
+    const onAbort=(e)=>{
+        setLoading2(true)
     }
     const openModal = (e) => {
         setCurrentModel("New")
@@ -148,6 +158,7 @@ function Music() {
         form.setFieldValue("image", "")
         form.setFieldValue("path", "")
         form.setFieldValue("size", "")
+        setShortMusic("")
         //message.success('Success!');
     }
 
@@ -162,7 +173,8 @@ function Music() {
                 "Path": form.getFieldValue('path'),
                 "Type": "Course",
                 "Free": form.getFieldValue('free') == 'Free',
-                "Image": form.getFieldValue('image')
+                "Image": form.getFieldValue('image'),
+                "Time": currentTime2
             }).then((e) => {
                 messageApi.open({
                     type: 'success',
@@ -210,10 +222,14 @@ function Music() {
 
     }
     const handleLoadMetadata = (meta) => {
+        
+        
         const { duration } = meta.target;
         setCurrentTime2(Math.ceil(duration))
-        
+        form.setFieldValue("size", Math.ceil(duration))
     }
+
+
     const tableProps = {
         loading,
     };
@@ -293,15 +309,19 @@ function Music() {
                     <p></p>
 
                     <Space>
+                    <Spin spinning={loading2} delay={500}>
+        
+      
                         <Form.Item name="path" >
                             <Input value={music.Music} allowClear={true} placeholder="檔案" size="big" onFocus={onshortMusicChange} />
 
                         </Form.Item>
                         <Form.Item name="size" label="音樂長度" >
-                            <Input value={currentTime2} placeholder="檔案" size="big" />
+                            <Input value={currentTime2} disabled={false} placeholder="檔案" size="big" />
                             
                         </Form.Item>
-                        <ReactAudioPlayer src={form.getFieldValue('path')} controls width='100px' onLoadedMetadata={handleLoadMetadata} />
+                        <ReactAudioPlayer src={shortMusic}  controls width='100px' onAbort={onAbort} onCanPlay={onCanPlay} onLoadedMetadata={handleLoadMetadata} />
+                        </Spin>
                     </Space>
                     <p></p>
                     <Space>
