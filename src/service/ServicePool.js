@@ -5,8 +5,8 @@ import {CounselorService} from "./CounselorService";
 import {MeditationService} from "./MeditationService";
 
 
-const baseUrl = "http://localhost:9000"
-// const baseUrl = "https://couchspace-test.azurewebsites.net"
+//const baseUrl = "http://localhost:9000"
+ const baseUrl = "https://couchspace-test.azurewebsites.net"
 const service = new RegisterService(baseUrl);
 
 export const appointmentService = new AppointmentService(baseUrl);
