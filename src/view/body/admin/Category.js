@@ -189,13 +189,15 @@ function Category() {
     const openEdit = (e) => {
        
         setCurrentModel("Edit")
+
         setSeleteCategory(({
             _id: e.key,
             Name: e.Name,
             Courses: e.Courses,
             BigCategories: e.BigCategories,
         }))
-
+        form.setFieldValue("Name", e.Name)
+        form.setFieldValue("Courses",getDefault)
         setModal1Open(true)
       
     }
@@ -214,9 +216,7 @@ function Category() {
         form.setFieldsValue({ 'BigCategories': result })
         return result;
     }
-    const getDefaultName=()=>{
-       return selectCategory.Name 
-    }
+   
     const getDefault = () => {
         console.log(selectCategory.Courses)
         if (currentModel == "New") {
@@ -293,7 +293,7 @@ function Category() {
                 <Form form={form} onSubmit={onFinish} >
                     <Space>
                         <Form.Item name="Name"  label="分類名稱">
-                            <Input  required onChange={onNameChange} value={form.name} defaultValue={getDefaultName} allowClear={true} placeholder="名稱" size="big" />
+                            <Input  required onChange={onNameChange} value={form.name}  allowClear={true} placeholder="名稱" size="big" />
                         </Form.Item>
                     </Space>
                     <p></p>
