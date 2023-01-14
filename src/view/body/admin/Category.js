@@ -10,6 +10,7 @@ function Category() {
     const [currentModel, setCurrentModel] = useState("New")
     const [messageApi, contextHolder] = message.useMessage();
     const [modal1Open, setModal1Open] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [form] = Form.useForm();
     const allBigCategoriesOptions = [
         {
@@ -87,6 +88,7 @@ function Category() {
     }, [])
 
     const getData = async () => {
+        setLoading(true)
         const res = await meditationService.getAllCategory()
         const courses = await meditationService.getAllCourse()
         setAllCourse(courses)
@@ -106,19 +108,24 @@ function Category() {
         }
     
         setData(result)
-
+        setLoading(false)
     }
     const onFinish = (e) => {
         if (currentModel === "Edit") {
-            console.log(form.getFieldValue('BigCategories'))
+            let bigCategories= form.getFieldValue('BigCategories')
+           let a=  bigCategories.map(e=>parseInt(e,10))
+            let name=form.getFieldValue('Name')
+            let course=form.getFieldValue('Courses')
             console.log(selectCategory)
             let body= {
                 "CategoryId": selectCategory._id,
-                "Name": form.getFieldValue('Name'),
-                "CourseIds": form.getFieldValue('Courses'),
-                "BigCategories": form.getFieldValue('BigCategories').map(e=>parseInt(e,10)),
+                "Name": name,
+                "CourseIds":course,
+                "BigCategories": bigCategories.map(e=>parseInt(e,10)),
             }
+            setLoading(true)
             meditationService.updateCategory(body).then((e) => {
+                setLoading(false)
                 messageApi.open({
                     type: 'success',
                     content: '修改成功',
@@ -126,6 +133,7 @@ function Category() {
                 getData().then((e) => e)
                 setModal1Open(false)
             }).catch((e) => {
+                setLoading(false)
                 messageApi.open({
                     type: 'fail',
                     content: 'Oops 出現一點小錯誤',
@@ -133,7 +141,7 @@ function Category() {
             })
         }
         if (currentModel === "New") {
-            console.log(form.getFieldValue('BigCategories'))
+            console.log(form.getFieldValue('Courses'))
             console.log(selectCategory)
             let body= {
                 "CategoryId": selectCategory._id,
@@ -157,7 +165,7 @@ function Category() {
         }
 
     }
-
+ 
     const createOptions = (courses) => {
 
         let result = []
@@ -167,8 +175,17 @@ function Category() {
 
         setAllCourseOption(result)
     }
-
-
+    const onCourseChange=(e)=>{
+       form.setFieldValue('Courses',e)
+    }
+    const onBigCategoriesChange=(e)=>{
+        form.setFieldValue('BigCategories',e)
+        console.log(selectCategory)
+    }
+    const onNameChange=(e)=>{
+        form.setFieldValue('Name',e.targer.value)
+        console.log(selectCategory)
+    }
     const openEdit = (e) => {
        
         setCurrentModel("Edit")
@@ -178,26 +195,11 @@ function Category() {
             Courses: e.Courses,
             BigCategories: e.BigCategories,
         }))
-        console.log(e.Courses)
-        form.setFieldValue("Name", e.Name)
-        console.log(allCourseOption[0])
-       // form.setFieldValue("Courses", getDefault(e.Courses))
-        //form.setFieldValue("BigCategories", getBigCategoriesDefault(e.BigCategories))
 
         setModal1Open(true)
+      
     }
 
-    const onChangeCourse = (values) => {
-       
-        form.setFieldsValue({ 'Courses': values })
-    }
-    
-    const onChangeBigCategories= (values) => {
-       
-        console.log(values)
-        form.setFieldsValue({ 'BigCategories': values })
-
-    }
     const getBigCategoriesDefault = () => {
         
         if (currentModel == "New") {
@@ -209,9 +211,12 @@ function Category() {
             result.push(allBigCategoriesOptions.find(c => c.value == selectCategory.BigCategories[index]))
         }
         console.log(result)
+        form.setFieldsValue({ 'BigCategories': result })
         return result;
     }
-
+    const getDefaultName=()=>{
+       return selectCategory.Name 
+    }
     const getDefault = () => {
         console.log(selectCategory.Courses)
         if (currentModel == "New") {
@@ -234,14 +239,16 @@ function Category() {
                 }
             }
         }
-
+        if(result.size==0){
+            form.setFieldsValue({ 'Courses': [] })
+        }
+        form.setFieldsValue({ 'Courses': result })
         return result
 
     }
+
     const openNew= ()=>{
         setCurrentModel("New")
-        
-        
         form.setFieldValue("Name", "")
         form.setFieldValue("Courses", "")
         form.setFieldValue("BigCategories", undefined)
@@ -251,6 +258,9 @@ function Category() {
 
         setModal1Open(true)
     }
+    const tableProps = {
+        loading,
+    };
     return (
         <div>
             <>
@@ -280,10 +290,10 @@ function Category() {
                 okText="確定"
                 bodyStyle={{ paddingBottom: 50 }}
             >
-                <Form form={form} onFinish={onFinish}>
+                <Form form={form} onSubmit={onFinish} >
                     <Space>
                         <Form.Item name="Name"  label="分類名稱">
-                            <Input required value={form.name} allowClear={true} placeholder="名稱" size="big" />
+                            <Input  required onChange={onNameChange} value={form.name} defaultValue={getDefaultName} allowClear={true} placeholder="名稱" size="big" />
                         </Form.Item>
                     </Space>
                     <p></p>
@@ -293,10 +303,10 @@ function Category() {
                                 placeholder="選擇系列"
                                 mode="multiple"
                                 size="large"
+                                onChange={onCourseChange}
                                 tokenSeparators={[',']}
-                                onChange={onChangeCourse}
                                 options={allCourseOption}
-                               defaultValue={getDefault}
+                                defaultValue={getDefault}
                                 style={{
                                     width: '600px',
                                 }}
@@ -305,14 +315,14 @@ function Category() {
                     </Form.Item>
                     <p></p>
 
-                    <Form.Item name="BigCategories" label="大分類">
+                    <Form.Item  name="BigCategories" label="大分類">
 
                         <Select
                             mode="multiple"
                             size="large"
                             placeholder="選擇分類"
                             tokenSeparators={[',']}
-                            onChange={onChangeBigCategories}
+                            onChange = {onBigCategoriesChange}
                             defaultValue={getBigCategoriesDefault}
                             options={allBigCategoriesOptions}
 
@@ -336,16 +346,17 @@ function Category() {
                     </Space>
                 </div>
             </Drawer>
-            <Table columns={columns} dataSource={data} pagination={{ pageSize: 7 }}
+            <Table {...tableProps} columns={columns} dataSource={data} pagination={{ pageSize: 7 }}
                 // expandable={{
                 //     expandedRowRender: (record) => <p style={{ margin: 0 }}>{record.musicIDs[0].MusicID}</p>,
                 // }}
-
+               
                 expandable={{
                     expandedRowRender: (record) =>
+                  
                         <List
                             itemLayout="horizontal"
-                            dataSource={record.CourseChild}
+                            dataSource={record.CourseChild==undefined?[]:record.CourseChild}
                             renderItem={(item) =>
                                 <List.Item>
                                     {<List.Item.Meta
@@ -356,7 +367,9 @@ function Category() {
                                 </List.Item>
                             }
                         />
-                }}
+                
+            }}
+            
             >
             </Table>
         </div>

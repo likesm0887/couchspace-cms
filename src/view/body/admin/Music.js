@@ -108,8 +108,9 @@ function Music() {
     useEffect(() => {
         getData();
         //setitems('free','peirumn')
-    }, [data])
+    }, [])
     const getData = async () => {
+        setLoading(true)
         const res = await meditationService.getAllMusic()
         const result = res.map(element => ({
             key: element._id,
@@ -120,6 +121,7 @@ function Music() {
             path: element.Path,
             views: element.TotalView
         }));
+        setLoading(false)
         setData(result)
 
     }
@@ -212,6 +214,9 @@ function Music() {
         setCurrentTime2(Math.ceil(duration))
         
     }
+    const tableProps = {
+        loading,
+    };
     return (
 
 
@@ -352,7 +357,7 @@ function Music() {
                     </Space>
                 </div>
             </Drawer >
-            <Table columns={columns} dataSource={data} pagination={{ pageSize: 7 }}>
+            <Table {...tableProps} columns={columns} dataSource={data} pagination={{ pageSize: 7 }}>
             </Table>
 
         </div >

@@ -15,7 +15,7 @@ function Course() {
     const options = [];
     const [currentModel, setCurrentModel] = useState("New")
     const [form] = Form.useForm();
-
+    const [loading, setLoading] = useState(false);
     const columns = [
         {
 
@@ -118,6 +118,7 @@ function Course() {
     }, [])
 
     const getData = async () => {
+        setLoading(true)
         const res = await meditationService.getAllCourse()
         const musics = await meditationService.getAllMusic()
         createOptions(musics);
@@ -143,6 +144,7 @@ function Course() {
 
 
         }
+        setLoading(false)
         setData(result)
 
     }
@@ -283,6 +285,9 @@ function Course() {
 
         //    return allOption.map(e => { data.child.some(a => a._id = e.value) })
     }
+    const tableProps = {
+        loading,
+    };
     return (
 
         <div>
@@ -392,27 +397,7 @@ function Course() {
                     <p></p>
 
 
-                    <Form.Item name="category" label="分類">
-
-                        <Select
-                            defaultValue={course.toll}
-                            placeholder="選擇分類"
-                            filterOption={(input, option) =>
-                                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                            }
-                            options={[
-                                {
-                                    value: 'Free',
-                                    label: 'Free',
-                                },
-                                {
-                                    value: 'Premium',
-                                    label: 'Premium',
-                                }
-                            ]}
-
-                        />
-                    </Form.Item>
+                    
                 </Form>
                 <div style={{
                     position: "absolute",
@@ -430,7 +415,7 @@ function Course() {
                     </Space>
                 </div>
             </Drawer>
-            <Table columns={columns} dataSource={data} pagination={{ pageSize: 7 }}
+            <Table  {...tableProps}  columns={columns} dataSource={data} pagination={{ pageSize: 7 }}
                 // expandable={{
                 //     expandedRowRender: (record) => <p style={{ margin: 0 }}>{record.musicIDs[0].MusicID}</p>,
                 // }}
