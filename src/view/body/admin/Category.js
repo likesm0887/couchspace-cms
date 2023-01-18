@@ -19,15 +19,15 @@ function Category() {
         },
         {
             value: '2',
-            label: '技巧',
-        },
-        {
-            value: '3',
             label: '睡眠',
         },
         {
-            value: '4',
+            value: '3',
             label: '身心',
+        },
+        {
+            value: '4',
+            label: '聲音',
         }
     ]
     const columns = [

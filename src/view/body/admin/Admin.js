@@ -25,7 +25,7 @@ const items = [
     getItem('分類', '5'),
   ]),
   getItem('諮商專區', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
-  getItem('行銷專去', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
+  getItem('行銷專區', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
   getItem('系統設定', '9', <FileOutlined />),
 ];
 
