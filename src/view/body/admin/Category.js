@@ -64,11 +64,11 @@ function Category() {
                         }
                         if (b === 3) {
                             color = 'geekblue';
-                            label = '技巧'
+                            label = '身心'
                         }
                         if (b === 4) {
                             color = 'purple';
-                            label = '身心'
+                            label = '聲音'
                         }
                         return (
                             <Tag color={color} key={b}>
