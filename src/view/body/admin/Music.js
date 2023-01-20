@@ -21,7 +21,7 @@ function Music() {
     const [loading, setLoading] = useState(false);
     const [loading2, setLoading2] = useState(false);
     const [currentTime2, setCurrentTime2] = useState(false);
-    const [openSize,setOpenSize] = useState(true);
+    const [openSize, setOpenSize] = useState(true);
     const { Header, Footer, Sider, Content } = Layout;
     const toggle = (checked) => {
         setLoading(checked);
@@ -40,7 +40,7 @@ function Music() {
             title: '圖片',
             dataIndex: 'image',
             key: 'image',
-            render: (image) => <Image src={image} width='70px' />,
+            render: (image) => <Image src={image} width='70px' preview={false} />,
         },
         {
             title: '名稱',
@@ -73,16 +73,27 @@ function Music() {
             title: '收費',
             dataIndex: 'toll',
             key: 'toll',
+            sorter: (a, b) => (a.toll=='Premium'?1:0) - (b.toll=='Free'?0:1 )
         },
         {
             title: '收聽',
             dataIndex: 'views',
             key: 'views',
-        }, {
+            sorter: (a, b) => a.views- b.views
+        }, 
+        {
             title: '音檔',
             dataIndex: 'path',
             key: 'path',
             render: (path) => <ReactAudioPlayer src={path} controls />
+        },
+        {
+            title: '新增日期',
+            dataIndex: 'createDate',
+            key: 'createDate',
+            defaultSortOrder: 'ascend',
+            sorter: (a, b) => new Date(a.createDate).getTime() - new Date(b.createDate).getTime() ,
+            
         }
 
     ];
@@ -103,13 +114,12 @@ function Music() {
         form.setFieldValue("name", e.name)
         form.setFieldValue("image", e.image)
         form.setFieldValue("path", e.path)
-        
+
         setModal1Open(true)
     }
 
     useEffect(() => {
         getData();
-        //setitems('free','peirumn')
     }, [])
     const getData = async () => {
         setLoading(true)
@@ -121,7 +131,8 @@ function Music() {
             series: ['nice', 'developer'],
             toll: element.Free ? "Free" : "Premium",
             path: element.Path,
-            views: element.TotalView
+            views: element.TotalView,
+            createDate:element.CreationDate
         }));
         setLoading(false)
         setData(result)
@@ -140,20 +151,20 @@ function Music() {
         if (e.target.value.length > 10) {
             setShortMusic(e.target.value)
         }
-        
+
     }
-    const onCanPlay=(e)=>{
+    const onCanPlay = (e) => {
         setLoading2(false)
     }
 
-    const onAbort=(e)=>{
+    const onAbort = (e) => {
         setLoading2(true)
     }
     const openModal = (e) => {
         setCurrentModel("New")
         setMusic({})
         setModal1Open(true)
-        
+
         form.setFieldValue("name", "")
         form.setFieldValue("image", "")
         form.setFieldValue("path", "")
@@ -174,7 +185,7 @@ function Music() {
                 "Type": "Course",
                 "Free": form.getFieldValue('free') == 'Free',
                 "Image": form.getFieldValue('image'),
-                "Time":form.getFieldValue('size')
+                "Time": form.getFieldValue('size')
             }).then((e) => {
                 messageApi.open({
                     type: 'success',
@@ -200,7 +211,7 @@ function Music() {
                 Type: "Course",
                 Free: form.getFieldValue('free') == 'Free',
                 Image: form.getFieldValue('image'),
-                Time:form.getFieldValue('size')
+                Time: form.getFieldValue('size')
             }).then((e) => {
                 messageApi.open({
                     type: 'success',
@@ -223,14 +234,16 @@ function Music() {
 
     }
     const handleLoadMetadata = (meta) => {
-        
-        
+
+
         const { duration } = meta.target;
         setCurrentTime2(Math.ceil(duration))
         form.setFieldValue("size", Math.ceil(duration))
     }
 
-
+    const onChange = (pagination, filters, sorter, extra) => {
+        console.log('params', pagination, filters, sorter, extra);
+      };
     const tableProps = {
         loading,
     };
@@ -253,7 +266,7 @@ function Music() {
             />
             {/* <Spin spinning={loading}></Spin> */}
             <Drawer
-                title={currentModel=="Edit"?"編輯":"新增" }
+                title={currentModel == "Edit" ? "編輯" : "新增"}
                 style={{
                     top: 20,
                 }}
@@ -310,18 +323,18 @@ function Music() {
                     <p></p>
 
                     <Space>
-                    <Spin spinning={loading2} delay={500}>
-        
-      
-                        <Form.Item name="path" >
-                            <Input value={music.Music} allowClear={true} placeholder="檔案" size="big" onFocus={onshortMusicChange} />
+                        <Spin spinning={loading2} delay={500}>
 
-                        </Form.Item>
-                        <Form.Item name="size" label="音樂長度" >
-                            <Input value={currentTime2} disabled={false} placeholder="檔案" size="big" />
-                            
-                        </Form.Item>
-                        <ReactAudioPlayer src={shortMusic}  controls width='100px' onAbort={onAbort} onCanPlay={onCanPlay} onLoadedMetadata={handleLoadMetadata} />
+
+                            <Form.Item name="path" >
+                                <Input value={music.Music} allowClear={true} placeholder="檔案" size="big" onFocus={onshortMusicChange} />
+
+                            </Form.Item>
+                            <Form.Item name="size" label="音樂長度" >
+                                <Input value={currentTime2} disabled={false} placeholder="檔案" size="big" />
+
+                            </Form.Item>
+                            <ReactAudioPlayer src={shortMusic} controls width='100px' onAbort={onAbort} onCanPlay={onCanPlay} onLoadedMetadata={handleLoadMetadata} />
                         </Spin>
                     </Space>
                     <p></p>
@@ -378,7 +391,7 @@ function Music() {
                     </Space>
                 </div>
             </Drawer >
-            <Table {...tableProps} columns={columns} dataSource={data} pagination={{ pageSize: 7 }}>
+            <Table {...tableProps}  onChange={onChange} columns={columns} dataSource={data} pagination={{ pageSize: 7 }}>
             </Table>
 
         </div >

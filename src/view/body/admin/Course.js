@@ -4,7 +4,7 @@ import { message, Space, Table, Input, Select, Image, Dropdown, Tag, Form, Rate,
 import { PlusCircleOutlined, EditOutlined, CustomerServiceOutlined } from '@ant-design/icons';
 import { meditationService } from "../../../service/ServicePool";
 import ReactAudioPlayer from 'react-audio-player';
-
+import moment from 'moment';
 const { TextArea } = Input;
 function Course() {
     const [data, setData] = useState([])
@@ -84,7 +84,16 @@ function Course() {
             title: '系列介紹',
             dataIndex: 'description',
             key: 'description',
+            defaultSortOrder: 'descend',
         },
+        {
+            title: '新增日期',
+            dataIndex: 'createDate',
+            key: 'createDate',
+            defaultSortOrder: 'descend',
+            sorter: (a, b) => moment(a.createDate).unix() - moment(b.createDate).unix(),
+            
+        }
 
     ];
     const onChangeMusic = (values) => {
@@ -118,6 +127,7 @@ function Course() {
     }, [])
 
     const getData = async () => {
+        console.log("hoho")
         setLoading(true)
         const res = await meditationService.getAllCourse()
         const musics = await meditationService.getAllMusic()
@@ -139,7 +149,8 @@ function Course() {
                 tags: res[i]?.Tags,
                 description: res[i].Description,
                 musicIDs: res[i].MusicIDs,
-                child: res[i].Musics
+                child: res[i].Musics,
+                createDate:res[i].CreationDate
             })
 
 
