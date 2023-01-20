@@ -70,10 +70,6 @@ function App() {
 
                     </Route>
                 </Route>
-                
-                <Route path="music" element={<Course/>}></Route>
-                <Route path="course" element={<Music/>}></Route>
-                <Route path="category" element={<Category/>}></Route>
             </Routes>
         </BrowserRouter>
         // <div className="App">
