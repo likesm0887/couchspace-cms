@@ -73,14 +73,14 @@ function Music() {
             title: '收費',
             dataIndex: 'toll',
             key: 'toll',
-            sorter: (a, b) => (a.toll=='Premium'?1:0) - (b.toll=='Free'?0:1 )
+            sorter: (a, b) => (a.toll == 'Premium' ? 1 : 0) - (b.toll == 'Free' ? 0 : 1)
         },
         {
             title: '收聽',
             dataIndex: 'views',
             key: 'views',
-            sorter: (a, b) => a.views- b.views
-        }, 
+            sorter: (a, b) => a.views - b.views
+        },
         {
             title: '音檔',
             dataIndex: 'path',
@@ -92,8 +92,8 @@ function Music() {
             dataIndex: 'createDate',
             key: 'createDate',
             defaultSortOrder: 'ascend',
-            sorter: (a, b) => new Date(a.createDate).getTime() - new Date(b.createDate).getTime() ,
-            
+            sorter: (a, b) => new Date(a.createDate).getTime() - new Date(b.createDate).getTime(),
+
         }
 
     ];
@@ -132,7 +132,7 @@ function Music() {
             toll: element.Free ? "Free" : "Premium",
             path: element.Path,
             views: element.TotalView,
-            createDate:element.CreationDate
+            createDate: element.CreationDate
         }));
         setLoading(false)
         setData(result)
@@ -243,7 +243,7 @@ function Music() {
 
     const onChange = (pagination, filters, sorter, extra) => {
         console.log('params', pagination, filters, sorter, extra);
-      };
+    };
     const tableProps = {
         loading,
     };
@@ -374,24 +374,27 @@ function Music() {
 
                         <p></p>
                     </Form.Item>
+                    <Form.Item>
+                        <Space>
+
+                            <Button onClick={onFinish} type="primary">
+                                確認
+                            </Button>
+                            <Button onClick={() => setModal1Open(false)} type="primary">
+                                取消
+                            </Button>
+
+                        </Space>
+                    </Form.Item>
                 </Form>
                 <div style={{
                     position: "absolute",
                     bottom: "10%"
                 }}>
-                    <Space>
 
-                        <Button onClick={onFinish} type="primary">
-                            確認
-                        </Button>
-                        <Button onClick={() => setModal1Open(false)} type="primary">
-                            取消
-                        </Button>
-
-                    </Space>
                 </div>
             </Drawer >
-            <Table {...tableProps}  onChange={onChange} columns={columns} dataSource={data} pagination={{ pageSize: 7 }}>
+            <Table {...tableProps} onChange={onChange} columns={columns} dataSource={data} pagination={{ pageSize: 7 }}>
             </Table>
 
         </div >
