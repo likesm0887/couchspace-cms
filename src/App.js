@@ -48,7 +48,7 @@ function App() {
         <BrowserRouter>
             <Routes>
                 
-                <Route index element={<Admin />} />
+                
                 <Route path="admin" element={<Admin />}>
                     <Route path="course" element={<Course/>}></Route>
                     <Route path="music" element={<Music/>}></Route>
