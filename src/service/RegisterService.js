@@ -8,7 +8,7 @@ export class RegisterService {
 
     login(account,password) {
         console.log("hhh")
-        const api = this.base_url + "/api/v1/counselors/login"
+        const api = this.base_url + "/api/v1/login"
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

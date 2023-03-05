@@ -112,7 +112,8 @@ function Course() {
             tags: e.tags,
             description: e.description,
             musicIDs: e.musicIDs,
-            child: e.musics
+            child: e.musics,
+            display:e.display
         })
 
         form.setFieldValue("name", e.courseName)
@@ -127,7 +128,7 @@ function Course() {
     }, [])
 
     const getData = async () => {
-        console.log("hoho")
+
         setLoading(true)
         const res = await meditationService.getAllCourse()
         const musics = await meditationService.getAllMusic()
@@ -150,6 +151,7 @@ function Course() {
                 description: res[i].Description,
                 musicIDs: res[i].MusicIDs,
                 child: res[i].Musics,
+                display:res[i].Display,
                 createDate:res[i].CreationDate
             })
 
@@ -161,8 +163,6 @@ function Course() {
     }
 
    
-
-
     const openModal = (e) => {
         setCurrentModel("New")
         setCourse({})
@@ -177,9 +177,9 @@ function Course() {
             const input = form.getFieldsValue()
             meditationService.createCourse({
                 "CourseName": form.getFieldValue('name'),
-                "CoverImage": form.getFieldValue('iamge'),
                 "Image": form.getFieldValue('image'),
                 "Description": form.getFieldValue('description'),
+                "Display":form.getFieldValue('display'),
                 "Tags": [
                     "幫助睡眠",
                     "正念",
@@ -202,6 +202,11 @@ function Course() {
                     getData().then((e)=>e)
                     setModal1Open(false)
 
+                }).catch((e) => {
+                    messageApi.open({
+                        type: 'fail',
+                        content: 'Oops 出現一點小錯誤',
+                    });
                 })
             
                 setModal1Open(false)
@@ -214,12 +219,12 @@ function Course() {
         }
 
         if (currentModel === "Edit") {
-            const input = form.getFieldsValue()
+            var a= form.getFieldValue('display')
             meditationService.updateCourse({
                 CourseID: course.key,
                 CourseName: form.getFieldValue('name'),
-                CoverImage: form.getFieldValue('iamge'),
                 Image: form.getFieldValue('image'),
+                Display:form.getFieldValue('display'),
                 Description: form.getFieldValue('description'),
                 Tags: [
                     "幫助睡眠",
@@ -296,9 +301,36 @@ function Course() {
 
         //    return allOption.map(e => { data.child.some(a => a._id = e.value) })
     }
+
+    const getDefaultDisplay=(e)=>{
+        if(course.display==0){
+            return {
+                value: 0,
+                label: 'Standard',
+            }
+        }
+        if(course.display==1){
+           return {
+                value: 1,
+                label: 'One',
+            }
+          
+        }
+        if(course.display==2){
+            return {
+                 value: 2,
+                 label: 'Three',
+             }
+           
+         }
+    }
     const tableProps = {
         loading,
     };
+    const onDisplayChange = (value) => {
+        form.setFieldsValue({ 'display': value })
+
+    }
     return (
 
         <div>
@@ -356,6 +388,7 @@ function Course() {
                             ]}
                         />
                     </Space>
+                   
                     <p></p>
                     <Space>
                         <Select
@@ -376,6 +409,34 @@ function Course() {
                     <Image width='100px' src={form.getFieldValue('image')}></Image>
                     <Form.Item name="image" >
                         <Input allowClear={true} defaultValue={course.image} placeholder="系列圖片" size="big" />
+                    </Form.Item>
+                    
+                    <p></p>
+                    <Form.Item name="display" label="版型">
+                    <Space>
+                        <Select
+                            placeholder="選擇版型"
+                            filterOption={(input, option) =>
+                                (option?.label ?? 'Standard').toLowerCase().includes(input.toLowerCase())
+                            }
+                            onChange={onDisplayChange}
+                            defaultValue={getDefaultDisplay}
+                            options={[
+                                {
+                                    value: 0,
+                                    label: 'Standard',
+                                },
+                                {
+                                    value: 1,
+                                    label: 'One',
+                                },
+                                {
+                                    value: 2,
+                                    label: 'Three',
+                                }
+                            ]}
+                        />
+                    </Space>
                     </Form.Item>
                     <p></p>
                     <Form.Item name="musics" label="音樂">

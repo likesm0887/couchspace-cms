@@ -33,7 +33,7 @@ export class MeditationService {
         const api = this.base_url + "/api/v1/meditation/courses"
         const requestOptions = {
             method: 'Post',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
             body: JSON.stringify(course)
         };
 
@@ -48,7 +48,7 @@ export class MeditationService {
         const api = this.base_url + "/api/v1/meditation/course"
         const requestOptions = {
             method: 'Put',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
             body: JSON.stringify(course)
         };
 
@@ -63,7 +63,7 @@ export class MeditationService {
         const api = this.base_url + "/api/v1/meditation/musics"
         const requestOptions = {
             method: 'Post',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
             body: JSON.stringify(music)
         };
 
@@ -79,7 +79,8 @@ export class MeditationService {
         const api = this.base_url + "/api/v1/meditation/musics"
         const requestOptions = {
             method: 'Put',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
+            
             body: JSON.stringify(music)
         };
 
@@ -151,7 +152,7 @@ export class MeditationService {
         const api = this.base_url + "/api/v1/meditation/courses/music"
         const requestOptions = {
             method: 'Post',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
             body: JSON.stringify(addMusicInCourse)
         };
 
