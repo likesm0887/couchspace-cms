@@ -5,6 +5,7 @@ import { onMessageListener } from "./service/firebase/firebase_receive_message";
 import { boot } from "./service/ServicePool";
 import { BrowserRouter, Outlet, HashRouter, Route, Routes } from "react-router-dom";
 import Login from "./view/login/login";
+import Login2 from "./view/body/admin/Login";
 import Home from "./view/home/Home";
 import Meditation from "./view/body/content/Meditation";
 import Music from "./view/body/admin/Music";
@@ -15,6 +16,8 @@ import { Register } from "./view/register/register";
 import Counseling from "./view/body/content/counsulation/Counseling";
 import Course from "./view/body/admin/Course.js";
 import Category from "./view/body/admin/Category";
+import Teacher from "./view/body/admin/Teacher";
+import User from "./view/body/admin/User";
 function askForNotificationPermission() {
     Notification.requestPermission(function (result) {
         // 這裡result只會有兩種結果：一個是用戶允許(granted)，另一個是用戶封鎖(denied)
@@ -48,13 +51,16 @@ function App() {
         <BrowserRouter>
             <Routes>
                 
-                
+                <Route path="Login" element={<Login2 />}></Route> 
                 <Route path="admin" element={<Admin />}>
                     <Route path="course" element={<Course/>}></Route>
                     <Route path="music" element={<Music/>}></Route>
                     <Route path="category" element={<Category/>}></Route>
+                    <Route path="teacher" element={<Teacher/>}></Route>
+                    <Route path="user" element={<User/>}></Route>
                 </Route>
                 <Route path="couchspace-cms/register" element={<Register />} />
+                
                 <Route path="couchspace-cms/" element={<Login />} />
                 <Route path="couchspace-cms/home" element={<Home />}>
                     <Route>
