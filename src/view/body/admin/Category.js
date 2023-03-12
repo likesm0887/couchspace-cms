@@ -284,7 +284,7 @@ function Category() {
                 destroyOnClose={true}
                 open={modal1Open}
                 onOk={() => onFinish()}
-                onCancel={() => setModal1Open(false)}
+                onClose={() => setModal1Open(false)}
                 width={720}
                 cancelText='取消'
                 okText="確定"

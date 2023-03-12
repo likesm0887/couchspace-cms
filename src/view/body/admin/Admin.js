@@ -19,10 +19,11 @@ const items = [
   getItem('分類', '0', <FileOutlined />),
   getItem('系列', '1', <PieChartOutlined />),
   getItem('音樂', '2', <DesktopOutlined />),
+  getItem('導師', '3', <DesktopOutlined />),
   getItem('放鬆專區', 'sub1', <UserOutlined />, [
-    getItem('系列', '3'),
-    getItem('音樂', '4'),
-    getItem('分類', '5'),
+    getItem('系列', '4'),
+    getItem('音樂', '5'),
+    getItem('分類', '6'),
   ]),
   getItem('諮商專區', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
   getItem('行銷專區', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
@@ -47,16 +48,18 @@ function Admin() {
   const [current, setCurrent] = useState('mail');
   const onClick = (e) => {
     console.log('click ', e);
-    if (e.key == 1 || e.key == 3) {
+    if (e.key == 1 || e.key == 4) {
       navigate("course", { replace: true });
     }
-    if (e.key == 2 || e.key == 4) {
+    if (e.key == 2 || e.key == 5) {
       navigate("music", { replace: true });
     }
-    if (e.key == 0 || e.key == 5) {
+    if (e.key == 0 || e.key == 6) {
       navigate("Category", { replace: true });
     }
-    
+    if (e.key == 3 || e.key == 7) {
+      navigate("teacher", { replace: true });
+    }
   };
 
 
