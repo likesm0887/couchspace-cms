@@ -17,7 +17,9 @@ import Counseling from "./view/body/content/counsulation/Counseling";
 import Course from "./view/body/admin/Course.js";
 import Category from "./view/body/admin/Category";
 import Teacher from "./view/body/admin/Teacher";
+import Setting from "./view/body/admin/Setting";
 import User from "./view/body/admin/User";
+
 function askForNotificationPermission() {
     Notification.requestPermission(function (result) {
         // 這裡result只會有兩種結果：一個是用戶允許(granted)，另一個是用戶封鎖(denied)
@@ -48,9 +50,9 @@ function App() {
         console.log(payload);
     }).catch(err => console.log('failed: ', err));
     return (
+        
         <BrowserRouter>
             <Routes>
-                
                 <Route path="Login" element={<Login2 />}></Route> 
                 <Route path="admin" element={<Admin />}>
                     <Route path="course" element={<Course/>}></Route>
@@ -58,6 +60,7 @@ function App() {
                     <Route path="category" element={<Category/>}></Route>
                     <Route path="teacher" element={<Teacher/>}></Route>
                     <Route path="user" element={<User/>}></Route>
+                    <Route path="setting" element={<Setting/>}></Route>
                 </Route>
                 <Route path="couchspace-cms/register" element={<Register />} />
                 
@@ -85,6 +88,7 @@ function App() {
         //
         //     <Body></Body>
         // </div>
+    
     );
 }
 
