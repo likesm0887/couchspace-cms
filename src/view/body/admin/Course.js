@@ -122,9 +122,10 @@ function Course() {
         console.log(course)
         setModal1Open(true)
     }
+   
     useEffect(() => {
         getData();
-
+       
     }, [])
 
     const getData = async () => {

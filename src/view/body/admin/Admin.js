@@ -20,6 +20,7 @@ const items = [
   getItem('系列', '1', <PieChartOutlined />),
   getItem('音樂', '2', <DesktopOutlined />),
   getItem('導師', '3', <DesktopOutlined />),
+  getItem('設定', '4', <DesktopOutlined />),
   getItem('放鬆專區', 'sub1', <UserOutlined />, [
     getItem('系列', '4'),
     getItem('音樂', '5'),
@@ -48,7 +49,7 @@ function Admin() {
   const [current, setCurrent] = useState('mail');
   const onClick = (e) => {
     console.log('click ', e);
-    if (e.key == 1 || e.key == 4) {
+    if (e.key == 1 ) {
       navigate("course", { replace: true });
     }
     if (e.key == 2 || e.key == 5) {
@@ -59,6 +60,9 @@ function Admin() {
     }
     if (e.key == 3 || e.key == 7) {
       navigate("teacher", { replace: true });
+    }
+    if (e.key ==4) {
+      navigate("setting", { replace: true });
     }
   };
 
