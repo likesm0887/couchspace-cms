@@ -179,7 +179,7 @@ function Teacher() {
     }
   };
   const onNew = () => {
-    
+    setCurrentModel("New")
         form.resetFields();
      
     setIsDrawerOpen(true);
@@ -215,7 +215,7 @@ function Teacher() {
         onFinishFailed={onFinishFailed}
         initialValues={{ remember: true }}
       >
-        <Form form={form} onFinish={onFinish}>
+        <Form form={form} onSubmit={onFinish}>
           <Space>
             <Form.Item name="name" label="名稱" rules={[{ required: true, message: '請輸入名稱!' }]}>
                 
@@ -251,7 +251,7 @@ function Teacher() {
 
           <Form.Item>
             <Space>
-              <Button htmlType="submit" type="primary">
+              <Button htmlType="submit" onClick={onFinish} type="primary">
                 確認
               </Button>
               <Button onClick={() => setIsDrawerOpen(false)} type="primary">
