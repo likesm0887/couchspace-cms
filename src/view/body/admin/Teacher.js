@@ -229,7 +229,7 @@ function Teacher() {
               <Input
                 placeholder="稱號"
                 size="big"
-                value={form.getFieldValue("title")}
+                defaultValue={form.getFieldValue("title")}
               />
             </Space>
           </Form.Item>
@@ -241,10 +241,10 @@ function Teacher() {
           <p></p>
           <Form.Item name="description" label="介紹">
             <TextArea
-              rows={3}
+              rows={5}
               placeholder="介紹"
-              maxLength={50}
-              value={form.getFieldValue("description")}
+              maxLength={150}
+              defaultValue={form.getFieldValue("description")}
             />
           </Form.Item>
           <p></p>
