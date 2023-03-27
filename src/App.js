@@ -19,6 +19,7 @@ import Category from "./view/body/admin/Category";
 import Teacher from "./view/body/admin/Teacher";
 import Setting from "./view/body/admin/Setting";
 import User from "./view/body/admin/User";
+import Membership from "./view/body/admin/Membership";
 
 function askForNotificationPermission() {
     Notification.requestPermission(function (result) {
@@ -61,6 +62,7 @@ function App() {
                     <Route path="teacher" element={<Teacher/>}></Route>
                     <Route path="user" element={<User/>}></Route>
                     <Route path="setting" element={<Setting/>}></Route>
+                    <Route path="membership" element={<Membership/>}></Route>
                 </Route>
                 <Route path="couchspace-cms/register" element={<Register />} />
                 

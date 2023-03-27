@@ -21,11 +21,13 @@ const items = [
   getItem('音樂', '2', <DesktopOutlined />),
   getItem('導師', '3', <DesktopOutlined />),
   getItem('設定', '4', <DesktopOutlined />),
-  getItem('放鬆專區', 'sub1', <UserOutlined />, [
-    getItem('系列', '4'),
-    getItem('音樂', '5'),
-    getItem('分類', '6'),
-  ]),
+  getItem('用戶', '5', <DesktopOutlined />),
+  getItem('開通', '6', <DesktopOutlined />),
+  // getItem('放鬆專區', 'sub1', <UserOutlined />, [
+  //   getItem('系列', '4'),
+  //   getItem('音樂', '5'),
+  //   getItem('分類', '6'),
+  // ]),
   getItem('諮商專區', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
   getItem('行銷專區', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
   getItem('系統設定', '9', <FileOutlined />),
@@ -52,17 +54,23 @@ function Admin() {
     if (e.key == 1 ) {
       navigate("course", { replace: true });
     }
-    if (e.key == 2 || e.key == 5) {
+    if (e.key == 2) {
       navigate("music", { replace: true });
     }
-    if (e.key == 0 || e.key == 6) {
+    if (e.key == 0 ) {
       navigate("Category", { replace: true });
     }
-    if (e.key == 3 || e.key == 7) {
+    if (e.key == 3 ) {
       navigate("teacher", { replace: true });
     }
     if (e.key ==4) {
       navigate("setting", { replace: true });
+    }
+    if (e.key ==5) {
+      navigate("user", { replace: true });
+    }
+    if (e.key ==6) {
+      navigate("membership", { replace: true });
     }
   };
 
