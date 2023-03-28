@@ -1,4 +1,4 @@
-// 新增一個欄位名叫開通會員帳號，提示顯示 請輸入要開通的會員帳號，跟一個選擇日期的元件，再新增一個+按鈕，新增一個送出按鈕，使用Antd元件, 元件之間有間隔
+// 新增一個欄位名叫開通會員帳號，提示顯示 請輸入要開通的會員帳號，跟一個選擇日期的元件，新增一個送出按鈕，使用Antd元件, 元件之間有間隔
 
 import React, { useState } from "react";
 import { Input, DatePicker, Button, Space,message } from "antd";

@@ -10,7 +10,7 @@ const DrawerForm = ({ visible, onClose, record }) => {
   const [account, setAccount] = useState(record?.account || "");
   const [birthdate, setBirthdate] = useState(record?.birthdate || "");
   const [membership, setMembership] = useState(record?.membership || "");
-
+  
   // Clear form fields
   const clearFields = () => {
     setName("");
@@ -63,6 +63,8 @@ const UserPage = () => {
   const [record, setRecord] = useState(null);
   const [userData, setUserData] = useState();
   const [userCount, setUserCount] = useState(0);
+  const [permiun, setPermiun] = useState(0);
+  const [active, setActive] = useState(0);
   const columns = [
     {
       title: "Action",
@@ -123,9 +125,11 @@ const UserPage = () => {
         }
       });
       console.log(form)
-
+// 找出result.membership.level===permiun的數量，用lambda
       setUserData(form);
       setUserCount(result.length)
+      setPermiun(result.filter(result => result.membership.level === 'premium').length);
+      setActive(result.filter(result => result.record.days_used >30).length);
     };
     fetchData();
   }, []);
@@ -143,6 +147,8 @@ const UserPage = () => {
   return (
     <>
      <Statistic title="Register Users" value={userCount} formatter={formatter} />
+     <Statistic title="Permium Users" value={permiun} formatter={formatter} />
+     <Statistic title="Active Users" value={active} formatter={formatter} />
       <Table columns={columns} dataSource={userData} />
       <DrawerForm visible={visible} onClose={handleClose} record={record} />
     </>
