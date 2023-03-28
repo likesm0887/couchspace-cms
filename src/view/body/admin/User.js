@@ -1,25 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { Drawer, Button, Table } from 'antd';
+import { Drawer, Button, Table,Statistic } from "antd";
 import { memberService } from "../../../service/ServicePool";
-
-
+import CountUp from 'react-countup';
 const DrawerForm = ({ visible, onClose, record }) => {
   // Define state for the form fields
-  const [name, setName] = useState(record?.name || '');
-  const [nickname, setNickname] = useState(record?.nickname || '');
-  const [photo, setPhoto] = useState(record?.photo || '');
-  const [account, setAccount] = useState(record?.account || '');
-  const [birthdate, setBirthdate] = useState(record?.birthdate || '');
-  const [membership, setMembership] = useState(record?.membership || '');
-  
+  const [name, setName] = useState(record?.name || "");
+  const [nickname, setNickname] = useState(record?.nickname || "");
+  const [photo, setPhoto] = useState(record?.photo || "");
+  const [account, setAccount] = useState(record?.account || "");
+  const [birthdate, setBirthdate] = useState(record?.birthdate || "");
+  const [membership, setMembership] = useState(record?.membership || "");
+
   // Clear form fields
   const clearFields = () => {
-    setName('');
-    setNickname('');
-    setPhoto('');
-    setAccount('');
-    setBirthdate('');
-    setMembership('');
+    setName("");
+    setNickname("");
+    setPhoto("");
+    setAccount("");
+    setBirthdate("");
+    setMembership("");
   };
 
   // Handle form submission
@@ -41,76 +40,92 @@ const DrawerForm = ({ visible, onClose, record }) => {
 
   return (
     <Drawer
-      title={record ? 'Edit User' : 'Add User'}
+      title={record ? "Edit User" : "Add User"}
       width={400}
       onClose={onClose}
       visible={visible}
     >
-     
       <label>Membership:</label>
-      <input type="text" value={membership} onChange={(e) => setMembership(e.target.value)} />
+      <input
+        type="text"
+        value={membership}
+        onChange={(e) => setMembership(e.target.value)}
+      />
       <br />
-      <Button onClick={handleSubmit}>{record ? 'Save' : 'Submit'}</Button>
+      <Button onClick={handleSubmit}>{record ? "Save" : "Submit"}</Button>
     </Drawer>
   );
 };
 
 const UserPage = () => {
+  const formatter = (value) => <CountUp end={value} separator="," />;
   const [visible, setVisible] = useState(false);
   const [record, setRecord] = useState(null);
   const [userData, setUserData] = useState();
+  const [userCount, setUserCount] = useState(0);
   const columns = [
     {
-      title: 'Action',
-      key: 'action',
+      title: "Action",
+      key: "action",
       render: (text, record) => (
-        <Button type="primary"  onClick={handleEdit}>
+        <Button type="primary" onClick={handleEdit}>
           編輯
         </Button>
       ),
     },
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
     },
     {
-      title: 'Nickname',
-      dataIndex: 'nickname',
-      key: 'nickname',
+      title: "Nickname",
+      dataIndex: "nickname",
+      key: "nickname",
     },
     {
-      title: 'Photo',
-      dataIndex: 'photo',
-      key: 'photo',
-      render: (url) => <img src={url} alt="avatar" style={{ width: '100px' }} />,
+      title: "Photo",
+      dataIndex: "photo",
+      key: "photo",
+      render: (url) => (
+         <img src={url=url==null?"":url} style={{ width: "100px" }} />
+      ),
     },
     {
-      title: 'Account',
-      dataIndex: 'account',
-      key: 'account',
+      title: "Account",
+      dataIndex: "account",
+      key: "account",
     },
     {
-      title: 'Birthdate',
-      dataIndex: 'birthdate',
-      key: 'birthdate',
+      title: "Birthdate",
+      dataIndex: "birthdate",
+      key: "birthdate",
     },
     {
-      title: 'Membership',
-      dataIndex: 'membership',
-      key: 'membership',
+      title: "Membership",
+      dataIndex: "membership",
+      key: "membership",
     },
-    
   ];
   
   useEffect(() => {
-    
     const fetchData = async () => {
       const result = await memberService.getGetAllUser();
-      {
-        
-      }
-      setUserData(result.data);
+      console.log(result);
+
+      const form = result.map(u => {
+        return {
+          name: u.information.user_name.nick_name,
+          photo: u.photo,
+          account: u.mail,
+          birthdate: u.birthdate,
+          membership: u.membership.level =="premium"?"premium":"free",
+        }
+      });
+      console.log(form)
+
+      setUserData(form);
+      setUserCount(result.length)
     };
     fetchData();
   }, []);
@@ -127,7 +142,7 @@ const UserPage = () => {
 
   return (
     <>
-      
+     <Statistic title="Register Users" value={userCount} formatter={formatter} />
       <Table columns={columns} dataSource={userData} />
       <DrawerForm visible={visible} onClose={handleClose} record={record} />
     </>

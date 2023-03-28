@@ -23,4 +23,5 @@ export class RegisterService {
             });
     }
 }
+
 export default RegisterService
