@@ -107,6 +107,8 @@ const UserPage = () => {
       title: "Membership",
       dataIndex: "membership",
       key: "membership",
+      // 產生字母首字ASCLL 相比
+      sorter: (a, b) =>    (a == "premium" ? 1 : 0) - (b == "free" ? 0 : 1),
     },
   ];
   
