@@ -119,6 +119,27 @@ export class MeditationService {
         return res;
       });
   }
+
+  getMusicTrend(musicId) {
+    if (this.token === undefined) {
+      return;
+    }
+    const api = this.base_url +
+      "/api/v1/log/record/"+musicId;
+    const requestOptions = {
+      method: "Get",
+      headers: {
+        Authorization: this.token,
+        "Content-Type": "application/json",
+      },
+    };
+
+    return fetch(api, requestOptions)
+      .then((res) => res.json())
+      .then((res) => {
+        return res;
+      });
+  }
   getMusicById(musicId) {
     if (this.token === undefined) {
       return;

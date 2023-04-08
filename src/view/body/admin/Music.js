@@ -25,7 +25,15 @@ import {
 } from "@ant-design/icons";
 import { meditationService } from "../../../service/ServicePool";
 import ReactAudioPlayer from "react-audio-player";
-
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from "recharts";
 function Music() {
   const [data, setData] = useState([]);
   const [modal1Open, setModal1Open] = useState(false);
@@ -39,9 +47,12 @@ function Music() {
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [currentTime2, setCurrentTime2] = useState(false);
+  const [openTrendModal, setOpenTrendModal] = useState(false);
+  const [trendData, setTrendData] = useState();
   const toggle = (checked) => {
     setLoading(checked);
   };
+
   const columns = [
     {
       title: "編輯",
@@ -55,7 +66,18 @@ function Music() {
         ></Button>
       ),
     },
-
+    {
+      title: "趨勢",
+      dataIndex: "trendBtn",
+      key: "trendBtn",
+      render: (_, element) => (
+        <Button
+          icon={<EditOutlined />}
+          type="primary"
+          onClick={() => openTrend(element)}
+        ></Button>
+      ),
+    },
     {
       title: "圖片",
       dataIndex: "image",
@@ -116,7 +138,12 @@ function Music() {
         new Date(a.createDate).getTime() - new Date(b.createDate).getTime(),
     },
   ];
-
+  const openTrend = async (e) => {
+    console.log(e);
+    setOpenTrendModal(true);
+    const res = await meditationService.getMusicTrend(e.key);
+    setTrendData(res);
+  };
   const openEdit = (e) => {
     console.log(e);
     setCurrentModel("Edit");
@@ -260,6 +287,28 @@ function Music() {
   };
   return (
     <div>
+      <Modal
+        title="收聽趨勢圖"
+        centered
+        open={openTrendModal}
+        onOk={() => setOpenTrendModal(false)}
+        width={1000}
+      >
+        <LineChart
+          width={500}
+          height={300}
+          data={trendData}
+          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+        >
+          <XAxis dataKey="Date" />
+          <YAxis />
+          <CartesianGrid strokeDasharray="4 4" />
+          <Tooltip />
+          
+          <Line type="monotone" dataKey="TotalViews" stroke="#82ca9d" />
+        </LineChart>
+      </Modal>
+
       <>{contextHolder}</>
       <FloatButton
         shape="circle"
@@ -269,6 +318,7 @@ function Music() {
         tooltip={<div>Add Music</div>}
         icon={<PlusCircleOutlined />}
       />
+
       {/* <Spin spinning={loading}></Spin> */}
       <Drawer
         title={currentModel == "Edit" ? "編輯" : "新增"}
