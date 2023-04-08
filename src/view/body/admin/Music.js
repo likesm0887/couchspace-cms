@@ -22,6 +22,7 @@ import {
   PlusCircleOutlined,
   EditOutlined,
   CustomerServiceOutlined,
+  LineChartOutlined
 } from "@ant-design/icons";
 import { meditationService } from "../../../service/ServicePool";
 import ReactAudioPlayer from "react-audio-player";
@@ -72,7 +73,7 @@ function Music() {
       key: "trendBtn",
       render: (_, element) => (
         <Button
-          icon={<EditOutlined />}
+          icon={<LineChartOutlined />}
           type="primary"
           onClick={() => openTrend(element)}
         ></Button>
