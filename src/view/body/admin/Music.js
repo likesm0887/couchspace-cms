@@ -11,6 +11,7 @@ import {
   Form,
   Rate,
   FloatButton,
+  Empty,
   Layout,
   Menu,
   Spin,
@@ -22,7 +23,7 @@ import {
   PlusCircleOutlined,
   EditOutlined,
   CustomerServiceOutlined,
-  LineChartOutlined
+  LineChartOutlined,
 } from "@ant-design/icons";
 import { meditationService } from "../../../service/ServicePool";
 import ReactAudioPlayer from "react-audio-player";
@@ -293,21 +294,29 @@ function Music() {
         centered
         open={openTrendModal}
         onOk={() => setOpenTrendModal(false)}
-        width={1000}
+        width={700}
+        closable={false}
+        onCancel={() => setOpenTrendModal(false)}
       >
-        <LineChart
-          width={500}
-          height={300}
-          data={trendData}
-          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-        >
-          <XAxis dataKey="Date" />
-          <YAxis />
-          <CartesianGrid strokeDasharray="4 4" />
-          <Tooltip />
-          
-          <Line type="monotone" dataKey="TotalViews" stroke="#82ca9d" />
-        </LineChart>
+        <div>
+          {!trendData ? (
+            <Empty />
+          ) : (
+            <LineChart
+              width={500}
+              height={300}
+              data={trendData}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
+              <XAxis dataKey="Date" />
+              <YAxis />
+              <CartesianGrid strokeDasharray="4 4" />
+              <Tooltip />
+
+              <Line type="monotone" dataKey="TotalViews" stroke="#82ca9d" />
+            </LineChart>
+          )}
+        </div>
       </Modal>
 
       <>{contextHolder}</>
