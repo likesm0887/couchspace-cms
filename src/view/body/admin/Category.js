@@ -31,7 +31,7 @@ function Category() {
   const [data, setData] = useState([]);
   const [allCourse, setAllCourse] = useState([]);
   const [allCourseOption, setAllCourseOption] = useState([]);
-  const [selectCategory, setSeleteCategory] = useState({});
+  const [selectCategory, setSeleteCategory] = useState([]);
   const [currentModel, setCurrentModel] = useState("New");
   const [messageApi, contextHolder] = message.useMessage();
   const [modal1Open, setModal1Open] = useState(false);
@@ -221,60 +221,60 @@ function Category() {
   };
   const onBigCategoriesChange = (e) => {
     form.setFieldValue("BigCategories", e);
-    console.log(selectCategory);
   };
   const onNameChange = (e) => {
     form.setFieldValue("Name", e.target.value);
     console.log(selectCategory);
   };
-  const onSeqChange =(e)=>{
+  const onSeqChange = (e) => {
     form.setFieldValue("Seq", e);
-    selectCategory.Seq=e
+    selectCategory.Seq = e;
     console.log(selectCategory);
-    setSeleteCategory(selectCategory)
-  }
+    setSeleteCategory(selectCategory);
+  };
   const openEdit = (e) => {
+     setModal1Open(true);
     setCurrentModel("Edit");
 
     setSeleteCategory({
       _id: e.key,
       Name: e.Name,
       Courses: e.Courses,
-      Seq:e.Seq,
+      Seq: e.Seq,
       BigCategories: e.BigCategories,
     });
     form.setFieldValue("Seq", e.Seq);
     form.setFieldValue("Name", e.Name);
     form.setFieldValue("Courses", getDefault);
-    setModal1Open(true);
+    form.setFieldValue("BigCategories", getBigCategoriesDefault( "Edit",e.BigCategories));
+   
   };
 
   const getSeqDefault = () => {
     if (currentModel == "New") {
       return 0;
     }
-    
+
     form.setFieldsValue({ Seq: selectCategory.Seq });
-    return  1;
+    return 1;
   };
 
-  const getBigCategoriesDefault = (e) => {
+  function getBigCategoriesDefault(currentModel,selectBigCategories) {
     if (currentModel == "New") {
       return [];
     }
     const result = [];
-    for (let index = 0; index < selectCategory.BigCategories.length; index++) {
-
+    for (let index = 0; index < selectBigCategories.length; index++) {
       result.push(
         allBigCategoriesOptions.find(
-          (c) => c.value == selectCategory.BigCategories[index]
+          (c) => c.value == selectBigCategories[index]
         )
       );
     }
-    console.log(result);
-    form.setFieldsValue({ BigCategories: result });
-    return result;
-  };
+
+   
+    return result.map((r) => r.value);
+  }
 
   const getDefault = () => {
     console.log(selectCategory.Courses);
@@ -309,8 +309,8 @@ function Category() {
     setCurrentModel("New");
     form.setFieldValue("Name", "");
     form.setFieldValue("Courses", "");
-    form.setFieldValue("BigCategories", undefined);
-
+    form.setFieldValue("Seq", 0);
+    form.setFieldValue("BigCategories", []);
     console.log(allCourseOption[0]);
 
     setModal1Open(true);
@@ -393,6 +393,7 @@ function Category() {
               placeholder="選擇分類"
               tokenSeparators={[","]}
               onChange={onBigCategoriesChange}
+              //value={selectCategory.BigCategories}
               defaultValue={getBigCategoriesDefault}
               options={allBigCategoriesOptions}
             />
