@@ -149,7 +149,7 @@ function Course() {
     form.setFieldValue("image", e.image);
     form.setFieldValue("description", e.description);
     console.log(e);
-    form.setFieldValue("teacherId", e.teacherID);
+    form.setFieldValue("teacherId", e.teacherId);
     console.log(course);
     setModal1Open(true);
   };
