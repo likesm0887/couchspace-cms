@@ -76,4 +76,23 @@ export class MemberService {
     });
       
   }
+  uploadMembership(file){
+    const api = this.base_url + "/api/v1/members/excel/membership";
+    const requestOptions = {
+      method: "Post",
+      headers: {
+        Authorization: this.token,
+      
+      },
+      body: file,
+    };
+
+    return fetch(api, requestOptions)
+    .then((res) => res.json())
+    .then((res) => {
+      cookie.save("Info", JSON.stringify(res));
+      return res;
+    });
+    
+  }
 }
