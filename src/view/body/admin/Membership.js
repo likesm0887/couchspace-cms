@@ -41,6 +41,7 @@ const Membership = () => {
     console.log(result[0]);
     if (result[0].success) {
       console.log(result);
+    
       messageApi.open({
         type: "success",
         content: "新增成功",
@@ -59,6 +60,15 @@ const Membership = () => {
     console.log(result[0]);
     if (result[0].success) {
       console.log(result);
+
+      result.forEach((r) => {
+        if (r.error_code !== "") {
+          messageApi.open({
+            type: "error",
+            content: "新增失敗 失敗原因: " + r.status_text,
+          });
+        }
+      });
       messageApi.open({
         type: "success",
         content: "新增成功",
@@ -79,32 +89,7 @@ const Membership = () => {
     const day = ("0" + dateObj.getUTCDate()).slice(-2); // add leading zero if needed
     return `${year}-${month}-${day}`;
   };
-  const onRangeChange = (dates, dateStrings) => {
-    if (dates) {
-      console.log("From: ", dates[0], ", to: ", dates[1]);
-      console.log("From: ", dateStrings[0], ", to: ", dateStrings[1]);
-    } else {
-      console.log("Clear");
-    }
-  };
-  const rangePresets = [
-    {
-      label: "Next 7 Days",
-      value: [dayjs().add(+7, "d"), dayjs()],
-    },
-    {
-      label: "Next 14 Days",
-      value: [dayjs().add(+14, "d"), dayjs()],
-    },
-    {
-      label: "Next 30 Days",
-      value: [dayjs().add(+30, "d"), dayjs()],
-    },
-    {
-      label: "Next 90 Days",
-      value: [dayjs().add(+90, "d"), dayjs()],
-    },
-  ];
+
   const props = {
     name: "file",
 
