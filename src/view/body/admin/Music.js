@@ -219,7 +219,7 @@ function Music() {
         .createMusic({
           UploadUserName: "小幫手003",
           Title: form.getFieldValue("name"),
-          Description: "好聽的",
+          Description: "",
           Path: form.getFieldValue("path"),
           Type: "Course",
           Free: form.getFieldValue("free") == "Free",
@@ -248,7 +248,7 @@ function Music() {
           MusicId: music.key,
           UploadUserName: "小幫手003",
           Title: form.getFieldValue("name"),
-          Description: "好聽的",
+          Description: "",
           Path: form.getFieldValue("path"),
           Type: "Course",
           Free: form.getFieldValue("free") == "Free",
