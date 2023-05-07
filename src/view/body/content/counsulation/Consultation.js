@@ -1,11 +1,11 @@
-import {useEffect, useState} from "react";
-import {appointmentService} from "../../../../service/ServicePool";
-import {Backdrop, CircularProgress, createTheme, Pagination} from "@mui/material";
+import { useEffect, useState } from "react";
+import { appointmentService } from "../../../../service/ServicePool";
+import { Backdrop, CircularProgress, createTheme, Pagination } from "@mui/material";
 import "./consultation.css"
 import editButton from "../../../img/content/edit.svg"
 import { useNavigate } from "react-router-dom";
 import { Button } from 'react-bootstrap';
-import {makeStyles} from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 const useStyles = makeStyles((theme) => ({
     backdrop: {
         zIndex: theme.zIndex.drawer + 1,
@@ -37,7 +37,7 @@ function Consultation() {
     }
 
     const getData = async () => {
-        const res = await appointmentService.getAllAppointment()
+        const res = await appointmentService.getAllAppointment();
         const data = await res.json();
         setAllAppointments(data)
         setCurrentTableData(calCurrentTableData(data))
@@ -56,29 +56,29 @@ function Consultation() {
         getData();
     }, [])
     const clickItem = (appointmentID) => {
-        navigate("/couchspace-cms/home/consultation/:"+appointmentID, { replace: true });
+        navigate("/couchspace-cms/home/consultation/:" + appointmentID, { replace: true });
     }
-    const start=()=>{
+    const start = () => {
         setOpen(!open);
-        setTimeout(()=>{
-            navigate("/couchspace-cms/home/consultation/counseling", {replace: true});
-        },3000)
+        setTimeout(() => {
+            navigate("/couchspace-cms/home/consultation/counseling", { replace: true });
+        }, 3000)
 
 
     }
     function createListItem(currentTableData) {
         return currentTableData.map(allAppointment => {
-            return <tr key={allAppointment.AppointmentID} >
-                <td onClick={()=>clickItem(allAppointment.AppointmentID)}>   {allAppointment.UserName}</td>
-                <td onClick={()=>clickItem(allAppointment.AppointmentID)}> {allAppointment.Time.Date}</td>
-                <td onClick={()=>clickItem(allAppointment.AppointmentID)}> {"0" + allAppointment.Time.Total / 60 + ":00:00"}</td>
-                <td onClick={()=>clickItem(allAppointment.AppointmentID)}> {allAppointment.Service === 0 ? "諮商" : "諮商"}</td>
-                <td style={{color: allAppointment.Status === "RoomCreated" ? "#88A1D2" : "#595757"}}> {allAppointment.Status === "RoomCreated" ? "已接受" : "待確認"}
+            return <tr key={allAppointment.AppointmentID} onClick={() => clickItem(allAppointment.AppointmentID)} >
+                <td>{allAppointment.UserName}</td>
+                <td>{allAppointment.Time.Date}</td>
+                <td>{"0" + allAppointment.Time.Total / 60 + ":00:00"}</td>
+                <td>{allAppointment.Service === 0 ? "諮商" : "諮商"}</td>
+                <td style={{ color: allAppointment.Status === "RoomCreated" ? "#88A1D2" : "#595757" }}> {allAppointment.Status === "RoomCreated" ? "已接受" : "待確認"}
                     <img src={editButton} className={"editButton"}></img>
                 </td>
                 <td>
                     <div>
-                        <button className={"startButton"} onClick={()=>start()}>
+                        <button className={"startButton"} onClick={() => start()}>
                             開始
                         </button>
                     </div>
@@ -109,7 +109,7 @@ function Consultation() {
             </table>
 
             <div className={"Page"}>
-                <Pagination color="primary" count={pagesSize} defaultPage={1} onChange={handleChange}/>
+                <Pagination color="primary" count={pagesSize} defaultPage={1} onChange={handleChange} />
             </div>
             <Backdrop className={classes.backdrop} open={open} >
                 <CircularProgress />

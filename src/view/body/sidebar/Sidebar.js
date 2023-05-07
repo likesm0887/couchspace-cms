@@ -1,15 +1,21 @@
 import "./sidebar.css"
 import consultation from "../../img/slidebar/consultation.svg";
-import consultation_unselect from "../../img/slidebar/consulation_unselect.svg";
+import consultation_unselect from "../../img/slidebar/consultation_unselect.svg";
 import meditation from "../../img/slidebar/meditation.svg";
+import meditation_unselect from "../../img/slidebar/meditation_unselect.svg";
 import article from "../../img/slidebar/article.svg";
+import article_unselect from "../../img/slidebar/article_unselect.svg";
 import manager from "../../img/slidebar/manager.svg";
-import {useState} from "react";
-import {Link} from "react-router-dom";
+import manager_unselect from "../../img/slidebar/manager_unselect.svg";
+import setting from "../../img/slidebar/setting.svg";
+import setting_unselect from "../../img/slidebar/setting_unselect.svg";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 
 function Sidebar() {
     const [currentSelected, setCurrentSelected] = useState("")
     const selectSlide = (selected) => {
+        if(currentSelected === selected) return;
         console.log(selected)
         setCurrentSelected(selected);
     };
@@ -20,36 +26,54 @@ function Sidebar() {
         }
     }
     const getImage = (selected) => {
-        if (selected === "meditation")
-            return consultation_unselect;
-        else{
-            return consultation
+        let output = null;
+        switch (selected) {
+            case 'meditation':
+                output = (currentSelected === selected) ? meditation : meditation_unselect;
+                break;
+            case 'consultation':
+                output = (currentSelected === selected) ? consultation : consultation_unselect;
+                break;
+            case 'article':
+                output = (currentSelected === selected) ? article : article_unselect;
+                break;
+            case 'manager':
+                output = (currentSelected === selected) ? manager : manager_unselect;
+                break;
+            case 'setting':
+                output = (currentSelected === selected) ? setting : setting_unselect;
+                break;
+            default:
+                break;
         }
+        return output;
     }
     return (
         <div className="sidebar">
             <div className={"line"}>
-                <li onClick={() => selectSlide("consultation")} className={"slide-line"}
-                    style={getStyle("consultation")}>
+                <li onClick={() => selectSlide("consultation")} className={"slide-line"} style={getStyle("consultation")}>
                     <img src={getImage("consultation")} alt={"123"}></img>
                     <Link to="consultation" style={getStyle("consultation")} className={"consultation"}>諮商</Link>
                 </li>
-                <li onClick={() => selectSlide("meditation")} className={"slide-line"}
-                    style={getStyle("meditation")}>
-                    <img src={meditation} alt={"123"}></img>
+                <li onClick={() => selectSlide("meditation")} className={"slide-line"} style={getStyle("meditation")}>
+                    <img src={getImage("meditation")} alt={"456"}></img>
                     <Link to="meditation" style={getStyle("meditation")} className={"meditation"}>冥想</Link>
 
                 </li>
 
-                {/*<li onClick={() => selectSlide("article")} className={"slide-line"}*/}
-                {/*    style={getStyle("article")}>*/}
-                {/*    <img src={article} alt={"123"}></img>*/}
-                {/*    <Link to="appointmentDetail" style={getStyle("article")} className={"article"}>文章</Link>*/}
-                {/*</li>*/}
-                <li onClick={() => selectSlide("manager")} className={"slide-line"}
-                    style={getStyle("manager")}>
-                    <img src={manager} alt={"123"}></img>
-                    <a href="/home/manager" style={getStyle("manager")} className={"manager"}>管理</a>
+                <li onClick={() => selectSlide("article")} className={"slide-line"} style={getStyle("article")}>
+                    <img src={getImage("article")} alt={"123"}></img>
+                    <Link to="meditation" style={getStyle("article")} className={"article"}>文章</Link>
+                </li>
+                <li onClick={() => selectSlide("manager")} className={"slide-line"} style={getStyle("manager")}>
+                    <img src={getImage("manager")} alt={"789"}></img>
+                    <Link to="meditation" style={getStyle("manager")} className={"manager"}>管理</Link>
+                    {/* <a href="/home/manager" style={getStyle("manager")} className={"manager"}>管理</a> */}
+                </li>
+
+                <li onClick={() => selectSlide("setting")} className={"slide-line"} style={getStyle("setting")}>
+                    <img src={getImage("setting")} alt={"789"}></img>
+                    <Link to="meditation" style={getStyle("setting")} className={"setting"}>設定</Link>
                 </li>
             </div>
 
