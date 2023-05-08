@@ -1,10 +1,10 @@
-import {Outlet} from "react-router-dom";
-import {Checkbox, FormControlLabel, Grid, IconButton, TextField} from "@mui/material";
+import { Outlet } from "react-router-dom";
+import { Checkbox, FormControlLabel, Grid, IconButton, TextField } from "@mui/material";
 import "./PersonalInfo.css"
 import Typography from "@material-ui/core/Typography";
-import {makeStyles} from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import PhotoCamera from '@material-ui/icons/PhotoCamera';
-import {useState} from "react";
+import { useState } from "react";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -18,10 +18,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 function PersonalInfo() {
     const classes = useStyles();
-    const [image,setImage] = useState("")
+    const [image, setImage] = useState("")
     const upload = (event) => {
 
-       let imageUrl= URL.createObjectURL(event.target.files[0]);
+        let imageUrl = URL.createObjectURL(event.target.files[0]);
         setImage(imageUrl)
     }
 
@@ -90,13 +90,13 @@ function PersonalInfo() {
                 </Grid>
                 <Grid item xs={12}>
                     <p>上傳一張你的照片</p>
-                    <input accept="image/*" onChange={(e)=>upload(e)} className={classes.input} id="icon-button-file" type="file" />
+                    <input accept="image/*" onChange={(e) => upload(e)} className={classes.input} id="icon-button-file" type="file" />
                     <label htmlFor="icon-button-file">
 
                         <IconButton color="primary" aria-label="upload picture" component="span">
                             <PhotoCamera />
                         </IconButton>
-                        <img src={image}></img>
+                        <img src={image} alt=""></img>
                     </label>
 
                 </Grid>

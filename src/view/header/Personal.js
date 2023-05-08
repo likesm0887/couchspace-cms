@@ -1,20 +1,20 @@
-import headshot from "../img/header/photo.png";
+import selfie from "../img/header/photo.png";
 import bell from "../img/header/bell.png";
-import {counselorService} from "../../service/ServicePool";
+import { counselorService } from "../../service/ServicePool";
 import * as React from 'react';
 import "./Personal.css"
 
-import {Avatar, Badge, Menu, MenuItem} from "@mui/material";
-import {useEffect, useState} from "react";
+import { Avatar, Badge, Menu, MenuItem } from "@mui/material";
+import { useEffect, useState } from "react";
 
 
 function Personal() {
     const tag = "@couchspace"
     const [info, setInfo] = useState([])
-    const [name,setName]=useState("adsasd")
+    const [name, setName] = useState("adsasd")
     const [show, setShow] = useState(false)
     const getInfo = async () => {
-       return await counselorService.getGetCounselorInfo();
+        return await counselorService.getCounselorInfo();
     }
     const [anchorEl, setAnchorEl] = React.useState(null);
     useEffect(() => {
@@ -22,7 +22,7 @@ function Personal() {
         getInfo()
             .then(info => {
 
-                if(mounted) {
+                if (mounted) {
                     console.log(info)
                     setInfo(info)
                     setName(info.UserName.Name.FirstName + info.UserName.Name.LastName)
@@ -52,18 +52,17 @@ function Personal() {
         setAnchorEl(null);
     };
     return (
-        <div className={"personal-content"}>
+        <div style={{ flex: 1, flexDirection: 'row' }} className={"personal-content"}>
+            <img style={{ width: 50, height: 50, objectFit: 'contain', marginRight: 10 }} src={selfie} className="selfie" alt={"selfie"} />
+            <div style={{ flex: 1, flexDirection: 'column' }} className={"info"}>
 
-            <img src={headshot} className="headshot" alt={"headshot"}/>
-            <div className={"info"}>
                 <div className={"nameAndTitle"}>
-                    <a className={"personal-name"}>{name}</a>
-                    <a className={"title"}>醫師</a>
+                    <span className={"personal-name"}>{name}</span>
+                    <span className={"title"}>醫師</span>
                 </div>
                 <div className={"emailAndArrow"}>
-                    <a className={"email"}> {tag}</a>
-
-                    <div className="arrow_down" onClick={handleClick}/>
+                    <span className={"email"}> {tag}</span>
+                    <div className="arrow_down" onClick={handleClick} />
                     <Menu
                         id="simple-menu"
                         anchorEl={anchorEl}
@@ -77,26 +76,26 @@ function Personal() {
                 </div>
 
                 {show && <span className={"logout-wrap"}>
-                  <span className="logout">
-                      <li className={"menu"} onClick={clickMemberManager}>
-                        會員管理
-                      </li>
+                    <span className="logout">
+                        <li className={"menu"} onClick={clickMemberManager}>
+                            會員管理
+                        </li>
                         <li className={"menu"} onClick={clickLogout}>登出
-                      </li>
-                  </span>
+                        </li>
+                    </span>
 
                 </span>
                 }
+
             </div>
             <div className={"bell"}>
                 <Badge max={10} anchorOrigin={{
                     vertical: 'top',
                     horizontal: 'right',
                 }} badgeContent={1} color="error">
-                    <img src={bell} className="bellImg"/>
+                    <img style={{ objectFit: 'contain' }} src={bell} className="bellImg" alt="" />
                 </Badge>
             </div>
-
         </div>
     );
 

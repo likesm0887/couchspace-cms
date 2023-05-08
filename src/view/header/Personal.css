@@ -1,99 +1,80 @@
-.personal-content{
-
-    float: right;
-    display:  inline-flex;
-    flex-direction: row;
-    margin-top: 40px;
-
+.personal-content {
+  float: right;
+  display: inline-flex;
+  flex-direction: row;
+  margin-top: 40px;
+  flex: 1;
 }
-
-.headshot {
-    vertical-align: middle;
-    width: 49px;
-    height: 49px;
-
-}
-
 
 .bellImg {
-    width: 30px;
-    height: 30px;
+  width: 30px;
+  height: 30px;
 }
 
 .bell {
-    margin-top: 10px;
-    margin-right: 50px;
+  margin-top: 10px;
+  margin-right: 50px;
 }
-.info{
-    margin-top: -4px;
-    display:  flex;
-    flex-direction: column;
-    margin-right:-20px ;
-
+.info {
+  margin-top: -4px;
+  display: flex;
+  flex-direction: column;
+  margin-right: -20px;
 }
-.nameAndTitle{
-    padding-top: 10px;
-    width: 150px;
-    display:  flex;
-    flex-direction: row;
+.nameAndTitle {
+  padding-top: 10px;
+  width: 150px;
+  display: flex;
+  flex-direction: row;
 }
 .personal-name {
-    font-weight: bold;
-    font-family: 'GenYoGothic TW';
-    font-style: normal;
-    font-size: 18px;
-    color: #555654;
+  font-weight: bold;
+  font-family: "GenYoGothic TW";
+  font-style: normal;
+  font-size: 18px;
+  color: #555654;
 }
 
 .title {
-    /* 醫師 */
-    width: 28px;
+  /* 醫師 */
+  width: 28px;
 
+  font-family: "GenYoGothic TW";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  margin-top: 2px;
+  /* identical to box height */
 
-    font-family: 'GenYoGothic TW';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    margin-top: 2px;
-    /* identical to box height */
-
-
-    color: #555654;
+  color: #555654;
 }
-.emailAndArrow{
-
-    display:  flex;
-    flex-direction: row;
+.emailAndArrow {
+  display: flex;
+  flex-direction: row;
 }
 .email {
-    font-family: 'Nunito';
-    font-style: normal;
-    font-weight: 800;
-    font-size: 14px;
-    /* identical to box height */
+  font-family: "Nunito";
+  font-style: normal;
+  font-weight: 800;
+  font-size: 14px;
+  /* identical to box height */
 
-
-    color: #C7C7C7;
+  color: #c7c7c7;
 }
 .arrow_down {
-    width: 0;
-    height: 0;
-    margin-top: 7px;
-    margin-left: 2px;
-    border-style: solid;
-    border-width: 8px 7px 0 7px;
-    border-color: #c7c7c7 transparent transparent transparent;
+  width: 0;
+  height: 0;
+  margin-top: 7px;
+  margin-left: 2px;
+  border-style: solid;
+  border-width: 8px 7px 0 7px;
+  border-color: #c7c7c7 transparent transparent transparent;
 }
-
-
 
 .logout:hover {
-    color: #F2A246;
+  color: #f2a246;
 }
 
-
-
-
 .list-style {
-    list-style: none;
+  list-style: none;
 }

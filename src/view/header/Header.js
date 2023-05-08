@@ -6,7 +6,7 @@ import Personal from "./Personal";
 function Header() {
     return (
         <header>
-            <img src={logo} className="logo" alt="logo"/>
+            <img style={{ objectFit: 'contain' }} src={logo} className="logo" alt="logo" />
             <Personal></Personal>
         </header>
 
