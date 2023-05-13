@@ -1,107 +1,86 @@
 .Consultation {
-    display:  flex;
-    flex-direction: column;
-    justify-content: center;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .Page {
-    Display: inline-block;
-    margin-left: 45%;
-    margin-top: 15px;
-
-}
-.Consultation table tr:hover{
-
-    background-color: #F4F4F4;
-    cursor: pointer;
-    color: #000000;
-}
-
-.Consultation table {
-    table-layout:fixed;
-    margin-left: 60px;
-    vertical-align: center;
-    border-collapse: separate;
-    border-spacing:0px 15px
-
+  display: inline-block;
+  position: absolute;
+  bottom: 20px;
+  left: 45%;
 }
 
 .lineItem {
-    background-color: #FFFFFF;
+  background-color: #ffffff;
 }
 
-.startButton:hover{
-    cursor: pointer;
-    box-shadow: 0 3px 3px 3px #e3ebfa, 0 3px 1px -2px rgb(33 150 243 / 20%), 0 1px 5px 0 rgb(33 150 243 / 12%);
-
+.startButton:hover {
+  cursor: pointer;
+  box-shadow: 0 3px 3px 3px #e3ebfa, 0 3px 1px -2px rgb(33 150 243 / 20%),
+    0 1px 5px 0 rgb(33 150 243 / 12%);
 }
-.startButton{
-    width: 80px;
-    height: 46px;
-    border-radius:20px;
-    border:0;
-    font-family: 'PingFang TC';
-    font-style: normal;
-    font-weight: 500;
-    font-size: 20px;
-    line-height: 28px;
-    background-color:#88A1D2 ;
-    margin-left: -10px;
-    /* identical to box height */
-    color: #F7F8F8;
-
-}
-
-.editButton{
-    width: 15px;
-    height: 15px;
-}
-.Consultation th {
-    font-weight: bold;
-    font-family: Microsoft JhengHei, sans-serif;
-    color: #859cc9;
-    background-color: #F7F8F8;
-    font-size: 20px;
+.startButton {
+  width: 80px;
+  height: 46px;
+  border-radius: 20px;
+  border: 0;
+  font-family: "PingFang TC";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 28px;
+  background-color: #88a1d2;
+  margin-left: -10px;
+  /* identical to box height */
+  color: #f7f8f8;
+  position: relative;
+  top: -60px;
+  left: 92%;
 }
 
-.Consultation td:first-child {
-    border-top-left-radius: 20px;
+.editButton {
+  width: 15px;
+  height: 15px;
 }
 
-
-
-.Consultation td:first-child {
-    border-bottom-left-radius: 20px;
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-items: center;
+  width: 90%;
 }
 
-.Consultation td:nth-last-child(2){
-    border-top-right-radius: 20px;
+.title-col {
+  font-weight: bold;
+  font-family: Microsoft JhengHei, sans-serif;
+  color: #859cc9;
+  background-color: #f7f8f8;
+  font-size: 20px;
+  margin-inline: 10px;
+  width: 1000px;
+  margin-bottom: 40px;
+  text-align: center;
 }
 
-.Consultation td:nth-last-child(2){
-    border-bottom-right-radius: 20px;
+.content-row {
+  display: flex;
+  align-items: center;
+  justify-items: center;
+  background-color: #ffffff;
+  cursor: pointer;
+  color: #000000;
+  margin-top: -20px;
+  border-radius: 20px;
+  width: 90%;
 }
 
-.Consultation td:last-child{
-    background: #F7F8F8;
+.content-col {
+  font-family: "Nunito";
+  font-style: normal;
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 27px;
+  text-align: center;
+  margin-inline: 10px;
+  width: 1000px;
 }
-
-
-.Consultation td {
-    font-family: 'Nunito';
-    font-style: normal;
-    font-weight: 800;
-    font-size: 20px;
-    line-height: 27px;
-
-    text-align: center;
-}
-
-
-
-.Consultation tr {
-    height: 53px;
-    background-color: #FFFFFF;
-}
-
-

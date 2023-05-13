@@ -1,63 +1,62 @@
 .sidebar {
-    position: relative;
-    top: 72px;
-
+  position: relative;
+  width: 80%;
+  flex: 1;
 }
 
 image {
-    width: 30px;
-    height: 30px;
+  width: 30px;
+  height: 30px;
 }
-.lineContent{
-    position: absolute;
-    left: 0%;
-    margin-top: 24.28%;
-    text-align: left;
+.lineContent {
+  position: absolute;
+  left: 0%;
+  margin-top: 24.28%;
+  text-align: left;
 }
-img{
-    width: 33px;
-    height: 33px;
+img {
+  width: 33px;
+  height: 33px;
 }
-.line{
-    position: absolute;
-    left: 0;
-    width: 30%;
-    height: 76px;
-    top: 16%;
-    text-align: left;
+.line {
+  position: absolute;
+  left: 0;
+  width: 30%;
+  height: 76px;
+  top: 16%;
+  text-align: left;
 }
 .slide-line {
-    background-color: #99A1D1;
-    height: 110%;
-    list-style: none;
-    border-radius: 30px;
-    margin-left: 60px;
-    padding-left: 60px;
-    align-items: center;
-    display: flex;
-    margin-top: 10px;
+  background-color: #99a1d1;
+  height: 110%;
+  list-style: none;
+  border-radius: 30px;
+  margin-left: 20%;
+  padding-left: 20%;
+  justify-items: center;
+  align-items: center;
+  display: flex;
+  margin-top: 10px;
 }
 
 a {
-    margin-left: 10px;
-    font-family: 'GenYoGothic TW';
-    font-style: normal;
-    font-size: 20px;
-    line-height: 20px;
-    color: #F7F8F8;
-    text-decoration: none;
-    font-weight: bold;
-
+  margin-left: 10px;
+  font-family: "GenYoGothic TW";
+  font-style: normal;
+  font-size: 20px;
+  line-height: 20px;
+  color: #f7f8f8;
+  text-decoration: none;
+  font-weight: bold;
 }
 
 .consultation {
-    width: 100px;
-    font-family: 'GenYoGothic TW', serif;
-    font-style: normal;
-    font-weight: 500;
-    font-size: 20px;
-    line-height: 20px;
-    /* identical to box height */
-    color: #F7F8F8;
+  width: 100px;
+  font-family: "GenYoGothic TW", serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 20px;
+  /* identical to box height */
+  color: #f7f8f8;
 }
-

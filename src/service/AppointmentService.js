@@ -4,7 +4,7 @@ export class AppointmentService {
 
     constructor(base_url) {
         this.base_url = base_url;
-        this.token = cookie.load("token");
+        this.token = cookie.load("token_counselor");
     }
 
     getAllAppointment() {
@@ -15,6 +15,10 @@ export class AppointmentService {
         };
 
         return fetch(api, requestOptions)
+            .then(res => res.json())
+            .then(res => {
+                return res;
+            });
 
     }
 
@@ -25,5 +29,9 @@ export class AppointmentService {
             headers: {"Authorization":  this.token, 'Content-Type': 'application/json'},
         };
         return fetch(api, requestOptions)
+            .then(res => res.json())
+            .then(res => {
+                return res;
+            });
     }
 }

@@ -13,7 +13,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 function Sidebar() {
-    const [currentSelected, setCurrentSelected] = useState("")
+    const [currentSelected, setCurrentSelected] = useState("consultation");
     const selectSlide = (selected) => {
         if (currentSelected === selected) return;
         console.log(selected)

@@ -4,8 +4,8 @@ import { Backdrop, CircularProgress, createTheme, Pagination } from "@mui/materi
 import "./consultation.css"
 import editButton from "../../../img/content/edit.svg"
 import { useNavigate } from "react-router-dom";
-import { Button } from 'react-bootstrap';
-
+import { Row, Col } from 'react-bootstrap';
+import userIcon from "../../../img/content/userIcon.svg";
 function Consultation() {
     let navigate = useNavigate();
     let pageSize = 7;
@@ -27,14 +27,22 @@ function Consultation() {
         let newDataSize = ((dataSize / pageSize) | 0)
         return newDataSize + offset
     }
+    function num2Time(number) {
+        var minute = parseInt(number / 60)
+            .toString()
+            .padStart(2, "0");
+        var second = parseInt(number % 60)
+            .toString()
+            .padStart(2, "0");
+        return minute + ":" + second;
+    }
 
     const getData = async () => {
         const res = await appointmentService.getAllAppointment();
-        const data = await res.json();
-        if (data) {
-            setAllAppointments(data)
-            setCurrentTableData(calCurrentTableData(data))
-            setPagesSize(calPageSize(data.length))
+        if (res) {
+            setAllAppointments(res)
+            setCurrentTableData(calCurrentTableData(res))
+            setPagesSize(calPageSize(res.length))
         }
     }
 
@@ -50,69 +58,91 @@ function Consultation() {
         getData();
     }, [])
     const clickItem = (appointmentID) => {
-        navigate("/couchspace-cms/home/consultation/:" + appointmentID, { replace: true });
+        navigate("/couchspace-cms/home/consultation/" + appointmentID, { replace: false });
     }
     const start = () => {
         setOpen(!open);
-        setTimeout(() => {
-            navigate("/couchspace-cms/home/consultation/counseling", { replace: true });
-        }, 3000)
-
-
+        navigate("/couchspace-cms/home/consultation/counseling", { replace: false });
     }
     function createListItem() {
         return currentTableData.map(allAppointment => {
-            return <tbody>
-                <tr key={allAppointment.AppointmentID} onClick={() => clickItem(allAppointment.AppointmentID)} >
-                    <td>{allAppointment.UserName}</td>
-                    <td>{allAppointment.Time.Date}</td>
-                    <td>{"0" + allAppointment.Time.Total / 60 + ":00:00"}</td>
-                    <td>{allAppointment.Service === 0 ? "諮商" : "諮商"}</td>
-                    <td style={{ color: allAppointment.Status === "RoomCreated" ? "#88A1D2" : "#595757" }}> {allAppointment.Status === "RoomCreated" ? "已接受" : "待確認"}
-                        <img src={editButton} className={"editButton"} alt={"123"}></img>
-                    </td>
-                    <td>
-                        <div>
-                            <button className={"startButton"} onClick={() => start()}>
-                                開始
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
+            return (<div style={{ flexDirection: 'row', flex: 1, justifyContent: 'center', alignItems: 'center' }} key={allAppointment.AppointmentID}>
+                <Row className="content-row" onClick={() => clickItem(allAppointment.AppointmentID)}>
+                    <Col className="content-col">
+                        <img style={{ verticalAlign: 'middle' }} src={userIcon} alt="123"></img>{allAppointment.UserName}
+                    </Col>
+                    <Col className="content-col">
+                        {allAppointment.Time.Date}
+                    </Col>
+                    <Col className="content-col">
+                        {num2Time(allAppointment.Time.Total)}
+                    </Col>
+                    <Col className="content-col">
+                        {allAppointment.Service === 0 ? "諮商" : "諮商"}
+                    </Col>
+                    <Col className="content-col">
+                        <p style={{ color: allAppointment.Status === "RoomCreated" ? "#88A1D2" : "#595757" }}>{allAppointment.Status === "RoomCreated" ? "已接受" : "待確認"}
+                            <img src={editButton} className={"editButton"} alt={"123"}></img> </p>
+                    </Col>
+                </Row>
+                <div>
+                    <button className={"startButton"} onClick={() => start()}>
+                        開始
+                    </button>
+                </div>
+            </div>)
         })
     }
-
     function createListTitle() {
-        return (<tbody>
-            <tr className={"listTitle"}>
-                <th>預約人</th>
-                <th>預約時間及日期</th>
-                <th>時數</th>
-                <th>諮商種類</th>
-                <th>狀態</th>
-            </tr>
-        </tbody>);
+        return (<Row className="title-row">
+            <Col className="title-col">
+                預約人
+            </Col>
+            <Col className="title-col">
+                預約日期及時間
+            </Col>
+            <Col className="title-col">
+                預約時數
+            </Col>
+            <Col className="title-col">
+                諮商種類
+            </Col>
+            <Col className="title-col">
+                狀態
+            </Col>
+        </Row>);
     }
     const handleClose = () => {
         setOpen(false);
     };
     return (
-
-        <div className={"Consultation"}>
-            <table className="table table-striped">
-                {createListTitle()}
-                {createListItem()}
-            </table>
-
+        <div style={{ display: 'block', padding: 30, overflowY: 'hidden', overflowX: 'hidden' }}>
+            {createListTitle()}
+            {createListItem()}
             <div className={"Page"}>
                 <Pagination color="primary" count={pagesSize} defaultPage={1} onChange={handleChange} />
             </div>
+
             <Backdrop className={""} open={open} >
                 <CircularProgress />
                 <p>正在檢查您的裝置</p>
             </Backdrop>
         </div>
+
+        // <div className={"Consultation"}>
+        //     <table>
+        //         {createListTitle()}
+        //         {createListItem()}
+        //     </table>
+
+        //     <div className={"Page"}>
+        //         <Pagination color="primary" count={pagesSize} defaultPage={1} onChange={handleChange} />
+        //     </div>
+        //     <Backdrop className={""} open={open} >
+        //         <CircularProgress />
+        //         <p>正在檢查您的裝置</p>
+        //     </Backdrop>
+        // </div>
 
     );
 
