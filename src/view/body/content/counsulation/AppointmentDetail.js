@@ -160,11 +160,11 @@ function AppointmentDetail() {
                                 </tr>
                                 <tr>
                                     <td>諮商種類</td>
-                                    <td>{appointment.Service === 0 ? "諮商" : "諮商"}</td>
+                                    <td>{consultType}</td>
                                 </tr>
                                 <tr>
                                     <td>狀態</td>
-                                    <td>{consultType}</td>
+                                    <td>{appointment.Status === "RoomCreated" ? "已接受" : "待確認"}</td>
                                 </tr>
                                 <tr>
                                     <td>金額</td>
