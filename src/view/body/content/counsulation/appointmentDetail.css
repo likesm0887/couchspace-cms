@@ -1,208 +1,191 @@
 .upContent {
-    justify-content: center;
-    display: flex;
-    flex-direction: row;
-    position: relative;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  position: relative;
 }
 
 .downContent {
-    display: flex;
-    flex-direction: row;
-    margin-top: 20px;
-    margin-left: 13%;
+  display: flex;
+  flex-direction: row;
+  margin-top: 20px;
+  margin-left: 13%;
 }
 
 .userInfo {
-    position: relative;
-    margin-top: 100px;
-    background: #FFFFFF;
-    border-radius: 80px;
-    width: 70%;
-    height: 10%;
-    margin-right: 30px;
-    margin-left: -60px;
-    justify-content: center;
-    display: flex;
-    flex-direction: column;
-
+  position: relative;
+  margin-top: 100px;
+  background: #ffffff;
+  border-radius: 80px;
+  width: 70%;
+  height: 10%;
+  margin-right: 30px;
+  margin-left: -60px;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .userHeadShot {
-    position: relative;
-    display: flex;
-    margin-top: 90px;
-    z-index: 999;
-    left: 25px;
+  position: relative;
+  display: flex;
+  margin-top: 90px;
+  z-index: 999;
+  left: 25px;
 }
 
 .userHeadShotImg {
-    width: 155px;
-    height: 155px;
-
+  width: 155px;
+  height: 155px;
 }
 
 .detail li {
-    display: inline;
+  display: inline;
 }
 
 .userInfo li {
-
-    display: inline;
-}
-
-.row2 li:nth-child(2) {
-    padding-left: 6%;
-}
-
-.row1 li:nth-child(3) {
-    padding-left: 10%;
+  display: inline;
+  margin-left: 80px;
 }
 
 .row1 li {
-
-    padding-left: 20%;
-    align-content: center;
+  align-items: center;
+  justify-items: center;
+  flex: 1;
 }
 
 .row2 li {
-    padding-left: 20%;
-    display: inline-block;
-
+  display: inline;
+  align-items: center;
+  justify-items: center;
+  flex: 1;
 }
 
 .name {
-    position: absolute;
-    font-style: normal;
-    font-weight: bold;
-    font-size: 22px;
-    bottom:56%;
-    /* identical to box height */
-    color: #88A1D2;
-    vertical-align:bottom;
-    margin-right: 10px;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 22px;
+  /* identical to box height */
+  color: #88a1d2;
 }
-.mail{
-    vertical-align:bottom;
-    margin-right: 10px;
-    width: 25px;
+.mail {
+  font-style: normal;
+  font-weight: bold;
 }
-.phone{
-    vertical-align:top;
-    margin-right: 5px;
-    width: 25px;
+.phone {
+  font-style: normal;
+  font-weight: bold;
 }
 
 .infoText {
-
-    font-style: normal;
-    font-weight: bold;
-    font-size: 16px;
-    line-height: 18px;
-    /* identical to box height */
-    color: #9A9C9A;
-
+  font-style: normal;
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 18px;
+  /* identical to box height */
+  color: #9a9c9a;
 }
 
-
-
 .detail td:nth-child(1) {
-    font-style: normal;
-    font-weight: bold;
-    font-size: 15px;
-    line-height: 10px;
-    /* identical to box height */
-    color: #88A1D2;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 15px;
+  line-height: 10px;
+  /* identical to box height */
+  color: #88a1d2;
 }
 
 .detail td:nth-child(2) {
-    font-style: normal;
-    font-weight: bold;
-    font-size: 15px;
-    line-height: 10px;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 15px;
+  line-height: 10px;
 }
 
 .titleLabel {
-    font-family: 'GenYoGothic TW';
-    font-style: normal;
-    font-weight: bold;
-    font-size: 20px;
-    line-height: 20px;
-    margin-bottom: 20px;
-    /* identical to box height */
+  flex: 1;
+  font-family: "GenYoGothic TW";
+  font-style: normal;
+  font-weight: bold;
+  font-size: 20px;
+  line-height: 20px;
+  margin-bottom: 20px;
+  /* identical to box height */
 
-
-    color: #88A1D2;
+  color: #88a1d2;
 }
 
 .problem {
-    margin-top: 30px;
-    margin-left: 10%;
+  flex: 1;
+  margin-top: 30px;
+  margin-left: 10%;
 }
 
 .problem-text {
-    resize: none;
-    width: 500px;
-    height: 107px;
-    font-size: 16px;
-    padding: 15px;
-    border-color: #88A1D2;
-    border-radius: 25px;
+  resize: none;
+  flex: 1;
+  width: 500px;
+  height: 120px;
+  font-size: 16px;
+  padding: 15px;
+  border-color: #88a1d2;
+  border-radius: 25px;
 }
 
 .button-content {
-    margin-top: 20px;
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
+  margin-top: 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
 
 .finishButton {
-    margin-right: 5%;
-    width: 154px;
-    height: 45px;
-    border-radius: 35px;
-    border: none;
-    font-family: 'PingFang TC';
-    font-style: normal;
-    font-weight: 500;
-    font-size: 20px;
-    line-height: 28px;
-    background: #9A9C9A;
-    padding-top: 5px;
-    /* identical to box height */
+  margin-right: 5%;
+  width: 154px;
+  height: 45px;
+  border-radius: 35px;
+  border: none;
+  font-family: "PingFang TC";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 28px;
+  background: #9a9c9a;
+  padding-top: 5px;
+  /* identical to box height */
 
-    color: #F7F8F8;
+  color: #f7f8f8;
 }
-.finishButton:hover{
-    box-shadow: 0 3px 3px 3px #dcdddc, 0 3px 1px -2px rgb(33 150 243 / 20%), 0 1px 5px 0 rgb(33 150 243 / 12%);
+.finishButton:hover {
+  box-shadow: 0 3px 3px 3px #dcdddc, 0 3px 1px -2px rgb(33 150 243 / 20%),
+    0 1px 5px 0 rgb(33 150 243 / 12%);
 }
 
 .acceptButton {
-    padding-top: 5px;
-    width: 154px;
-    height: 45px;
-    border-radius: 35px;
-    border: none;
-    background: #88A1D2;
-    font-family: 'PingFang TC';
-    font-style: normal;
-    font-weight: 500;
-    font-size: 20px;
-    line-height: 28px;
+  padding-top: 5px;
+  width: 154px;
+  height: 45px;
+  border-radius: 35px;
+  border: none;
+  background: #88a1d2;
+  font-family: "PingFang TC";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 28px;
 
-    /* identical to box height */
+  /* identical to box height */
 
-    color: #F7F8F8;
+  color: #f7f8f8;
 }
 
-.acceptButton:hover{
-    box-shadow: 0 3px 3px 3px #e3ebfa, 0 3px 1px -2px rgb(33 150 243 / 20%), 0 1px 5px 0 rgb(33 150 243 / 12%);
+.acceptButton:hover {
+  box-shadow: 0 3px 3px 3px #e3ebfa, 0 3px 1px -2px rgb(33 150 243 / 20%),
+    0 1px 5px 0 rgb(33 150 243 / 12%);
 }
 
-.item img{
-    width:25px;
-
+.item img {
+  width: 25px;
 }
-

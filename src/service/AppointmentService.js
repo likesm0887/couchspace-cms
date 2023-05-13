@@ -11,7 +11,7 @@ export class AppointmentService {
         const api = this.base_url + "/api/v1/appointments"
         const requestOptions = {
             method: 'Get',
-            headers: {"Authorization":  this.token, 'Content-Type': 'application/json'},
+            headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
         };
 
         return fetch(api, requestOptions)
@@ -22,11 +22,11 @@ export class AppointmentService {
 
     }
 
-    getAppointment(AppointmentId){
-        const api = this.base_url + "/appointments/"+AppointmentId
+    getAppointment(AppointmentId) {
+        const api = this.base_url + "/appointments/" + AppointmentId
         const requestOptions = {
             method: 'Get',
-            headers: {"Authorization":  this.token, 'Content-Type': 'application/json'},
+            headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
         };
         return fetch(api, requestOptions)
             .then(res => res.json())

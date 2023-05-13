@@ -6,14 +6,15 @@ import editButton from "../../../img/content/edit.svg"
 import { useNavigate } from "react-router-dom";
 import { Row, Col } from 'react-bootstrap';
 import userIcon from "../../../img/content/userIcon.svg";
+
 function Consultation() {
     let navigate = useNavigate();
     let pageSize = 7;
     const [open, setOpen] = useState(false);
     const [allAppointments, setAllAppointments] = useState([]);
     const [currentPage, setCurrentPage] = useState(1)
-    const [currentTableData, setCurrentTableData] = useState([])
-    const [pagesSize, setPagesSize] = useState(1)
+    const [currentTableData, setCurrentTableData] = useState([]);
+    const [pagesSize, setPagesSize] = useState(1);
 
     function calCurrentTableData(data) {
         const firstPageIndex = (currentPage - 1) * pageSize;
@@ -34,7 +35,7 @@ function Consultation() {
         var second = parseInt(number % 60)
             .toString()
             .padStart(2, "0");
-        return minute + ":" + second;
+        return minute + ":" + second + ":00";
     }
 
     const getData = async () => {
@@ -57,8 +58,8 @@ function Consultation() {
     useEffect(() => {
         getData();
     }, [])
-    const clickItem = (appointmentID) => {
-        navigate("/couchspace-cms/home/consultation/" + appointmentID, { replace: false });
+    const clickItem = (appointment) => {
+        navigate("/couchspace-cms/home/consultation/" + appointment.AppointmentID, { replace: false, state: { appointment: appointment } });
     }
     const start = () => {
         setOpen(!open);
@@ -67,7 +68,7 @@ function Consultation() {
     function createListItem() {
         return currentTableData.map(allAppointment => {
             return (<div style={{ flexDirection: 'row', flex: 1, justifyContent: 'center', alignItems: 'center' }} key={allAppointment.AppointmentID}>
-                <Row className="content-row" onClick={() => clickItem(allAppointment.AppointmentID)}>
+                <Row className="content-row" onClick={() => clickItem(allAppointment)}>
                     <Col className="content-col">
                         <img style={{ verticalAlign: 'middle' }} src={userIcon} alt="123"></img>{allAppointment.UserName}
                     </Col>
