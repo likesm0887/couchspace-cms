@@ -1,178 +1,181 @@
-.content{
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 0px;
-    position: absolute;
-    width: 506px;
-    left: 40%;
-    height: 719px;
-    top: 8.33%;
-    bottom: 10.95%;
-    background-color: #F7F8F8;
-    border-radius: 30px;
-    box-shadow: 5px 5px 5px 0px rgba(0, 0, 0, 0.2);
-
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0px;
+  position: absolute;
+  width: 506px;
+  left: 40%;
+  height: 719px;
+  top: 8.33%;
+  bottom: 10.95%;
+  background-color: #f7f8f8;
+  border-radius: 30px;
+  box-shadow: 5px 5px 5px 0px rgba(0, 0, 0, 0.2);
 }
-.login-logo{
-    width: 215px;
-    height: 77px;
-    position: absolute;
-    left: 30%;
-    right: 44.43%;
-    top: 15.86%;
-    bottom: 66.11%;
+.login-logo {
+  width: 215px;
+  height: 77px;
+  position: absolute;
+  left: 30%;
+  right: 44.43%;
+  top: 15.86%;
+  bottom: 66.11%;
 }
-.circle{
-    width:100%;
-    vertical-align:bottom;
-    height: 400px;
-    position: absolute;
-    top: 30.86%;
-    bottom: 40.11%;
-    border-radius:100%  100% 30px 30px ;
-    background:  #FFFFFF;
+.circle {
+  width: 100%;
+  vertical-align: bottom;
+  height: 400px;
+  position: absolute;
+  top: 30.86%;
+  bottom: 40.11%;
+  border-radius: 100% 100% 30px 30px;
+  background: #ffffff;
 }
-textarea:focus, input:focus{
-    outline: none;
+textarea:focus,
+input:focus {
+  outline: none;
 }
-.circle2{
-    width:99.5%;
-    vertical-align:bottom;
-    height: 382px;
-    position: absolute;
-    top: 28.86%;
-    left: 0.5%;
-    bottom: 40.11%;
-    border-radius:100%  100% 35px 35px ;
-    background:  #88A1D2;;
+.circle2 {
+  width: 99.5%;
+  vertical-align: bottom;
+  height: 382px;
+  position: absolute;
+  top: 28.86%;
+  left: 0.5%;
+  bottom: 40.11%;
+  border-radius: 100% 100% 35px 35px;
+  background: #88a1d2;
 }
-.input-account{
-    position: absolute;
-    left:20%;
-    right: 30.06%;
-    top: 50.74%;
-    bottom: 25.67%;
-    border: none;
-    background: #F4F4F4;
-    width: 230px;
-    height: 52px;
-    border-radius: 30px;
-    border: 0px;
-    text-align:left;
-    color: #C7C7C7;
-    font-size: 20px;
-    overflow: hidden;
-    white-space: nowrap;
-    padding-left: 70px;
-    text-overflow: ellipsis;
+.input-account {
+  position: absolute;
+  left: 20%;
+  right: 30.06%;
+  top: 50.74%;
+  bottom: 25.67%;
+  border: none;
+  background: #f4f4f4;
+  width: 230px;
+  height: 52px;
+  border-radius: 30px;
+  border: 0px;
+  text-align: left;
+  font-size: 20px;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-left: 70px;
+  text-overflow: ellipsis;
 }
-.input-password{
-    border: none;
-    position: absolute;
-    left:20%;
-    right: 40.06%;
-    top: 60.74%;
-    bottom: 15.67%;
-    background: #F4F4F4;
-    width: 230px;
-    height: 52px;
-    border-radius: 30px;
-    border: 0px;
-    text-align:left;
-    color: #C7C7C7;
-    font-size: 20px;
-    overflow: hidden;
-    white-space: nowrap;
-    padding-left: 70px;
-    text-overflow: ellipsis;
+.input-password {
+  border: none;
+  position: absolute;
+  left: 20%;
+  right: 40.06%;
+  top: 60.74%;
+  bottom: 15.67%;
+  background: #f4f4f4;
+  width: 230px;
+  height: 52px;
+  border-radius: 30px;
+  border: 0px;
+  text-align: left;
+  font-size: 20px;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-left: 70px;
+  text-overflow: ellipsis;
 }
-.login{
-    border-radius: 30px;
-    border: 0px;
-    width: 200px;
-    height: 50px;
-    color: #595757;
-    background-color: #F7F8F8;
-    font-family: 'GenYoGothic TW';
-    font-style: normal;
-    font-size: 25px;
-    line-height: 20px;
-    font-weight:bold;
+.login {
+  border-radius: 30px;
+  border: 0px;
+  width: 200px;
+  height: 50px;
+  color: #595757;
+  background-color: #f7f8f8;
+  font-family: "GenYoGothic TW";
+  font-style: normal;
+  font-size: 25px;
+  line-height: 20px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .login-wrap {
-    z-index: 999;
-    position: absolute;
-    left: 50.88%;
-    right:35.04%;
-    top: 78.61%;
-    bottom: 22.8%;
-    filter: drop-shadow(-1px 2px 3px rgba(50, 50, 0, 0.5));
+  z-index: 999;
+  position: absolute;
+  left: 50.88%;
+  right: 35.04%;
+  top: 78.61%;
+  bottom: 22.8%;
+  filter: drop-shadow(-1px 2px 3px rgba(50, 50, 0, 0.5));
 }
 ::placeholder {
-    color: #C7C7C7;
-    font-size: 15px;
-    font-family: 'Nunito';
-    font-style: normal;
-    font-weight: 700;
-    line-height: 19px;
-    alignment: center;
-    position: relative;
-    text-align: left;
-    /* identical to box height */
+  color: #c7c7c7;
+  font-size: 15px;
+  font-family: "Nunito";
+  font-style: normal;
+  font-weight: 700;
+  line-height: 19px;
+  align-self: center;
+  position: relative;
+  text-align: left;
+  /* identical to box height */
 }
-.account-icon{
-    position: absolute;
-    left: 25.3%;
-    right: 28.01%;
-    top: 51.78%;
-    bottom: 46.5%;
-    z-index: 998;
-    width: 35px;
-    height: 35px;
+.account-icon {
+  position: absolute;
+  left: 25.3%;
+  right: 28.01%;
+  top: 51.78%;
+  bottom: 46.5%;
+  z-index: 998;
+  width: 35px;
+  height: 35px;
 }
-.password-icon{
-    position: absolute;
-    left: 25.3%;
-    right: 28.01%;
-    top: 62.1%;
-    bottom: 46.5%;
-    z-index: 998;
-    width: 35px;
-    height: 35px;
+.password-icon {
+  position: absolute;
+  left: 25.3%;
+  right: 28.01%;
+  top: 62.1%;
+  bottom: 46.5%;
+  z-index: 998;
+  width: 35px;
+  height: 35px;
 }
-.outInput{
-    flex-direction: row;
-    display: flex
+.outInput {
+  flex-direction: row;
+  display: flex;
 }
 
-.copyRight{
-    position: absolute;
-    left: 17%;
-    right: 50%;
-    top: 107.1%;
-    bottom: 0.5%;
-    width: 500px;
-    color: #a3a2a3;
-    font-size: 14px;
+.copyRight {
+  position: absolute;
+  left: 17%;
+  right: 50%;
+  top: 107.1%;
+  bottom: 0.5%;
+  width: 500px;
+  color: #a3a2a3;
+  font-size: 14px;
 }
-*{
-    font-family:微軟正黑體;
+* {
+  font-family: 微軟正黑體;
 }
-.register{
-    position: absolute;
-    left: 17.58%;
-    right: 30.86%;
-    top: 75.92%;
-    bottom: 24.48%;
-    width: 200px;
-    font-family: 'GenYoGothic TW';
-    font-style: normal;
-    font-size: 25px;
-    line-height: 20px;
-    /* identical to box height */
-    font-weight:bold;
+.register {
+  position: absolute;
+  left: 17.58%;
+  right: 30.86%;
+  top: 75.92%;
+  bottom: 24.48%;
+  width: 200px;
+  font-family: "GenYoGothic TW";
+  font-style: normal;
+  font-size: 25px;
+  line-height: 20px;
+  /* identical to box height */
+  font-weight: bold;
 
-    color: #F7F8F8;
+  color: #f7f8f8;
+}
+.register-text {
+  cursor: pointer;
+  filter: drop-shadow(-1px 2px 3px rgba(50, 50, 0, 0.5));
 }

@@ -15,7 +15,7 @@ export class CounselorService {
             body: JSON.stringify({ Email: account, Password: password }),
         };
 
-        fetch(api, requestOptions)
+        return fetch(api, requestOptions)
             .then(res => res.json())
             .then((result) => {
                 // result is userID
@@ -30,12 +30,12 @@ export class CounselorService {
             body: JSON.stringify({ Email: account, Password: password }),
         };
 
-        fetch(api, requestOptions)
+        return fetch(api, requestOptions)
             .then(res => res.json())
             .then((result) => {
-                // console.log(result)
                 this.token = result.token;
                 cookie.save('token_counselor', this.token.AccessToken);
+                return result;
             });
     }
     getCounselorInfo() {

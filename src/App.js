@@ -20,6 +20,7 @@ import Teacher from "./view/body/admin/Teacher";
 import Setting from "./view/body/admin/Setting";
 import User from "./view/body/admin/User";
 import Membership from "./view/body/admin/Membership";
+import { ToastContainer } from "react-toastify";
 
 function askForNotificationPermission() {
     Notification.requestPermission(function (result) {
@@ -51,21 +52,21 @@ function App() {
         console.log(payload);
     }).catch(err => console.log('failed: ', err));
     return (
-        
+
         <BrowserRouter>
             <Routes>
-                <Route path="Login" element={<Login2 />}></Route> 
+                <Route path="Login" element={<Login2 />}></Route>
                 <Route path="admin" element={<Admin />}>
-                    <Route path="course" element={<Course/>}></Route>
-                    <Route path="music" element={<Music/>}></Route>
-                    <Route path="category" element={<Category/>}></Route>
-                    <Route path="teacher" element={<Teacher/>}></Route>
-                    <Route path="user" element={<User/>}></Route>
-                    <Route path="setting" element={<Setting/>}></Route>
-                    <Route path="membership" element={<Membership/>}></Route>
+                    <Route path="course" element={<Course />}></Route>
+                    <Route path="music" element={<Music />}></Route>
+                    <Route path="category" element={<Category />}></Route>
+                    <Route path="teacher" element={<Teacher />}></Route>
+                    <Route path="user" element={<User />}></Route>
+                    <Route path="setting" element={<Setting />}></Route>
+                    <Route path="membership" element={<Membership />}></Route>
                 </Route>
                 <Route path="couchspace-cms/register" element={<Register />} />
-                
+
                 <Route path="couchspace-cms/" element={<Login />} />
                 <Route path="couchspace-cms/home" element={<Home />}>
                     <Route>
@@ -90,7 +91,7 @@ function App() {
         //
         //     <Body></Body>
         // </div>
-    
+
     );
 }
 
