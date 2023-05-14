@@ -1,5 +1,6 @@
 import { toast } from 'react-toastify';
 export const toastType = Object.freeze({ info: 0, success: 1, warning: 2, error: 3 });
+const emailRule = /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
 export const showToast = (type, message) => {
     switch (type) {
         case toastType.info:
@@ -18,4 +19,11 @@ export const showToast = (type, message) => {
             break;
     }
 
+}
+
+export const checkEmail = (email) => {
+  if (email.search(emailRule) === -1) {
+    return false;
+  }
+  return true;
 }

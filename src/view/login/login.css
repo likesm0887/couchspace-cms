@@ -48,14 +48,9 @@ input:focus {
   background: #88a1d2;
 }
 .input-account {
-  position: absolute;
-  left: 20%;
-  right: 30.06%;
-  top: 50.74%;
-  bottom: 25.67%;
   border: none;
   background: #f4f4f4;
-  width: 230px;
+  width: 300px;
   height: 52px;
   border-radius: 30px;
   border: 0px;
@@ -68,13 +63,8 @@ input:focus {
 }
 .input-password {
   border: none;
-  position: absolute;
-  left: 20%;
-  right: 40.06%;
-  top: 60.74%;
-  bottom: 15.67%;
   background: #f4f4f4;
-  width: 230px;
+  width: 300px;
   height: 52px;
   border-radius: 30px;
   border: 0px;
@@ -102,11 +92,6 @@ input:focus {
 
 .login-wrap {
   z-index: 999;
-  position: absolute;
-  left: 50.88%;
-  right: 35.04%;
-  top: 78.61%;
-  bottom: 22.8%;
   filter: drop-shadow(-1px 2px 3px rgba(50, 50, 0, 0.5));
 }
 ::placeholder {
@@ -122,30 +107,37 @@ input:focus {
   /* identical to box height */
 }
 .account-icon {
-  position: absolute;
-  left: 25.3%;
-  right: 28.01%;
-  top: 51.78%;
-  bottom: 46.5%;
   z-index: 998;
   width: 35px;
   height: 35px;
+  vertical-align: middle;
+  margin-right: -60px;
 }
 .password-icon {
-  position: absolute;
-  left: 25.3%;
-  right: 28.01%;
-  top: 62.1%;
-  bottom: 46.5%;
   z-index: 998;
   width: 35px;
   height: 35px;
+  vertical-align: middle;
+  margin-right: -60px;
 }
-.outInput {
+.row {
+  flex: 1;
+  flex-direction: column;
+  display: "block";
+  align-items: center;
+  justify-items: center;
+  z-index: 999;
+  margin-top: 75%;
+  margin-left: 20%;
+}
+.col {
+  flex: 1;
   flex-direction: row;
   display: flex;
+  align-items: center;
+  justify-items: center;
+  margin-bottom: 20px;
 }
-
 .copyRight {
   position: absolute;
   left: 17%;
@@ -160,12 +152,8 @@ input:focus {
   font-family: 微軟正黑體;
 }
 .register {
-  position: absolute;
-  left: 17.58%;
-  right: 30.86%;
-  top: 75.92%;
-  bottom: 24.48%;
-  width: 200px;
+  margin-left: -20px;
+  width: 150px;
   font-family: "GenYoGothic TW";
   font-style: normal;
   font-size: 25px;
@@ -176,6 +164,44 @@ input:focus {
   color: #f7f8f8;
 }
 .register-text {
+  margin-left: -40px;
+  width: 150px;
+  font-family: "GenYoGothic TW";
+  font-style: normal;
+  font-size: 25px;
+  line-height: 20px;
+  text-align: center;
+  font-weight: bold;
   cursor: pointer;
   filter: drop-shadow(-1px 2px 3px rgba(50, 50, 0, 0.5));
+  color: #f7f8f8;
+  margin-right: 20px;
+}
+
+.forget-text {
+  font-family: "GenYoGothic TW";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 15px;
+  text-align: center;
+  color: #f7f8f8;
+  margin-left: 230px;
+  cursor: pointer;
+}
+
+.back-text {
+  margin-left: -40px;
+  width: 150px;
+  font-family: "GenYoGothic TW";
+  font-style: normal;
+  font-size: 25px;
+  line-height: 20px;
+  text-align: center;
+  /* identical to box height */
+  font-weight: bold;
+  cursor: pointer;
+  filter: drop-shadow(-1px 2px 3px rgba(50, 50, 0, 0.5));
+  color: #f7f8f8;
+  margin-right: 20px;
 }
