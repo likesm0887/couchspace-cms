@@ -3,7 +3,7 @@ import img_logo from "../img/login/login.svg";
 import img_account from "../img/login/account.svg";
 import img_password from "../img/login/password.svg";
 import { counselorService } from "../../service/ServicePool";
-import { showToast, toastType, checkEmail } from "../../common/method";
+import { showToast, toastType, checkEmail, checkPassword } from "../../common/method";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 function Login() {
@@ -19,6 +19,9 @@ function Login() {
         // showToast(toastType.warning, "213123");
         if (!checkEmail(account)) {
             showToast(toastType.error, "email格式有誤");
+        }
+        else if (!checkPassword(password)) {
+            showToast(toastType.error, "密碼需包含英數且至少8個字元");
         }
         else {
             console.log("account", account);
@@ -44,8 +47,14 @@ function Login() {
         if (!checkEmail(account)) {
             showToast(toastType.error, "email格式有誤");
         }
+        else if (!checkPassword(password)) {
+            showToast(toastType.error, "密碼需包含英數且至少8個字元");
+        }
+        else if (password !== confirmedPassword) {
+            showToast(toastType.error, "密碼與確認密碼不一致");
+        }
         else {
-            navigate("register", { replace: false });
+            navigate("register", { replace: false, state: { email: account, password: password } });
         }
 
     }
