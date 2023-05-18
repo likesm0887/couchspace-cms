@@ -68,24 +68,24 @@ function Consultation() {
     function createListItem() {
         return currentTableData.map(allAppointment => {
             return (<div style={{ flexDirection: 'row', flex: 1, justifyContent: 'center', alignItems: 'center' }} key={allAppointment.AppointmentID}>
-                <Row className="content-row" onClick={() => clickItem(allAppointment)}>
-                    <Col className="content-col">
+                <div className="content-row" onClick={() => clickItem(allAppointment)}>
+                    <div className="content-col">
                         <img style={{ verticalAlign: 'middle' }} src={userIcon} alt="123"></img>{allAppointment.UserName}
-                    </Col>
-                    <Col className="content-col">
+                    </div>
+                    <div className="content-col">
                         {allAppointment.Time.Date}
-                    </Col>
-                    <Col className="content-col">
+                    </div>
+                    <div className="content-col">
                         {num2Time(allAppointment.Time.Total)}
-                    </Col>
-                    <Col className="content-col">
+                    </div>
+                    <div className="content-col">
                         {allAppointment.Service === 0 ? "諮商" : "諮商"}
-                    </Col>
-                    <Col className="content-col">
+                    </div>
+                    <div className="content-col">
                         <p style={{ color: allAppointment.Status === "RoomCreated" ? "#88A1D2" : "#595757" }}>{allAppointment.Status === "RoomCreated" ? "已接受" : "待確認"}
                             <img src={editButton} className={"editButton"} alt={"123"}></img> </p>
-                    </Col>
-                </Row>
+                    </div>
+                </div>
                 <div>
                     <button className={"startButton"} onClick={() => start()}>
                         開始
@@ -95,23 +95,23 @@ function Consultation() {
         })
     }
     function createListTitle() {
-        return (<Row className="title-row">
-            <Col className="title-col">
+        return (<div className="title-row">
+            <div className="title-col">
                 預約人
-            </Col>
-            <Col className="title-col">
+            </div>
+            <div className="title-col">
                 預約日期及時間
-            </Col>
-            <Col className="title-col">
+            </div>
+            <div className="title-col">
                 預約時數
-            </Col>
-            <Col className="title-col">
+            </div>
+            <div className="title-col">
                 諮商種類
-            </Col>
-            <Col className="title-col">
+            </div>
+            <div className="title-col">
                 狀態
-            </Col>
-        </Row>);
+            </div>
+        </div>);
     }
     const handleClose = () => {
         setOpen(false);
