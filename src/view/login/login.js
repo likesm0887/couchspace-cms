@@ -17,10 +17,10 @@ function Login() {
         // showToast(toastType.info, "213123");
         // showToast(toastType.success, "213123");
         // showToast(toastType.warning, "213123");
-        if (!checkEmail(account)) {
-            showToast(toastType.error, "email格式有誤");
-        }
-        else if (!checkPassword(password)) {
+        // if (!checkEmail(account)) {
+        //     showToast(toastType.error, "email格式有誤");
+        // }
+        if (!checkPassword(password)) {
             showToast(toastType.error, "密碼需包含英數且至少8個字元");
         }
         else {
@@ -44,10 +44,10 @@ function Login() {
         setConfirmedPassword("");
     }
     const onClickRegister = () => {
-        if (!checkEmail(account)) {
-            showToast(toastType.error, "email格式有誤");
-        }
-        else if (!checkPassword(password)) {
+        // if (!checkEmail(account)) {
+        //     showToast(toastType.error, "email格式有誤");
+        // }
+        if (!checkPassword(password)) {
             showToast(toastType.error, "密碼需包含英數且至少8個字元");
         }
         else if (password !== confirmedPassword) {
