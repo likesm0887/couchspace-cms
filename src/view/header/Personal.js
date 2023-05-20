@@ -6,29 +6,16 @@ import "./Personal.css"
 
 import { Avatar, Badge, Menu, MenuItem } from "@mui/material";
 import { useEffect, useState } from "react";
+import { counselorInfo } from "../../dataContract/counselor";
 
 
 function Personal() {
-    const tag = "@couchspace"
-    const [info, setInfo] = useState([])
-    const [name, setName] = useState("adsasd")
-    const [show, setShow] = useState(false)
-    const getInfo = async () => {
-        return await counselorService.getCounselorInfo();
-    }
+    const tag = "@couchspace";
+    const [name, setName] = useState("adsasd");
+    const [show, setShow] = useState(false);
     const [anchorEl, setAnchorEl] = React.useState(null);
     useEffect(() => {
-        let mounted = true;
-        getInfo()
-            .then(info => {
-
-                if (mounted) {
-                    console.log(info)
-                    setInfo(info)
-                    setName(info.UserName.Name.FirstName + info.UserName.Name.LastName)
-                }
-            })
-        return () => mounted = false;
+        setName(counselorInfo.UserName.NickName);
     }, [])
 
     window.addEventListener('mouseup', (event) => {
@@ -37,11 +24,10 @@ function Personal() {
         setShow(false)
     });
 
-    const clickMemberManager = (event) => {
-
+    const onClickMemberManager = (event) => {
         setShow(false)
     }
-    const clickLogout = (event) => {
+    const onClickLogout = (event) => {
         setShow(false)
     }
     const handleClick = (event) => {
@@ -70,12 +56,12 @@ function Personal() {
                         open={Boolean(anchorEl)}
                         onClose={handleClose}
                     >
-                        <MenuItem className={"logout"} onClick={handleClose}>會員管理</MenuItem>
-                        <MenuItem className={"logout"} onClick={handleClose}>登出</MenuItem>
+                        <MenuItem className={"logout"} onClick={onClickMemberManager}>會員管理</MenuItem>
+                        <MenuItem className={"logout"} onClick={onClickLogout}>登出</MenuItem>
                     </Menu>
                 </div>
 
-                {show && <span className={"logout-wrap"}>
+                {/* {show && <span className={"logout-wrap"}>
                     <span className="logout">
                         <li className={"menu"} onClick={clickMemberManager}>
                             會員管理
@@ -85,7 +71,7 @@ function Personal() {
                     </span>
 
                 </span>
-                }
+                } */}
 
             </div>
             <div className={"bell"}>

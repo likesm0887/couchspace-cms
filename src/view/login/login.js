@@ -5,13 +5,26 @@ import img_password from "../img/login/password.svg";
 import { counselorService } from "../../service/ServicePool";
 import { showToast, toastType, checkEmail, checkPassword } from "../../common/method";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { counselorInfo } from "../../dataContract/counselor";
 function Login() {
     const navigate = useNavigate();
     const [account, setAccount] = useState("");
     const [password, setPassword] = useState("");
     const [confirmedPassword, setConfirmedPassword] = useState("");
     const [isLogin, setIsLogin] = useState(true);
+    useEffect(() => {
+        window.addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                onClickLogin();
+                return;
+            }
+        });
+        return () => {
+            window.removeEventListener('keypress', function (event) { });
+        }
+    }, [])
     const onClickLogin = async () => {
         try {
             // showToast(toastType.error, "213123");
@@ -28,7 +41,8 @@ function Login() {
                 console.log("account", account);
                 console.log("password", password);
                 var res = await counselorService.login(account, password);
-                console.log("res", res);
+                var info = await counselorService.getCounselorInfo();
+                counselorInfo.setCounselorInfo = info;
                 if (res.user_id) {
                     navigate("home", { replace: true });
                 }
@@ -39,6 +53,7 @@ function Login() {
             }
         }
         catch (err) { // http status not 200
+            console.log(err);
             showToast(toastType.error, "帳號密碼有誤");
         }
     }

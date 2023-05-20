@@ -40,13 +40,6 @@ export class CounselorService {
             });
     }
     getCounselorInfo() {
-        // const info = cookie.load("Info");
-        // if (info !== undefined) {
-        //     return JSON.parse(info)
-        // }
-        if (this.token === undefined) {
-            return;
-        }
         const api = this.base_url + "/api/v1/counselors";
         const requestOptions = {
             method: 'GET',
@@ -55,9 +48,8 @@ export class CounselorService {
 
         return fetch(api, requestOptions)
             .then(res => res.json())
-            .then(res => {
-                cookie.save("Info", JSON.stringify(res))
-                return res;
+            .then((result) => {
+                return result;
             });
     }
 
