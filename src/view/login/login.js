@@ -13,28 +13,33 @@ function Login() {
     const [confirmedPassword, setConfirmedPassword] = useState("");
     const [isLogin, setIsLogin] = useState(true);
     const onClickLogin = async () => {
-        // showToast(toastType.error, "213123");
-        // showToast(toastType.info, "213123");
-        // showToast(toastType.success, "213123");
-        // showToast(toastType.warning, "213123");
-        // if (!checkEmail(account)) {
-        //     showToast(toastType.error, "email格式有誤");
-        // }
-        if (!checkPassword(password)) {
-            showToast(toastType.error, "密碼需包含英數且至少8個字元");
-        }
-        else {
-            console.log("account", account);
-            console.log("password", password);
-            var res = await counselorService.login(account, password);
-            console.log("res", res);
-            if (res.user_id) {
-                navigate("home", { replace: true });
+        try {
+            // showToast(toastType.error, "213123");
+            // showToast(toastType.info, "213123");
+            // showToast(toastType.success, "213123");
+            // showToast(toastType.warning, "213123");
+            // if (!checkEmail(account)) {
+            //     showToast(toastType.error, "email格式有誤");
+            // }
+            if (!checkPassword(password)) {
+                showToast(toastType.error, "密碼需包含英數且至少8個字元");
             }
             else {
-                // if res is token, res.message is undefined => will not show toast
-                showToast(toastType.error, res.message);
+                console.log("account", account);
+                console.log("password", password);
+                var res = await counselorService.login(account, password);
+                console.log("res", res);
+                if (res.user_id) {
+                    navigate("home", { replace: true });
+                }
+                else {
+                    // if res is token, res.message is undefined => will not show toast
+                    showToast(toastType.error, res.message);
+                }
             }
+        }
+        catch (err) { // http status not 200
+            showToast(toastType.error, "帳號密碼有誤");
         }
     }
     const onClickSignup = () => {

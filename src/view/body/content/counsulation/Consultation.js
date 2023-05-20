@@ -4,14 +4,14 @@ import { Backdrop, CircularProgress, createTheme, Pagination } from "@mui/materi
 import "./consultation.css"
 import editButton from "../../../img/content/edit.svg"
 import { useNavigate } from "react-router-dom";
-import { Row, Col } from 'react-bootstrap';
 import userIcon from "../../../img/content/userIcon.svg";
+import { Appointment } from "../../../../dataContract/appointment";
 
 function Consultation() {
     let navigate = useNavigate();
     let pageSize = 7;
     const [open, setOpen] = useState(false);
-    const [allAppointments, setAllAppointments] = useState([]);
+    let allAppointments: Appointment[] = [];
     const [currentPage, setCurrentPage] = useState(1)
     const [currentTableData, setCurrentTableData] = useState([]);
     const [pagesSize, setPagesSize] = useState(1);
@@ -40,20 +40,17 @@ function Consultation() {
 
     const getData = async () => {
         const res = await appointmentService.getAllAppointment();
+        console.log("getData", res);
         if (res) {
-            setAllAppointments(res)
-            setCurrentTableData(calCurrentTableData(res))
-            setPagesSize(calPageSize(res.length))
+            allAppointments = res;
+            setCurrentTableData(calCurrentTableData(allAppointments));
+            setPagesSize(calPageSize(allAppointments.length));
         }
     }
 
     const handleChange = (event, value) => {
-        setCurrentPage(value)
+        setCurrentPage(value);
     }
-
-    useEffect(() => {
-        setCurrentTableData(calCurrentTableData(allAppointments))
-    }, [currentPage])
 
     useEffect(() => {
         getData();
@@ -129,22 +126,6 @@ function Consultation() {
                 <p>正在檢查您的裝置</p>
             </Backdrop>
         </div>
-
-        // <div className={"Consultation"}>
-        //     <table>
-        //         {createListTitle()}
-        //         {createListItem()}
-        //     </table>
-
-        //     <div className={"Page"}>
-        //         <Pagination color="primary" count={pagesSize} defaultPage={1} onChange={handleChange} />
-        //     </div>
-        //     <Backdrop className={""} open={open} >
-        //         <CircularProgress />
-        //         <p>正在檢查您的裝置</p>
-        //     </Backdrop>
-        // </div>
-
     );
 
 }

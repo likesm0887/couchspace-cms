@@ -1,5 +1,5 @@
 import cookie from 'react-cookies'
-
+import { appointmentService } from './ServicePool';
 export class CounselorService {
 
     constructor(base_url) {
@@ -33,8 +33,9 @@ export class CounselorService {
         return fetch(api, requestOptions)
             .then(res => res.json())
             .then((result) => {
-                this.token = result.token;
-                cookie.save('token_counselor', this.token.AccessToken);
+                this.token = result.token.AccessToken;
+                appointmentService.setToken(result.token.AccessToken)
+                cookie.save('token_counselor', result.token.AccessToken);
                 return result;
             });
     }
