@@ -12,23 +12,39 @@ import "react-toastify/dist/ReactToastify.css";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <App />
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={true}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
-    </Provider>
-  </React.StrictMode>
+  <Provider store={store}>
+    <App />
+    <ToastContainer
+      position="top-right"
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop={true}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme="colored"
+    />
+  </Provider>
+  // StrictMode will render twice so comment it for now
+  // <React.StrictMode>
+  //   <Provider store={store}>
+  //     <App />
+  //     <ToastContainer
+  //       position="top-right"
+  //       autoClose={3000}
+  //       hideProgressBar={false}
+  //       newestOnTop={true}
+  //       closeOnClick
+  //       rtl={false}
+  //       pauseOnFocusLoss
+  //       draggable
+  //       pauseOnHover
+  //       theme="colored"
+  //     />
+  //   </Provider>
+  // </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
