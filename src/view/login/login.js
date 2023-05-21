@@ -97,21 +97,21 @@ function Login() {
     }
     const renderLogin = () => {
         return (
-            <div className={"row"}>
-                <div className={"col"}>
+            <div className={"R-row"}>
+                <div className={"C-col"}>
                     <img className="account-icon" src={img_account} alt="123"></img>
                     <input className={"input-account"} placeholder="abc@gmail.com" type={"text"} onChange={(text) => setAccount(text.target.value.trim())} value={account}></input>
                 </div>
-                <div className={"col"}>
+                <div className={"C-col"}>
                     <img className="password-icon" src={img_password} alt="123"></img>
                     <input className={"input-password"} placeholder="PASSWORD" type={"password"} onChange={(text) => setPassword(text.target.value.trim())} value={password}></input>
                 </div>
-                <div className={"col"}>
+                <div className={"C-col"}>
                     <span className={"forget-text"} onClick={() => onClickForget()}>
                         忘記密碼?
                     </span>
                 </div>
-                <div className={"col"}>
+                <div className={"C-col"}>
                     <span className={"register-text"} onClick={() => onClickSignup()}>
                         申請帳號
                     </span>
@@ -123,20 +123,20 @@ function Login() {
     }
     const renderRegister = () => {
         return (
-            <div className={"row"}>
-                <div className={"col"}>
+            <div className={"R-row"}>
+                <div className={"C-col"}>
                     <img className="account-icon" src={img_account} alt="123"></img>
                     <input className={"input-account"} placeholder="abc@gmail.com" type={"text"} onChange={(text) => setAccount(text.target.value.trim())} value={account}></input>
                 </div>
-                <div className={"col"}>
+                <div className={"C-col"}>
                     <img className="password-icon" src={img_password} alt="123"></img>
                     <input className={"input-password"} placeholder="PASSWORD" type={"password"} onChange={(text) => setPassword(text.target.value.trim())} value={password}></input>
                 </div>
-                <div className={"col"}>
+                <div className={"C-col"}>
                     <img className="password-icon" src={img_password} alt="123"></img>
                     <input className={"input-password"} placeholder="CONFIRMED PASSWORD" type={"password"} onChange={(text) => setConfirmedPassword(text.target.value.trim())} value={confirmedPassword}></input>
                 </div>
-                <div className={"col"}>
+                <div className={"C-col"}>
                     <span className={"back-text"} onClick={() => onClickBack()}>
                         返回
                     </span>

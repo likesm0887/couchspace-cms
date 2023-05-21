@@ -2,7 +2,7 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    max-width: 700px;
+    width: 100%;
     border-width: 1px;
     padding-left: 24px;
     padding-right: 24px;
@@ -11,8 +11,6 @@
     border-color: #C7C7C7;
     margin-right: auto;
     display: block;
-    width: 100%;
-
 }
 
 .PersonalInfo-Input {
@@ -24,6 +22,7 @@
 }
 
 .PersonalInfo img {
+    margin-left: 50px;
     max-width: 300px;
     width: auto;
     height: auto;

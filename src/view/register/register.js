@@ -5,12 +5,17 @@ import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import Personal from "../header/Personal";
 import PersonalInfo from "./personalInfo";
+import { useNavigate } from 'react-router-dom';
+import { useRef } from 'react';
+
 
 const useStyles = makeStyles((theme) => ({
     root: {
-        width: '100%',
+        height: '100%',
+        width: '60%',
+        marginLeft: '20%',
+        marginTop: '2%',
     },
     button: {
         marginRight: theme.spacing(1),
@@ -22,30 +27,18 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function getSteps() {
-    return ['填寫個人資料', '填寫機構資料', '預約設定', '完成'];
+    return ['填寫個人資料', '填寫諮商資訊', '諮商時段設定', '完成'];
+    // return ['填寫個人資料', '填寫機構資料', '預約設定', '完成'];
 }
 
-function getStepContent(step) {
-    switch (step) {
-        case 0:
-            return <PersonalInfo></PersonalInfo>;
-        case 1:
-            return '填寫機構資料';
-        case 2:
-            return '設定營業時間';
-        case 3:
-            return '設定營業時間';
-        default:
-            return 'Unknown step';
-    }
-}
 
 export function Register() {
+    const navigate = useNavigate();
     const classes = useStyles();
     const [activeStep, setActiveStep] = React.useState(0);
     const [skipped, setSkipped] = React.useState(new Set());
     const steps = getSteps();
-
+    const personalInfo = useRef();
     const isStepOptional = (step) => {
         return step === 1;
     };
@@ -55,6 +48,9 @@ export function Register() {
     };
 
     const handleNext = () => {
+        if (activeStep === 0 && !personalInfo.current.checkAllInput()) {
+            return;
+        }
         let newSkipped = skipped;
         if (isStepSkipped(activeStep)) {
             newSkipped = new Set(newSkipped.values());
@@ -66,6 +62,9 @@ export function Register() {
     };
 
     const handleBack = () => {
+        if (activeStep === 0) {
+            navigate('/couchspace-cms', { replace: true });
+        }
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
     };
 
@@ -74,9 +73,23 @@ export function Register() {
     const handleReset = () => {
         setActiveStep(0);
     };
+    function getStepContent(step) {
+        switch (step) {
+            case 0:
+                return <PersonalInfo ref={personalInfo}></PersonalInfo>;
+            case 1:
+                return '填寫機構資料';
+            case 2:
+                return '設定營業時間';
+            case 3:
+                return '設定營業時間';
+            default:
+                return 'Unknown step';
+        }
+    }
 
     return (
-        <div className={classes.root} style={{"max-width": '700px'}}>
+        <div className={classes.root}>
             <Stepper activeStep={activeStep}>
                 {steps.map((label, index) => {
                     const stepProps = {};
@@ -96,7 +109,7 @@ export function Register() {
                 {activeStep === steps.length ? (
                     <div>
                         <Typography className={classes.instructions}>
-                           填寫已完成，待審核完畢，會再與您聯絡
+                            填寫已完成，待審核完畢，會再與您聯絡
                         </Typography>
                         <Button onClick={handleReset} className={classes.button}>
                             完成
@@ -106,8 +119,8 @@ export function Register() {
                     <div>
                         <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography>
                         <div>
-                            <Button disabled={activeStep === 0} onClick={handleBack} className={classes.button}>
-                                上一步
+                            <Button onClick={handleBack} className={classes.button}>
+                                {activeStep === 0 ? '返回' : '上一步'}
                             </Button>
 
 

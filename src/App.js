@@ -20,7 +20,6 @@ import Teacher from "./view/body/admin/Teacher";
 import Setting from "./view/body/admin/Setting";
 import User from "./view/body/admin/User";
 import Membership from "./view/body/admin/Membership";
-import { ToastContainer } from "react-toastify";
 
 function askForNotificationPermission() {
     Notification.requestPermission(function (result) {

@@ -120,7 +120,7 @@ input:focus {
   vertical-align: middle;
   margin-right: -60px;
 }
-.row {
+.R-row {
   flex: 1;
   flex-direction: column;
   display: "block";
@@ -130,7 +130,7 @@ input:focus {
   margin-top: 75%;
   margin-left: 20%;
 }
-.col {
+.C-col {
   flex: 1;
   flex-direction: row;
   display: flex;
