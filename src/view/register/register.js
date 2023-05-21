@@ -8,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import PersonalInfo from "./personalInfo";
 import { useNavigate } from 'react-router-dom';
 import { useRef } from 'react';
+import ConsultationInfo from './consultationInfo';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -39,6 +40,7 @@ export function Register() {
     const [skipped, setSkipped] = React.useState(new Set());
     const steps = getSteps();
     const personalInfo = useRef();
+    const consultationInfo = useRef();
     const isStepOptional = (step) => {
         return step === 1;
     };
@@ -49,6 +51,9 @@ export function Register() {
 
     const handleNext = () => {
         if (activeStep === 0 && !personalInfo.current.checkAllInput()) {
+            return;
+        }
+        else if (activeStep === 1 && !consultationInfo.current.checkAllInput()) {
             return;
         }
         let newSkipped = skipped;
@@ -78,7 +83,7 @@ export function Register() {
             case 0:
                 return <PersonalInfo ref={personalInfo}></PersonalInfo>;
             case 1:
-                return '填寫機構資料';
+                return <ConsultationInfo ref={consultationInfo}></ConsultationInfo>;
             case 2:
                 return '設定營業時間';
             case 3:

@@ -1,5 +1,6 @@
 import { FormHelperText, Grid, IconButton, TextField } from "@mui/material";
 import "./PersonalInfo.css";
+import 'bootstrap/dist/css/bootstrap.css';
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import PhotoCamera from '@material-ui/icons/PhotoCamera';
@@ -29,22 +30,23 @@ const PersonalInfo = forwardRef((props, ref) => {
         setImage(imageUrl)
     }
     const [firstName, setFirstName] = useState("");
-    const [errorFirstName, setErrorFirstName] = useState("");
     const [lastName, setLastName] = useState("");
-    const [errorLastName, setErrorLastName] = useState("");
     const [selectedCity, setSelectedCity] = useState("請選擇縣市");
-    const [errorCity, setErrorCity] = useState("");
     const [address, setAddress] = useState("");
-    const [errorAddress, setErrorAddress] = useState("");
     const [phone, setPhone] = useState("");
-    const [errorPhone, setErrorPhone] = useState("");
     const [email, setEmail] = useState("");
-    const [errorEmail, setErrorEmail] = useState("");
+    const [gender, setGender] = useState("無");
 
+    const [errorFirstName, setErrorFirstName] = useState("");
+    const [errorLastName, setErrorLastName] = useState("");
+    const [errorCity, setErrorCity] = useState("");
+    const [errorAddress, setErrorAddress] = useState("");
+    const [errorPhone, setErrorPhone] = useState("");
+    const [errorEmail, setErrorEmail] = useState("");
     function DropdownCity() {
         return (<DropdownButton id="dropdown-basic-button" size="sm" title={selectedCity}>
             {cities.map((city, index) => {
-                return (<Dropdown.Item key={index} onClick={() => setSelectedCity(city)}>{city}</Dropdown.Item>)
+                return (<Dropdown.Item style={{ fontSize: 14 }} key={index} onClick={() => setSelectedCity(city)}>{city}</Dropdown.Item>)
             })}
         </DropdownButton>)
     }
@@ -91,7 +93,7 @@ const PersonalInfo = forwardRef((props, ref) => {
 
     return (
         <div className={"PersonalInfo"}>
-            <Typography variant="h6" gutterBottom>
+            <Typography style={{ marginTop: 10 }} variant="h6" gutterBottom>
                 填寫個人資料
             </Typography>
 
@@ -126,11 +128,25 @@ const PersonalInfo = forwardRef((props, ref) => {
                         helperText={errorLastName}
                     />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={12} sm={6}>
                     <div>
                         <span style={{ color: errorCity === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>地區 *</span>
                         {DropdownCity()}
                         <FormHelperText error={errorCity !== ""}>{errorCity}</FormHelperText>
+                    </div>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                    <div>
+                        <span style={{ color: 'rgba(0, 0, 0, 0.6)' }}>性別</span>
+
+                        <div style={{ flex: 1, flexDirection: 'row' }} onChange={(value) => setGender(value.target.value)}>
+                            <input style={{ marginRight: 5 }} type="radio" value="男" name="gender" />
+                            <span style={{ marginRight: 10 }}>男</span>
+                            <input style={{ marginRight: 5 }} type="radio" value="女" name="gender" />
+                            <span style={{ marginRight: 10 }}>女</span>
+                            <input style={{ marginRight: 5 }} type="radio" value="無" name="gender" />
+                            <span>其他</span>
+                        </div>
                     </div>
                 </Grid>
                 <Grid item xs={12}>
@@ -181,14 +197,18 @@ const PersonalInfo = forwardRef((props, ref) => {
                     />
                 </Grid>
                 <Grid item xs={12}>
-                    <p>上傳一張你的照片</p>
-                    <input accept="image/*" onChange={(e) => upload(e)} className={classes.input} id="icon-button-file" type="file" />
-                    <label htmlFor="icon-button-file">
-                        <IconButton color="primary" aria-label="upload picture" component="span">
-                            <PhotoCamera />
-                        </IconButton>
-                        <img src={image} alt=""></img>
-                    </label>
+                    <div>
+                        <span>上傳一張你的照片</span>
+                        <div>
+                            <input accept="image/*" onChange={(e) => upload(e)} className={classes.input} id="icon-button-file" type="file" />
+                            <label htmlFor="icon-button-file">
+                                <IconButton color="primary" aria-label="upload picture" component="span">
+                                    <PhotoCamera />
+                                </IconButton>
+                                <img src={image} alt=""></img>
+                            </label>
+                        </div>
+                    </div>
                 </Grid>
             </Grid>
         </div>
