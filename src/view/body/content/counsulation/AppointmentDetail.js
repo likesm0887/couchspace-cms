@@ -176,7 +176,7 @@ function AppointmentDetail() {
 
                     <div className={"problem"}>
                         <div className={"titleLabel"}>問題描述</div>
-                        <textarea className={"problem-text"} defaultValue={appointment.ProblemStatement} />
+                        <textarea className={"problem-text"} value={appointment.ProblemStatement} readOnly={true} />
                     </div>
                 </div>
                 <div className={"button-content"}>

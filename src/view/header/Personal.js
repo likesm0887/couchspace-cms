@@ -1,15 +1,16 @@
 import selfie from "../img/header/photo.png";
 import bell from "../img/header/bell.png";
-import { counselorService } from "../../service/ServicePool";
 import * as React from 'react';
 import "./Personal.css"
-
+import { useNavigate } from "react-router-dom";
 import { Avatar, Badge, Menu, MenuItem } from "@mui/material";
 import { useEffect, useState } from "react";
 import { counselorInfo } from "../../dataContract/counselor";
+import { counselorService } from "../../service/ServicePool";
 
 
 function Personal() {
+    const navigate = useNavigate();
     const tag = "@couchspace";
     const [name, setName] = useState("adsasd");
     const [show, setShow] = useState(false);
@@ -25,10 +26,12 @@ function Personal() {
     });
 
     const onClickMemberManager = (event) => {
-        setShow(false)
+        setShow(false);
     }
     const onClickLogout = (event) => {
-        setShow(false)
+        setShow(false);
+        counselorService.logout();
+        navigate("/couchspace-cms", { replace: true, });
     }
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);

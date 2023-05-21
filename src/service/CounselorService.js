@@ -39,6 +39,9 @@ export class CounselorService {
                 return result;
             });
     }
+    logout() {
+        cookie.remove('token_counselor');
+    }
     getCounselorInfo() {
         const api = this.base_url + "/api/v1/counselors";
         const requestOptions = {

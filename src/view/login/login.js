@@ -14,17 +14,22 @@ function Login() {
     const [confirmedPassword, setConfirmedPassword] = useState("");
     const [isLogin, setIsLogin] = useState(true);
     useEffect(() => {
-        window.addEventListener('keypress', function (event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                onClickLogin();
-                return;
-            }
-        });
+
+        window.addEventListener('keypress', keyPressHandler);
         return () => {
-            window.removeEventListener('keypress', function (event) { });
+            window.removeEventListener('keypress', keyPressHandler);
         }
-    }, [])
+    })
+    const keyPressHandler = (e) => {
+        if (e.key === 'Enter') {
+            if (isLogin) {
+                onClickLogin();
+            }
+            else {
+                onClickRegister();
+            }
+        }
+    };
     const onClickLogin = async () => {
         try {
             // showToast(toastType.error, "213123");
@@ -34,6 +39,8 @@ function Login() {
             // if (!checkEmail(account)) {
             //     showToast(toastType.error, "email格式有誤");
             // }
+            console.log("account", account);
+            console.log("password", password);
             if (!checkPassword(password)) {
                 showToast(toastType.error, "密碼需包含英數且至少8個字元");
             }
@@ -57,12 +64,6 @@ function Login() {
             showToast(toastType.error, "帳號密碼有誤");
         }
     }
-    const onClickSignup = () => {
-        setIsLogin(false);
-        setAccount("");
-        setPassword("");
-        setConfirmedPassword("");
-    }
     const onClickRegister = () => {
         // if (!checkEmail(account)) {
         //     showToast(toastType.error, "email格式有誤");
@@ -78,6 +79,13 @@ function Login() {
         }
 
     }
+    const onClickSignup = () => {
+        setIsLogin(false);
+        setAccount("");
+        setPassword("");
+        setConfirmedPassword("");
+    }
+
     const onClickBack = () => {
         setIsLogin(true);
         setAccount("");
