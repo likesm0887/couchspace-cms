@@ -33,7 +33,7 @@ function AppointmentDetail() {
         const outputs = state.appointment.Time.Date.split(' ');
         setReservedDate(outputs[0]);
         setReservedTime(outputs[1]);
-        setFee(new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD' }).format(appointment.Fee));
+        setFee(new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(appointment.Fee));
         setConsultType(appointment.Service === 0 ? "諮商" : "諮商");
     }, [])
     const [open, setOpen] = useState(false);

@@ -1,6 +1,5 @@
 import { FormHelperText, Grid, IconButton, TextField } from "@mui/material";
 import "./PersonalInfo.css";
-import 'bootstrap/dist/css/bootstrap.css';
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import PhotoCamera from '@material-ui/icons/PhotoCamera';
@@ -36,6 +35,8 @@ const PersonalInfo = forwardRef((props, ref) => {
     const [phone, setPhone] = useState("");
     const [email, setEmail] = useState("");
     const [gender, setGender] = useState("無");
+    const [shortIntro, setShortIntro] = useState("");
+    const [longIntro, setLongIntro] = useState("");
 
     const [errorFirstName, setErrorFirstName] = useState("");
     const [errorLastName, setErrorLastName] = useState("");
@@ -198,7 +199,7 @@ const PersonalInfo = forwardRef((props, ref) => {
                 </Grid>
                 <Grid item xs={12}>
                     <div>
-                        <span>上傳一張你的照片</span>
+                        <span style={{ color: 'rgba(0,0,0,0.6)' }}>上傳一張你的照片</span>
                         <div>
                             <input accept="image/*" onChange={(e) => upload(e)} className={classes.input} id="icon-button-file" type="file" />
                             <label htmlFor="icon-button-file">
@@ -207,6 +208,30 @@ const PersonalInfo = forwardRef((props, ref) => {
                                 </IconButton>
                                 <img src={image} alt=""></img>
                             </label>
+                        </div>
+                    </div>
+                </Grid>
+                <Grid item xs={12}>
+                    <div>
+                        <span style={{ color: 'rgba(0,0,0,0.6)' }}>簡介</span>
+                        <div>
+                            <textarea
+                                style={{ color: 'rgba(0,0,0,0.6)', resize: 'none', width: '100%', height: 100 }}
+                                onChange={(text) => setShortIntro(text.target.value.trim())}
+                                value={shortIntro}
+                            ></textarea>
+                        </div>
+                    </div>
+                </Grid>
+                <Grid item xs={12}>
+                    <div>
+                        <span style={{ color: 'rgba(0,0,0,0.6)' }}>詳細自我介紹</span>
+                        <div>
+                            <textarea
+                                style={{ color: 'rgba(0,0,0,0.6)', resize: 'none', width: '100%', height: 200 }}
+                                onChange={(text) => setLongIntro(text.target.value.trim())}
+                                value={longIntro}
+                            ></textarea>
                         </div>
                     </div>
                 </Grid>

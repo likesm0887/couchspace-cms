@@ -1,29 +1,35 @@
 .ConsultationInfo {
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    width: 100%;
-    border-width: 1px;
-    padding-left: 24px;
-    padding-right: 24px;
-    box-sizing: border-box;
-    border-style: solid;
-    border-color: #C7C7C7;
-    margin-right: auto;
-    display: block;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  border-width: 1px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+  border-style: solid;
+  border-color: #c7c7c7;
+  margin-right: auto;
+  display: block;
 }
 
 .ConsultationInfo-Input {
-    margin-top: 200px;
+  margin-top: 200px;
 }
 
 .ConsultationInfo img[src=""] {
-    display: none;
+  display: none;
 }
 
 .ConsultationInfo img {
-    margin-left: 50px;
-    max-width: 300px;
-    width: auto;
-    height: auto;
+  margin-left: 50px;
+  max-width: 300px;
+  width: auto;
+  height: auto;
+}
+
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
 }
