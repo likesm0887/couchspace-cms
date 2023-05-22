@@ -131,14 +131,14 @@ const ConsultationInfo = forwardRef((props, ref) => {
                 <DialogContentText id="alert-dialog-description">
                     {consultingFees.map((item, index) => {
                         return (
-                            <div>
+                            <div style={{ display: "block", marginTop: 30 }}>
                                 <Checkbox checked={item.enabled} onClick={() => {
                                     counselingItems[index].enabled = !item.enabled;
                                     setConsultingFees([...counselingItems]);
                                 }}></Checkbox>
                                 <span>{item.label}</span>
                                 {item.enabled ?
-                                    <span style={{ position: 'absolute', right: 150 }}>
+                                    <span style={{ marginRight: 80, float: 'right' }}>
                                         {"NTD "}
                                         <input
                                             placeholder="0"

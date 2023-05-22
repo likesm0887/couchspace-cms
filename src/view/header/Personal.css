@@ -16,15 +16,12 @@
   margin-right: 50px;
 }
 .info {
-  margin-top: -4px;
   display: flex;
   flex-direction: column;
-  margin-right: -20px;
+  margin-right: 20px;
 }
 .nameAndTitle {
-  padding-top: 10px;
   width: 150px;
-  display: flex;
   flex-direction: row;
 }
 .personal-name {

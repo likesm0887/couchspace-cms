@@ -11,12 +11,14 @@ import { counselorService } from "../../service/ServicePool";
 
 function Personal() {
     const navigate = useNavigate();
-    const tag = "@couchspace";
-    const [name, setName] = useState("adsasd");
+    const [email, setEmail] = useState("healthy@couchspace.com");
+    const [name, setName] = useState("");
+    const [title, setTitle] = useState("");
     const [show, setShow] = useState(false);
     const [anchorEl, setAnchorEl] = React.useState(null);
     useEffect(() => {
-        setName(counselorInfo.UserName.NickName);
+        setName(counselorInfo.UserName.Name.FirstName + counselorInfo.UserName.Name.LastName);
+        setTitle(counselorInfo.Position);
     }, [])
 
     window.addEventListener('mouseup', (event) => {
@@ -47,10 +49,10 @@ function Personal() {
 
                 <div className={"nameAndTitle"}>
                     <span className={"personal-name"}>{name}</span>
-                    <span className={"title"}>醫師</span>
+                    <span className={"title"}>{title}</span>
                 </div>
                 <div className={"emailAndArrow"}>
-                    <span className={"email"}> {tag}</span>
+                    <span className={"email"}> {email}</span>
                     <div className="arrow_down" onClick={handleClick} />
                     <Menu
                         id="simple-menu"

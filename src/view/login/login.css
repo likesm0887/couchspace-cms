@@ -50,7 +50,7 @@ input:focus {
 .input-account {
   border: none;
   background: #f4f4f4;
-  width: 300px;
+  width: 350px;
   height: 52px;
   border-radius: 30px;
   border: 0px;
@@ -64,7 +64,7 @@ input:focus {
 .input-password {
   border: none;
   background: #f4f4f4;
-  width: 300px;
+  width: 350px;
   height: 52px;
   border-radius: 30px;
   border: 0px;
@@ -129,6 +129,7 @@ input:focus {
   z-index: 999;
   margin-top: 75%;
   margin-left: 20%;
+  width: 100%;
 }
 .C-col {
   flex: 1;

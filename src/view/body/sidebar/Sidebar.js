@@ -54,33 +54,33 @@ function Sidebar() {
                 <Link to="consultation" style={getStyle("consultation")} className={"consultation"}>
                     <li onClick={() => selectSlide("consultation")} className={"slide-line"} style={getStyle("consultation")}>
                         <img src={getImage("consultation")} alt={"123"}></img>
-                        <p style={{ marginLeft: 10 }}>諮商</p>
+                        <span style={{ marginLeft: 10 }}>諮商</span>
                     </li>
                 </Link>
                 <Link to="meditation" style={getStyle("meditation")} className={"meditation"}>
                     <li onClick={() => selectSlide("meditation")} className={"slide-line"} style={getStyle("meditation")}>
                         <img src={getImage("meditation")} alt={"123"}></img>
-                        <p style={{ marginLeft: 10 }}>冥想</p>
+                        <span style={{ marginLeft: 10 }}>冥想</span>
                     </li>
                 </Link>
 
                 <Link to="meditation" style={getStyle("article")} className={"article"}>
                     <li onClick={() => selectSlide("article")} className={"slide-line"} style={getStyle("article")}>
                         <img src={getImage("article")} alt={"123"}></img>
-                        <p style={{ marginLeft: 10 }}>文章</p>
+                        <span style={{ marginLeft: 10 }}>文章</span>
                     </li>
                 </Link>
                 <Link to="meditation" style={getStyle("manager")} className={"manager"}>
                     <li onClick={() => selectSlide("manager")} className={"slide-line"} style={getStyle("manager")}>
                         <img src={getImage("manager")} alt={"123"}></img>
-                        <p style={{ marginLeft: 10 }}>管理</p>
+                        <span style={{ marginLeft: 10 }}>管理</span>
                     </li>
                 </Link>
 
                 <Link to="meditation" style={getStyle("setting")} className={"setting"}>
                     <li onClick={() => selectSlide("setting")} className={"slide-line"} style={getStyle("setting")}>
                         <img src={getImage("setting")} alt={"123"}></img>
-                        <p style={{ marginLeft: 10 }}>設定</p>
+                        <span style={{ marginLeft: 10 }}>設定</span>
                     </li>
                 </Link>
 
