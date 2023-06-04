@@ -15,12 +15,7 @@ export class CounselorService {
             body: JSON.stringify({ Email: account, Password: password }),
         };
 
-        return fetch(api, requestOptions)
-            .then(res => res.json())
-            .then((result) => {
-                // result is userID
-                return;
-            });
+        return fetch(api, requestOptions);
     }
     login(account, password) {
         const api = this.base_url + "/api/v1/counselors/login"
@@ -56,7 +51,7 @@ export class CounselorService {
             });
     }
 
-    setCounselorInfo(counselorInfo) {
+    updateCounselorInfo(counselorInfo) {
         if (this.token === undefined) {
             return;
         }
@@ -70,9 +65,9 @@ export class CounselorService {
         return fetch(api, requestOptions)
             .then(res => res.json())
             .then(res => {
-                cookie.save("Info", JSON.stringify(res));
+                console.log("res", res);
                 return res;
-            })
+            });
     }
 
 }

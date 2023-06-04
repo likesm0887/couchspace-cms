@@ -4,13 +4,13 @@ import Typography from "@material-ui/core/Typography";
 import { useRef, useState } from "react";
 import { forwardRef, useImperativeHandle } from "react";
 import { Select } from "antd";
-
+import { ConsultingType, Counselor, Expertise, counselorInfo } from "../../dataContract/counselor";
 let counselingItems = [
-    { enabled: false, label: "諮商60分鐘 (緩衝10分鐘)", fee: "0", time: 60 },
-    { enabled: false, label: "諮商90分鐘 (緩衝10分鐘)", fee: "0", time: 90 },
-    { enabled: false, label: "初探10分鐘", fee: "0", time: 10 },
-    { enabled: false, label: "諮詢60分鐘 (緩衝10分鐘)", fee: 0, time: 60 },
-    { enabled: false, label: "實體諮商", fee: "0", time: 0 },
+    { enabled: false, label: "諮商60分鐘", fee: 0, time: 60, value: "IND_COUNSELING" },
+    { enabled: false, label: "諮商90分鐘", fee: 0, time: 90, value: "IND_COUNSELING" },
+    { enabled: false, label: "初談10分鐘", fee: 0, time: 10, value: "FIRST" },
+    { enabled: false, label: "諮詢60分鐘", fee: 0, time: 60, value: "IND_CONSULTATION" },
+    { enabled: false, label: "實體諮商", fee: 0, time: 0, value: "IN_PERSON" },
 ]
 const ConsultationInfo = forwardRef((props, ref) => {
     const expertiseList = [
@@ -27,31 +27,32 @@ const ConsultationInfo = forwardRef((props, ref) => {
         { value: "10", label: "表達與溝通", },
         { value: "11", label: "正向與正念", },
     ];
-    const tagList = [
-        { value: "0", label: "負面情緒", },
-        { value: "1", label: "創傷修復", },
-        { value: "2", label: "情緒管理", },
-        { value: "3", label: "人際關係", },
-        { value: "4", label: "親密關係", },
-        { value: "5", label: "家庭衝突", },
-        { value: "6", label: "性別議題", },
-        { value: "7", label: "自我成長", },
-        { value: "8", label: "職涯發展", },
-        { value: "9", label: "習慣培養", },
-        { value: "10", label: "表達與溝通", },
-        { value: "11", label: "正向與正念", },
-    ];
+    // const tagList = [
+    //     { value: "0", label: "負面情緒", },
+    //     { value: "1", label: "創傷修復", },
+    //     { value: "2", label: "情緒管理", },
+    //     { value: "3", label: "人際關係", },
+    //     { value: "4", label: "親密關係", },
+    //     { value: "5", label: "家庭衝突", },
+    //     { value: "6", label: "性別議題", },
+    //     { value: "7", label: "自我成長", },
+    //     { value: "8", label: "職涯發展", },
+    //     { value: "9", label: "習慣培養", },
+    //     { value: "10", label: "表達與溝通", },
+    //     { value: "11", label: "正向與正念", },
+    // ];
+
     /// dialog
     const [isOpen, setIsOpen] = useState(false);
 
     /// info
-    const [education, setEducation] = useState(""); // 學歷
-    const [seniority, setSeniority] = useState(""); // 資歷
-    const [position, setPosition] = useState(""); // 職稱
-    const [licenseNumber, setLicenseNumber] = useState(""); // 證照編號
-    const [licenseIssuing, setLicenseIssuing] = useState(""); // 發證單位
-    const [expertises, setExpertises] = useState(""); // 諮商師的專長(自行輸入)
-    const [expertisesInfo, setExpertisesInfo] = useState([]); // 諮商師的專項
+    const [education, setEducation] = useState(counselorInfo.Educational); // 學歷
+    const [seniority, setSeniority] = useState(counselorInfo.Seniority); // 資歷
+    const [position, setPosition] = useState(counselorInfo.Position); // 職稱
+    const [licenseNumber, setLicenseNumber] = useState(counselorInfo.LicenseNumber); // 證照編號
+    const [licenseIssuing, setLicenseIssuing] = useState(counselorInfo.LicenseIssuing); // 發證單位
+    const [expertisesInfo, setExpertisesInfo] = useState(counselorInfo.ExpertisesInfo); // 諮商師的專長(自行輸入)
+    const [expertises, setExpertises] = useState([]); // 諮商師的專項
     const [tags, setTags] = useState([]); // 親子, 幫助睡眠, 感情問題
     const [consultingFees, setConsultingFees] = useState(counselingItems); // 諮商項目: 初談、諮商60min、諮商90min
 
@@ -72,6 +73,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
         setErrorPosition("");
         setErrorLicenseNumber("");
         setErrorLicenseIssuing("");
+        setErrorExpertises("");
         setErrorExpertisesInfo("");
         setErrorConsultingFees("");
     }
@@ -99,15 +101,43 @@ const ConsultationInfo = forwardRef((props, ref) => {
                 setErrorLicenseIssuing("請輸入發證單位");
                 output = false;
             }
-            if (expertisesInfo === "") {
-                setErrorExpertisesInfo("請選擇專項");
+            if (expertisesInfo.length === 0) {
+                setErrorExpertisesInfo("請選擇專長");
                 output = false;
             }
-            if (consultingFees === "") {
+            if (expertises.length === 0) {
+                setErrorExpertises("請輸入專項");
+                output = false;
+            }
+
+            if (consultingFees.every((value, index, array) => value.enabled === false)) {
                 setErrorConsultingFees("請設定諮商項目");
                 output = false;
             }
-            // if output == true => update info to counselor model
+            // whether output is true or false => update info to counselor model
+            let info = new Counselor();
+            info.Educational = education;
+            info.Seniority = seniority;
+            info.Position = position;
+            info.LicenseNumber = licenseNumber;
+            info.LicenseIssuing = licenseIssuing;
+            info.Expertises = expertises.map((expertise) => {
+                let output = new Expertise();
+                output.Skill = expertiseList[expertise].label;
+                return output;
+            });
+            info.ExpertisesInfo = expertisesInfo;
+            info.ConsultingFees = consultingFees.map((consultingFee) => {
+                let output = {}
+                output.Type = {};
+                output.Type.Label = consultingFee.label;
+                output.Type.Value = consultingFee.value;
+                output.Fee = consultingFee.fee;
+                output.Time = consultingFee.time;
+                return output;
+            });
+            counselorInfo.updateCounselorInfo = info;
+            console.log("counselorInfo", counselorInfo);
             return output;
         }
     }))
@@ -168,15 +198,15 @@ const ConsultationInfo = forwardRef((props, ref) => {
             </DialogContent>
             <DialogActions>
                 <button className={"acceptButton"} onClick={handleAccept} color="primary" autoFocus>
-                    設定完成
+                    {"設定完成"}
                 </button>
             </DialogActions>
         </Dialog>
     }
     return (
-        <div className={"PersonalInfo"}>
+        <div className={"ConsultationInfo"}>
             <Typography style={{ marginTop: 10 }} variant="h6" gutterBottom>
-                填寫諮商資訊
+                {"填寫諮商資訊"}
             </Typography>
 
             <Grid container spacing={3}>
@@ -189,7 +219,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
                         fullWidth
                         autoComplete="family-name"
                         variant="standard"
-                        placeholder="xx大學 oooo系/所 學/碩士"
+                        placeholder="couchspace大學 心理所 碩士"
                         value={education}
                         onChange={(text) => setEducation(text.target.value.trim())}
                         error={errorEducation !== ""}
@@ -205,7 +235,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
                         fullWidth
                         autoComplete="family-name"
                         variant="standard"
-                        placeholder="xxx診所 諮商師"
+                        placeholder="couchspace診所 諮商師"
                         value={seniority}
                         onChange={(text) => setSeniority(text.target.value.trim())}
                         error={errorSeniority !== ""}
@@ -261,23 +291,26 @@ const ConsultationInfo = forwardRef((props, ref) => {
                     />
                 </Grid>
                 <Grid item xs={12}>
-                    <TextField
-                        required
-                        id="expertises"
-                        name="expertises"
-                        label="專長"
-                        fullWidth
-                        autoComplete="family-name"
-                        variant="standard"
-                        value={expertises}
-                        onChange={(text) => setExpertises(text.target.value.trim())}
-                        error={errorExpertises !== ""}
-                        helperText={errorExpertises}
-                    />
+                    <div>
+                        <span style={{ color: errorExpertisesInfo === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"專長 *"}</span>
+                        <div>
+                            <textarea
+                                style={{ color: 'rgba(0,0,0,0.6)', resize: 'none', width: '100%', height: 100 }}
+                                onChange={(text) => setExpertisesInfo(text.target.value.trim())}
+                                value={expertisesInfo}
+                                maxLength={30}
+                            ></textarea>
+                            <div id="the-count">
+                                <span id="current">{expertisesInfo.length}</span>
+                                <span id="maximum">/ 30</span>
+                            </div>
+                        </div>
+                        <FormHelperText error={errorExpertisesInfo !== ""}>{errorExpertisesInfo}</FormHelperText>
+                    </div>
                 </Grid>
                 <Grid item xs={12}>
                     <div>
-                        <span style={{ color: "rgba(0,0,0,0.6)" }}>專項(最多三項)</span>
+                        <span style={{ color: errorExpertises === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"專項 * (請選 1 ~ 3 項)"}</span>
                         <div>
                             <Select
                                 placeholder="請選擇..."
@@ -285,23 +318,23 @@ const ConsultationInfo = forwardRef((props, ref) => {
                                 size="large"
                                 onChange={(value) => {
                                     if (value.length <= 3) {
-                                        setExpertisesInfo(value);
+                                        setExpertises(value);
                                     }
                                 }}
-                                value={expertisesInfo}
+                                value={expertises}
                                 tokenSeparators={[","]}
                                 options={expertiseList}
                                 showArrow={true}
                                 showSearch={true}
                                 style={{ width: "100%" }}
                             />
-                            <FormHelperText error={errorExpertisesInfo !== ""}>{errorExpertisesInfo}</FormHelperText>
+                            <FormHelperText error={errorExpertises !== ""}>{errorExpertises}</FormHelperText>
                         </div>
                     </div>
                 </Grid>
-                <Grid item xs={12}>
+                {/* <Grid item xs={12}>
                     <div>
-                        <span style={{ color: "rgba(0,0,0,0.6)" }}>標籤(最多三項)</span>
+                        <span style={{ color: errorTags === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>標籤(最多三項)</span>
                         <div>
                             <Select
                                 placeholder="請選擇..."
@@ -319,13 +352,13 @@ const ConsultationInfo = forwardRef((props, ref) => {
                                 showSearch={true}
                                 style={{ width: "100%" }}
                             />
-                            <FormHelperText error={errorExpertisesInfo !== ""}>{errorExpertisesInfo}</FormHelperText>
+                            <FormHelperText error={errorTags !== ""}>{errorTags}</FormHelperText>
                         </div>
                     </div>
-                </Grid>
+                </Grid> */}
                 <Grid item xs={12} sm={6}>
                     <div>
-                        <span style={{ color: 'rgba(0,0,0,0.6)' }}>諮商項目</span>
+                        <span style={{ color: errorConsultingFees === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"諮商項目 *"}</span>
                         <div>
                             {consultingFees.map((item, index) => {
                                 return (
@@ -336,8 +369,9 @@ const ConsultationInfo = forwardRef((props, ref) => {
                                         : null)
                             })}
 
-                            <button type={"button"} className={"btn btn-primary"} onClick={() => onClickSetting()}>設定</button>
+                            <button type={"button"} className={"btn btn-primary"} onClick={() => onClickSetting()}>{"設定"}</button>
                         </div>
+                        <FormHelperText error={errorConsultingFees !== ""}>{errorConsultingFees}</FormHelperText>
                     </div>
                 </Grid>
             </Grid>

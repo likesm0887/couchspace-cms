@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
@@ -6,9 +6,12 @@ import StepLabel from '@material-ui/core/StepLabel';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import PersonalInfo from "./personalInfo";
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useRef } from 'react';
 import ConsultationInfo from './consultationInfo';
+import { counselorService } from '../../service/ServicePool';
+import { counselorInfo } from '../../dataContract/counselor';
+import BusinessInfo from './businessInfo';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -17,6 +20,7 @@ const useStyles = makeStyles((theme) => ({
         width: '60%',
         marginLeft: '20%',
         marginTop: '2%',
+        marginBottom: '2%',
     },
     button: {
         marginRight: theme.spacing(1),
@@ -35,12 +39,23 @@ function getSteps() {
 
 export function Register() {
     const navigate = useNavigate();
+    const location = useLocation();
     const classes = useStyles();
     const [activeStep, setActiveStep] = React.useState(0);
     const [skipped, setSkipped] = React.useState(new Set());
     const steps = getSteps();
     const personalInfo = useRef();
     const consultationInfo = useRef();
+    const businessInfo = useRef();
+    const [account, setAccount] = useState("");
+    const [password, setPassword] = useState("");
+
+    useEffect(() => {
+        console.log(location);
+        setAccount(location.state.email);
+        setPassword(location.state.password);
+    }, []);
+
     const isStepOptional = (step) => {
         return step === 1;
     };
@@ -49,7 +64,7 @@ export function Register() {
         return skipped.has(step);
     };
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (activeStep === 0 && !personalInfo.current.checkAllInput()) {
             return;
         }
@@ -64,6 +79,13 @@ export function Register() {
 
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
         setSkipped(newSkipped);
+        if (activeStep === steps.length - 1) {
+            var result = await counselorService.register(account, password);
+            console.log("result", result);
+            result = await counselorService.login(account, password);
+            result = await counselorService.updateCounselorInfo(counselorInfo);
+            console.log("result", result);
+        }
     };
 
     const handleBack = () => {
@@ -85,7 +107,7 @@ export function Register() {
             case 1:
                 return <ConsultationInfo ref={consultationInfo}></ConsultationInfo>;
             case 2:
-                return '設定營業時間';
+                return <BusinessInfo ref={businessInfo}></BusinessInfo>;
             case 3:
                 return '設定營業時間';
             default:

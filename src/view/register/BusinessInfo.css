@@ -1,4 +1,4 @@
-.ConsultationInfo {
+.BusinessInfo {
   justify-content: center;
   align-items: center;
   flex-direction: column;
@@ -13,19 +13,12 @@
   display: block;
 }
 
-.ConsultationInfo-Input {
+.BusinessInfo-Input {
   margin-top: 200px;
 }
 
-.ConsultationInfo img[src=""] {
+.BusinessInfo img[src=""] {
   display: none;
-}
-
-.ConsultationInfo img {
-  margin-left: 50px;
-  max-width: 300px;
-  width: auto;
-  height: auto;
 }
 
 input[type=number]::-webkit-inner-spin-button, 

@@ -47,10 +47,16 @@ export class UserName {
         this.Name = new Name();
     }
 }
+export class ConsultingType {
+    constructor() {
+        this.Label = "";
+        this.Value = "";
+    }
+}
 
 export class ConsultingFee {
     constructor() {
-        this.Type = 0;
+        this.Type = new ConsultingType();
         this.Time = 0;
         this.Fee = 0;
     }
@@ -58,27 +64,35 @@ export class ConsultingFee {
 export class Expertise {
     constructor() {
         this.Skill = "";
-        this.MoreAbout = []; // detailed description
     }
 }
 export class Counselor {
     constructor() {
         this.ID = "";
-        this.UserName = new UserName();
-        this.Photo = "";
-        this.CoverImage = "";
-        this.Seniority = 0;
-        this.Educational = "";
-        this.Position = "Clinical Psychologist";
-        this.ShortIntroduction = "嗨，親愛的你 是不是有睡不著的問題? \n 我們都希望每天都有個好覺";
-        this.LongIntroduction = "";
-        this.Location = "台北市內湖區成功路四段";
-        this.LicenseNumber = "諮心字第004493號";
-        this.LicenseIssuing = "";
+        // personal info
+        this.UserName = new UserName(); // 姓名
+        this.Photo = ""; // 大頭照
+        this.CoverImage = ""; // 大頭照
+        this.Location = "台北市"; // 地區
+        this.Address = ""; // 地址
+        this.Gender = ""; // 性別
+        this.ShortIntroduction = ""; // 簡介
+        this.LongIntroduction = ""; // 詳細自我介紹
+        this.Phone = "";
+        this.Email = "";
+
+        // counselor info
+        this.Seniority = 0; // 經歷
+        this.Educational = ""; // 學歷
+        this.Position = "Clinical Psychologist"; // 職稱
+        this.LicenseNumber = "諮心字第004493號"; // 諮商編號
+        this.LicenseIssuing = ""; // 發證單位
+        this.ExpertisesInfo = ""; // 專長
+        this.Expertises = []; // 專項
+        this.ConsultingFees = []; // 諮商項目
+
+        // others
         this.Accumulative = 100;
-        this.ExpertisesInfo = "";
-        this.ConsultingFees = [];
-        this.Gender = "";
         this.Tags = [];
         this.InstitutionID = "";
         this.AppointmentTimeID = "";
@@ -87,10 +101,11 @@ export class Counselor {
 
     set setCounselorInfo(info: Counselor) {
         this.ID = info.ID;
+
         this.UserName = info.UserName;
         this.Photo = info.Photo;
         this.CoverImage = info.CoverImage;
-        this.Seniority = info.Seniority
+        this.Seniority = info.Seniority;
         this.Educational = info.Educational;
         this.Position = info.Position;
         this.ShortIntroduction = info.ShortIntroduction;
@@ -99,12 +114,36 @@ export class Counselor {
         this.LicenseNumber = info.LicenseNumber;
         this.LicenseIssuing = info.LicenseIssuing;
         this.Accumulative = info.Accumulative;
+        this.Expertises = info.Expertises;
         this.ExpertisesInfo = info.ExpertisesInfo;
         this.ConsultingFees = info.ConsultingFees;
         this.Gender = info.Gender;
         this.Tags = info.Tags;
         this.InstitutionID = info.InstitutionID;
         this.AppointmentTimeID = info.AppointmentTimeID;
+    }
+
+    set updatePersonalInfo(info: Counselor) {
+        this.UserName = info.UserName;
+        this.Photo = info.Photo;
+        this.CoverImage = info.CoverImage;
+        this.Location = info.Location;
+        this.Address = info.Address;
+        this.Gender = info.Gender;
+        this.ShortIntroduction = info.ShortIntroduction;
+        this.LongIntroduction = info.LongIntroduction;
+        this.Phone = info.Phone;
+        this.Email = info.Email;
+    }
+    set updateCounselorInfo(info: Counselor) {
+        this.Seniority = info.Seniority;
+        this.Educational = info.Educational;
+        this.Position = info.Position;
+        this.LicenseNumber = info.LicenseNumber;
+        this.LicenseIssuing = info.LicenseIssuing;
+        this.Expertises = info.Expertises;
+        this.ExpertisesInfo = info.ExpertisesInfo;
+        this.ConsultingFees = info.ConsultingFees;
     }
 }
 
