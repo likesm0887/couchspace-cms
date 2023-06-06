@@ -74,6 +74,7 @@ export class Counselor {
         this.Photo = ""; // 大頭照
         this.CoverImage = ""; // 大頭照
         this.Location = "台北市"; // 地區
+
         this.Address = ""; // 地址
         this.Gender = ""; // 性別
         this.ShortIntroduction = ""; // 簡介
@@ -82,17 +83,19 @@ export class Counselor {
         this.Email = "";
 
         // counselor info
-        this.Seniority = 0; // 經歷
+        this.Languages = [] // 語言 英文 中文
+        this.Seniority = ""; // 經歷
         this.Educational = ""; // 學歷
-        this.Position = "Clinical Psychologist"; // 職稱
-        this.LicenseNumber = "諮心字第004493號"; // 諮商編號
-        this.LicenseIssuing = ""; // 發證單位
+        this.Position = ""; // 職稱
+        this.Accumulative = 0;
         this.ExpertisesInfo = ""; // 專長
         this.Expertises = []; // 專項
         this.ConsultingFees = []; // 諮商項目
 
+        // certificate info
+        this.LicenseNumber = ""; // 諮商編號
+        this.LicenseIssuing = ""; // 發證單位
         // others
-        this.Accumulative = 100;
         this.Tags = [];
         this.InstitutionID = "";
         this.AppointmentTimeID = "";
@@ -136,14 +139,56 @@ export class Counselor {
         this.Email = info.Email;
     }
     set updateCounselorInfo(info: Counselor) {
+        this.Languages = info.Languages;
         this.Seniority = info.Seniority;
         this.Educational = info.Educational;
         this.Position = info.Position;
-        this.LicenseNumber = info.LicenseNumber;
-        this.LicenseIssuing = info.LicenseIssuing;
+        this.Accumulative = info.Accumulative;
+        // this.LicenseNumber = info.LicenseNumber;
+        // this.LicenseIssuing = info.LicenseIssuing;
         this.Expertises = info.Expertises;
         this.ExpertisesInfo = info.ExpertisesInfo;
         this.ConsultingFees = info.ConsultingFees;
+    }
+    set updateCertificateInfo(info: Counselor) {
+        this.LicenseNumber = info.LicenseNumber;
+        this.LicenseIssuing = info.LicenseIssuing;
+    }
+    set updateBusinessTime(info: Counselor) {
+        this.AppointmentTimeID = info.AppointmentTimeID;
+    }
+    set clearAll(info: Counselor) {
+        this.ID = "";
+        // personal info
+        this.UserName = new UserName(); // 姓名
+        this.Photo = ""; // 大頭照
+        this.CoverImage = ""; // 大頭照
+        this.Location = "台北市"; // 地區
+
+        this.Address = ""; // 地址
+        this.Gender = ""; // 性別
+        this.ShortIntroduction = ""; // 簡介
+        this.LongIntroduction = ""; // 詳細自我介紹
+        this.Phone = "";
+        this.Email = "";
+
+        // counselor info
+        this.Languages = [] // 語言 英文 中文
+        this.Seniority = ""; // 經歷
+        this.Educational = ""; // 學歷
+        this.Position = ""; // 職稱
+        this.Accumulative = 0;
+        this.ExpertisesInfo = ""; // 專長
+        this.Expertises = []; // 專項
+        this.ConsultingFees = []; // 諮商項目
+
+        // certificate info
+        this.LicenseNumber = ""; // 諮商編號
+        this.LicenseIssuing = ""; // 發證單位
+        // others
+        this.Tags = [];
+        this.InstitutionID = "";
+        this.AppointmentTimeID = "";
     }
 }
 

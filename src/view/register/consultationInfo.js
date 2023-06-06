@@ -12,6 +12,12 @@ let counselingItems = [
     { enabled: false, label: "諮詢60分鐘", fee: 0, time: 60, value: "IND_CONSULTATION" },
     { enabled: false, label: "實體諮商", fee: 0, time: 0, value: "IN_PERSON" },
 ]
+let languagesItems = [
+    { enabled: false, label: "中文", value: "zh" },
+    { enabled: false, label: "英文", value: "en" },
+    { enabled: false, label: "日文", value: "ja" },
+    { enabled: false, label: "韓文", value: "ko" },
+]
 const ConsultationInfo = forwardRef((props, ref) => {
     const expertiseList = [
         { value: "0", label: "負面情緒", },
@@ -46,21 +52,25 @@ const ConsultationInfo = forwardRef((props, ref) => {
     const [isOpen, setIsOpen] = useState(false);
 
     /// info
+    const [languages, setLanguages] = useState(languagesItems);
     const [education, setEducation] = useState(counselorInfo.Educational); // 學歷
     const [seniority, setSeniority] = useState(counselorInfo.Seniority); // 資歷
     const [position, setPosition] = useState(counselorInfo.Position); // 職稱
-    const [licenseNumber, setLicenseNumber] = useState(counselorInfo.LicenseNumber); // 證照編號
-    const [licenseIssuing, setLicenseIssuing] = useState(counselorInfo.LicenseIssuing); // 發證單位
+    const [accumulative, setAccumulative] = useState(counselorInfo.Accumulative); // 從業時間
+    // const [licenseNumber, setLicenseNumber] = useState(counselorInfo.LicenseNumber); // 證照編號
+    // const [licenseIssuing, setLicenseIssuing] = useState(counselorInfo.LicenseIssuing); // 發證單位
     const [expertisesInfo, setExpertisesInfo] = useState(counselorInfo.ExpertisesInfo); // 諮商師的專長(自行輸入)
     const [expertises, setExpertises] = useState([]); // 諮商師的專項
     const [tags, setTags] = useState([]); // 親子, 幫助睡眠, 感情問題
     const [consultingFees, setConsultingFees] = useState(counselingItems); // 諮商項目: 初談、諮商60min、諮商90min
 
+    const [errorLanguages, setErrorLanguages] = useState("");
     const [errorEducation, setErrorEducation] = useState("");
     const [errorSeniority, setErrorSeniority] = useState("");
     const [errorPosition, setErrorPosition] = useState("");
-    const [errorLicenseNumber, setErrorLicenseNumber] = useState("");
-    const [errorLicenseIssuing, setErrorLicenseIssuing] = useState("");
+    const [errorAccumulative, setErrorAccumulative] = useState("");
+    // const [errorLicenseNumber, setErrorLicenseNumber] = useState("");
+    // const [errorLicenseIssuing, setErrorLicenseIssuing] = useState("");
     const [errorExpertises, setErrorExpertises] = useState("");
     const [errorExpertisesInfo, setErrorExpertisesInfo] = useState("");
     const [errorTags, setErrorTags] = useState("");
@@ -68,11 +78,13 @@ const ConsultationInfo = forwardRef((props, ref) => {
 
     const inputRef = useRef();
     function ClearAllError() {
+        setErrorLanguages("");
         setErrorEducation("");
         setErrorSeniority("");
         setErrorPosition("");
-        setErrorLicenseNumber("");
-        setErrorLicenseIssuing("");
+        setErrorAccumulative("");
+        // setErrorLicenseNumber("");
+        // setErrorLicenseIssuing("");
         setErrorExpertises("");
         setErrorExpertisesInfo("");
         setErrorConsultingFees("");
@@ -81,6 +93,11 @@ const ConsultationInfo = forwardRef((props, ref) => {
         checkAllInput() {
             ClearAllError();
             var output = true;
+
+            if (languages.every((language) => language.enabled === false)) {
+                setErrorLanguages("請選擇語言");
+                output = false;
+            }
             if (education === "") {
                 setErrorEducation("請輸入學歷");
                 output = false;
@@ -93,14 +110,18 @@ const ConsultationInfo = forwardRef((props, ref) => {
                 setErrorPosition("請輸入職稱");
                 output = false;
             }
-            if (licenseNumber === "") {
-                setErrorLicenseNumber("請輸入證照編號");
+            if (!(accumulative >= 0)) {
+                setErrorAccumulative("請輸入從業時間");
                 output = false;
             }
-            if (licenseIssuing === "") {
-                setErrorLicenseIssuing("請輸入發證單位");
-                output = false;
-            }
+            // if (licenseNumber === "") {
+            //     setErrorLicenseNumber("請輸入證照編號");
+            //     output = false;
+            // }
+            // if (licenseIssuing === "") {
+            //     setErrorLicenseIssuing("請輸入發證單位");
+            //     output = false;
+            // }
             if (expertisesInfo.length === 0) {
                 setErrorExpertisesInfo("請選擇專長");
                 output = false;
@@ -116,25 +137,27 @@ const ConsultationInfo = forwardRef((props, ref) => {
             }
             // whether output is true or false => update info to counselor model
             let info = new Counselor();
+            info.Languages = languages.filter((language) => language.enabled === true);
             info.Educational = education;
             info.Seniority = seniority;
             info.Position = position;
-            info.LicenseNumber = licenseNumber;
-            info.LicenseIssuing = licenseIssuing;
+            info.Accumulative = accumulative;
+            // info.LicenseNumber = licenseNumber;
+            // info.LicenseIssuing = licenseIssuing;
             info.Expertises = expertises.map((expertise) => {
-                let output = new Expertise();
-                output.Skill = expertiseList[expertise].label;
-                return output;
+                let object = new Expertise();
+                object.Skill = expertiseList[expertise].label;
+                return object;
             });
             info.ExpertisesInfo = expertisesInfo;
             info.ConsultingFees = consultingFees.map((consultingFee) => {
-                let output = {}
-                output.Type = {};
-                output.Type.Label = consultingFee.label;
-                output.Type.Value = consultingFee.value;
-                output.Fee = consultingFee.fee;
-                output.Time = consultingFee.time;
-                return output;
+                let object = {}
+                object.Type = {};
+                object.Type.Label = consultingFee.label;
+                object.Type.Value = consultingFee.value;
+                object.Fee = consultingFee.fee;
+                object.Time = consultingFee.time;
+                return object;
             });
             counselorInfo.updateCounselorInfo = info;
             console.log("counselorInfo", counselorInfo);
@@ -231,7 +254,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
                         required
                         id="seniority"
                         name="seniority"
-                        label="資歷"
+                        label="經歷"
                         fullWidth
                         autoComplete="family-name"
                         variant="standard"
@@ -242,7 +265,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
                         helperText={errorSeniority}
                     />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={12} sm={6}>
                     <TextField
                         required
                         id="position"
@@ -259,6 +282,40 @@ const ConsultationInfo = forwardRef((props, ref) => {
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
+                    <TextField
+                        required
+                        id="accumulative"
+                        name="accumulative"
+                        label="從業時間"
+                        fullWidth
+                        type="number"
+                        autoComplete="family-name"
+                        variant="standard"
+                        placeholder=""
+                        value={accumulative}
+                        onChange={(text) => setAccumulative(parseInt(text.target.value))}
+                        error={errorAccumulative !== ""}
+                        helperText={errorAccumulative}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <div>
+                        <span style={{ color: errorLanguages === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"語言 *"}</span>
+                        {languages.map((item, index) => {
+                            return (
+                                <span style={{ marginLeft: 10 }}>
+                                    <Checkbox checked={item.enabled} onClick={() => {
+                                        languagesItems[index].enabled = !item.enabled;
+                                        setLanguages([...languagesItems]);
+                                    }}></Checkbox>
+                                    <span>{item.label}</span>
+                                </span>
+                            )
+                        })}
+                    </div>
+                </Grid>
+
+                {/* <Grid item xs={12} sm={6}>
                     <TextField
                         required
                         id="licenseNumber"
@@ -289,7 +346,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
                         error={errorLicenseIssuing !== ""}
                         helperText={errorLicenseIssuing}
                     />
-                </Grid>
+                </Grid> */}
                 <Grid item xs={12}>
                     <div>
                         <span style={{ color: errorExpertisesInfo === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"專長 *"}</span>

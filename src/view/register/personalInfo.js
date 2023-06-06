@@ -116,6 +116,7 @@ const PersonalInfo = forwardRef((props, ref) => {
             }
             if (longIntro.length < 50) {
                 setErrorLongIntro("至少50字以上");
+                output = false;
             }
             // whether output is true or false => update info to counselor model
             let info = new Counselor();

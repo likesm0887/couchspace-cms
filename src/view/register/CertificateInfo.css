@@ -1,4 +1,4 @@
-.BusinessInfo {
+.CertificateInfo {
   justify-content: center;
   align-items: center;
   flex-direction: column;
@@ -13,17 +13,21 @@
   display: block;
 }
 
-.BusinessInfo-Input {
+.CertificateInfo-Input {
   margin-top: 200px;
 }
 
-.BusinessInfo img[src=""] {
+.CertificateInfo img[src=""] {
   display: none;
 }
 
-.BusinessInfo img {
-  cursor: pointer;
+.CertificateInfo img {
+  margin-left: 50px;
+  max-width: 300px;
+  width: auto;
+  height: auto;
 }
+
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button { 
   -webkit-appearance: none; 

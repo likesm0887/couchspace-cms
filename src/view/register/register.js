@@ -10,8 +10,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useRef } from 'react';
 import ConsultationInfo from './consultationInfo';
 import { counselorService } from '../../service/ServicePool';
-import { counselorInfo } from '../../dataContract/counselor';
+import { Counselor, counselorInfo } from '../../dataContract/counselor';
 import BusinessInfo from './businessInfo';
+import CertificateInfo from './certificateInfo';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -32,8 +33,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function getSteps() {
-    return ['填寫個人資料', '填寫諮商資訊', '諮商時段設定', '完成'];
-    // return ['填寫個人資料', '填寫機構資料', '預約設定', '完成'];
+    return ['填寫個人資料', '填寫諮商資訊', '相關諮商證照', '諮商時段設定', '完成'];
 }
 
 
@@ -46,6 +46,7 @@ export function Register() {
     const steps = getSteps();
     const personalInfo = useRef();
     const consultationInfo = useRef();
+    const certificateInfo = useRef();
     const businessInfo = useRef();
     const [account, setAccount] = useState("");
     const [password, setPassword] = useState("");
@@ -71,6 +72,12 @@ export function Register() {
         else if (activeStep === 1 && !consultationInfo.current.checkAllInput()) {
             return;
         }
+        else if (activeStep === 2 && !certificateInfo.current.checkAllInput()) {
+            return;
+        }
+        else if (activeStep === 3 && !businessInfo.current.checkAllInput()) {
+            return;
+        }
         let newSkipped = skipped;
         if (isStepSkipped(activeStep)) {
             newSkipped = new Set(newSkipped.values());
@@ -91,6 +98,7 @@ export function Register() {
     const handleBack = () => {
         if (activeStep === 0) {
             navigate('/couchspace-cms', { replace: true });
+            counselorInfo.clearAll = null;
         }
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
     };
@@ -98,7 +106,9 @@ export function Register() {
 
 
     const handleReset = () => {
+        navigate('/couchspace-cms', { replace: true });
         setActiveStep(0);
+        counselorInfo.clearAll = null;
     };
     function getStepContent(step) {
         switch (step) {
@@ -107,11 +117,12 @@ export function Register() {
             case 1:
                 return <ConsultationInfo ref={consultationInfo}></ConsultationInfo>;
             case 2:
-                return <BusinessInfo ref={businessInfo}></BusinessInfo>;
+                return <CertificateInfo ref={certificateInfo}></CertificateInfo>;
             case 3:
-                return '設定營業時間';
+                return <BusinessInfo ref={businessInfo}></BusinessInfo>;
             default:
-                return 'Unknown step';
+                // register, update counselor info
+                return;
         }
     }
 
@@ -133,12 +144,12 @@ export function Register() {
                 })}
             </Stepper>
             <div>
-                {activeStep === steps.length ? (
+                {activeStep === (steps.length - 1) ? (
                     <div>
                         <Typography className={classes.instructions}>
                             填寫已完成，待審核完畢，會再與您聯絡
                         </Typography>
-                        <Button onClick={handleReset} className={classes.button}>
+                        <Button onClick={handleReset} className={classes.button} color='primary'>
                             完成
                         </Button>
                     </div>
