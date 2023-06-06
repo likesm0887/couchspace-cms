@@ -4,21 +4,22 @@ import Typography from "@material-ui/core/Typography";
 import { useRef, useState } from "react";
 import { forwardRef, useImperativeHandle } from "react";
 import { Select } from "antd";
-import { ConsultingType, Counselor, Expertise, counselorInfo } from "../../dataContract/counselor";
-let counselingItems = [
-    { enabled: false, label: "諮商60分鐘", fee: 0, time: 60, value: "IND_COUNSELING" },
-    { enabled: false, label: "諮商90分鐘", fee: 0, time: 90, value: "IND_COUNSELING" },
-    { enabled: false, label: "初談10分鐘", fee: 0, time: 10, value: "FIRST" },
-    { enabled: false, label: "諮詢60分鐘", fee: 0, time: 60, value: "IND_CONSULTATION" },
-    { enabled: false, label: "實體諮商", fee: 0, time: 0, value: "IN_PERSON" },
-]
-let languagesItems = [
-    { enabled: false, label: "中文", value: "zh" },
-    { enabled: false, label: "英文", value: "en" },
-    { enabled: false, label: "日文", value: "ja" },
-    { enabled: false, label: "韓文", value: "ko" },
-]
+import { Counselor, Expertise, counselorInfo } from "../../dataContract/counselor";
+
 const ConsultationInfo = forwardRef((props, ref) => {
+    const counselingItems = [
+        { enabled: false, label: "諮商50分鐘", fee: 0, time: 60, value: "IND_COUNSELING" },
+        // { enabled: false, label: "諮商90分鐘", fee: 0, time: 90, value: "IND_COUNSELING" }, // 0607: currently not support 90 min counseling
+        { enabled: false, label: "初談10分鐘", fee: 0, time: 60, value: "FIRST" },
+        { enabled: false, label: "諮詢50分鐘", fee: 0, time: 60, value: "IND_CONSULTATION" },
+        { enabled: false, label: "實體諮商", fee: 0, time: 0, value: "IN_PERSON" },
+    ]
+    const languagesItems = [
+        { enabled: false, label: "中文", value: "zh" },
+        { enabled: false, label: "英文", value: "en" },
+        { enabled: false, label: "台語", value: "naive" },
+        { enabled: false, label: "粵語", value: "yue" },
+    ]
     const expertiseList = [
         { value: "0", label: "負面情緒", },
         { value: "1", label: "創傷修復", },
@@ -123,11 +124,11 @@ const ConsultationInfo = forwardRef((props, ref) => {
             //     output = false;
             // }
             if (expertisesInfo.length === 0) {
-                setErrorExpertisesInfo("請選擇專長");
+                setErrorExpertisesInfo("請輸入專長");
                 output = false;
             }
             if (expertises.length === 0) {
-                setErrorExpertises("請輸入專項");
+                setErrorExpertises("請選擇專項");
                 output = false;
             }
 
@@ -186,8 +187,9 @@ const ConsultationInfo = forwardRef((props, ref) => {
                         return (
                             <div style={{ display: "block", marginTop: 30 }}>
                                 <Checkbox checked={item.enabled} onClick={() => {
-                                    counselingItems[index].enabled = !item.enabled;
-                                    setConsultingFees([...counselingItems]);
+                                    var tempItems = consultingFees;
+                                    tempItems[index].enabled = !item.enabled;
+                                    setConsultingFees([...tempItems]);
                                 }}></Checkbox>
                                 <span>{item.label}</span>
                                 {item.enabled ?
@@ -209,8 +211,9 @@ const ConsultationInfo = forwardRef((props, ref) => {
                                             }}
                                             value={item.fee}
                                             onChange={(text) => {
-                                                counselingItems[index].fee = Number(text.target.value).toString();
-                                                setConsultingFees([...counselingItems]);
+                                                var tempItems = consultingFees;
+                                                tempItems[index].fee = Number(text.target.value).toString();
+                                                setConsultingFees([...tempItems]);
                                             }}
                                         />
                                     </span> : null}
@@ -305,13 +308,15 @@ const ConsultationInfo = forwardRef((props, ref) => {
                             return (
                                 <span style={{ marginLeft: 10 }}>
                                     <Checkbox checked={item.enabled} onClick={() => {
-                                        languagesItems[index].enabled = !item.enabled;
-                                        setLanguages([...languagesItems]);
+                                        var tempItems = languages;
+                                        tempItems[index].enabled = !item.enabled;
+                                        setLanguages([...tempItems]);
                                     }}></Checkbox>
                                     <span>{item.label}</span>
                                 </span>
                             )
                         })}
+                        <FormHelperText error={errorLanguages !== ""}>{errorLanguages}</FormHelperText>
                     </div>
                 </Grid>
 
