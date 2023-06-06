@@ -7,18 +7,19 @@ import plus from "../img/register/plus.svg";
 import trash from "../img/register/trash.svg";
 import { Counselor, counselorInfo } from "../../dataContract/counselor";
 import { TimePicker } from "antd";
+import { showToast, toastType } from "../../common/method";
 
-// 定義多個營業時間
-let businessHours = [
-    { enabled: false, day: 'Sunday', periods: [] },
-    { enabled: false, day: 'Monday', periods: [] },
-    { enabled: false, day: 'Tuesday', periods: [] },
-    { enabled: false, day: 'Wednesday', periods: [] },
-    { enabled: false, day: 'Thursday', periods: [] },
-    { enabled: false, day: 'Friday', periods: [] },
-    { enabled: false, day: 'Saturday', periods: [] },
-];
 const BusinessInfo = forwardRef((props, ref) => {
+    // 定義多個營業時間
+    let businessHours = [
+        { enabled: false, day: 'Sunday', periods: [] },
+        { enabled: false, day: 'Monday', periods: [] },
+        { enabled: false, day: 'Tuesday', periods: [] },
+        { enabled: false, day: 'Wednesday', periods: [] },
+        { enabled: false, day: 'Thursday', periods: [] },
+        { enabled: false, day: 'Friday', periods: [] },
+        { enabled: false, day: 'Saturday', periods: [] },
+    ];
     /// dialog
     const [isOpen, setIsOpen] = useState(false);
     const [consultHours, setConsultHours] = useState(businessHours);
@@ -38,8 +39,9 @@ const BusinessInfo = forwardRef((props, ref) => {
         }
     }))
     const handleChecked = (index) => {
-        businessHours[index].enabled = !businessHours[index].enabled;
-        setConsultHours([...businessHours]);
+        var tempItems = consultHours;
+        tempItems[index].enabled = !tempItems[index].enabled;
+        setConsultHours([...tempItems]);
     }
 
     const handleAddPeriod = (index) => {
@@ -48,22 +50,61 @@ const BusinessInfo = forwardRef((props, ref) => {
 
     }
     const handleDelete = (index, period_index) => {
+        var tempItems = consultHours;
         console.log("index %d, period_index %d", index, period_index);
-        console.log("before", businessHours[index].periods);
-        businessHours[index].periods = arrayRemove(businessHours[index].periods, businessHours[index].periods[period_index]);
-        console.log("after", businessHours[index].periods);
-        setConsultHours([...businessHours]);
+        console.log("before", tempItems[index].periods);
+        tempItems[index].periods = arrayRemove(tempItems[index].periods, tempItems[index].periods[period_index]);
+        console.log("after", tempItems[index].periods);
+        setConsultHours([...tempItems]);
     }
     const handleClose = (event, reason) => {
         if (reason && reason === "backdropClick")
             return;
         setIsOpen(false);
     }
+    const checkWeeklyHoursOverlap = () => {
+        let output = false;
+        for (var i = 0; i < consultHours[selectedBusiness].periods.length; i++) {
+            let tempStartTime = new Date(`2023-01-01T${consultHours[selectedBusiness].periods[i].startTime}`);
+            let tempEndTime = new Date(`2023-01-01T${consultHours[selectedBusiness].periods[i].endTime}`);
+            let curStartTime = new Date(`2023-01-01T${startTime.format("HH:mm")}`);
+            let curEndTime = new Date(`2023-01-01T${endTime.format("HH:mm")}`);
+            console.log("tempStartTime", tempStartTime);
+            console.log("tempEndTime", tempEndTime);
+            console.log("curStartTime", curStartTime);
+            console.log("curEndTime", curEndTime);
+
+            if (curStartTime < tempEndTime && curEndTime > tempStartTime) {
+                showToast(toastType.error, startTime.format("HH:mm") + "~" + endTime.format("HH:mm") + "與" + consultHours[selectedBusiness].periods[i].startTime + "~" + consultHours[selectedBusiness].periods[i].endTime + "時間重疊，請重新選擇");
+                output = true; // 重疊
+                break;
+            }
+        }
+        return output;
+    }
+    const bubbleSortPeriods = () => {
+        var output = consultHours;
+        for (var i = 0; i < output[selectedBusiness].periods.length; i++) {
+            for (var j = 0; j < output[selectedBusiness].periods.length - i - 1; j++) {
+                if (output[selectedBusiness].periods[j].startTime > output[selectedBusiness].periods[j + 1].startTime) {
+                    var temp = output[selectedBusiness].periods[j];
+                    output[selectedBusiness].periods[j] = output[selectedBusiness].periods[j + 1];
+                    output[selectedBusiness].periods[j + 1] = temp;
+                }
+            }
+        }
+        return output;
+    }
     const handleAccept = () => {
+        if (checkWeeklyHoursOverlap()) {
+            return;
+        }
+        var tempItems = consultHours;
         setIsOpen(false);
         console.log(selectedBusiness);
-        businessHours[selectedBusiness].periods.push({ startTime: startTime.format("HH:mm"), endTime: endTime.format("HH:mm") });
-        setConsultHours([...businessHours]);
+        tempItems[selectedBusiness].periods.push({ startTime: startTime.format("HH:mm"), endTime: endTime.format("HH:mm") });
+        tempItems = bubbleSortPeriods();
+        setConsultHours([...tempItems]);
         setStartTime(null);
         setEndTime(null);
     }
@@ -73,9 +114,8 @@ const BusinessInfo = forwardRef((props, ref) => {
         setEndTime(null);
     }
     function arrayRemove(arr, value) {
-
         return arr.filter(function (ele) {
-            return ele != value;
+            return ele !== value;
         });
     }
     function disabledTimes(now: Dayjs) {
@@ -92,6 +132,7 @@ const BusinessInfo = forwardRef((props, ref) => {
         const startMinute = startTime.format("HH:mm").split(":")[1];
 
         if (endTime !== null) {
+            // endTime 已經有選時段
             const endHour = endTime.format("HH:mm").split(":")[0];
             if (endHour === startHour) {
                 for (let i = 0; i <= startMinute; i += 15) {
@@ -99,8 +140,14 @@ const BusinessInfo = forwardRef((props, ref) => {
                 }
             }
         }
+        else {
+            // endTime 尚未選時段 => 禁止選分鐘
+            for (let i = 0; i <= 45; i += 15) {
+                minutes.push(i);
+            }
+        }
         console.log("startHour %d, startMinute %d", startHour, startMinute);
-        for (let i = 0; i < startHour; i++) {
+        for (let i = 0; i <= startHour; i++) {
             hours.push(i);
         }
 
@@ -128,6 +175,7 @@ const BusinessInfo = forwardRef((props, ref) => {
                             minuteStep={15}
                             hourStep={1}
                             showSecond={false}
+                            showMinute={false} // 0607: only support hours
                             value={startTime}
                             onChange={(value) => {
                                 if (value === null) return;
@@ -152,6 +200,7 @@ const BusinessInfo = forwardRef((props, ref) => {
                             minuteStep={15}
                             hourStep={1}
                             showSecond={false}
+                            showMinute={false} // 0607: only support hours
                             value={endTime}
                             disabled={startTime === null}
                             onChange={(value) => {
