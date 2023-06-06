@@ -45,7 +45,7 @@ function Personal() {
     return (
         <div style={{ flex: 1, flexDirection: 'row' }} className={"personal-content"}>
             <img style={{ width: 50, height: 50, objectFit: 'contain', marginRight: 10 }} src={selfie} className="selfie" alt={"selfie"} />
-            <div style={{ flex: 1, flexDirection: 'column' }} className={"info"}>
+            <div style={{ flexDirection: 'column' }} className={"info"}>
 
                 <div className={"nameAndTitle"}>
                     <span className={"personal-name"}>{name}</span>
@@ -61,8 +61,12 @@ function Personal() {
                         open={Boolean(anchorEl)}
                         onClose={handleClose}
                     >
-                        <MenuItem className={"logout"} onClick={onClickMemberManager}>會員管理</MenuItem>
-                        <MenuItem className={"logout"} onClick={onClickLogout}>登出</MenuItem>
+                        <li style={{ margin: 10, alignItems: 'center', justifyItems: 'center' }}>
+                            <MenuItem className={"logout"} onClick={onClickMemberManager}>會員管理</MenuItem>
+                        </li>
+                        <li style={{ margin: 10 }}>
+                            <MenuItem className={"logout"} onClick={onClickLogout}>登出</MenuItem>
+                        </li>
                     </Menu>
                 </div>
 

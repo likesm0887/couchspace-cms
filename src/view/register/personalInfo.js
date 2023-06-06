@@ -90,8 +90,8 @@ const PersonalInfo = forwardRef((props, ref) => {
                 setErrorCity("請選擇居住地區");
                 output = false;
             }
-            if (phone === "" || !checkPhone(phone)) {
-                setErrorPhone("請輸入有效的聯絡電話");
+            if (phone === "") {
+                setErrorPhone("請輸入聯絡電話");
                 output = false;
             }
             if (email === "" || !checkEmail(email)) {
