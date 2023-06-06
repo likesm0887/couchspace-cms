@@ -83,16 +83,14 @@ export function Register() {
             newSkipped = new Set(newSkipped.values());
             newSkipped.delete(activeStep);
         }
-
+        if (activeStep === 3) {
+            finishRegister();
+        }
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
         setSkipped(newSkipped);
-        if (activeStep === steps.length - 1) {
-            var result = await counselorService.register(account, password);
-            console.log("result", result);
-            result = await counselorService.login(account, password);
-            result = await counselorService.updateCounselorInfo(counselorInfo);
-            console.log("result", result);
-        }
+        console.log("activeStep", activeStep);
+        console.log("steps.length", steps.length);
+
     };
 
     const handleBack = () => {
@@ -110,7 +108,16 @@ export function Register() {
         setActiveStep(0);
         counselorInfo.clearAll = null;
     };
+    const finishRegister = async () => {
+        console.log("finish register");
+        var result = await counselorService.register(account, password);
+        console.log("result", result);
+        result = await counselorService.login(account, password);
+        result = await counselorService.updateCounselorInfo(counselorInfo);
+        console.log("result", result);
+    }
     function getStepContent(step) {
+        console.log("step", step);
         switch (step) {
             case 0:
                 return <PersonalInfo ref={personalInfo}></PersonalInfo>;
@@ -121,7 +128,6 @@ export function Register() {
             case 3:
                 return <BusinessInfo ref={businessInfo}></BusinessInfo>;
             default:
-                // register, update counselor info
                 return;
         }
     }
@@ -149,7 +155,7 @@ export function Register() {
                         <Typography className={classes.instructions}>
                             填寫已完成，待審核完畢，會再與您聯絡
                         </Typography>
-                        <Button onClick={handleReset} className={classes.button} color='primary'>
+                        <Button onClick={handleReset} className={classes.button} variant="contained" color='primary'>
                             完成
                         </Button>
                     </div>
