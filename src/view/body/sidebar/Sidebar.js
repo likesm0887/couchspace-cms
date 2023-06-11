@@ -9,10 +9,11 @@ import manager from "../../img/slidebar/manager.svg";
 import manager_unselect from "../../img/slidebar/manager_unselect.svg";
 import setting from "../../img/slidebar/setting.svg";
 import setting_unselect from "../../img/slidebar/setting_unselect.svg";
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 function Sidebar() {
+    const location = useLocation();
     const [currentSelected, setCurrentSelected] = useState("consultation");
     const selectSlide = (selected) => {
         if (currentSelected === selected) return;
@@ -48,6 +49,17 @@ function Sidebar() {
         }
         return output;
     }
+    const updateSelected = () => {
+        console.log(location);
+        let paths = location.pathname.split('/');
+        let selected = paths[paths.length - 1];
+        if (selected !== 'repair') {
+            setCurrentSelected(paths[paths.length - 1]);
+        }
+    }
+    useEffect(() => {
+        updateSelected();
+    })
     return (
         <div className="sidebar">
             <div className={"line"}>
@@ -57,27 +69,27 @@ function Sidebar() {
                         <span style={{ marginLeft: 10 }}>諮商</span>
                     </li>
                 </Link>
-                <Link to="meditation" style={getStyle("meditation")} className={"meditation"}>
+                <Link to="repair" style={getStyle("meditation")} className={"meditation"}>
                     <li onClick={() => selectSlide("meditation")} className={"slide-line"} style={getStyle("meditation")}>
                         <img src={getImage("meditation")} alt={"123"}></img>
                         <span style={{ marginLeft: 10 }}>冥想</span>
                     </li>
                 </Link>
 
-                <Link to="meditation" style={getStyle("article")} className={"article"}>
+                <Link to="repair" style={getStyle("article")} className={"article"}>
                     <li onClick={() => selectSlide("article")} className={"slide-line"} style={getStyle("article")}>
                         <img src={getImage("article")} alt={"123"}></img>
                         <span style={{ marginLeft: 10 }}>文章</span>
                     </li>
                 </Link>
-                <Link to="meditation" style={getStyle("manager")} className={"manager"}>
+                <Link to="repair" style={getStyle("manager")} className={"manager"}>
                     <li onClick={() => selectSlide("manager")} className={"slide-line"} style={getStyle("manager")}>
                         <img src={getImage("manager")} alt={"123"}></img>
                         <span style={{ marginLeft: 10 }}>管理</span>
                     </li>
                 </Link>
 
-                <Link to="meditation" style={getStyle("setting")} className={"setting"}>
+                <Link to="repair" style={getStyle("setting")} className={"setting"}>
                     <li onClick={() => selectSlide("setting")} className={"slide-line"} style={getStyle("setting")}>
                         <img src={getImage("setting")} alt={"123"}></img>
                         <span style={{ marginLeft: 10 }}>設定</span>
