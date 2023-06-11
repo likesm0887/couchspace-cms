@@ -1,3 +1,4 @@
+export const WeekType = Object.freeze({ "NONE": "NULL", "Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday" })
 export class Token {
     constructor() {
         this.AccessToken = "";
@@ -66,6 +67,19 @@ export class Expertise {
         this.Skill = "";
     }
 }
+export class BusinessTime {
+    constructor() {
+        this.WeekOfDay = WeekType.NONE;
+        this.Periods = [];
+    }
+}
+
+export class Period {
+    constructor() {
+        this.StartTime = "0:00";
+        this.EndTime = "0:00";
+    }
+}
 export class Counselor {
     constructor() {
         this.ID = "";
@@ -99,6 +113,9 @@ export class Counselor {
         this.Tags = [];
         this.InstitutionID = "";
         this.AppointmentTimeID = "";
+
+        // business times
+        this.BusinessTimes = [];
     }
 
 
@@ -154,8 +171,8 @@ export class Counselor {
         this.LicenseNumber = info.LicenseNumber;
         this.LicenseIssuing = info.LicenseIssuing;
     }
-    set updateBusinessTime(info: Counselor) {
-        this.AppointmentTimeID = info.AppointmentTimeID;
+    set updateBusinessTime(businessTimes: BusinessTime[]) {
+        this.BusinessTimes = businessTimes;
     }
     set clearAll(info: Counselor) {
         this.ID = "";

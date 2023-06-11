@@ -8,6 +8,10 @@ import Login from "./view/login/login";
 import Login2 from "./view/body/admin/Login";
 import Home from "./view/home/Home";
 import Meditation from "./view/body/content/Meditation";
+import Repair from "./view/body/content/Repairing";
+import BasicInfo from "./view/body/content/counselor/BasicInfo";
+import CounselingInfo from "./view/body/content/counselor/CounselingInfo";
+import CounselingManagement from "./view/body/content/counselor/CounselingManagement";
 import Music from "./view/body/admin/Music";
 import Admin from "./view/body/admin/Admin";
 import Consultation from "./view/body/content/counsulation/Consultation";
@@ -78,7 +82,10 @@ function App() {
                             </Route>
                         </Route>
                         <Route path="meditation" element={<Meditation />} />
-
+                        <Route path="repair" element={<Repair />} />
+                        <Route path="basicInfo" element={<BasicInfo />} />
+                        <Route path="counselingInfo" element={<CounselingInfo />} />
+                        <Route path="counselingManagement" element={<CounselingManagement />} />
                     </Route>
                 </Route>
             </Routes>

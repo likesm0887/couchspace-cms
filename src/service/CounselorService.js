@@ -38,6 +38,9 @@ export class CounselorService {
         cookie.remove('token_counselor');
     }
     getCounselorInfo() {
+        if (this.token === undefined) {
+            return;
+        }
         const api = this.base_url + "/api/v1/counselors";
         const requestOptions = {
             method: 'GET',
@@ -60,6 +63,41 @@ export class CounselorService {
             method: 'POST',
             headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
             body: JSON.stringify(counselorInfo),
+        };
+
+        return fetch(api, requestOptions)
+            .then(res => res.json())
+            .then(res => {
+                console.log("res", res);
+                return res;
+            });
+    }
+    setAppointmentTime(businessTimes) {
+        if (this.token === undefined) {
+            return;
+        }
+        const api = this.base_url + "/api/v1/appointmentTime"
+        const requestOptions = {
+            method: 'POST',
+            headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
+            body: JSON.stringify(businessTimes),
+        };
+
+        return fetch(api, requestOptions)
+            .then(res => res.json())
+            .then(res => {
+                console.log("res", res);
+                return res;
+            });
+    }
+    getAppointmentTime() {
+        if (this.token === undefined) {
+            return;
+        }
+        const api = this.base_url + "/api/v1/appointmentTime"
+        const requestOptions = {
+            method: 'GET',
+            headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
         };
 
         return fetch(api, requestOptions)
