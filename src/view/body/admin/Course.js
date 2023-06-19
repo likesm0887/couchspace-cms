@@ -161,12 +161,14 @@ function Course() {
   const getData = async () => {
     setLoading(true);
     const res = await meditationService.getAllCourse();
-    const musics = await meditationService.getAllMusic();
-    createOptions(musics);
+    const allMusics = await meditationService.getAllMusic();
+    createOptions(allMusics);
 
     const result = [];
     for (let i = 0; i < res.length; i++) {
-      const musics = await fetchMusic(res[i].MusicIDs);
+      //const musics = allMusics.filter(e=>res[i]?.MusicIDs?.includes(e));
+      const musics = allMusics.filter((elementB) => res[i]?.MusicIDs?.some((elementA) => elementA.id === elementB.id));
+      //const musics = await fetchMusic(res[i].MusicIDs);
       res[i].Musics = [];
 
       if (musics != null) {
