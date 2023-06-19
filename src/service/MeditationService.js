@@ -392,4 +392,46 @@ export class MeditationService {
         return res;
       });
   }
+
+  getCommonData() {
+    if (this.token === undefined) {
+      return;
+    }
+    const api = this.base_url + "/api/v1/meditation/common";
+    const requestOptions = {
+      method: "Get",
+      headers: {
+        Authorization: this.token,
+        "Content-Type": "application/json",
+      },
+    };
+
+    return fetch(api, requestOptions)
+      .then((res) => res.json())
+      .then((res) => {
+        return res;
+      });
+  }
+
+
+  updateCommonData(commonData) {
+    if (this.token === undefined) {
+      return;
+    }
+    const api = this.base_url + "/api/v1/meditation/common";
+    const requestOptions = {
+      method: "Post",
+      headers: {
+        Authorization: this.token,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(commonData),
+    };
+
+    return fetch(api, requestOptions)
+     
+      .then((res) => {
+        return res;
+      });
+  }
 }

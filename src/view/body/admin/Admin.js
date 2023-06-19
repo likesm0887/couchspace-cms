@@ -23,6 +23,7 @@ const items = [
   getItem('設定', '4', <DesktopOutlined />),
   getItem('用戶', '5', <DesktopOutlined />),
   getItem('開通', '6', <DesktopOutlined />),
+  getItem('Banner', '7', <DesktopOutlined />),
   // getItem('放鬆專區', 'sub1', <UserOutlined />, [
   //   getItem('系列', '4'),
   //   getItem('音樂', '5'),
@@ -71,6 +72,9 @@ function Admin() {
     }
     if (e.key ==6) {
       navigate("membership", { replace: true });
+    }
+    if (e.key ==7) {
+      navigate("banner", { replace: true });
     }
   };
 

@@ -20,6 +20,7 @@ import Teacher from "./view/body/admin/Teacher";
 import Setting from "./view/body/admin/Setting";
 import User from "./view/body/admin/User";
 import Membership from "./view/body/admin/Membership";
+import Banner from "./view/body/admin/Banner";
 
 function askForNotificationPermission() {
     Notification.requestPermission(function (result) {
@@ -57,6 +58,7 @@ function App() {
                 <Route path="Login" element={<Login2 />}></Route>
                 <Route path="admin" element={<Admin />}>
                     <Route path="course" element={<Course />}></Route>
+                    <Route path="banner" element={<Banner />}></Route>
                     <Route path="music" element={<Music />}></Route>
                     <Route path="category" element={<Category />}></Route>
                     <Route path="teacher" element={<Teacher />}></Route>

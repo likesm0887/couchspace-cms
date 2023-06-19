@@ -11,8 +11,8 @@ import { ConsoleSqlOutlined } from "@ant-design/icons";
 import reducers from "./redux/reducers/reducers.js";
 import store from "./redux/store/store.js"
 //let baseUrl =  cookie.load("url")?"https://couchspace-test.azurewebsites.net":cookie.load("url");
- const baseUrl = "https://couchspace-prod.azurewebsites.net"
-// const baseUrl = "https://couchspace-test.azurewebsites.net"
+// const baseUrl = "https://couchspace-prod.azurewebsites.net"
+ const baseUrl = "https://couchspace-test.azurewebsites.net"
 //const baseUrl = "https://couchspace-test.azurewebsites.net"
 //const baseUrl = "http://localhost:9000"
 store.subscribe((state) => {
@@ -32,7 +32,7 @@ export const memberService = new MemberService(baseUrl);
 
 export const boot = () => {
     service.login("admin@gmail.com", "admin");
-    counselorService.login("ace@gmail.com", "test123");
+    service.login("ace@gmail.com", "test123");
 }
 
 
