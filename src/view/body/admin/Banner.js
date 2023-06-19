@@ -88,12 +88,12 @@ const Banner = () => {
       key: "sort",
     },
     {
-      title: "Name",
+      title: "Banner圖片",
       dataIndex: "imageUrl",
       render: (image) => <Image src={image} width="70px" preview={false} />,
     },
     {
-      title: "Age",
+      title: "連結系列",
       dataIndex: "linkSourceID",
     },
     {
