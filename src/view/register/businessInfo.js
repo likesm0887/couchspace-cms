@@ -5,20 +5,20 @@ import { useRef, useState } from "react";
 import { forwardRef, useImperativeHandle } from "react";
 import plus from "../img/register/plus.svg";
 import trash from "../img/register/trash.svg";
-import { Counselor, counselorInfo } from "../../dataContract/counselor";
+import { Counselor, counselorInfo, WeekType, BusinessTime, Period } from "../../dataContract/counselor";
 import { TimePicker } from "antd";
 import { showToast, toastType } from "../../common/method";
 
 const BusinessInfo = forwardRef((props, ref) => {
     // 定義多個營業時間
     let businessHours = [
-        { enabled: false, day: 'Sunday', periods: [] },
-        { enabled: false, day: 'Monday', periods: [] },
-        { enabled: false, day: 'Tuesday', periods: [] },
-        { enabled: false, day: 'Wednesday', periods: [] },
-        { enabled: false, day: 'Thursday', periods: [] },
-        { enabled: false, day: 'Friday', periods: [] },
-        { enabled: false, day: 'Saturday', periods: [] },
+        { enabled: false, day: WeekType.Sunday, periods: [] },
+        { enabled: false, day: WeekType.Monday, periods: [] },
+        { enabled: false, day: WeekType.Tuesday, periods: [] },
+        { enabled: false, day: WeekType.Wednesday, periods: [] },
+        { enabled: false, day: WeekType.Thursday, periods: [] },
+        { enabled: false, day: WeekType.Friday, periods: [] },
+        { enabled: false, day: WeekType.Saturday, periods: [] },
     ];
     /// dialog
     const [isOpen, setIsOpen] = useState(false);
@@ -30,9 +30,19 @@ const BusinessInfo = forwardRef((props, ref) => {
         checkAllInput() {
             var output = true;
             // whether output is true or false => update info to counselor model
-            let info = new Counselor();
-            info.AppointmentTimeID = consultHours;
-            counselorInfo.updateBusinessTime = info;
+            let businessTimes: BusinessTime[] = [];
+            consultHours.forEach((consultHour) => {
+                let businessTime = new BusinessTime();
+                businessTime.WeekOfDay = consultHour.day;
+                consultHour.periods.forEach((period) => {
+                    let businessPeriod = new Period();
+                    businessPeriod.StartTime = period.startTime;
+                    businessPeriod.EndTime = period.EndTime;
+                    businessTime.Periods.push(businessPeriod);
+                });
+                businessTimes.push(businessTime);
+            })
+            counselorInfo.updateBusinessTime = businessTimes;
             console.log("counselorInfo", counselorInfo);
 
             return output;

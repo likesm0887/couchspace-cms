@@ -14,7 +14,6 @@ function Personal() {
     const [email, setEmail] = useState("healthy@couchspace.com");
     const [name, setName] = useState("");
     const [title, setTitle] = useState("");
-    const [show, setShow] = useState(false);
     const [anchorEl, setAnchorEl] = React.useState(null);
     useEffect(() => {
         setName(counselorInfo.UserName.Name.FirstName + counselorInfo.UserName.Name.LastName);
@@ -23,15 +22,19 @@ function Personal() {
 
     window.addEventListener('mouseup', (event) => {
         if (event.target.className === "menu")
-            return
-        setShow(false)
+            return;
     });
 
-    const onClickMemberManager = (event) => {
-        setShow(false);
+    const onClickBasicInfo = () => {
+        navigate("/couchspace-cms/home/basicInfo");
     }
-    const onClickLogout = (event) => {
-        setShow(false);
+    const onClickCounselingInfo = () => {
+        navigate("/couchspace-cms/home/counselingInfo");
+    }
+    const onClickCounselingManagement = () => {
+        navigate("/couchspace-cms/home/counselingManagement");
+    }
+    const onClickLogout = () => {
         counselorService.logout();
         navigate("/couchspace-cms", { replace: true, });
     }
@@ -62,10 +65,16 @@ function Personal() {
                         onClose={handleClose}
                     >
                         <li style={{ margin: 10, alignItems: 'center', justifyItems: 'center' }}>
-                            <MenuItem className={"logout"} onClick={onClickMemberManager}>會員管理</MenuItem>
+                            <MenuItem className={"menuItem"} onClick={onClickBasicInfo}>會員資本資料</MenuItem>
+                        </li>
+                        <li style={{ margin: 10, alignItems: 'center', justifyItems: 'center' }}>
+                            <MenuItem className={"menuItem"} onClick={onClickCounselingInfo}>我的諮商資料</MenuItem>
+                        </li>
+                        <li style={{ margin: 10, alignItems: 'center', justifyItems: 'center' }}>
+                            <MenuItem className={"menuItem"} onClick={onClickCounselingManagement}>諮商時段管理</MenuItem>
                         </li>
                         <li style={{ margin: 10 }}>
-                            <MenuItem className={"logout"} onClick={onClickLogout}>登出</MenuItem>
+                            <MenuItem className={"menuItem"} onClick={onClickLogout}>登出</MenuItem>
                         </li>
                     </Menu>
                 </div>
