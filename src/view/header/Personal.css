@@ -2,8 +2,6 @@
   float: right;
   display: inline-flex;
   flex-direction: row;
-  margin-top: 40px;
-  flex: 1;
 }
 
 .bellImg {
@@ -12,7 +10,7 @@
 }
 
 .bell {
-  margin-top: 10px;
+  margin-top: 40px;
   margin-right: 50px;
 }
 .info {
@@ -23,6 +21,7 @@
 .nameAndTitle {
   width: 150px;
   flex-direction: row;
+  margin-top: 30px;
 }
 .personal-name {
   font-weight: bold;

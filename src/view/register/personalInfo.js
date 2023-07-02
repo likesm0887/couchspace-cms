@@ -8,7 +8,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import { forwardRef, useImperativeHandle } from "react";
 import { checkEmail, checkPhone } from "../../common/method";
-import { Counselor, counselorInfo } from "../../dataContract/counselor";
+import { Counselor, counselorInfo, genderList } from "../../dataContract/counselor";
 const useStyles = makeStyles((theme) => ({
     root: {
         '& > *': {
@@ -185,12 +185,14 @@ const PersonalInfo = forwardRef((props, ref) => {
                         <span style={{ color: errorGender === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"性別 *"}</span>
 
                         <div style={{ flex: 1, flexDirection: 'row' }} onChange={(value) => setGender(value.target.value)}>
-                            <input style={{ marginRight: 5 }} type="radio" value="男" name="gender" />
-                            <span style={{ marginRight: 10 }}>男</span>
-                            <input style={{ marginRight: 5 }} type="radio" value="女" name="gender" />
-                            <span style={{ marginRight: 10 }}>女</span>
-                            <input style={{ marginRight: 5 }} type="radio" value="無" name="gender" />
-                            <span>其他</span>
+                            {genderList.map((gender, index) => {
+                                return (
+                                    <span>
+                                        <input style={{ marginRight: 5 }} type="radio" value={gender.key} name="gender" />
+                                        <span style={{ marginRight: 10 }}>{gender.value}</span>
+                                    </span>
+                                )
+                            })}
                         </div>
                         <FormHelperText error={errorGender !== ""}>{errorGender}</FormHelperText>
                     </div>

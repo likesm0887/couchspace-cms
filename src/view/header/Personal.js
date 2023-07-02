@@ -15,9 +15,11 @@ function Personal() {
     const [name, setName] = useState("");
     const [title, setTitle] = useState("");
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const [photo, setPhoto] = useState("");
     useEffect(() => {
         setName(counselorInfo.UserName.Name.FirstName + counselorInfo.UserName.Name.LastName);
         setTitle(counselorInfo.Position);
+        setPhoto(counselorInfo.Photo);
     }, [])
 
     window.addEventListener('mouseup', (event) => {
@@ -47,7 +49,7 @@ function Personal() {
     };
     return (
         <div style={{ flex: 1, flexDirection: 'row' }} className={"personal-content"}>
-            <img style={{ width: 50, height: 50, objectFit: 'contain', marginRight: 10 }} src={selfie} className="selfie" alt={"selfie"} />
+            <img style={{ alignSelf: 'center', justifySelf: 'center', width: 100, height: 100, objectFit: 'contain', marginRight: 10, borderRadius: 1000, overflow: 'hidden' }} src={photo} className="selfie" alt={"selfie"} />
             <div style={{ flexDirection: 'column' }} className={"info"}>
 
                 <div className={"nameAndTitle"}>
