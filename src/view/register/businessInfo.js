@@ -1,15 +1,24 @@
-import { Grid, Checkbox, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText } from "@mui/material";
+import { Grid, Checkbox, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, IconButton, Tooltip } from "@mui/material";
 import "./BusinessInfo.css";
 import Typography from "@material-ui/core/Typography";
-import { useRef, useState } from "react";
+import { useState, useEffect } from "react";
 import { forwardRef, useImperativeHandle } from "react";
 import plus from "../img/register/plus.svg";
 import trash from "../img/register/trash.svg";
-import { Counselor, counselorInfo, WeekType, BusinessTime, Period } from "../../dataContract/counselor";
+import { counselorInfo, WeekType, BusinessTime, Period, OverrideTime } from "../../dataContract/counselor";
 import { TimePicker } from "antd";
 import { showToast, toastType } from "../../common/method";
-
+import Calender from "react-calendar";
+import 'react-calendar/dist/Calendar.css';
+import {
+    InfoCircleOutlined
+} from "@ant-design/icons";
 const BusinessInfo = forwardRef((props, ref) => {
+    const currentDate = new Date();
+    const maxDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 3, currentDate.getDate());
+    const [chooseDate, setChooseDate] = useState(currentDate);
+    const [checkedHours, setCheckedHours] = useState([]);
+    const [overrideTimes, setOverrideTimes] = useState([]);
     // 定義多個營業時間
     let businessHours = [
         { enabled: false, day: WeekType.Sunday, periods: [] },
@@ -22,10 +31,36 @@ const BusinessInfo = forwardRef((props, ref) => {
     ];
     /// dialog
     const [isOpen, setIsOpen] = useState(false);
+    const [isDailyHourOpen, setIsDailyHourOpen] = useState(false);
+    const [isNeedSort, setIsNeedSort] = useState(false);
     const [consultHours, setConsultHours] = useState(businessHours);
     const [startTime, setStartTime] = useState(null);
     const [endTime, setEndTime] = useState(null);
     const [selectedBusiness, setSelectedBusiness] = useState(null);
+    const bubbleSortDailyHour = () => {
+        var output = overrideTimes;
+        for (var i = 0; i < output.length; i++) {
+            for (var j = 0; j < output.length - i - 1; j++) {
+                if (new Date(output[j].DayTime) > new Date(output[j + 1].DayTime)) {
+                    var temp = output[j];
+                    output[j] = output[j + 1];
+                    output[j + 1] = temp;
+                }
+            }
+        }
+        console.log("output", output);
+        return output;
+
+    }
+    useEffect(() => {
+        if (isNeedSort) {
+            setIsNeedSort(false);
+            var sortResult = bubbleSortDailyHour();
+            setOverrideTimes([...sortResult]);
+            console.log("overrideTimes", overrideTimes);
+        }
+    }, [isNeedSort])
+
     useImperativeHandle(ref, () => ({
         checkAllInput() {
             var output = true;
@@ -42,7 +77,8 @@ const BusinessInfo = forwardRef((props, ref) => {
                 });
                 businessTimes.push(businessTime);
             })
-            counselorInfo.updateBusinessTime = businessTimes;
+            counselorInfo.updateBusinessTimes = businessTimes;
+            counselorInfo.OverrideTimes = overrideTimes;
             console.log("counselorInfo", counselorInfo);
 
             return output;
@@ -67,11 +103,7 @@ const BusinessInfo = forwardRef((props, ref) => {
         console.log("after", tempItems[index].periods);
         setConsultHours([...tempItems]);
     }
-    const handleClose = (event, reason) => {
-        if (reason && reason === "backdropClick")
-            return;
-        setIsOpen(false);
-    }
+
     const checkWeeklyHoursOverlap = () => {
         let output = false;
         for (var i = 0; i < consultHours[selectedBusiness].periods.length; i++) {
@@ -85,7 +117,7 @@ const BusinessInfo = forwardRef((props, ref) => {
             console.log("curEndTime", curEndTime);
 
             if (curStartTime < tempEndTime && curEndTime > tempStartTime) {
-                showToast(toastType.error, startTime.format("HH:mm") + "~" + endTime.format("HH:mm") + "與" + consultHours[selectedBusiness].periods[i].startTime + "~" + consultHours[selectedBusiness].periods[i].endTime + "時間重疊，請重新選擇");
+                showToast(toastType.error, startTime.format("HH:mm") + "-" + endTime.format("HH:mm") + "與" + consultHours[selectedBusiness].periods[i].startTime + " - " + consultHours[selectedBusiness].periods[i].endTime + "時間重疊，請重新選擇");
                 output = true; // 重疊
                 break;
             }
@@ -123,6 +155,56 @@ const BusinessInfo = forwardRef((props, ref) => {
         setStartTime(null);
         setEndTime(null);
     }
+    const handleClose = (event, reason) => {
+        if (reason && reason === "backdropClick")
+            return;
+        setIsOpen(false);
+    }
+    const handleDailyHourAccept = async () => {
+        let overrideTime = new OverrideTime();
+        setCheckedHours(checkedHours.sort((a, b) => a - b));
+        overrideTime.DayTime = chooseDate.toLocaleDateString('zh-CN');
+        overrideTime.Periods = checkedHours.map((checkedHour, index) => {
+            let period = new Period();
+            period.StartTime = `${checkedHour}:00`;
+            period.EndTime = `${checkedHour + 1}:00`;
+            return period;
+        })
+        var searchIndex = overrideTimes.findIndex((item) => item.DayTime === overrideTime.DayTime); // find whether the DayTime is exist
+        if (searchIndex !== -1) { // if exist, use latest setting
+            overrideTimes.splice(searchIndex, 1);
+            setOverrideTimes(overrideTimes);
+        }
+        if (checkedHours.length > 0) { // if period is not empty, valid override => add to overrideTimes
+            setOverrideTimes([...overrideTimes, overrideTime]);
+            setIsNeedSort(true);
+        }
+        clearAndCloseDailyHourDialog();
+
+    }
+    const handleDailyHourCancel = () => {
+        clearAndCloseDailyHourDialog();
+    }
+    const handleDailyHourClose = (event, reason) => {
+        if (reason && reason === "backdropClick")
+            return;
+        clearAndCloseDailyHourDialog();
+    }
+    const clearAndCloseDailyHourDialog = () => {
+        setIsDailyHourOpen(false);
+        setChooseDate(currentDate);
+        setCheckedHours([]);
+    }
+
+    const handleHourToggle = (hour) => {
+        if (checkedHours.includes(hour)) {
+            // 如果已經被勾選，則從已勾選的小時中移除
+            setCheckedHours(checkedHours.filter((h) => h !== hour));
+        } else {
+            // 如果尚未被勾選，則加入到已勾選的小時中
+            setCheckedHours([...checkedHours, hour]);
+        }
+    };
     function arrayRemove(arr, value) {
         return arr.filter(function (ele) {
             return ele !== value;
@@ -166,6 +248,16 @@ const BusinessInfo = forwardRef((props, ref) => {
             disabledMinutes: () => minutes,
             disabledSeconds: () => [],
         };
+    }
+    const onClickDay = (value) => {
+        setChooseDate(value);
+        setIsDailyHourOpen(true);
+    }
+    const onClickDeleteDailyHour = (deletedIndex) => {
+        console.log("deletedIndex", deletedIndex);
+        overrideTimes.splice(deletedIndex, 1);
+        setOverrideTimes(overrideTimes);
+        setIsNeedSort(true);
     }
     const createDialog = () => {
         return <Dialog
@@ -239,7 +331,41 @@ const BusinessInfo = forwardRef((props, ref) => {
             </DialogActions>
         </Dialog>
     }
-
+    const createDailyHourDialog = () => {
+        return <Dialog
+            open={isDailyHourOpen}
+            fullWidth={true}
+            onClose={handleDailyHourClose}
+            value={"sm"}>
+            <DialogTitle id="alert-dialog-title">{"請勾選時段( " + chooseDate.toLocaleDateString('zh-CN') + " )"}</DialogTitle>
+            <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                    <div>
+                        {Array.from({ length: 24 }, (_, index) => (
+                            <div>
+                                <label key={index}>
+                                    <input
+                                        type="checkbox"
+                                        checked={checkedHours.includes(index)}
+                                        onChange={() => handleHourToggle(index)}
+                                    />
+                                    {index}:00 - {index + 1}:00
+                                </label>
+                            </div>
+                        ))}
+                    </div>
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <button className={"finishButton"} onClick={handleDailyHourCancel}>
+                    {"取消"}
+                </button>
+                <button className={"acceptButton"} onClick={handleDailyHourAccept} color="primary" autoFocus>
+                    {"完成"}
+                </button>
+            </DialogActions>
+        </Dialog>
+    }
     return (
         <div className={"BusinessInfo"}>
             <Typography style={{ marginTop: 10 }} variant="h6" gutterBottom>
@@ -257,8 +383,10 @@ const BusinessInfo = forwardRef((props, ref) => {
                                 <span>
                                     <strong>{consultHour.day}</strong>
                                     {consultHour.periods.map((period, period_index) => {
-                                        return (<span key={period_index}> {(period.startTime + "-" + period.endTime)}
-                                            <img style={{ marginLeft: 3, marginRight: 10, height: 15, width: 15, verticalAlign: 'middle' }} src={trash} alt="" onClick={() => handleDelete(index, period_index)} />
+                                        return (<span key={period_index}> {(period.startTime + " - " + period.endTime)}
+                                            <Tooltip title="刪除" placement="top" arrow={true}>
+                                                <img style={{ marginLeft: 3, marginRight: 10, height: 15, width: 15, verticalAlign: 'middle' }} src={trash} alt="" onClick={() => handleDelete(index, period_index)} />
+                                            </Tooltip>
                                         </span>)
                                     })}
                                     <img style={{ position: 'absolute', right: "25%", height: 25, width: 25, verticalAlign: 'middle' }} src={plus} alt="" onClick={() => handleAddPeriod(index)}></img>
@@ -268,9 +396,48 @@ const BusinessInfo = forwardRef((props, ref) => {
                     </div>
                 </Grid>
             </Grid>
+            <div style={{ flex: 1, flexDirection: 'row', display: 'inline-block' }}>
+                <Typography variant="h6" gutterBottom>
+                    {"填寫諮商時段(Daily Hours)"}
+                    <Tooltip title="會根據您指定的日期與時段，覆蓋掉原本的Weekly Hour的時段。" placement="top" enterDelay={500} leaveDelay={200} arrow={true}>
+                        <InfoCircleOutlined style={{ marginLeft: 10, verticalAlign: 0 }}></InfoCircleOutlined>
+                    </Tooltip>
+                </Typography>
+            </div>
+            <Grid container spacing={3}>
+                <Grid item xs={12}>
+                    <Calender calendarType="US" maxDate={maxDate} minDate={currentDate} locale="en" onClickDay={(value) => onClickDay(value)}></Calender>
+                </Grid>
+                <Grid item xs={12}>
+                    {overrideTimes.map((overrideTime, index) => {
+                        return (
+                            <div style={{ marginBottom: 10 }}>
+                                <div>
+                                    <span>{overrideTime.DayTime}</span>
+                                    <Tooltip title="刪除" placement="top" arrow={true}>
+                                        <img style={{ marginLeft: 3, marginRight: 10, height: 15, width: 15, verticalAlign: 'middle' }} src={trash} alt="" onClick={() => onClickDeleteDailyHour(index)} />
+                                    </Tooltip>
+                                </div>
+                                <div>
+                                    {overrideTime.Periods.map((period, period_index) => {
+                                        return (
+                                            <span key={period_index}> {(period.StartTime + " - " + period.EndTime)}
+                                                {period_index === overrideTime.Periods.length - 1 ? null : <span>{" / "}</span>}
+                                            </span>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        )
+                    })}
+                </Grid>
+            </Grid>
             <div style={{ height: 30 }}></div>
             <div>
                 {createDialog()}
+            </div>
+            <div>
+                {createDailyHourDialog()}
             </div>
         </div>
 

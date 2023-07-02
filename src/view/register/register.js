@@ -10,7 +10,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useRef } from 'react';
 import ConsultationInfo from './consultationInfo';
 import { counselorService } from '../../service/ServicePool';
-import { Counselor, counselorInfo } from '../../dataContract/counselor';
+import { AppointmentTime, counselorInfo } from '../../dataContract/counselor';
 import BusinessInfo from './businessInfo';
 import CertificateInfo from './certificateInfo';
 
@@ -110,11 +110,14 @@ export function Register() {
     };
     const finishRegister = async () => {
         console.log("finish register");
+        let appointmentTime = new AppointmentTime();
+        appointmentTime.BusinessTimes = counselorInfo.BusinessTimes;
+        appointmentTime.OverrideTimes = counselorInfo.OverrideTimes;
         var result = await counselorService.register(account, password);
         console.log("result", result);
         result = await counselorService.login(account, password);
         result = await counselorService.updateCounselorInfo(counselorInfo);
-        result = await counselorService.setAppointmentTime(counselorInfo.BusinessTimes);
+        result = await counselorService.setAppointmentTime(appointmentTime);
         console.log("result", result);
     }
     function getStepContent(step) {

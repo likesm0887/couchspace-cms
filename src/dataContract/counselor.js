@@ -80,6 +80,21 @@ export class Period {
         this.EndTime = "0:00";
     }
 }
+
+export class OverrideTime {
+    constructor() {
+        this.Unavailable = true;
+        this.DayTime = new Date().toLocaleDateString('zh-CN');
+        this.Periods = [];
+    }
+}
+export class AppointmentTime {
+    constructor() {
+        this.ID = "";
+        this.BusinessTimes = [];
+        this.OverrideTimes = [];
+    }
+}
 export class Counselor {
     constructor() {
         this.ID = "";
@@ -116,6 +131,9 @@ export class Counselor {
 
         // business times
         this.BusinessTimes = [];
+
+        // override times
+        this.OverrideTimes = [];
     }
 
 
@@ -171,8 +189,11 @@ export class Counselor {
         this.LicenseNumber = info.LicenseNumber;
         this.LicenseIssuing = info.LicenseIssuing;
     }
-    set updateBusinessTime(businessTimes: BusinessTime[]) {
+    set updateBusinessTimes(businessTimes: BusinessTime[]) {
         this.BusinessTimes = businessTimes;
+    }
+    set updateOverrideTimes(overrideTimes: OverrideTime[]) {
+        this.OverrideTimes = overrideTimes;
     }
     set clearAll(info: Counselor) {
         this.ID = "";
