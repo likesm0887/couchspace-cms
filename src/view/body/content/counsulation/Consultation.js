@@ -79,7 +79,7 @@ function Consultation() {
                         {allAppointment.Service === 0 ? "諮商" : "諮商"}
                     </div>
                     <div className="content-col">
-                        <span style={{ color: allAppointment.Status === "RoomCreated" ? "#88A1D2" : "#595757" }}>{allAppointment.Status === "RoomCreated" ? "已接受" : "待確認"}
+                        <span style={{ color: allAppointment.Status === "RoomCreated" ? "#88A1D2" : "#595757" }}>{allAppointment.Status === "ROOMCREATED" ? "已建立房間" : "已確認"}
                             <img src={editButton} className={"editButton"} alt={"123"}></img> </span>
                     </div>
                 </div>

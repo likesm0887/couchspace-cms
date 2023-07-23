@@ -164,7 +164,7 @@ function AppointmentDetail() {
                                 </tr>
                                 <tr>
                                     <td>狀態</td>
-                                    <td>{appointment.Status === "RoomCreated" ? "已接受" : "待確認"}</td>
+                                    <td>{appointment.Status === "ROOMCREATED" ? "已建立房間" : "已確認"}</td>
                                 </tr>
                                 <tr>
                                     <td>金額</td>
@@ -181,7 +181,7 @@ function AppointmentDetail() {
                 </div>
                 <div className={"button-content"}>
                     <button className={"finishButton"} onClick={() => finish()}>完成查閱</button>
-                    <button className={"acceptButton"} onClick={() => accept()}>確認接受</button>
+                    {/* <button className={"acceptButton"} onClick={() => accept()}>確認接受</button> */}
 
                 </div>
 

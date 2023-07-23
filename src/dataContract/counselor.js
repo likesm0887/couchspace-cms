@@ -95,6 +95,13 @@ export class AppointmentTime {
         this.OverrideTimes = [];
     }
 }
+export class License {
+    constructor() {
+        this.LicenseNumber = ""; // 諮商編號
+        this.LicenseIssuing = "";  // 發證單位
+        this.LicenseTitle = "";
+    }
+}
 export class Counselor {
     constructor() {
         this.ID = "";
@@ -122,8 +129,8 @@ export class Counselor {
         this.ConsultingFees = []; // 諮商項目
 
         // certificate info
-        this.LicenseNumber = ""; // 諮商編號
-        this.LicenseIssuing = ""; // 發證單位
+        this.License = new License();
+
         // others
         this.Tags = [];
         this.InstitutionID = "";
@@ -149,8 +156,7 @@ export class Counselor {
         this.ShortIntroduction = info.ShortIntroduction;
         this.LongIntroduction = info.LongIntroduction;
         this.Location = info.Location;
-        this.LicenseNumber = info.LicenseNumber;
-        this.LicenseIssuing = info.LicenseIssuing;
+        this.License = info.License;
         this.Accumulative = info.Accumulative;
         this.Expertises = info.Expertises;
         this.ExpertisesInfo = info.ExpertisesInfo;
@@ -185,9 +191,8 @@ export class Counselor {
         this.ExpertisesInfo = info.ExpertisesInfo;
         this.ConsultingFees = info.ConsultingFees;
     }
-    set updateCertificateInfo(info: Counselor) {
-        this.LicenseNumber = info.LicenseNumber;
-        this.LicenseIssuing = info.LicenseIssuing;
+    set updateCertificateInfo(info: License) {
+        this.License = info;
     }
     set updateBusinessTimes(businessTimes: BusinessTime[]) {
         this.BusinessTimes = businessTimes;
@@ -221,12 +226,18 @@ export class Counselor {
         this.ConsultingFees = []; // 諮商項目
 
         // certificate info
-        this.LicenseNumber = ""; // 諮商編號
-        this.LicenseIssuing = ""; // 發證單位
+        this.License = new License();
+
         // others
         this.Tags = [];
         this.InstitutionID = "";
         this.AppointmentTimeID = "";
+
+        // business times
+        this.BusinessTimes = [];
+
+        // override times
+        this.OverrideTimes = [];
     }
 }
 

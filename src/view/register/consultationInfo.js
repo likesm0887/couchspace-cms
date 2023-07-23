@@ -8,10 +8,10 @@ import { Counselor, Expertise, counselorInfo } from "../../dataContract/counselo
 
 const ConsultationInfo = forwardRef((props, ref) => {
     const counselingItems = [
-        { enabled: false, label: "諮商50分鐘", fee: 0, time: 60, value: "IND_COUNSELING" },
+        { enabled: false, label: "個別諮商", fee: 0, time: 50, value: "IND_COUNSELING" },
         // { enabled: false, label: "諮商90分鐘", fee: 0, time: 90, value: "IND_COUNSELING" }, // 0607: currently not support 90 min counseling
-        { enabled: false, label: "初談10分鐘", fee: 0, time: 60, value: "FIRST" },
-        { enabled: false, label: "諮詢50分鐘", fee: 0, time: 60, value: "IND_CONSULTATION" },
+        { enabled: false, label: "初談", fee: 0, time: 10, value: "FIRST" },
+        { enabled: false, label: "個別諮詢", fee: 0, time: 50, value: "IND_CONSULTATION" },
         { enabled: false, label: "實體諮商", fee: 0, time: 0, value: "IN_PERSON" },
     ]
     const languagesItems = [
@@ -138,7 +138,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
             }
             // whether output is true or false => update info to counselor model
             let info = new Counselor();
-            info.Languages = languages.filter((language) => language.enabled === true);
+            info.Languages = languages.filter((language) => language.enabled === true).map((item) => item.label);
             info.Educational = education;
             info.Seniority = seniority;
             info.Position = position;
@@ -191,7 +191,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
                                     tempItems[index].enabled = !item.enabled;
                                     setConsultingFees([...tempItems]);
                                 }}></Checkbox>
-                                <span>{item.label}</span>
+                                <span>{item.label + item.time + "分鐘"}</span>
                                 {item.enabled ?
                                     <span style={{ marginRight: 80, float: 'right' }}>
                                         {"NTD "}
@@ -212,7 +212,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
                                             value={item.fee}
                                             onChange={(text) => {
                                                 var tempItems = consultingFees;
-                                                tempItems[index].fee = Number(text.target.value).toString();
+                                                tempItems[index].fee = Number(text.target.value);
                                                 setConsultingFees([...tempItems]);
                                             }}
                                         />
@@ -426,7 +426,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
                                 return (
                                     item.enabled ?
                                         <div>
-                                            <span>{item.label + "\t\t\t諮商費用 " + new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(item.fee)}</span>
+                                            <span>{item.label + item.time + "分鐘\t\t\t諮商費用 " + new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(item.fee)}</span>
                                         </div>
                                         : null)
                             })}

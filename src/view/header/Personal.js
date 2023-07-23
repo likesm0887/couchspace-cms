@@ -18,8 +18,8 @@ function Personal() {
     const [photo, setPhoto] = useState("");
     useEffect(() => {
         setName(counselorInfo.UserName.Name.FirstName + counselorInfo.UserName.Name.LastName);
-        setTitle(counselorInfo.Position);
-        setPhoto(counselorInfo.Photo);
+        setTitle(counselorInfo.Position === "" ? "諮商師" : counselorInfo.Position);
+        setPhoto(counselorInfo.Photo === "" ? selfie : counselorInfo.Photo);
     }, [])
 
     window.addEventListener('mouseup', (event) => {

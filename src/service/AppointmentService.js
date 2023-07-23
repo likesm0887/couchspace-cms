@@ -10,7 +10,7 @@ export class AppointmentService {
         this.token = token_counselor;
     }
     getAllAppointment() {
-        const api = this.base_url + "/api/v1/appointments"
+        const api = this.base_url + "/api/v1/appointments/all/new;roomCreated"
         const requestOptions = {
             method: 'Get',
             headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
@@ -25,7 +25,7 @@ export class AppointmentService {
     }
 
     getAppointment(AppointmentId) {
-        const api = this.base_url + "/appointments/" + AppointmentId
+        const api = this.base_url + "/api/v1/appointments/" + AppointmentId
         const requestOptions = {
             method: 'Get',
             headers: { "Authorization": this.token, 'Content-Type': 'application/json' },

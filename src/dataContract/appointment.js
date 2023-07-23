@@ -22,7 +22,7 @@ export class Appointment {
     ProblemStatement = "失戀";
     SpecialRequirement = "需要背景音樂";
     TimeUpdateRecord = [];
-    Status = "RoomCreated";
+    Status = "ROOMCREATED";
     RoomID = "e67a7980-749b-4b6b-8665-6d91ff29fa54";
 
 }

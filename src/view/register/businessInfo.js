@@ -72,7 +72,7 @@ const BusinessInfo = forwardRef((props, ref) => {
                 consultHour.periods.forEach((period) => {
                     let businessPeriod = new Period();
                     businessPeriod.StartTime = period.startTime;
-                    businessPeriod.EndTime = period.EndTime;
+                    businessPeriod.EndTime = period.endTime;
                     businessTime.Periods.push(businessPeriod);
                 });
                 businessTimes.push(businessTime);
@@ -399,7 +399,7 @@ const BusinessInfo = forwardRef((props, ref) => {
             <div style={{ flex: 1, flexDirection: 'row', display: 'inline-block' }}>
                 <Typography variant="h6" gutterBottom>
                     {"填寫諮商時段(Daily Hours)"}
-                    <Tooltip title="會根據您指定的日期與時段，覆蓋掉原本的Weekly Hour的時段。" placement="top" enterDelay={500} leaveDelay={200} arrow={true}>
+                    <Tooltip title="會根據您指定的日期與時段，覆蓋掉原本的Weekly Hour的時段。" placement="top" enterDelay={0} leaveDelay={200} arrow={true}>
                         <InfoCircleOutlined style={{ marginLeft: 10, verticalAlign: 0 }}></InfoCircleOutlined>
                     </Tooltip>
                 </Typography>

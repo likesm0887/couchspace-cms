@@ -3,20 +3,21 @@ import "./Consultation.css";
 import Typography from "@material-ui/core/Typography";
 import { useState } from "react";
 import { forwardRef, useImperativeHandle } from "react";
-import { Counselor, counselorInfo } from "../../dataContract/counselor";
+import { Counselor, License, counselorInfo } from "../../dataContract/counselor";
 
 const CertificateInfo = forwardRef((props, ref) => {
 
     /// info
-    const [licenseNumber, setLicenseNumber] = useState(counselorInfo.LicenseNumber); // 證照編號
-    const [licenseIssuing, setLicenseIssuing] = useState(counselorInfo.LicenseIssuing); // 發證單位
-
+    const [licenseNumber, setLicenseNumber] = useState(counselorInfo.License.LicenseNumber); // 證照編號
+    const [licenseIssuing, setLicenseIssuing] = useState(counselorInfo.License.LicenseIssuing); // 發證單位
+    const [licenseTitle, setLicenseTitle] = useState(counselorInfo.License.LicenseTitle);
     const [errorLicenseNumber, setErrorLicenseNumber] = useState("");
     const [errorLicenseIssuing, setErrorLicenseIssuing] = useState("");
-
+    const [errorLicenseTitle, setErrorLicenseTitle] = useState("");
     function ClearAllError() {
         setErrorLicenseNumber("");
         setErrorLicenseIssuing("");
+        setErrorLicenseTitle("");
     }
     useImperativeHandle(ref, () => ({
         checkAllInput() {
@@ -31,9 +32,13 @@ const CertificateInfo = forwardRef((props, ref) => {
             //     setErrorLicenseIssuing("請輸入發證單位");
             //     output = false;
             // }
-
+            // if (licenseTitle === "") {
+            //     setErrorLicenseIssuing("請輸入證照標題");
+            //     output = false;
+            // }
             // whether output is true or false => update info to counselor model
-            let info = new Counselor();
+            let info = new License();
+            info.LicenseTitle = licenseTitle;
             info.LicenseNumber = licenseNumber;
             info.LicenseIssuing = licenseIssuing;
             counselorInfo.updateCertificateInfo = info;
@@ -49,7 +54,7 @@ const CertificateInfo = forwardRef((props, ref) => {
             </Typography>
 
             <Grid container spacing={3}>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12}>
                     <TextField
                         id="licenseNumber"
                         name="licenseNumber"
@@ -64,7 +69,7 @@ const CertificateInfo = forwardRef((props, ref) => {
                         helperText={errorLicenseNumber}
                     />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12}>
                     <TextField
                         id="licenseIssuing"
                         name="licenseIssuing"
@@ -75,6 +80,21 @@ const CertificateInfo = forwardRef((props, ref) => {
                         placeholder=""
                         value={licenseIssuing}
                         onChange={(text) => setLicenseIssuing(text.target.value.trim())}
+                        error={errorLicenseTitle !== ""}
+                        helperText={errorLicenseTitle}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        id="licenseTitle"
+                        name="licenseTitle"
+                        label="證照標題"
+                        fullWidth
+                        autoComplete="family-name"
+                        variant="standard"
+                        placeholder=""
+                        value={licenseTitle}
+                        onChange={(text) => setLicenseTitle(text.target.value.trim())}
                         error={errorLicenseIssuing !== ""}
                         helperText={errorLicenseIssuing}
                     />
