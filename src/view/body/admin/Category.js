@@ -57,6 +57,10 @@ function Category() {
     {
       value: "5",
       label: "專注",
+    },
+    {
+      value: "-1",
+      label: "首頁",
     }
   ];
   const columns = [
@@ -110,6 +114,10 @@ function Category() {
             if (b === 5) {
               color = "purple";
               label = "專注";
+            }
+            if (b === -1) {
+              color = "purple";
+              label = "首頁";
             }
             return (
               <Tag color={color} key={b}>
