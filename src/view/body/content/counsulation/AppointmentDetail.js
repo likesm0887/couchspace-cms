@@ -105,6 +105,26 @@ function AppointmentDetail() {
             .padStart(2, "0");
         return minute + ":" + second + ":00";
     }
+    function getStatusDesc(code){
+        if (code.toLowerCase() == 'NEW'){
+            return "訂單成立(未付款)"
+        }
+
+        if (code.toLowerCase() == 'CONFIRMED'){
+            return "已確認"
+        }
+        if (code.toLowerCase() == 'ROOMCREATED'){
+            return "諮商房間已建立"
+        } 
+
+        if (code.toLowerCase() == 'CANCELLED'){
+            return "已取消"
+        } 
+
+        if (code.toLowerCase() == 'COMPLETED'){
+            return "已完成"
+        } 
+    }
     return (
         <ThemeProvider theme={theme}>
             <div>
@@ -164,7 +184,7 @@ function AppointmentDetail() {
                                 </tr>
                                 <tr>
                                     <td>狀態</td>
-                                    <td>{appointment.Status === "ROOMCREATED" ? "已建立房間" : "已確認"}</td>
+                                    <td>{getStatusDesc(appointment.Status)}</td>
                                 </tr>
                                 <tr>
                                     <td>金額</td>

@@ -80,7 +80,7 @@ function App() {
                             <Route path="consultation" element={<Consultation />} />
                             <Route>
                                 <Route path="consultation/:id" element={<AppointmentDetail />} />
-                                <Route path="consultation/counseling" element={<Counseling />} />
+                                <Route path="consultation/counseling/:id" element={<Counseling />} />
                             </Route>
                         </Route>
                         <Route path="meditation" element={<Meditation />} />

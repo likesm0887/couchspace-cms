@@ -3,7 +3,7 @@ import { appointmentService } from "../../../../service/ServicePool";
 import { Backdrop, CircularProgress, createTheme, Pagination } from "@mui/material";
 import "./consultation.css"
 import editButton from "../../../img/content/edit.svg"
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import userIcon from "../../../img/content/userIcon.svg";
 import { Appointment } from "../../../../dataContract/appointment";
 
@@ -11,6 +11,7 @@ function Consultation() {
     let navigate = useNavigate();
     let pageSize = 7;
     const [open, setOpen] = useState(false);
+
     let allAppointments: Appointment[] = [];
     const [currentPage, setCurrentPage] = useState(1)
     const [currentTableData, setCurrentTableData] = useState([]);
@@ -58,9 +59,32 @@ function Consultation() {
     const clickItem = (appointment) => {
         navigate("/couchspace-cms/home/consultation/" + appointment.AppointmentID, { replace: false, state: { appointment: appointment } });
     }
-    const start = () => {
+    const start = (ID) => {
+        console.log(ID)
         setOpen(!open);
-        navigate("/couchspace-cms/home/consultation/counseling", { replace: false });
+        navigate("/couchspace-cms/home/consultation/counseling/"+ID, { replace: false, state: { appointmentID: ID } });
+    }
+
+    function getStatusDesc(code){
+        if (code.toUpperCase() == 'NEW'){
+            return "訂單成立(未付款)"
+        }
+
+        if (code.toUpperCase() == 'CONFIRMED'){
+            return "已確認"
+        }
+        if (code.toUpperCase() == 'ROOMCREATED'){
+         
+            return "諮商房間已建立"
+        } 
+
+        if (code.toUpperCase() == 'CANCELLED'){
+            return "已取消"
+        } 
+
+        if (code.toUpperCase() == 'COMPLETED'){
+            return "已完成"
+        } 
     }
     function createListItem() {
         return currentTableData.map(allAppointment => {
@@ -79,12 +103,12 @@ function Consultation() {
                         {allAppointment.Service === 0 ? "諮商" : "諮商"}
                     </div>
                     <div className="content-col">
-                        <span style={{ color: allAppointment.Status === "RoomCreated" ? "#88A1D2" : "#595757" }}>{allAppointment.Status === "ROOMCREATED" ? "已建立房間" : "已確認"}
+                        <span style={{ color: allAppointment.Status === "RoomCreated" ? "#88A1D2" : "#595757" }}>{getStatusDesc(allAppointment.Status)}
                             <img src={editButton} className={"editButton"} alt={"123"}></img> </span>
                     </div>
                 </div>
                 <div>
-                    <button className={"startButton"} onClick={() => start()}>
+                    <button className={"startButton"} onClick={() => start(allAppointment.AppointmentID)}>
                         開始
                     </button>
                 </div>

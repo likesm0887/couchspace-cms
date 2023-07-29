@@ -1,9 +1,11 @@
 import React, { useState, useCallback, useEffect } from "react";
 import Video from "twilio-video";
-import Lobby from "./Lobby";
 import Room from "./Room";
+import { appointmentService } from "../../../../service/ServicePool";
+import { Appointment } from "../../../../dataContract/appointment";
 
-const VideoChat = () => {
+const VideoChat = (props) => {
+  
   const [username, setUsername] = useState("");
   const [roomName, setRoomName] = useState("");
   const [room, setRoom] = useState(null);
@@ -13,18 +15,18 @@ const VideoChat = () => {
     setUsername("我是誰");
   }, []);
 
-  const handleRoomNameChange = useCallback((event) => {
-    setRoomName("9df4a50f-26bc-406d-87f1-1ae35ea67616");
-  }, []);
+ 
 
-  const handleSubmit = () => {
-    console.log("test")
-
+  const handleSubmit = async() => {
+    
+   const appointment = await appointmentService.getAppointment(props.appointmentID)
+   const token =await appointmentService.getAppointmentRoomToken(props.appointmentID)
+  
     setConnecting(true);
-
+    
     Video.connect(
-      "eyJhbGciOiJIUzI1NiIsImN0eSI6InR3aWxpby1mcGE7dj0xIiwidHdyIjoidXMxIiwidHlwIjoiSldUIn0.eyJleHAiOjE2Njg1MjQ5NDMsImdyYW50cyI6eyJpZGVudGl0eSI6IjgzZWRhODAxLWEzMzItNDhkNy04ZTliLTBjZDc3NmJjZTEzYyIsInZpZGVvIjp7InJvb20iOiI2NmUwMGIxZC1jNTJlLTQ1YmQtODAyNi1kYTkzMDVlOGUyMTEifX0sImlzcyI6IlNLYzJhMmJjNjc1YzZmMGYzNzdhMTVlYmJhNjdkNDRjMGEiLCJqdGkiOiJTS2MyYTJiYzY3NWM2ZjBmMzc3YTE1ZWJiYTY3ZDQ0YzBhLTE2Njg1MjEzNDMiLCJuYmYiOjE2Njg1MjEzNDMsInN1YiI6IkFDNDQ1NjhhZjM0NzJhZjQ5ZTkzNzE2NTI5ZGEwZDYzNjEifQ.aWqcGgS-gz12d1hgvMrIrVzLceiqK3118lPnN4Z-c58", {
-      name: "efe96a3b-0d91-4897-b1f9-0bcc97dc9802",
+      token, {
+      name: appointment.RoomID,
     })
       .then((room) => {
         setConnecting(false);
