@@ -191,7 +191,10 @@ const ConsultationInfo = forwardRef((props, ref) => {
                                     tempItems[index].enabled = !item.enabled;
                                     setConsultingFees([...tempItems]);
                                 }}></Checkbox>
-                                <span>{item.label + item.time + "分鐘"}</span>
+                                {item.time > 0 ?
+                                    <span>{item.label + item.time + "分鐘"}</span> :
+                                    <span>{item.label}</span>}
+
                                 {item.enabled ?
                                     <span style={{ marginRight: 80, float: 'right' }}>
                                         {"NTD "}
@@ -426,7 +429,10 @@ const ConsultationInfo = forwardRef((props, ref) => {
                                 return (
                                     item.enabled ?
                                         <div>
-                                            <span>{item.label + item.time + "分鐘\t\t\t諮商費用 " + new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(item.fee)}</span>
+                                            {item.time > 0 ?
+                                                <span>{item.label + item.time + "分鐘\t\t\t諮商費用 " + new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(item.fee)}</span> :
+                                                <span>{item.label + "\t\t\t諮商費用 " + new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(item.fee)}</span>
+                                            }
                                         </div>
                                         : null)
                             })}
