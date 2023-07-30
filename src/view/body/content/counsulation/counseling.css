@@ -1,56 +1,49 @@
-.Counseling{
-
-    padding: 100px;
+.Counseling {
+  padding: 100px;
 }
-.VideoCall{
-    float:left;
-    width: 362px;
-    height: 500px;
-
+.VideoCall {
+  align-self: center;
 }
-.Screen{
-    border-radius: 20px;
-    width: 362px;
-    height: 400px;
-    background-color: #9A9C9A;
+.Screen {
+  flex-direction: row;
+  display: inline-flex;
 }
 
-.stopAndClose{
-    margin-top: 50px;
-    display:flex;
-    flex-direction: row;
-    justify-content: center;
+.stopAndClose {
+  margin-top: 50px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
-.stop{
-    alignment: right;
-    margin-left: 150px;
+.stop {
+  alignment: right;
+  margin-left: 150px;
 }
-.stopWatch{
-    alignment: left;
+.stopWatch {
+  alignment: left;
 }
-.headshotAndNameAndTime{
-    display:flex;
-    flex-direction: row;
+.headshotAndNameAndTime {
+  display: flex;
+  flex-direction: row;
 }
 
-.Right{
-    float:right;
-
+.Right {
+  float: right;
 }
-.ChatRoom{
-    border-radius: 20px;
-    width: 543px;
-    height: 443px;
-    background-color: #FFFFFF;
+.ChatRoom {
+  border-radius: 20px;
+  width: 543px;
+  height: 443px;
+  background-color: #ffffff;
 }
 .Comment {
-    color: #222;
-    font-size: 1.25rem;
-    line-height: 1.5;
-    margin-bottom: 1.25rem;
-    max-width: 100%;
-    padding: 0;
+  color: #222;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+  max-width: 100%;
+  padding: 0;
 }
 video {
-    transform: rotateY(180deg);
-  }
+  transform: rotateY(180deg);
+}

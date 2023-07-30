@@ -66,23 +66,23 @@ function Consultation() {
     }
 
     function getStatusDesc(code){
-        if (code.toUpperCase() == 'NEW'){
+        if (code.toUpperCase() === 'NEW'){
             return "訂單成立(未付款)"
         }
 
-        if (code.toUpperCase() == 'CONFIRMED'){
+        if (code.toUpperCase() === 'CONFIRMED'){
             return "已確認"
         }
-        if (code.toUpperCase() == 'ROOMCREATED'){
+        if (code.toUpperCase() === 'ROOMCREATED'){
          
             return "諮商房間已建立"
         } 
 
-        if (code.toUpperCase() == 'CANCELLED'){
+        if (code.toUpperCase() === 'CANCELLED'){
             return "已取消"
         } 
 
-        if (code.toUpperCase() == 'COMPLETED'){
+        if (code.toUpperCase() === 'COMPLETED'){
             return "已完成"
         } 
     }

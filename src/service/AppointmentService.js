@@ -37,16 +37,12 @@ export class AppointmentService {
             });
     }
 
-    getAppointmentRoomToken(AppointmentId) {
-        const api = this.base_url + "/api/v1/appointments/"+AppointmentId+"/roomToken" 
+    async getAppointmentRoomToken(AppointmentId) {
+        const api = this.base_url + "/api/v1/appointments/" + AppointmentId + "/roomToken"
         const requestOptions = {
             method: 'Get',
             headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
         };
-        return fetch(api, requestOptions)
-            .then(res => res.json())
-            .then(res => {
-                return res;
-            });
+        return (await fetch(api, requestOptions)).text();
     }
 }

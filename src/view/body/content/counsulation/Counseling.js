@@ -11,7 +11,7 @@ function Counseling() {
       <div className={"VideoCall"}>
         <VideoChat appointmentID ={state.appointmentID}/>
       </div>
-      <div className={"Right"}>
+      {/* <div className={"Right"}>
         <div className={"headshotAndNameAndTime"}>
           <div className={"Counseling-Name"}>阿豪</div>
           <div className={"Counseling-Date"}>2202/06/18</div>
@@ -20,7 +20,7 @@ function Counseling() {
         <div className={"ChatRoom"}>
           <ChatRoom></ChatRoom>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

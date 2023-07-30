@@ -106,22 +106,22 @@ function AppointmentDetail() {
         return minute + ":" + second + ":00";
     }
     function getStatusDesc(code){
-        if (code.toLowerCase() == 'NEW'){
+        if (code.toUpperCase() === 'NEW'){
             return "訂單成立(未付款)"
         }
 
-        if (code.toLowerCase() == 'CONFIRMED'){
+        if (code.toUpperCase() === 'CONFIRMED'){
             return "已確認"
         }
-        if (code.toLowerCase() == 'ROOMCREATED'){
+        if (code.toUpperCase() === 'ROOMCREATED'){
             return "諮商房間已建立"
         } 
 
-        if (code.toLowerCase() == 'CANCELLED'){
+        if (code.toUpperCase() === 'CANCELLED'){
             return "已取消"
         } 
 
-        if (code.toLowerCase() == 'COMPLETED'){
+        if (code.toUpperCase() === 'COMPLETED'){
             return "已完成"
         } 
     }

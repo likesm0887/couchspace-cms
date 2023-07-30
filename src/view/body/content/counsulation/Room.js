@@ -21,6 +21,7 @@ const Room = ({ roomName, room, handleLogout }) => {
     return () => {
       room.off("participantConnected", participantConnected);
       room.off("participantDisconnected", participantDisconnected);
+      setParticipants([]);
     };
   }, [room]);
 
@@ -32,10 +33,9 @@ const Room = ({ roomName, room, handleLogout }) => {
     <div className="room">
 
       <div className={"Screen"}>
-        <div className="local-participant">
+        <div className={"local-participant"}>
           {room ? (
             <Participant
-              className="Screen"
               key={room.localParticipant.sid}
               participant={room.localParticipant}
             />
@@ -43,18 +43,21 @@ const Room = ({ roomName, room, handleLogout }) => {
             ""
           )}
         </div>
+        <div className={"remote-participants"}>
+          {remoteParticipants}
+        </div>
+
+
+        {/* <div>
+        Remote participants:{' '}
+        {JSON.stringify(remoteParticipants.map(v => v.identity))}
+      </div>
+      <h3>Remote Participants</h3> */}
+
       </div>
       <div className={"stopAndClose"}>
         <p className={"stopWatch"}>00:00:10</p>
         <button onClick={handleLogout} className={"stop"}>結束諮詢</button>
-      </div>
-
-      <div>
-        Remote participants:{' '}
-        {JSON.stringify(remoteParticipants.map(v => v.identity))}
-      </div>
-      <h3>Remote Participants</h3>
-      <div className="remote-participants">{remoteParticipants}
       </div>
     </div>
   );

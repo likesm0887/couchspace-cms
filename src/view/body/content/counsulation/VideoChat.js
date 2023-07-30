@@ -5,7 +5,7 @@ import { appointmentService } from "../../../../service/ServicePool";
 import { Appointment } from "../../../../dataContract/appointment";
 
 const VideoChat = (props) => {
-  
+
   const [username, setUsername] = useState("");
   const [roomName, setRoomName] = useState("");
   const [room, setRoom] = useState(null);
@@ -15,15 +15,15 @@ const VideoChat = (props) => {
     setUsername("我是誰");
   }, []);
 
- 
 
-  const handleSubmit = async() => {
-    
-   const appointment = await appointmentService.getAppointment(props.appointmentID)
-   const token =await appointmentService.getAppointmentRoomToken(props.appointmentID)
-  
+
+  const handleSubmit = async () => {
+
+    const appointment = await appointmentService.getAppointment(props.appointmentID)
+    const token = await appointmentService.getAppointmentRoomToken(props.appointmentID)
+    console.log("roomToken", token);
     setConnecting(true);
-    
+
     Video.connect(
       token, {
       name: appointment.RoomID,
@@ -46,7 +46,7 @@ const VideoChat = (props) => {
         })
 
       })
-    setButtonName("連線中....")
+    // setButtonName("連線中....")
   }
 
 
@@ -77,6 +77,7 @@ const VideoChat = (props) => {
       return () => {
         window.removeEventListener("pagehide", tidyUp);
         window.removeEventListener("beforeunload", tidyUp);
+        handleLogout();
       };
     }
   }, [room, handleLogout]);

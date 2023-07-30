@@ -63,8 +63,8 @@ const Participant = ({ participant }) => {
   }, [audioTracks]);
 
   return (
-    <div className="participant">
-      <video  style={{width:"360px",height:"350px"}}  ref={videoRef} autoPlay={true} />
+    <div className="participant" style={{ flex: 1, alignItems: 'center', justifyItems: 'center', height: 500 }}>
+      <video style={{ flex: 1, height: "100%" }} ref={videoRef} autoPlay={true} />
       <audio ref={audioRef} autoPlay={true} muted={true} />
     </div>
   );
