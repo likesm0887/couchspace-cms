@@ -67,18 +67,20 @@ const BusinessInfo = forwardRef((props, ref) => {
             // whether output is true or false => update info to counselor model
             let businessTimes: BusinessTime[] = [];
             consultHours.forEach((consultHour) => {
-                let businessTime = new BusinessTime();
-                businessTime.WeekOfDay = consultHour.day;
-                consultHour.periods.forEach((period) => {
-                    let businessPeriod = new Period();
-                    businessPeriod.StartTime = period.startTime;
-                    businessPeriod.EndTime = period.endTime;
-                    businessTime.Periods.push(businessPeriod);
-                });
-                businessTimes.push(businessTime);
+                if (consultHour.periods.length > 0) {
+                    let businessTime = new BusinessTime();
+                    businessTime.WeekOfDay = consultHour.day;
+                    consultHour.periods.forEach((period) => {
+                        let businessPeriod = new Period();
+                        businessPeriod.StartTime = period.startTime;
+                        businessPeriod.EndTime = period.endTime;
+                        businessTime.Periods.push(businessPeriod);
+                    });
+                    businessTimes.push(businessTime);
+                }
             })
             counselorInfo.updateBusinessTimes = businessTimes;
-            counselorInfo.OverrideTimes = overrideTimes;
+            counselorInfo.updateOverrideTimes = overrideTimes;
             console.log("counselorInfo", counselorInfo);
 
             return output;
@@ -163,7 +165,7 @@ const BusinessInfo = forwardRef((props, ref) => {
     const handleDailyHourAccept = async () => {
         let overrideTime = new OverrideTime();
         setCheckedHours(checkedHours.sort((a, b) => a - b));
-        overrideTime.DayTime = chooseDate.toLocaleDateString('zh-CN');
+        overrideTime.DayTime = chooseDate.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' });
         overrideTime.Periods = checkedHours.map((checkedHour, index) => {
             let period = new Period();
             period.StartTime = `${checkedHour}:00`;
@@ -283,12 +285,10 @@ const BusinessInfo = forwardRef((props, ref) => {
                                 if (value === null) return;
                                 console.log("startTime", value.format("HH:mm"));
                                 setStartTime(value);
-                                setEndTime(null);
                             }}
                             onSelect={(value) => {
                                 if (value === null) return;
                                 setStartTime(value);
-                                setEndTime(null);
                             }
                             }
                             changeOnBlur={true}
@@ -306,11 +306,13 @@ const BusinessInfo = forwardRef((props, ref) => {
                             value={endTime}
                             disabled={startTime === null}
                             onChange={(value) => {
+                                console.log("111 endTime", value.format("HH:mm"));
                                 if (value === null) return;
                                 console.log("endTime", value.format("HH:mm"));
                                 setEndTime(value);
                             }}
                             onSelect={(value) => {
+                                console.log("222 endTime", value.format("HH:mm"));
                                 if (value === null) return;
                                 setEndTime(value);
                             }}
@@ -377,9 +379,9 @@ const BusinessInfo = forwardRef((props, ref) => {
                     <div>
                         {consultHours.map((consultHour, index) => (
                             <li style={{ marginBottom: 30, display: 'block', width: "90%" }} key={index}>
-                                <Checkbox checked={consultHour.enabled} onClick={() => {
+                                {/* <Checkbox checked={consultHour.enabled} onClick={() => {
                                     handleChecked(index);
-                                }}></Checkbox>
+                                }}></Checkbox> */}
                                 <span>
                                     <strong>{consultHour.day}</strong>
                                     {consultHour.periods.map((period, period_index) => {

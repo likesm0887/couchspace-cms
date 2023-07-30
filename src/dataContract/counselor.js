@@ -161,7 +161,7 @@ export class Counselor {
         this.Expertises = info.Expertises;
         this.ExpertisesInfo = info.ExpertisesInfo;
         this.ConsultingFees = info.ConsultingFees;
-        this.Gender = genderList.filter((gender) => gender.key === info.Gender)[0]?.value;
+        this.Gender = info.Gender;
         this.Tags = info.Tags;
         this.InstitutionID = info.InstitutionID;
         this.AppointmentTimeID = info.AppointmentTimeID;
@@ -242,4 +242,3 @@ export class Counselor {
 }
 
 export let counselorInfo = new Counselor();
-export const genderList = Object.freeze([{ "key": "MALE", "value": "男" }, { "key": "FEMALE", "value": "女" }, { "key": "NO_SHOW", "value": "其他" }])

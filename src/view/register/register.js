@@ -117,6 +117,7 @@ export function Register() {
         console.log("result", result);
         result = await counselorService.login(account, password);
         result = await counselorService.updateCounselorInfo(counselorInfo);
+        console.log("appointmentTime", JSON.stringify(appointmentTime));
         result = await counselorService.setAppointmentTime(appointmentTime);
         console.log("result", result);
     }
