@@ -9,6 +9,7 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import { forwardRef, useImperativeHandle } from "react";
 import { checkEmail, checkPhone } from "../../common/method";
 import { Counselor, counselorInfo } from "../../dataContract/counselor";
+import { counselorService } from "../../service/ServicePool";
 const useStyles = makeStyles((theme) => ({
     root: {
         '& > *': {
@@ -24,8 +25,8 @@ const PersonalInfo = forwardRef((props, ref) => {
     const classes = useStyles();
     const cities = ["基隆市", "台北市", "新北市", "桃園縣", "新竹市", "新竹縣", "苗栗縣", "台中市", "彰化縣", "南投縣", "雲林縣", "嘉義市", "嘉義縣", "台南市", "高雄市", "屏東縣", "台東縣", "花蓮縣", "宜蘭縣", "澎湖縣", "金門縣", "連江縣", "海外"];
 
-    const upload = (event) => {
-        let imageUrl = URL.createObjectURL(event.target.files[0]);
+    const upload = async (event) => {
+        let imageUrl = await counselorService.upload(event.target.files[0]);
         setPhoto(imageUrl);
     }
     // setting columns
