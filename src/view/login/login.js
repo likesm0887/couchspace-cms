@@ -3,7 +3,7 @@ import img_logo from "../img/login/login.svg";
 import img_account from "../img/login/account.svg";
 import img_password from "../img/login/password.svg";
 import { counselorService } from "../../service/ServicePool";
-import { showToast, toastType, checkEmail, checkPassword } from "../../common/method";
+import { showToast, toastType, checkPassword } from "../../common/method";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { counselorInfo } from "../../dataContract/counselor";
@@ -64,17 +64,24 @@ function Login() {
             showToast(toastType.error, "帳號密碼有誤");
         }
     }
-    const onClickRegister = () => {
-        // if (!checkEmail(account)) {
-        //     showToast(toastType.error, "email格式有誤");
-        // }
+    const checkAccount = async () => {
+        let res = await counselorService.checkAccount(account);
+        console.log("res", res);
+        return res;
+    }
+    const onClickRegister = async () => {
+        console.log(account);
         if (!checkPassword(password)) {
             showToast(toastType.error, "密碼需包含英數且至少8個字元");
         }
         else if (password !== confirmedPassword) {
             showToast(toastType.error, "密碼與確認密碼不一致");
         }
+        else if ((await checkAccount())) {
+            showToast(toastType.error, "此帳號已註冊過");
+        }
         else {
+            counselorInfo.clearAll = null;
             navigate("register", { replace: false, state: { email: account, password: password } });
         }
 
