@@ -107,5 +107,15 @@ export class CounselorService {
                 return res;
             });
     }
+    async checkAccount(account) {
+        const api = this.base_url + "/api/v1/counselors/checkAccountExist";
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ Account: account }),
+
+        }
+        return (await fetch(api, requestOptions));
+    }
 
 }
