@@ -64,8 +64,8 @@ function Login() {
             showToast(toastType.error, "帳號密碼有誤");
         }
     }
-    const checkAccount = async () => {
-        let res = await counselorService.checkAccount(account);
+    const checkAccountExist = async () => {
+        let res = await counselorService.checkAccountExist(account);
         console.log("res", res);
         return res;
     }
@@ -77,7 +77,7 @@ function Login() {
         else if (password !== confirmedPassword) {
             showToast(toastType.error, "密碼與確認密碼不一致");
         }
-        else if ((await checkAccount())) {
+        else if (("true" === await checkAccountExist())) {
             showToast(toastType.error, "此帳號已註冊過");
         }
         else {
