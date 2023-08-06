@@ -131,6 +131,10 @@ const BusinessInfo = forwardRef((props, ref) => {
         return output;
     }
     const handleAccept = () => {
+        if (startTime.format("HH:mm") > endTime.format("HH:mm")) {
+            showToast(toastType.error, "結束時間" + endTime.format("HH:mm") + "大於開始時間" + startTime.format("HH:mm"));
+            return;
+        }
         if (checkWeeklyHoursOverlap()) {
             return;
         }
@@ -299,7 +303,7 @@ const BusinessInfo = forwardRef((props, ref) => {
                             }
                             }
                             changeOnBlur={true}
-                            disabledTime={disabledTimes}
+                            // disabledTime={disabledTimes}
                             showNow={false}
                         />
                     </div>
