@@ -18,6 +18,7 @@ import {
   Alert,
   Drawer,
 } from "antd";
+import { SearchOutlined } from '@ant-design/icons';
 import { Button, Modal } from "antd";
 import {
   PlusCircleOutlined,
@@ -54,7 +55,50 @@ function Music() {
   const toggle = (checked) => {
     setLoading(checked);
   };
+  const [searchText, setSearchText] = useState('');
+  const [searchedColumn, setSearchedColumn] = useState('');
 
+  const getColumnSearchProps = dataIndex => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+      <div style={{ padding: 8 }}>
+        <Input
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ width: 188, marginBottom: 8, display: 'block' }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button onClick={() => handleReset(clearFilters)} size="small" style={{ width: 90 }}>
+            Reset
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+    onFilter: (value, record) =>
+      record[dataIndex] ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()) : '',
+  });
+
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = clearFilters => {
+    clearFilters();
+    setSearchText('');
+  };
   const columns = [
     {
       title: "編輯",
@@ -90,6 +134,8 @@ function Music() {
       title: "名稱",
       dataIndex: "name",
       key: "name",
+      ...getColumnSearchProps('name'),
+    
     },
     {
       title: "系列",
@@ -487,6 +533,7 @@ function Music() {
         {...tableProps}
         onChange={onChange}
         columns={columns}
+       
         dataSource={data}
         pagination={{ pageSize: 7 }}
       ></Table>
