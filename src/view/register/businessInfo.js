@@ -269,6 +269,7 @@ const BusinessInfo = forwardRef((props, ref) => {
                             showMinute={false} // 0607: only support hours
                             value={startTime}
                             onSelect={(value) => {
+                                console.log("111 startTime", value);
                                 setStartTime(value);
                             }
                             }
@@ -287,6 +288,7 @@ const BusinessInfo = forwardRef((props, ref) => {
                             value={endTime}
                             disabled={startTime === null}
                             onSelect={(value) => {
+                                console.log("111 endTime", value);
                                 setEndTime(value);
                             }}
                             changeOnBlur={true}
