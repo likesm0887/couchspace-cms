@@ -263,7 +263,7 @@ const BusinessInfo = forwardRef((props, ref) => {
                             style={{ margin: 10 }}
                             popupStyle={{ zIndex: 9999 }}
                             format={"HH:mm"}
-                            minuteStep={15}
+                            //minuteStep={15}
                             hourStep={1}
                             showSecond={false}
                             showMinute={false} // 0607: only support hours
@@ -281,7 +281,7 @@ const BusinessInfo = forwardRef((props, ref) => {
                             style={{ margin: 10 }}
                             popupStyle={{ zIndex: 9999 }}
                             format={"HH:mm"}
-                            minuteStep={15}
+                            //minuteStep={15}
                             hourStep={1}
                             showSecond={false}
                             showMinute={false} // 0607: only support hours
