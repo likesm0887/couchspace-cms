@@ -76,11 +76,11 @@ const PersonalInfo = forwardRef((props, ref) => {
             ClearAllError();
             var output = true;
             if (firstName === "") {
-                setErrorFirstName("請輸入姓氏");
+                setErrorFirstName("請輸入名字");
                 output = false;
             }
             if (lastName === "") {
-                setErrorLastName("請輸入名字");
+                setErrorLastName("請輸入姓氏");
                 output = false;
             }
             if (address === "") {
@@ -147,31 +147,31 @@ const PersonalInfo = forwardRef((props, ref) => {
                 <Grid item xs={12} sm={6}>
                     <TextField
                         required
-                        id="firstName"
-                        name="firstName"
+                        id="lastName"
+                        name="lastName"
                         label="姓氏"
                         fullWidth
                         autoComplete="given-name"
-                        variant="standard"
-                        value={firstName}
-                        onChange={(text) => setFirstName(text.target.value.trim())}
-                        error={errorFirstName !== ""}
-                        helperText={errorFirstName}
-                    />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                    <TextField
-                        required
-                        id="lastName"
-                        name="lastName"
-                        label="名字"
-                        fullWidth
-                        autoComplete="family-name"
                         variant="standard"
                         value={lastName}
                         onChange={(text) => setLastName(text.target.value.trim())}
                         error={errorLastName !== ""}
                         helperText={errorLastName}
+                    />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                    <TextField
+                        required
+                        id="firstName"
+                        name="firstName"
+                        label="名字"
+                        fullWidth
+                        autoComplete="family-name"
+                        variant="standard"
+                        value={firstName}
+                        onChange={(text) => setFirstName(text.target.value.trim())}
+                        error={errorFirstName !== ""}
+                        helperText={errorFirstName}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
