@@ -3,7 +3,7 @@ import img_logo from "../img/login/login.svg";
 import img_account from "../img/login/account.svg";
 import img_password from "../img/login/password.svg";
 import { counselorService } from "../../service/ServicePool";
-import { showToast, toastType, checkEmail, checkPassword } from "../../common/method";
+import { showToast, toastType, checkPassword } from "../../common/method";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { counselorInfo } from "../../dataContract/counselor";
@@ -49,7 +49,10 @@ function Login() {
                 console.log("password", password);
                 var res = await counselorService.login(account, password);
                 var info = await counselorService.getCounselorInfo();
+                var business = await counselorService.getAppointmentTime();
                 counselorInfo.setCounselorInfo = info;
+                counselorInfo.updateBusinessTimes = business.BusinessTimes;
+                counselorInfo.updateOverrideTimes = business.OverrideTimes;
                 if (res.user_id) {
                     navigate("home", { replace: true });
                 }
@@ -64,17 +67,24 @@ function Login() {
             showToast(toastType.error, "帳號密碼有誤");
         }
     }
-    const onClickRegister = () => {
-        // if (!checkEmail(account)) {
-        //     showToast(toastType.error, "email格式有誤");
-        // }
+    const checkAccountExist = async () => {
+        let res = await counselorService.checkAccountExist(account);
+        console.log("res", res);
+        return res;
+    }
+    const onClickRegister = async () => {
+        console.log(account);
         if (!checkPassword(password)) {
             showToast(toastType.error, "密碼需包含英數且至少8個字元");
         }
         else if (password !== confirmedPassword) {
             showToast(toastType.error, "密碼與確認密碼不一致");
         }
+        else if (("true" === await checkAccountExist())) {
+            showToast(toastType.error, "此帳號已註冊過");
+        }
         else {
+            counselorInfo.clearAll = null;
             navigate("register", { replace: false, state: { email: account, password: password } });
         }
 

@@ -10,7 +10,7 @@ const CertificateInfo = forwardRef((props, ref) => {
     /// info
     const [licenseNumber, setLicenseNumber] = useState(counselorInfo.License.LicenseNumber); // 證照編號
     const [licenseIssuing, setLicenseIssuing] = useState(counselorInfo.License.LicenseIssuing); // 發證單位
-    const [licenseTitle, setLicenseTitle] = useState(counselorInfo.License.LicenseTitle);
+    const [licenseTitle, setLicenseTitle] = useState(counselorInfo.License.LicenseTitle); // 證照名稱
     const [errorLicenseNumber, setErrorLicenseNumber] = useState("");
     const [errorLicenseIssuing, setErrorLicenseIssuing] = useState("");
     const [errorLicenseTitle, setErrorLicenseTitle] = useState("");
@@ -24,18 +24,18 @@ const CertificateInfo = forwardRef((props, ref) => {
             ClearAllError();
             var output = true;
 
-            // if (licenseNumber === "") {
-            //     setErrorLicenseNumber("請輸入證照編號");
-            //     output = false;
-            // }
-            // if (licenseIssuing === "") {
-            //     setErrorLicenseIssuing("請輸入發證單位");
-            //     output = false;
-            // }
-            // if (licenseTitle === "") {
-            //     setErrorLicenseIssuing("請輸入證照標題");
-            //     output = false;
-            // }
+            if (licenseNumber === "") {
+                setErrorLicenseNumber("請輸入證照編號");
+                output = false;
+            }
+            if (licenseIssuing === "") {
+                setErrorLicenseIssuing("請輸入發證單位");
+                output = false;
+            }
+            if (licenseTitle === "") {
+                setErrorLicenseTitle("請輸入證照名稱");
+                output = false;
+            }
             // whether output is true or false => update info to counselor model
             let info = new License();
             info.LicenseTitle = licenseTitle;
@@ -56,6 +56,7 @@ const CertificateInfo = forwardRef((props, ref) => {
             <Grid container spacing={3}>
                 <Grid item xs={12}>
                     <TextField
+                        required
                         id="licenseNumber"
                         name="licenseNumber"
                         label="證照號碼"
@@ -71,6 +72,7 @@ const CertificateInfo = forwardRef((props, ref) => {
                 </Grid>
                 <Grid item xs={12}>
                     <TextField
+                        required
                         id="licenseIssuing"
                         name="licenseIssuing"
                         label="發證單位"
@@ -80,23 +82,24 @@ const CertificateInfo = forwardRef((props, ref) => {
                         placeholder=""
                         value={licenseIssuing}
                         onChange={(text) => setLicenseIssuing(text.target.value.trim())}
-                        error={errorLicenseTitle !== ""}
-                        helperText={errorLicenseTitle}
+                        error={errorLicenseIssuing !== ""}
+                        helperText={errorLicenseIssuing}
                     />
                 </Grid>
                 <Grid item xs={12}>
                     <TextField
+                        required
                         id="licenseTitle"
                         name="licenseTitle"
-                        label="證照標題"
+                        label="證照名稱"
                         fullWidth
                         autoComplete="family-name"
                         variant="standard"
                         placeholder=""
                         value={licenseTitle}
                         onChange={(text) => setLicenseTitle(text.target.value.trim())}
-                        error={errorLicenseIssuing !== ""}
-                        helperText={errorLicenseIssuing}
+                        error={errorLicenseTitle !== ""}
+                        helperText={errorLicenseTitle}
                     />
                 </Grid>
             </Grid>

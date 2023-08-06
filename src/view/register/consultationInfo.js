@@ -185,7 +185,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
                 <DialogContentText id="alert-dialog-description">
                     {consultingFees.map((item, index) => {
                         return (
-                            <div style={{ display: "block", marginTop: 30 }}>
+                            <div style={{ display: "block", marginTop: 30 }} key={index}>
                                 <Checkbox checked={item.enabled} onClick={() => {
                                     var tempItems = consultingFees;
                                     tempItems[index].enabled = !item.enabled;
@@ -309,7 +309,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
                         <span style={{ color: errorLanguages === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"語言 *"}</span>
                         {languages.map((item, index) => {
                             return (
-                                <span style={{ marginLeft: 10 }}>
+                                <span style={{ marginLeft: 10 }} key={index}>
                                     <Checkbox checked={item.enabled} onClick={() => {
                                         var tempItems = languages;
                                         tempItems[index].enabled = !item.enabled;
@@ -428,7 +428,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
                             {consultingFees.map((item, index) => {
                                 return (
                                     item.enabled ?
-                                        <div>
+                                        <div key={index}>
                                             {item.time > 0 ?
                                                 <span>{item.label + item.time + "分鐘\t\t\t諮商費用 " + new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(item.fee)}</span> :
                                                 <span>{item.label + "\t\t\t諮商費用 " + new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(item.fee)}</span>

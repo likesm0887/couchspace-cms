@@ -107,5 +107,24 @@ export class CounselorService {
                 return res;
             });
     }
+    async checkAccountExist(account) {
+        const api = this.base_url + "/api/v1/counselors/checkAccountExist";
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ Account: account }),
 
+        }
+        return (await fetch(api, requestOptions)).text();
+    }
+    async upload(file) {
+        const api = this.base_url + "/api/v1/counselors/photo";
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ myFile: file, baseUrl: this.base_url }),
+
+        }
+        return (await fetch(api, requestOptions));
+    }
 }

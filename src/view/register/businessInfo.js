@@ -1,4 +1,4 @@
-import { Grid, Checkbox, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, IconButton, Tooltip } from "@mui/material";
+import { Grid, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, IconButton, Tooltip } from "@mui/material";
 import "./BusinessInfo.css";
 import Typography from "@material-ui/core/Typography";
 import { useState, useEffect } from "react";
@@ -48,7 +48,6 @@ const BusinessInfo = forwardRef((props, ref) => {
                 }
             }
         }
-        console.log("output", output);
         return output;
 
     }
@@ -57,7 +56,6 @@ const BusinessInfo = forwardRef((props, ref) => {
             setIsNeedSort(false);
             var sortResult = bubbleSortDailyHour();
             setOverrideTimes([...sortResult]);
-            console.log("overrideTimes", overrideTimes);
         }
     }, [isNeedSort])
 
@@ -81,7 +79,6 @@ const BusinessInfo = forwardRef((props, ref) => {
             })
             counselorInfo.updateBusinessTimes = businessTimes;
             counselorInfo.updateOverrideTimes = overrideTimes;
-            console.log("counselorInfo", counselorInfo);
 
             return output;
         }
@@ -99,10 +96,7 @@ const BusinessInfo = forwardRef((props, ref) => {
     }
     const handleDelete = (index, period_index) => {
         var tempItems = consultHours;
-        console.log("index %d, period_index %d", index, period_index);
-        console.log("before", tempItems[index].periods);
         tempItems[index].periods = arrayRemove(tempItems[index].periods, tempItems[index].periods[period_index]);
-        console.log("after", tempItems[index].periods);
         setConsultHours([...tempItems]);
     }
 
@@ -113,10 +107,6 @@ const BusinessInfo = forwardRef((props, ref) => {
             let tempEndTime = new Date(`2023-01-01T${consultHours[selectedBusiness].periods[i].endTime}`);
             let curStartTime = new Date(`2023-01-01T${startTime.format("HH:mm")}`);
             let curEndTime = new Date(`2023-01-01T${endTime.format("HH:mm")}`);
-            console.log("tempStartTime", tempStartTime);
-            console.log("tempEndTime", tempEndTime);
-            console.log("curStartTime", curStartTime);
-            console.log("curEndTime", curEndTime);
 
             if (curStartTime < tempEndTime && curEndTime > tempStartTime) {
                 showToast(toastType.error, startTime.format("HH:mm") + "-" + endTime.format("HH:mm") + "與" + consultHours[selectedBusiness].periods[i].startTime + " - " + consultHours[selectedBusiness].periods[i].endTime + "時間重疊，請重新選擇");
@@ -140,12 +130,15 @@ const BusinessInfo = forwardRef((props, ref) => {
         return output;
     }
     const handleAccept = () => {
+        if (startTime.format("HH:mm") >= endTime.format("HH:mm")) {
+            showToast(toastType.error, "開始時間" + startTime.format("HH:mm") + "不可超過或等於 結束時間" + endTime.format("HH:mm"));
+            return;
+        }
         if (checkWeeklyHoursOverlap()) {
             return;
         }
         var tempItems = consultHours;
         setIsOpen(false);
-        console.log(selectedBusiness);
         tempItems[selectedBusiness].periods.push({ startTime: startTime.format("HH:mm"), endTime: endTime.format("HH:mm") });
         tempItems = bubbleSortPeriods();
         setConsultHours([...tempItems]);
@@ -218,13 +211,12 @@ const BusinessInfo = forwardRef((props, ref) => {
         if (startTime === null) {
             return {
                 disabledHours: () => hours,
-                disabledMinutes: () => minutes,
+                disabledMinutes: () => [],
                 disabledSeconds: () => [],
             };
         }
-        const startHour = startTime.format("HH:mm").split(":")[0];
-        const startMinute = startTime.format("HH:mm").split(":")[1];
-
+        const startHour = startTime.format("HH").split(":");
+        const startMinute = startTime.format("mm").split(":");
         if (endTime !== null) {
             // endTime 已經有選時段
             const endHour = endTime.format("HH:mm").split(":")[0];
@@ -240,11 +232,9 @@ const BusinessInfo = forwardRef((props, ref) => {
                 minutes.push(i);
             }
         }
-        console.log("startHour %d, startMinute %d", startHour, startMinute);
         for (let i = 0; i <= startHour; i++) {
             hours.push(i);
         }
-
         return {
             disabledHours: () => hours,
             disabledMinutes: () => minutes,
@@ -256,7 +246,6 @@ const BusinessInfo = forwardRef((props, ref) => {
         setIsDailyHourOpen(true);
     }
     const onClickDeleteDailyHour = (deletedIndex) => {
-        console.log("deletedIndex", deletedIndex);
         overrideTimes.splice(deletedIndex, 1);
         setOverrideTimes(overrideTimes);
         setIsNeedSort(true);
@@ -281,13 +270,7 @@ const BusinessInfo = forwardRef((props, ref) => {
                             showSecond={false}
                             showMinute={false} // 0607: only support hours
                             value={startTime}
-                            onChange={(value) => {
-                                if (value === null) return;
-                                console.log("startTime", value.format("HH:mm"));
-                                setStartTime(value);
-                            }}
                             onSelect={(value) => {
-                                if (value === null) return;
                                 setStartTime(value);
                             }
                             }
@@ -304,20 +287,13 @@ const BusinessInfo = forwardRef((props, ref) => {
                             showSecond={false}
                             showMinute={false} // 0607: only support hours
                             value={endTime}
-                            disabled={startTime === null}
-                            onChange={(value) => {
-                                console.log("111 endTime", value.format("HH:mm"));
-                                if (value === null) return;
-                                console.log("endTime", value.format("HH:mm"));
-                                setEndTime(value);
-                            }}
+                            disabled={startTime == null}
                             onSelect={(value) => {
-                                console.log("222 endTime", value.format("HH:mm"));
-                                if (value === null) return;
                                 setEndTime(value);
-                            }}
+                            }
+                            }
                             changeOnBlur={true}
-                            disabledTime={disabledTimes}
+                            // disabledTime={disabledTimes}
                             showNow={false}
                         />
                     </div>
@@ -391,7 +367,7 @@ const BusinessInfo = forwardRef((props, ref) => {
                                             </Tooltip>
                                         </span>)
                                     })}
-                                    <img style={{ position: 'absolute', right: "25%", height: 25, width: 25, verticalAlign: 'middle' }} src={plus} alt="" onClick={() => handleAddPeriod(index)}></img>
+                                    <img style={{ marginLeft: 30, float: 'right', height: 25, width: 25, verticalAlign: 'middle' }} src={plus} alt="" onClick={() => handleAddPeriod(index)}></img>
                                 </span>
                             </li>
                         ))}

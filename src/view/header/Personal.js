@@ -17,7 +17,8 @@ function Personal() {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [photo, setPhoto] = useState("");
     useEffect(() => {
-        setName(counselorInfo.UserName.Name.FirstName + counselorInfo.UserName.Name.LastName);
+        setEmail(counselorInfo.Email != null ? counselorInfo.Email : "healthy@couchspace.com");
+        setName(counselorInfo.UserName.Name.LastName + counselorInfo.UserName.Name.FirstName);
         setTitle(counselorInfo.Position === "" ? "諮商師" : counselorInfo.Position);
         setPhoto(counselorInfo.Photo === "" ? selfie : counselorInfo.Photo);
     }, [])
