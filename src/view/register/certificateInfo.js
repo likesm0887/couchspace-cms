@@ -10,7 +10,7 @@ const CertificateInfo = forwardRef((props, ref) => {
     /// info
     const [licenseNumber, setLicenseNumber] = useState(counselorInfo.License.LicenseNumber); // 證照編號
     const [licenseIssuing, setLicenseIssuing] = useState(counselorInfo.License.LicenseIssuing); // 發證單位
-    const [licenseTitle, setLicenseTitle] = useState(counselorInfo.License.LicenseTitle);
+    const [licenseTitle, setLicenseTitle] = useState(counselorInfo.License.LicenseTitle); // 證照名稱
     const [errorLicenseNumber, setErrorLicenseNumber] = useState("");
     const [errorLicenseIssuing, setErrorLicenseIssuing] = useState("");
     const [errorLicenseTitle, setErrorLicenseTitle] = useState("");

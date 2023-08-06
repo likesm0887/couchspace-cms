@@ -147,21 +147,33 @@ export class Counselor {
     set setCounselorInfo(info: Counselor) {
         this.ID = info.ID;
 
+        // personal info
         this.UserName = info.UserName;
         this.Photo = info.Photo;
         this.CoverImage = info.CoverImage;
+        this.Location = info.Location;
+
+        this.Address = info.Address;
+        this.Gender = info.Gender;
+        this.ShortIntroduction = info.ShortIntroduction;
+        this.LongIntroduction = info.LongIntroduction;
+        this.Phone = info.Phone;
+        this.Email = info.Email;
+
+        // counselor info
+        this.Languages = info.Languages;
         this.Seniority = info.Seniority;
         this.Educational = info.Educational;
         this.Position = info.Position;
-        this.ShortIntroduction = info.ShortIntroduction;
-        this.LongIntroduction = info.LongIntroduction;
-        this.Location = info.Location;
-        this.License = info.License;
         this.Accumulative = info.Accumulative;
-        this.Expertises = info.Expertises;
         this.ExpertisesInfo = info.ExpertisesInfo;
+        this.Expertises = info.Expertises;
         this.ConsultingFees = info.ConsultingFees;
-        this.Gender = info.Gender;
+
+        // certificate info
+        this.License = info.License;
+
+        // others
         this.Tags = info.Tags;
         this.InstitutionID = info.InstitutionID;
         this.AppointmentTimeID = info.AppointmentTimeID;
