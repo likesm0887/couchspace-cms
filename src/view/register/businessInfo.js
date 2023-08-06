@@ -212,9 +212,11 @@ const BusinessInfo = forwardRef((props, ref) => {
                 disabledSeconds: () => [],
             };
         }
-        const startHour = startTime.format("HH:mm").split(":")[0];
-        const startMinute = startTime.format("HH:mm").split(":")[1];
-
+        console.log("startTime", startTime);
+        const startHour = startTime.format("HH").split(":");
+        const startMinute = startTime.format("mm").split(":");
+        console.log("startTime.format HH", startTime.format("HH"));
+        console.log("startTime.format mm", startTime.format("mm"));
         if (endTime !== null) {
             // endTime 已經有選時段
             const endHour = endTime.format("HH:mm").split(":")[0];
@@ -233,7 +235,8 @@ const BusinessInfo = forwardRef((props, ref) => {
         for (let i = 0; i <= startHour; i++) {
             hours.push(i);
         }
-
+        console.log("disableHours", hours);
+        console.log("disabledMinutes", minutes);
         return {
             disabledHours: () => hours,
             disabledMinutes: () => minutes,
