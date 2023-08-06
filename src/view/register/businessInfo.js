@@ -264,19 +264,21 @@ const BusinessInfo = forwardRef((props, ref) => {
                             style={{ margin: 10 }}
                             popupStyle={{ zIndex: 9999 }}
                             format={"HH:mm"}
-                            //minuteStep={15}
+                            minuteStep={15}
                             hourStep={1}
                             showSecond={false}
                             showMinute={false} // 0607: only support hours
                             value={startTime}
-                            onChange={(value, dateString) => {
-                                console.log("111 startTime", dateString);
-                                setStartTime(dayjs(dateString, "HH:mm"));
+                            onSelect={(value) => {
+                                console.log("111 startTime", value);
+                                setStartTime(value);
                             }
                             }
                             changeOnBlur={true}
                             showNow={false}
                         />
+                    </div>
+                    <div>
                         <span>結束時間</span>
                         <TimePicker
                             style={{ margin: 10 }}
@@ -287,14 +289,14 @@ const BusinessInfo = forwardRef((props, ref) => {
                             showSecond={false}
                             showMinute={false} // 0607: only support hours
                             value={endTime}
-                            disabled={startTime === null}
-                            onChange={(value, dateString) => {
-                                console.log("111 endTime", dateString);
-                                setEndTime(dayjs(dateString, "HH:mm"));
-                            }}
+                            disabled={startTime == null}
+                            onSelect={(value) => {
+                                console.log("111 endTime", value);
+                                setEndTime(value);
+                            }
+                            }
                             changeOnBlur={true}
-                            disabledTime={disabledTimes}
-                            defaultValue={false}
+                            // disabledTime={disabledTimes}
                             showNow={false}
                         />
                     </div>
