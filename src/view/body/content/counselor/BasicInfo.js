@@ -87,11 +87,11 @@ const BasicInfo = forwardRef((props, ref) => {
             ClearAllError();
             var output = true;
             if (firstName === "") {
-                setErrorFirstName("請輸入姓氏");
+                setErrorFirstName("請輸入名字");
                 output = false;
             }
             if (lastName === "") {
-                setErrorLastName("請輸入名字");
+                setErrorLastName("請輸入姓氏");
                 output = false;
             }
             if (address === "") {
@@ -162,14 +162,14 @@ const BasicInfo = forwardRef((props, ref) => {
                 <Grid item xs={12} sm={6}>
                     <div>
                         <span>姓氏: </span>
-                        <span>{firstName}</span>
+                        <span>{lastName}</span>
                     </div>
 
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <div>
                         <span>名字: </span>
-                        <span>{lastName}</span>
+                        <span>{firstName}</span>
                     </div>
                 </Grid>
                 <Grid item xs={12} sm={6}>
