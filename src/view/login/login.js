@@ -49,7 +49,10 @@ function Login() {
                 console.log("password", password);
                 var res = await counselorService.login(account, password);
                 var info = await counselorService.getCounselorInfo();
+                var business = await counselorService.getAppointmentTime();
                 counselorInfo.setCounselorInfo = info;
+                counselorInfo.updateBusinessTimes = business.BusinessTimes;
+                counselorInfo.updateOverrideTimes = business.OverrideTimes;
                 if (res.user_id) {
                     navigate("home", { replace: true });
                 }

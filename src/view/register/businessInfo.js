@@ -367,7 +367,7 @@ const BusinessInfo = forwardRef((props, ref) => {
                                             </Tooltip>
                                         </span>)
                                     })}
-                                    <img style={{ position: 'absolute', right: "25%", height: 25, width: 25, verticalAlign: 'middle' }} src={plus} alt="" onClick={() => handleAddPeriod(index)}></img>
+                                    <img style={{ marginLeft: 30, float: 'right', height: 25, width: 25, verticalAlign: 'middle' }} src={plus} alt="" onClick={() => handleAddPeriod(index)}></img>
                                 </span>
                             </li>
                         ))}

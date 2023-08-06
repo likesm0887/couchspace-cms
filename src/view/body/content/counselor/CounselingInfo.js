@@ -140,13 +140,10 @@ const CounselingInfo = () => {
         })
         tempExpertiseList = counselorInfo.Expertises.map((expertise, index) => {
             let tempIndex = expertiseList.findIndex((item) => item.label === expertise.Skill);
-            console.log(expertise);
-            console.log(tempIndex);
             if (tempIndex !== -1) {
                 return tempIndex.toString();
             }
         })
-        console.log(tempExpertiseList);
         setLanguages(tempLanguages);
         setEducation(counselorInfo.Educational);
         setSeniority(counselorInfo.Seniority);
@@ -290,7 +287,7 @@ const CounselingInfo = () => {
                 <DialogContentText id="alert-dialog-description">
                     {consultingFees.map((item, index) => {
                         return (
-                            <div style={{ display: "block", marginTop: 30 }}>
+                            <div style={{ display: "block", marginTop: 30 }} key={index}>
                                 <Checkbox checked={item.enabled} onClick={() => {
                                     var tempItems = consultingFees;
                                     tempItems[index].enabled = !item.enabled;
@@ -425,7 +422,7 @@ const CounselingInfo = () => {
                         <span style={{ color: errorLanguages === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"語言 *"}</span>
                         {languages.map((item, index) => {
                             return (
-                                <span style={{ marginLeft: 10 }}>
+                                <span style={{ marginLeft: 10 }} key={index}>
                                     <Checkbox checked={item.enabled} onClick={() => {
                                         var tempItems = languages;
                                         tempItems[index].enabled = !item.enabled;
@@ -516,7 +513,6 @@ const CounselingInfo = () => {
                                 size="large"
                                 onChange={(value) => {
                                     if (value.length <= 3) {
-                                        console.log(value);
                                         setExpertises(value);
                                         setDisabledSaveBtn(false);
                                     }
@@ -563,7 +559,7 @@ const CounselingInfo = () => {
                             {consultingFees.map((item, index) => {
                                 return (
                                     item.enabled ?
-                                        <div>
+                                        <div key={index}>
                                             {item.time > 0 ?
                                                 <span>{item.label + item.time + "分鐘\t\t\t諮商費用 " + new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(item.fee)}</span> :
                                                 <span>{item.label + "\t\t\t諮商費用 " + new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(item.fee)}</span>
