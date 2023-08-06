@@ -208,7 +208,7 @@ const BusinessInfo = forwardRef((props, ref) => {
         if (startTime === null) {
             return {
                 disabledHours: () => hours,
-                disabledMinutes: () => minutes,
+                disabledMinutes: () => [],
                 disabledSeconds: () => [],
             };
         }
