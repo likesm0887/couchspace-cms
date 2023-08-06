@@ -9,6 +9,7 @@ import { counselorInfo, WeekType, BusinessTime, Period, OverrideTime } from "../
 import { TimePicker } from "antd";
 import { showToast, toastType } from "../../common/method";
 import Calender from "react-calendar";
+import dayjs from "dayjs";
 import 'react-calendar/dist/Calendar.css';
 import {
     InfoCircleOutlined
@@ -268,9 +269,9 @@ const BusinessInfo = forwardRef((props, ref) => {
                             showSecond={false}
                             showMinute={false} // 0607: only support hours
                             value={startTime}
-                            onSelect={(value) => {
-                                console.log("111 startTime", value);
-                                setStartTime(value);
+                            onChange={(value, dateString) => {
+                                console.log("111 startTime", dateString);
+                                setStartTime(dayjs(dateString, "HH:mm"));
                             }
                             }
                             changeOnBlur={true}
@@ -281,18 +282,19 @@ const BusinessInfo = forwardRef((props, ref) => {
                             style={{ margin: 10 }}
                             popupStyle={{ zIndex: 9999 }}
                             format={"HH:mm"}
-                            //minuteStep={15}
+                            minuteStep={15}
                             hourStep={1}
                             showSecond={false}
                             showMinute={false} // 0607: only support hours
                             value={endTime}
                             disabled={startTime === null}
-                            onSelect={(value) => {
-                                console.log("111 endTime", value);
-                                setEndTime(value);
+                            onChange={(value, dateString) => {
+                                console.log("111 endTime", dateString);
+                                setEndTime(dayjs(dateString, "HH:mm"));
                             }}
                             changeOnBlur={true}
                             disabledTime={disabledTimes}
+                            defaultValue={false}
                             showNow={false}
                         />
                     </div>
