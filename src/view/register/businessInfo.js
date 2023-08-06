@@ -296,7 +296,7 @@ const BusinessInfo = forwardRef((props, ref) => {
                             }
                             }
                             changeOnBlur={true}
-                            // disabledTime={disabledTimes}
+                            disabledTime={disabledTimes}
                             showNow={false}
                         />
                     </div>
