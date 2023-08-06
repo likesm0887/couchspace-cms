@@ -33,7 +33,7 @@ const CertificateInfo = forwardRef((props, ref) => {
                 output = false;
             }
             if (licenseTitle === "") {
-                setErrorLicenseIssuing("請輸入證照標題");
+                setErrorLicenseTitle("請輸入證照名稱");
                 output = false;
             }
             // whether output is true or false => update info to counselor model
