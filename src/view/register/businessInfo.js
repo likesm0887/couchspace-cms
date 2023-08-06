@@ -131,7 +131,7 @@ const BusinessInfo = forwardRef((props, ref) => {
     }
     const handleAccept = () => {
         if (startTime.format("HH:mm") >= endTime.format("HH:mm")) {
-            showToast(toastType.error, "開始時間" + endTime.format("HH:mm") + "不可超過或等於 結束時間" + startTime.format("HH:mm"));
+            showToast(toastType.error, "開始時間" + startTime.format("HH:mm") + "不可超過或等於 結束時間" + endTime.format("HH:mm"));
             return;
         }
         if (checkWeeklyHoursOverlap()) {
@@ -277,8 +277,6 @@ const BusinessInfo = forwardRef((props, ref) => {
                             changeOnBlur={true}
                             showNow={false}
                         />
-                    </div>
-                    <div>
                         <span>結束時間</span>
                         <TimePicker
                             style={{ margin: 10 }}
