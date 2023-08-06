@@ -1,4 +1,4 @@
-import { Grid, Checkbox, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, IconButton, Tooltip } from "@mui/material";
+import { Grid, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, IconButton, Tooltip } from "@mui/material";
 import "./BusinessInfo.css";
 import Typography from "@material-ui/core/Typography";
 import { useState, useEffect } from "react";
@@ -9,7 +9,6 @@ import { counselorInfo, WeekType, BusinessTime, Period, OverrideTime } from "../
 import { TimePicker } from "antd";
 import { showToast, toastType } from "../../common/method";
 import Calender from "react-calendar";
-import dayjs from "dayjs";
 import 'react-calendar/dist/Calendar.css';
 import {
     InfoCircleOutlined
@@ -131,8 +130,8 @@ const BusinessInfo = forwardRef((props, ref) => {
         return output;
     }
     const handleAccept = () => {
-        if (startTime.format("HH:mm") > endTime.format("HH:mm")) {
-            showToast(toastType.error, "結束時間" + endTime.format("HH:mm") + "大於開始時間" + startTime.format("HH:mm"));
+        if (startTime.format("HH:mm") >= endTime.format("HH:mm")) {
+            showToast(toastType.error, "開始時間" + endTime.format("HH:mm") + "不可超過或等於 結束時間" + startTime.format("HH:mm"));
             return;
         }
         if (checkWeeklyHoursOverlap()) {
@@ -216,11 +215,8 @@ const BusinessInfo = forwardRef((props, ref) => {
                 disabledSeconds: () => [],
             };
         }
-        console.log("startTime", startTime);
         const startHour = startTime.format("HH").split(":");
         const startMinute = startTime.format("mm").split(":");
-        console.log("startTime.format HH", startTime.format("HH"));
-        console.log("startTime.format mm", startTime.format("mm"));
         if (endTime !== null) {
             // endTime 已經有選時段
             const endHour = endTime.format("HH:mm").split(":")[0];
@@ -239,8 +235,6 @@ const BusinessInfo = forwardRef((props, ref) => {
         for (let i = 0; i <= startHour; i++) {
             hours.push(i);
         }
-        console.log("disableHours", hours);
-        console.log("disabledMinutes", minutes);
         return {
             disabledHours: () => hours,
             disabledMinutes: () => minutes,
@@ -277,7 +271,6 @@ const BusinessInfo = forwardRef((props, ref) => {
                             showMinute={false} // 0607: only support hours
                             value={startTime}
                             onSelect={(value) => {
-                                console.log("111 startTime", value);
                                 setStartTime(value);
                             }
                             }
@@ -298,7 +291,6 @@ const BusinessInfo = forwardRef((props, ref) => {
                             value={endTime}
                             disabled={startTime == null}
                             onSelect={(value) => {
-                                console.log("111 endTime", value);
                                 setEndTime(value);
                             }
                             }
