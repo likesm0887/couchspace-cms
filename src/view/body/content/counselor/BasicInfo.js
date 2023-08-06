@@ -155,7 +155,7 @@ const BasicInfo = () => {
             }
             else {
                 showToast(toastType.error, "儲存失敗");
-                counselorInfo.updatePersonalInfo = backupInfo;
+                counselorInfo.updatePersonalInfo = backupInfo; // rollback
             }
         }
         else {
