@@ -247,6 +247,7 @@ const CounselingInfo = () => {
         }
         else {
             showToast(toastType.error, "儲存失敗");
+            setDisabledSaveBtn(false);
         }
     }
     useEffect(() => {
