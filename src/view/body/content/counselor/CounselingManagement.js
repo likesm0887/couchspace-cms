@@ -122,15 +122,18 @@ const CounselingManagement = () => {
             let res = await counselorService.setAppointmentTime(appointmentTime);
             if (res.success) {
                 showToast(toastType.success, "儲存成功");
+                setDisabledSaveBtn(true);
             }
             else {
                 counselorInfo.updateBusinessTimes = backupBusinessTimes;
                 counselorInfo.updateOverrideTimes = backupOverrideTimes;
                 showToast(toastType.error, "儲存失敗");
+                setDisabledSaveBtn(false);
             }
         }
         else {
             showToast(toastType.error, "儲存失敗");
+            setDisabledSaveBtn(false);
         }
     }
     const handleChecked = (index) => {
