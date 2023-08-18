@@ -156,10 +156,12 @@ const BasicInfo = () => {
             else {
                 showToast(toastType.error, "儲存失敗");
                 counselorInfo.updatePersonalInfo = backupInfo; // rollback
+                setDisabledSaveBtn(false);
             }
         }
         else {
             showToast(toastType.error, "儲存失敗");
+            setDisabledSaveBtn(false);
         }
     }
     useEffect(() => {
