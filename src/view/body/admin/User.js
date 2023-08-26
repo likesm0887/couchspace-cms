@@ -10,7 +10,6 @@ const DrawerForm = ({ visible, onClose, record }) => {
   const [account, setAccount] = useState(record?.account || "");
   const [birthdate, setBirthdate] = useState(record?.birthdate || "");
   const [membership, setMembership] = useState(record?.membership || "");
-  
   // Clear form fields
   const clearFields = () => {
     setName("");
@@ -113,6 +112,10 @@ const UserPage = () => {
   ];
   
   useEffect(() => {
+    const activeUserCount =async()=>{
+      const result = await memberService.getActiveUserCount();
+      setActive(result);
+    }
     const fetchData = async () => {
       const result = await memberService.getGetAllUser();
       console.log(result);
@@ -131,9 +134,10 @@ const UserPage = () => {
       setUserData(form);
       setUserCount(result.length)
       setPermiun(result.filter(result => result.membership.level === 'premium').length);
-      setActive(result.filter(result => result.record.days_used >30).length);
+  
     };
     fetchData();
+    activeUserCount();
   }, []);
 
   const handleEdit = (data) => {

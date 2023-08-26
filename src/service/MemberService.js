@@ -6,7 +6,25 @@ export class MemberService {
     this.token = cookie.load("token");
     console.log("cookie:" + this.token);
   }
-
+  getActiveUserCount(){
+    if (this.token === undefined) {
+      return;
+    }
+    const api = this.base_url + "/api/v1/members/activeUser";
+    const requestOptions = {
+      method: "Get",
+      headers: {
+        Authorization: this.token,
+        "Content-Type": "application/json",
+      },
+    };
+    return fetch(api, requestOptions)
+    .then((res) => res.json())
+    .then((res) => {
+      return res;
+    });
+  }
+  
   getGetAllUser() {
     // const info = cookie.load("Info");
     // if (info !== undefined) {
