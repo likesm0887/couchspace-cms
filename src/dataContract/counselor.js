@@ -251,6 +251,10 @@ export class Counselor {
         // override times
         this.OverrideTimes = [];
     }
+    set updatePhoto(imageUrl) {
+        this.Photo = imageUrl;
+        this.CoverImage = imageUrl;
+    }
 }
 
 export let counselorInfo = new Counselor();

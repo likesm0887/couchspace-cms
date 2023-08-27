@@ -221,7 +221,7 @@ const CounselingInfo = () => {
                 object.Skill = expertiseList[expertise].label;
                 return object;
             });
-            info.ExpertisesInfo = expertisesInfo;
+            info.ExpertisesInfo = expertisesInfo.trim();
             info.ConsultingFees = consultingFees.map((consultingFee) => {
                 let object = {}
                 object.Type = {};
@@ -492,7 +492,7 @@ const CounselingInfo = () => {
                         <div>
                             <textarea
                                 style={{ color: 'rgba(0,0,0,0.6)', resize: 'none', width: '100%', height: 100 }}
-                                onChange={(text) => setExpertisesInfo(text.target.value.trim())}
+                                onChange={(text) => setExpertisesInfo(text.target.value)}
                                 value={expertisesInfo}
                                 maxLength={30}
                             ></textarea>
