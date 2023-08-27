@@ -43,6 +43,6 @@ export class AppointmentService {
             method: 'Get',
             headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
         };
-        return (await fetch(api, requestOptions)).text();
+        return (await fetch(api, requestOptions)).json();
     }
 }

@@ -118,12 +118,17 @@ export class CounselorService {
         return (await fetch(api, requestOptions)).text();
     }
     async upload(file) {
+        if (this.token === undefined) {
+            return;
+        }
+        var data = new FormData();
+        data.append("myFile", file);
+        data.append("baseUrl", this.base_url);
         const api = this.base_url + "/api/v1/counselors/photo";
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ myFile: file, baseUrl: this.base_url }),
-
+            headers: { "Authorization": this.token },
+            body: data,
         }
         return (await fetch(api, requestOptions));
     }

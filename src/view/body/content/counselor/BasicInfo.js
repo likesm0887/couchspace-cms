@@ -29,8 +29,9 @@ const BasicInfo = () => {
     const cities = ["基隆市", "台北市", "新北市", "桃園縣", "新竹市", "新竹縣", "苗栗縣", "台中市", "彰化縣", "南投縣", "雲林縣", "嘉義市", "嘉義縣", "台南市", "高雄市", "屏東縣", "台東縣", "花蓮縣", "宜蘭縣", "澎湖縣", "金門縣", "連江縣", "海外"];
 
     const upload = async (event) => {
-        let imageUrl = await counselorService.upload(event.target.files[0]);
-        setPhoto(imageUrl);
+        let res = await counselorService.upload(event.target.files[0]);
+        res = await res.json();
+        setPhoto(res.Photo);
     }
     // setting columns
     const [firstName, setFirstName] = useState(counselorInfo.UserName.Name.FirstName);
@@ -143,8 +144,8 @@ const BasicInfo = () => {
             info.Location = selectedCity;
             info.Address = address;
             info.Gender = gender;
-            info.ShortIntroduction = shortIntro;
-            info.LongIntroduction = longIntro;
+            info.ShortIntroduction = shortIntro.trim();
+            info.LongIntroduction = longIntro.trim();
             info.Phone = phone;
             info.Email = email;
             counselorInfo.updatePersonalInfo = info;
@@ -320,7 +321,7 @@ const BasicInfo = () => {
                         <div>
                             <textarea
                                 style={{ color: 'rgba(0,0,0,0.6)', resize: 'none', width: '100%', height: 100 }}
-                                onChange={(text) => setShortIntro(text.target.value.trim())}
+                                onChange={(text) => setShortIntro(text.target.value)}
                                 value={shortIntro}
                                 maxLength={30}
                             ></textarea>
@@ -338,7 +339,7 @@ const BasicInfo = () => {
                         <div>
                             <textarea
                                 style={{ color: 'rgba(0,0,0,0.6)', resize: 'none', width: '100%', height: 200 }}
-                                onChange={(text) => setLongIntro(text.target.value.trim())}
+                                onChange={(text) => setLongIntro(text.target.value)}
                                 value={longIntro}
                                 maxLength={300}
                             ></textarea>
