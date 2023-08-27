@@ -116,6 +116,9 @@ export function Register() {
         var result = await counselorService.register(account, password);
         console.log("result", result);
         result = await counselorService.login(account, password);
+        result = await counselorService.upload(counselorInfo.Photo);
+        result = await result.json();
+        counselorInfo.updatePhoto = result.Photo;
         result = await counselorService.updateCounselorInfo(counselorInfo);
         console.log("appointmentTime", JSON.stringify(appointmentTime));
         result = await counselorService.setAppointmentTime(appointmentTime);
