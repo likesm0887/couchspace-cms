@@ -1,6 +1,8 @@
 import cookie from "react-cookies";
 
+
 export class MemberService {
+  
   constructor(base_url) {
     this.base_url = base_url;
     this.token = cookie.load("token");
@@ -25,7 +27,9 @@ export class MemberService {
     });
   }
   
-  getGetAllUser() {
+
+  
+   getGetAllUser = async() =>{
     // const info = cookie.load("Info");
     // if (info !== undefined) {
     //     return JSON.parse(info)
@@ -42,12 +46,10 @@ export class MemberService {
       },
     };
 
-    return fetch(api, requestOptions)
-      .then((res) => res.json())
-      .then((res) => {
-        cookie.save("Info", JSON.stringify(res));
-        return res;
-      });
+    const res= await fetch(api, requestOptions)
+    const data = await res.json()
+    return data;
+
   }
 
   getGetUserById(userId) {
