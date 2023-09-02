@@ -11,6 +11,9 @@ import {
   Table,
   Row,
   Col,
+  Spin,
+  Modal,
+  Divider,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { CardMembership } from "@material-ui/icons";
@@ -22,6 +25,10 @@ const Membership = () => {
   const [memberAccount, setMemberAccount] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
   const [data, setData] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [successResultData, setSuccessResultData] = useState([]);
+  const [failResultData, setFailResultData] = useState([]);
   const handleMemberAccountChange = (e) => {
     setMemberAccount(e.target.value);
   };
@@ -29,7 +36,17 @@ const Membership = () => {
   const handleDateChange = (date) => {
     setSelectedDate(date);
   };
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
 
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
   const handleSubmit = async (level) => {
     var result = await memberService.setMembership([
       {
@@ -39,9 +56,10 @@ const Membership = () => {
       },
     ]);
     console.log(result[0]);
+
     if (result[0].success) {
       console.log(result);
-    
+
       messageApi.open({
         type: "success",
         content: "新增成功",
@@ -56,30 +74,34 @@ const Membership = () => {
   };
 
   const batchSubmit = async () => {
+    setLoading(true)
     var result = await memberService.setMembership(data);
+    setLoading(false)
     console.log(result[0]);
-    if (result[0].success) {
-      console.log(result);
-
-      result.forEach((r) => {
-        if (r.error_code !== "") {
-          messageApi.open({
-            type: "error",
-            content: "新增失敗 失敗原因: " + r.status_text,
-          });
-        }
-      });
-      messageApi.open({
-        type: "success",
-        content: "新增成功",
-      });
-    } else {
-      console.log(result);
-      messageApi.open({
-        type: "error",
-        content: "新增失敗 失敗原因: " + result[0].status_text,
-      });
-    }
+    setSuccessResultData(result.filter((r) => r.success));
+    setFailResultData(result.filter((r) => !r.success));
+    setIsModalOpen(true);
+    // if (result[0].success) {
+    //   console.log(result);
+    //   result.forEach((r) => {
+    //     if (r.error_code !== "") {
+    //       messageApi.open({
+    //         type: "error",
+    //         content: "新增失敗 失敗原因: " + r.status_text,
+    //       });
+    //     }
+    //   });
+    //   messageApi.open({
+    //     type: "success",
+    //     content: "新增成功",
+    //   });
+    // } else {
+    //   console.log(result);
+    //   messageApi.open({
+    //     type: "error",
+    //     content: "新增失敗 失敗原因: " + result[0].status_text,
+    //   });
+    // }
   };
 
   const formatTo = (dateString) => {
@@ -123,8 +145,10 @@ const Membership = () => {
         console.log(valid);
         const formData = new FormData();
         formData.append("file", file);
+        setLoading(true)
         memberService.uploadMembership(formData).then((res) => {
           setData(res);
+          setLoading(false)
           return true;
         });
       }
@@ -143,110 +167,150 @@ const Membership = () => {
       key: "ExpiredDate",
     },
   ];
+  const result = [
+    {
+      title: "Account",
+      dataIndex: "error_code",
+      key: "error_code",
+      render: (text) => <a>{text}</a>,
+    },
+    {
+      title: "Status",
+      dataIndex: "status_text",
+      key: "status_text",
+    },
+  ];
+
   //call /api/v1/members/membership呼叫成功用toast顯示，錯誤訊息也是用antd toast
   return (
-    <Space direction="vertical">
-      <>{contextHolder}</>
-      <Row gutter={[16, 16]} style={{ width: 800 }}>
-        <Col span={12}>
+    <Spin spinning={loading}>
+      <Space direction="vertical">
+        <Modal
+          title="Batch Grant Result"
+          open={isModalOpen}
+          onOk={handleOk}
+          onCancel={handleCancel}
+          width={600}
+        >
+          <Divider>Success</Divider>
           <Row>
             <Col>
-              <Input
-                size="big"
-                placeholder="請輸入會員帳號"
-                value={memberAccount}
-                onChange={handleMemberAccountChange}
-                style={{ marginBottom: "16px", width: 200 }}
-              />
+              <Table columns={result} dataSource={successResultData} />
             </Col>
+          </Row>
+          <Divider>Fail</Divider>
+          <Row>
             <Col>
-              <dev style={{ marginBottom: "16px", marginLeft: "10px" }}>
-                <DatePicker
-                  presets={[
-                    {
-                      label: "One Month",
-                      value: dayjs().add(+1, "month"),
-                    },
-                    {
-                      label: "Three Month",
-                      value: dayjs().add(+3, "month"),
-                    },
-                    {
-                      label: "Six Month",
-                      value: dayjs().add(+6, "month"),
-                    },
-                    {
-                      label: "Nine Month",
-                      value: dayjs().add(+9, "month"),
-                    },
-                    {
-                      label: "One Year",
-                      value: dayjs().add(+12, "month"),
-                    },
-                    {
-                      label: "Forever",
-                      value: dayjs().add(+999, "year"),
-                    },
-                  ]}
-                  placeholder="選擇日期"
-                  value={selectedDate}
-                  onChange={handleDateChange}
+              <Table columns={result} dataSource={failResultData} />
+            </Col>
+          </Row>
+        </Modal>
+
+        <Row gutter={[16, 16]} style={{ width: 800 }}>
+          <Col span={12}>
+            <Row>
+              <Col>
+                <Input
+                  size="big"
+                  placeholder="請輸入會員帳號"
+                  value={memberAccount}
+                  onChange={handleMemberAccountChange}
+                  style={{ marginBottom: "16px", width: 200 }}
                 />
-              </dev>
-            </Col>
-          </Row>
-          <Row>
-            <Button
-              type="primary"
-              style={{ marginRight: "16px", marginBottom: "20px" }}
-              onClick={() => handleSubmit("LEVELUP")}
-            >
-              升級為Premium
-            </Button>
+              </Col>
+              <Col>
+                <dev style={{ marginBottom: "16px", marginLeft: "10px" }}>
+                  <DatePicker
+                    presets={[
+                      {
+                        label: "One Month",
+                        value: dayjs().add(+1, "month"),
+                      },
+                      {
+                        label: "Three Month",
+                        value: dayjs().add(+3, "month"),
+                      },
+                      {
+                        label: "Six Month",
+                        value: dayjs().add(+6, "month"),
+                      },
+                      {
+                        label: "Nine Month",
+                        value: dayjs().add(+9, "month"),
+                      },
+                      {
+                        label: "One Year",
+                        value: dayjs().add(+12, "month"),
+                      },
+                      {
+                        label: "Forever",
+                        value: dayjs().add(+999, "year"),
+                      },
+                    ]}
+                    placeholder="選擇日期"
+                    value={selectedDate}
+                    onChange={handleDateChange}
+                  />
+                </dev>
+              </Col>
+            </Row>
+            <Row>
+              <Button
+                type="primary"
+                style={{ marginRight: "16px", marginBottom: "20px" }}
+                onClick={() => handleSubmit("LEVELUP")}
+              >
+                升級為Premium
+              </Button>
 
-            <Button type="primary" onClick={() => handleSubmit("LEVELDOWN")}>
-              降級成平民
-            </Button>
-          </Row>
-        </Col>
+              <Button type="primary" onClick={() => handleSubmit("LEVELDOWN")}>
+                降級成平民
+              </Button>
+            </Row>
+          </Col>
 
-        <Col span={12}>
-          <Row gutter={[30, 30]}>
-            <Col span={10}>
-              <Upload {...props} maxCount={1}>
-                <Button icon={<UploadOutlined />}>
-                  Click to Upload Premium List
+          <Col span={12}>
+            <Row gutter={[30, 30]}>
+              <Col span={10}>
+                <Upload {...props} maxCount={1}>
+                  <Button icon={<UploadOutlined />}>
+                    Click to Upload Premium List
+                  </Button>
+                </Upload>
+              </Col>
+              <Col span={20}>
+                {data.length != 0 ? (
+                  <Button
+                    type="primary"
+                    style={{ marginRight: "16px", marginBottom: "20px" }}
+                    onClick={() => batchSubmit()}
+                  >
+                    通通升級為Premium
+                  </Button>
+                ) : (
+                  <div></div>
+                )}
+                <Button type="primary" onClick={showModal}>
+                  查看前一次上傳結果
                 </Button>
-              </Upload>
-            </Col>
-            <Col span={20}>
+                <>{contextHolder}</>
+              </Col>
+            </Row>
+            <Row>
               {data.length != 0 ? (
-                <Button
-                  type="primary"
-                  style={{ marginRight: "16px", marginBottom: "20px" }}
-                  onClick={() => batchSubmit()}
-                >
-                  通通升級為Premium
-                </Button>
+                <Table
+                  dataSource={data}
+                  columns={columns}
+                  pagination={{ pageSize: 5 }}
+                />
               ) : (
                 <div></div>
               )}
-            </Col>
-          </Row>
-          <Row>
-            {data.length != 0 ? (
-              <Table
-                dataSource={data}
-                columns={columns}
-                pagination={{ pageSize: 5 }}
-              />
-            ) : (
-              <div></div>
-            )}
-          </Row>
-        </Col>
-      </Row>
-    </Space>
+            </Row>
+          </Col>
+        </Row>
+      </Space>
+    </Spin>
   );
 };
 
