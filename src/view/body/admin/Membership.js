@@ -62,7 +62,7 @@ const Membership = () => {
 
       messageApi.open({
         type: "success",
-        content: "新增成功",
+        content: level==='LEVELUP'?"已升級為Permium":"已降級為平民",
       });
     } else {
       console.log(result);
@@ -172,12 +172,14 @@ const Membership = () => {
       title: "Account",
       dataIndex: "error_code",
       key: "error_code",
+      width:"30px",
       render: (text) => <a>{text}</a>,
     },
     {
       title: "Status",
       dataIndex: "status_text",
       key: "status_text",
+      width:"60px",
     },
   ];
 
@@ -190,18 +192,18 @@ const Membership = () => {
           open={isModalOpen}
           onOk={handleOk}
           onCancel={handleCancel}
-          width={600}
+          width={'30%'}
         >
           <Divider>Success</Divider>
           <Row>
             <Col>
-              <Table columns={result} dataSource={successResultData} />
+              <Table columns={result} dataSource={successResultData} pagination={false} scroll={{ x: 60, y: 300 }} />
             </Col>
           </Row>
           <Divider>Fail</Divider>
           <Row>
             <Col>
-              <Table columns={result} dataSource={failResultData} />
+              <Table columns={result} dataSource={failResultData} pagination={false}  scroll={{ x: 60, y: 300 }}  />
             </Col>
           </Row>
         </Modal>
