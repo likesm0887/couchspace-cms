@@ -84,7 +84,7 @@ export function Register() {
             newSkipped.delete(activeStep);
         }
         if (activeStep === 3) {
-            finishRegister();
+            await finishRegister();
         }
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
         setSkipped(newSkipped);
@@ -119,10 +119,10 @@ export function Register() {
         result = await counselorService.upload(counselorInfo.Photo);
         result = await result.json();
         counselorInfo.updatePhoto = result.Photo;
-        result = await counselorService.updateCounselorInfo(counselorInfo);
-        console.log("appointmentTime", JSON.stringify(appointmentTime));
-        result = await counselorService.setAppointmentTime(appointmentTime);
-        console.log("result", result);
+        await Promise.all([
+            counselorService.updateCounselorInfo(counselorInfo),
+            counselorService.setAppointmentTime(appointmentTime),
+        ]);
     }
     function getStepContent(step) {
         console.log("step", step);
