@@ -82,18 +82,18 @@ const PersonalInfo = forwardRef((props, ref) => {
                 setErrorLastName("請輸入姓氏");
                 output = false;
             }
-            if (address === "") {
-                setErrorAddress("請輸入居住地址");
-                output = false;
-            }
+            // if (address === "") {
+            //     setErrorAddress("請輸入居住地址");
+            //     output = false;
+            // }
             if (selectedCity === "請選擇縣市") {
                 setErrorCity("請選擇居住地區");
                 output = false;
             }
-            if (phone === "") {
-                setErrorPhone("請輸入聯絡電話");
-                output = false;
-            }
+            // if (phone === "") {
+            //     setErrorPhone("請輸入聯絡電話");
+            //     output = false;
+            // }
             if (email === "" || !checkEmail(email)) {
                 setErrorEmail("請輸入有效的電子信箱");
                 output = false;

@@ -123,6 +123,7 @@ export function Register() {
             counselorService.updateCounselorInfo(counselorInfo),
             counselorService.setAppointmentTime(appointmentTime),
         ]);
+        console.log("register finish");
     }
     function getStepContent(step) {
         console.log("step", step);
