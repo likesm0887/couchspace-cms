@@ -253,7 +253,7 @@ const BasicInfo = () => {
                         <FormHelperText error={errorGender !== ""}>{errorGender}</FormHelperText>
                     </div>
                 </Grid>
-                <Grid item xs={12}>
+                {/* <Grid item xs={12}>
                     <TextField
                         required
                         id="address1"
@@ -267,9 +267,9 @@ const BasicInfo = () => {
                         error={errorAddress !== ""}
                         helperText={errorAddress}
                     />
-                </Grid>
+                </Grid> */}
 
-                <Grid item xs={12} sm={6}>
+                {/* <Grid item xs={12} sm={6}>
                     <TextField
                         required
                         id="phone"
@@ -282,7 +282,7 @@ const BasicInfo = () => {
                         error={errorPhone !== ""}
                         helperText={errorPhone}
                     />
-                </Grid>
+                </Grid> */}
 
                 <Grid item xs={12} sm={6}>
                     <TextField

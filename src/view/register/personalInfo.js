@@ -195,7 +195,7 @@ const PersonalInfo = forwardRef((props, ref) => {
                         <FormHelperText error={errorGender !== ""}>{errorGender}</FormHelperText>
                     </div>
                 </Grid>
-                <Grid item xs={12}>
+                {/* <Grid item xs={12}>
                     <TextField
                         required
                         id="address1"
@@ -224,7 +224,7 @@ const PersonalInfo = forwardRef((props, ref) => {
                         error={errorPhone !== ""}
                         helperText={errorPhone}
                     />
-                </Grid>
+                </Grid> */}
 
                 <Grid item xs={12} sm={6}>
                     <TextField
