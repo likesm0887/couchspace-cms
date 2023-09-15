@@ -13,6 +13,7 @@ import { counselorService } from '../../service/ServicePool';
 import { AppointmentTime, counselorInfo } from '../../dataContract/counselor';
 import BusinessInfo from './businessInfo';
 import CertificateInfo from './certificateInfo';
+import "./Register.css";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -29,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
     instructions: {
         marginTop: theme.spacing(1),
         marginBottom: theme.spacing(1),
-    },
+    }
 }));
 
 function getSteps() {
@@ -38,6 +39,7 @@ function getSteps() {
 
 
 export function Register() {
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
     const classes = useStyles();
@@ -84,7 +86,9 @@ export function Register() {
             newSkipped.delete(activeStep);
         }
         if (activeStep === 3) {
+            setLoading(true);
             await finishRegister();
+            setLoading(false);
         }
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
         setSkipped(newSkipped);
@@ -109,7 +113,6 @@ export function Register() {
         counselorInfo.clearAll = null;
     };
     const finishRegister = async () => {
-        console.log("finish register");
         let appointmentTime = new AppointmentTime();
         appointmentTime.BusinessTimes = counselorInfo.BusinessTimes;
         appointmentTime.OverrideTimes = counselorInfo.OverrideTimes;
@@ -142,52 +145,59 @@ export function Register() {
     }
 
     return (
-        <div className={classes.root}>
-            <Stepper activeStep={activeStep}>
-                {steps.map((label, index) => {
-                    const stepProps = {};
-                    const labelProps = {};
+        <div>
+            {loading ?
+                <div className="loader-container">
+                    <div className="spinner"></div>
+                    <div style={{ font: 'caption', fontSize: 40, color: 'white' }}>{"資料創建中..."}</div>
+                </div> : null}
+            <div className={classes.root}>
+                <Stepper activeStep={activeStep}>
+                    {steps.map((label, index) => {
+                        const stepProps = {};
+                        const labelProps = {};
 
-                    if (isStepSkipped(index)) {
-                        stepProps.completed = false;
-                    }
-                    return (
-                        <Step key={label} {...stepProps}>
-                            <StepLabel {...labelProps}>{label}</StepLabel>
-                        </Step>
-                    );
-                })}
-            </Stepper>
-            <div>
-                {activeStep === (steps.length - 1) ? (
-                    <div>
-                        <Typography className={classes.instructions}>
-                            填寫已完成，待審核完畢，會再與您聯絡
-                        </Typography>
-                        <Button onClick={handleReset} className={classes.button} variant="contained" color='primary'>
-                            完成
-                        </Button>
-                    </div>
-                ) : (
-                    <div>
-                        <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography>
+                        if (isStepSkipped(index)) {
+                            stepProps.completed = false;
+                        }
+                        return (
+                            <Step key={label} {...stepProps}>
+                                <StepLabel {...labelProps}>{label}</StepLabel>
+                            </Step>
+                        );
+                    })}
+                </Stepper>
+                <div>
+                    {activeStep === (steps.length - 1) ? (
                         <div>
-                            <Button onClick={handleBack} className={classes.button}>
-                                {activeStep === 0 ? '返回' : '上一步'}
-                            </Button>
-
-
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={handleNext}
-                                className={classes.button}
-                            >
-                                {activeStep === steps.length - 1 ? '完成' : '下一步'}
+                            <Typography className={classes.instructions}>
+                                填寫已完成，待審核完畢，會再與您聯絡
+                            </Typography>
+                            <Button onClick={handleReset} className={classes.button} variant="contained" color='primary'>
+                                完成
                             </Button>
                         </div>
-                    </div>
-                )}
+                    ) : (
+                        <div>
+                            <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography>
+                            <div>
+                                <Button onClick={handleBack} className={classes.button}>
+                                    {activeStep === 0 ? '返回' : '上一步'}
+                                </Button>
+
+
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleNext}
+                                    className={classes.button}
+                                >
+                                    {activeStep === steps.length - 1 ? '完成' : '下一步'}
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
