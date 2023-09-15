@@ -13,6 +13,7 @@ import 'react-calendar/dist/Calendar.css';
 import {
     InfoCircleOutlined
 } from "@ant-design/icons";
+import dayjs from "dayjs";
 const BusinessInfo = forwardRef((props, ref) => {
     const currentDate = new Date();
     const maxDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 3, currentDate.getDate());
@@ -34,8 +35,8 @@ const BusinessInfo = forwardRef((props, ref) => {
     const [isDailyHourOpen, setIsDailyHourOpen] = useState(false);
     const [isNeedSort, setIsNeedSort] = useState(false);
     const [consultHours, setConsultHours] = useState(businessHours);
-    const [startTime, setStartTime] = useState(null);
-    const [endTime, setEndTime] = useState(null);
+    const [startTime, setStartTime] = useState(dayjs('00:00', 'HH:mm'));
+    const [endTime, setEndTime] = useState(dayjs('00:00', 'HH:mm'));
     const [selectedBusiness, setSelectedBusiness] = useState(null);
     const bubbleSortDailyHour = () => {
         var output = overrideTimes;
@@ -142,13 +143,13 @@ const BusinessInfo = forwardRef((props, ref) => {
         tempItems[selectedBusiness].periods.push({ startTime: startTime.format("HH:mm"), endTime: endTime.format("HH:mm") });
         tempItems = bubbleSortPeriods();
         setConsultHours([...tempItems]);
-        setStartTime(null);
-        setEndTime(null);
+        setStartTime(dayjs('00:00', 'HH:mm'));
+        setEndTime(dayjs('00:00', 'HH:mm'));
     }
     const handleCancel = () => {
         setIsOpen(false);
-        setStartTime(null);
-        setEndTime(null);
+        setStartTime(dayjs('00:00', 'HH:mm'));
+        setEndTime(dayjs('00:00', 'HH:mm'));
     }
     const handleClose = (event, reason) => {
         if (reason && reason === "backdropClick")
