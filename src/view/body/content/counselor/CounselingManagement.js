@@ -376,8 +376,8 @@ const CounselingManagement = () => {
                 <DialogContentText id="alert-dialog-description">
                     <div>
                         {Array.from({ length: 24 }, (_, index) => (
-                            <div>
-                                <label key={index}>
+                            <div key={index}>
+                                <label>
                                     <input
                                         type="checkbox"
                                         checked={checkedHours.includes(index)}
@@ -402,7 +402,7 @@ const CounselingManagement = () => {
     }
     return (
         <div className={"CounselingManagement"} style={{ height: '100%', overflowY: 'scroll' }}>
-            <Typography style={{ marginTop: 10 }} variant="h6" gutterBottom>
+            <Typography style={{ marginTop: 10, fontSize: 20 }} gutterBottom>
                 諮商時段管理
             </Typography>
             <Button
