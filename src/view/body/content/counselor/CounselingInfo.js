@@ -494,7 +494,7 @@ const CounselingInfo = () => {
                                 style={{ color: 'rgba(0,0,0,0.6)', resize: 'none', width: '100%', height: 100 }}
                                 onChange={(text) => setExpertisesInfo(text.target.value)}
                                 value={expertisesInfo}
-                                maxLength={30}
+                                maxLength={300}
                             ></textarea>
                             <div id="the-count">
                                 <span id="current">{expertisesInfo.length}</span>
