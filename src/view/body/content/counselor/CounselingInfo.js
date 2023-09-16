@@ -498,7 +498,7 @@ const CounselingInfo = () => {
                             ></textarea>
                             <div id="the-count">
                                 <span id="current">{expertisesInfo.length}</span>
-                                <span id="maximum">/ 30</span>
+                                <span id="maximum">/ 300</span>
                             </div>
                         </div>
                         <FormHelperText error={errorExpertisesInfo !== ""}>{errorExpertisesInfo}</FormHelperText>
