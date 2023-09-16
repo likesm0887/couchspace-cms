@@ -14,6 +14,7 @@ import { AppointmentTime, counselorInfo } from '../../dataContract/counselor';
 import BusinessInfo from './businessInfo';
 import CertificateInfo from './certificateInfo';
 import "./Register.css";
+import { showToast, toastType } from '../../common/method';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -116,16 +117,37 @@ export function Register() {
         let appointmentTime = new AppointmentTime();
         appointmentTime.BusinessTimes = counselorInfo.BusinessTimes;
         appointmentTime.OverrideTimes = counselorInfo.OverrideTimes;
+
+        // step1: Register
         var result = await counselorService.register(account, password);
-        console.log("result", result);
+        console.log("Register", result);
+        if (result.status !== 200) {
+            showToast(toastType.error, "註冊失敗");
+            return;
+        }
+
+        // step2: Login to get token
         result = await counselorService.login(account, password);
+
+        // step3: Upload Photo
         result = await counselorService.upload(counselorInfo.Photo);
-        result = await result.json();
         counselorInfo.updatePhoto = result.Photo;
-        await Promise.all([
+
+        // step4: Update Counselor Info and AppointmentTime
+        let [res1, res2] = await Promise.all([
             counselorService.updateCounselorInfo(counselorInfo),
             counselorService.setAppointmentTime(appointmentTime),
         ]);
+        console.log("Update Counselor Info", res1);
+        console.log("Update AppointmentTime", res2);
+        if (!res1.success) {
+            showToast(toastType.error, "建立諮商師資料失敗");
+            return;
+        }
+        if (!res2.success) {
+            showToast(toastType.error, "建立諮商時段失敗");
+            return;
+        }
         console.log("register finish");
     }
     function getStepContent(step) {
