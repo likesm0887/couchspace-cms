@@ -390,7 +390,7 @@ const BusinessInfo = forwardRef((props, ref) => {
                 <Grid item xs={12}>
                     {overrideTimes.map((overrideTime, index) => {
                         return (
-                            <div style={{ marginBottom: 10 }}>
+                            <div style={{ marginBottom: 10 }} key={index}>
                                 <div>
                                     <span>{overrideTime.DayTime}</span>
                                     <Tooltip title="刪除" placement="top" arrow={true}>

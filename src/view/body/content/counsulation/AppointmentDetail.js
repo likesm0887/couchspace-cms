@@ -105,25 +105,25 @@ function AppointmentDetail() {
             .padStart(2, "0");
         return minute + ":" + second + ":00";
     }
-    function getStatusDesc(code){
-        if (code.toUpperCase() === 'NEW'){
+    function getStatusDesc(code) {
+        if (code.toUpperCase() === 'NEW') {
             return "訂單成立(未付款)"
         }
 
-        if (code.toUpperCase() === 'CONFIRMED'){
+        if (code.toUpperCase() === 'CONFIRMED') {
             return "已確認"
         }
-        if (code.toUpperCase() === 'ROOMCREATED'){
+        if (code.toUpperCase() === 'ROOMCREATED') {
             return "諮商房間已建立"
-        } 
+        }
 
-        if (code.toUpperCase() === 'CANCELLED'){
+        if (code.toUpperCase() === 'CANCELLED') {
             return "已取消"
-        } 
+        }
 
-        if (code.toUpperCase() === 'COMPLETED'){
+        if (code.toUpperCase() === 'COMPLETED') {
             return "已完成"
-        } 
+        }
     }
     return (
         <ThemeProvider theme={theme}>
@@ -142,10 +142,14 @@ function AppointmentDetail() {
                                     <img style={{ verticalAlign: 'middle' }} src={nickname} alt="123"></img>
                                     <span className={"name"}>阿豪</span>
                                 </li>
+                            </ul>
+                            <ul>
                                 <li>
                                     <img className={"mail"} style={{ verticalAlign: 'middle' }} src={mail} alt="123"></img>
                                     <span className={"infoText"}>1234567@gmail</span>
                                 </li>
+                            </ul>
+                            <ul>
                                 <li>
                                     <img className={"phone"} style={{ verticalAlign: 'middle' }} src={phone} alt="123"></img>
                                     <span className={"infoText"}>0977565089</span>

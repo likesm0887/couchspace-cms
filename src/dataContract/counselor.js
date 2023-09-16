@@ -208,6 +208,7 @@ export class Counselor {
     }
     set updateBusinessTimes(businessTimes: BusinessTime[]) {
         if (businessTimes == null) return;
+        this.BusinessTimes = [];
         for (let i = 0; i < businessTimes.length; i++) {
             this.BusinessTimes.push(businessTimes[i]);
         }
@@ -215,6 +216,7 @@ export class Counselor {
     }
     set updateOverrideTimes(overrideTimes: OverrideTime[]) {
         if (overrideTimes == null) return;
+        this.OverrideTimes = [];
         for (let i = 0; i < overrideTimes.length; i++) {
             this.OverrideTimes.push(overrideTimes[i]);
         }

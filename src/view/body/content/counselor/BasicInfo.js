@@ -30,7 +30,6 @@ const BasicInfo = () => {
 
     const upload = async (event) => {
         let res = await counselorService.upload(event.target.files[0]);
-        res = await res.json();
         setPhoto(res.Photo);
     }
     // setting columns
