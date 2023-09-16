@@ -402,7 +402,7 @@ const CounselingManagement = () => {
     }
     return (
         <div className={"CounselingManagement"} style={{ height: '100%', overflowY: 'scroll' }}>
-            <Typography style={{ marginTop: 10 }} variant="h6" gutterBottom>
+            <Typography style={{ marginTop: 10, fontSize: 20 }} gutterBottom>
                 諮商時段管理
             </Typography>
             <Button

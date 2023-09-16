@@ -347,7 +347,7 @@ const BusinessInfo = forwardRef((props, ref) => {
     }
     return (
         <div className={"BusinessInfo"}>
-            <Typography style={{ marginTop: 10 }} variant="h6" gutterBottom>
+            <Typography style={{ marginTop: 10, fontSize: 20 }} gutterBottom>
                 {"填寫諮商時段(Weekly Hours)"}
             </Typography>
 

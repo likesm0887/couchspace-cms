@@ -186,7 +186,7 @@ const BasicInfo = () => {
     }, [firstName, lastName, selectedCity, address, phone, photo, email, gender, shortIntro, longIntro])
     return (
         <div className={"BasicInfo"} style={{ height: '100%', overflowY: 'scroll' }}>
-            <Typography style={{ marginTop: 10 }} variant="h6" gutterBottom>
+            <Typography style={{ marginTop: 10, fontSize: 20 }} gutterBottom>
                 會員基本資料
             </Typography>
             <Button
