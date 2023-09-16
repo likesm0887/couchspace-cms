@@ -259,7 +259,8 @@ const ConsultationInfo = forwardRef((props, ref) => {
                         error={errorEducation !== ""}
                         helperText={errorEducation}
                         multiline={true}
-                        rows={3}
+                        maxRows={3}
+                        minRows={1}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -281,7 +282,8 @@ const ConsultationInfo = forwardRef((props, ref) => {
                         error={errorSeniority !== ""}
                         helperText={errorSeniority}
                         multiline={true}
-                        rows={5}
+                        maxRows={5}
+                        minRows={1}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
