@@ -100,11 +100,11 @@ const ConsultationInfo = forwardRef((props, ref) => {
                 setErrorLanguages("請選擇語言");
                 output = false;
             }
-            if (education === "") {
+            if (education.trim() === "") {
                 setErrorEducation("請輸入學歷");
                 output = false;
             }
-            if (seniority === "") {
+            if (seniority.trim() === "") {
                 setErrorSeniority("請輸入諮商經歷");
                 output = false;
             }
@@ -124,7 +124,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
             //     setErrorLicenseIssuing("請輸入發證單位");
             //     output = false;
             // }
-            if (expertisesInfo.length === 0) {
+            if (expertisesInfo.trim() === "") {
                 setErrorExpertisesInfo("請輸入專長");
                 output = false;
             }
@@ -151,7 +151,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
                 object.Skill = expertiseList[expertise].label;
                 return object;
             });
-            info.ExpertisesInfo = expertisesInfo;
+            info.ExpertisesInfo = expertisesInfo.trim();
             info.ConsultingFees = consultingFees.map((consultingFee) => {
                 let object = {}
                 object.Type = {};
@@ -259,7 +259,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
                         error={errorEducation !== ""}
                         helperText={errorEducation}
                         multiline={true}
-                        maxRows={3}
+                        rows={3}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -281,7 +281,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
                         error={errorSeniority !== ""}
                         helperText={errorSeniority}
                         multiline={true}
-                        maxRows={5}
+                        rows={5}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -374,7 +374,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
                         <div>
                             <textarea
                                 style={{ color: 'rgba(0,0,0,0.6)', resize: 'none', width: '100%', height: 100 }}
-                                onChange={(text) => setExpertisesInfo(text.target.value.trim())}
+                                onChange={(text) => setExpertisesInfo(text.target.value)}
                                 value={expertisesInfo}
                                 maxLength={300}
                             ></textarea>

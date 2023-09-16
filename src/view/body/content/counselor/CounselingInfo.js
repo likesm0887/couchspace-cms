@@ -164,11 +164,11 @@ const CounselingInfo = () => {
             setErrorLanguages("請選擇語言");
             output = false;
         }
-        if (education === "") {
+        if (education.trim() === "") {
             setErrorEducation("請輸入學歷");
             output = false;
         }
-        if (seniority === "") {
+        if (seniority.trim() === "") {
             setErrorSeniority("請輸入諮商經歷");
             output = false;
         }
@@ -192,7 +192,7 @@ const CounselingInfo = () => {
             setErrorLicenseTitle("請輸入證照名稱");
             output = false;
         }
-        if (expertisesInfo.length === 0) {
+        if (expertisesInfo.trim() === "") {
             setErrorExpertisesInfo("請輸入專長");
             output = false;
         }
@@ -372,7 +372,7 @@ const CounselingInfo = () => {
                         error={errorEducation !== ""}
                         helperText={errorEducation}
                         multiline={true}
-                        maxRows={3}
+                        rows={3}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -394,7 +394,7 @@ const CounselingInfo = () => {
                         error={errorSeniority !== ""}
                         helperText={errorSeniority}
                         multiline={true}
-                        maxRows={5}
+                        rows={5}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
