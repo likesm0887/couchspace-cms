@@ -18,7 +18,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Counselor, counselorInfo, Expertise } from '../../../../dataContract/counselor';
 import { useEffect, useRef } from "react";
 import { counselorService } from "../../../../service/ServicePool";
-import { showToast, toastType } from "../../../../common/method";
+import { checkLines, showToast, toastType } from "../../../../common/method";
 const useStyles = makeStyles((theme) => ({
     root: {
         '& > *': {
@@ -209,8 +209,8 @@ const CounselingInfo = () => {
             let info = new Counselor();
             let backupInfo = counselorInfo;
             info.Languages = languages.filter((language) => language.enabled === true).map((item) => item.label);
-            info.Educational = education;
-            info.Seniority = seniority;
+            info.Educational = education.trim();
+            info.Seniority = seniority.trim();
             info.Position = position;
             info.Accumulative = accumulative;
             info.License.LicenseNumber = licenseNumber;
@@ -358,15 +358,21 @@ const CounselingInfo = () => {
                         required
                         id="education"
                         name="education"
-                        label="學歷"
+                        label="學歷(最多 3 項，請換行輸入)"
                         fullWidth
                         autoComplete="family-name"
                         variant="standard"
                         placeholder="couchspace大學 心理所 碩士"
                         value={education}
-                        onChange={(text) => setEducation(text.target.value.trim())}
+                        onChange={(text) => {
+                            if (checkLines(text.target.value, '\n', 3)) {
+                                setEducation(text.target.value)
+                            }
+                        }}
                         error={errorEducation !== ""}
                         helperText={errorEducation}
+                        multiline={true}
+                        maxRows={3}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -374,15 +380,21 @@ const CounselingInfo = () => {
                         required
                         id="seniority"
                         name="seniority"
-                        label="經歷"
+                        label="經歷(最多 5 項，請換行輸入)"
                         fullWidth
                         autoComplete="family-name"
                         variant="standard"
                         placeholder="couchspace診所 諮商師"
                         value={seniority}
-                        onChange={(text) => setSeniority(text.target.value.trim())}
+                        onChange={(text) => {
+                            if (checkLines(text.target.value, '\n', 5)) {
+                                setSeniority(text.target.value)
+                            }
+                        }}
                         error={errorSeniority !== ""}
                         helperText={errorSeniority}
+                        multiline={true}
+                        maxRows={5}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
