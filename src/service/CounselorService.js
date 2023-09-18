@@ -107,7 +107,7 @@ export class CounselorService {
                 return res;
             });
     }
-    async checkAccountExist(account) {
+    checkAccountExist(account) {
         const api = this.base_url + "/api/v1/counselors/checkAccountExist";
         const requestOptions = {
             method: 'POST',
@@ -115,9 +115,13 @@ export class CounselorService {
             body: JSON.stringify({ Account: account }),
 
         }
-        return (await fetch(api, requestOptions)).text();
+        return fetch(api, requestOptions)
+            .then((res) => res.text())
+            .then((res) => {
+                return res;
+            });
     }
-    async upload(file) {
+    upload(file) {
         if (this.token === undefined) {
             return;
         }
@@ -130,6 +134,10 @@ export class CounselorService {
             headers: { "Authorization": this.token },
             body: data,
         }
-        return (await fetch(api, requestOptions));
+        return fetch(api, requestOptions)
+            .then((res) => res.json())
+            .then((res) => {
+                return res;
+            });
     }
 }

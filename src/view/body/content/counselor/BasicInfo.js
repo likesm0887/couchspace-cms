@@ -30,7 +30,6 @@ const BasicInfo = () => {
 
     const upload = async (event) => {
         let res = await counselorService.upload(event.target.files[0]);
-        res = await res.json();
         setPhoto(res.Photo);
     }
     // setting columns
@@ -98,18 +97,18 @@ const BasicInfo = () => {
             setErrorLastName("請輸入姓氏");
             output = false;
         }
-        if (address === "") {
-            setErrorAddress("請輸入居住地址");
-            output = false;
-        }
+        // if (address === "") {
+        //     setErrorAddress("請輸入居住地址");
+        //     output = false;
+        // }
         if (selectedCity === "請選擇縣市") {
             setErrorCity("請選擇居住地區");
             output = false;
         }
-        if (phone === "") {
-            setErrorPhone("請輸入聯絡電話");
-            output = false;
-        }
+        // if (phone === "") {
+        //     setErrorPhone("請輸入聯絡電話");
+        //     output = false;
+        // }
         if (email === "" || !checkEmail(email)) {
             setErrorEmail("請輸入有效的電子信箱");
             output = false;
@@ -187,7 +186,7 @@ const BasicInfo = () => {
     }, [firstName, lastName, selectedCity, address, phone, photo, email, gender, shortIntro, longIntro])
     return (
         <div className={"BasicInfo"} style={{ height: '100%', overflowY: 'scroll' }}>
-            <Typography style={{ marginTop: 10 }} variant="h6" gutterBottom>
+            <Typography style={{ marginTop: 10, fontSize: 20 }} gutterBottom>
                 會員基本資料
             </Typography>
             <Button
@@ -253,7 +252,7 @@ const BasicInfo = () => {
                         <FormHelperText error={errorGender !== ""}>{errorGender}</FormHelperText>
                     </div>
                 </Grid>
-                <Grid item xs={12}>
+                {/* <Grid item xs={12}>
                     <TextField
                         required
                         id="address1"
@@ -267,9 +266,9 @@ const BasicInfo = () => {
                         error={errorAddress !== ""}
                         helperText={errorAddress}
                     />
-                </Grid>
+                </Grid> */}
 
-                <Grid item xs={12} sm={6}>
+                {/* <Grid item xs={12} sm={6}>
                     <TextField
                         required
                         id="phone"
@@ -282,7 +281,7 @@ const BasicInfo = () => {
                         error={errorPhone !== ""}
                         helperText={errorPhone}
                     />
-                </Grid>
+                </Grid> */}
 
                 <Grid item xs={12} sm={6}>
                     <TextField

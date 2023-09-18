@@ -82,18 +82,18 @@ const PersonalInfo = forwardRef((props, ref) => {
                 setErrorLastName("請輸入姓氏");
                 output = false;
             }
-            if (address === "") {
-                setErrorAddress("請輸入居住地址");
-                output = false;
-            }
+            // if (address === "") {
+            //     setErrorAddress("請輸入居住地址");
+            //     output = false;
+            // }
             if (selectedCity === "請選擇縣市") {
                 setErrorCity("請選擇居住地區");
                 output = false;
             }
-            if (phone === "") {
-                setErrorPhone("請輸入聯絡電話");
-                output = false;
-            }
+            // if (phone === "") {
+            //     setErrorPhone("請輸入聯絡電話");
+            //     output = false;
+            // }
             if (email === "" || !checkEmail(email)) {
                 setErrorEmail("請輸入有效的電子信箱");
                 output = false;
@@ -138,7 +138,7 @@ const PersonalInfo = forwardRef((props, ref) => {
 
     return (
         <div className={"PersonalInfo"}>
-            <Typography style={{ marginTop: 10 }} variant="h6" gutterBottom>
+            <Typography style={{ marginTop: 10, fontSize: 20 }} gutterBottom>
                 填寫個人資料
             </Typography>
 
@@ -195,7 +195,7 @@ const PersonalInfo = forwardRef((props, ref) => {
                         <FormHelperText error={errorGender !== ""}>{errorGender}</FormHelperText>
                     </div>
                 </Grid>
-                <Grid item xs={12}>
+                {/* <Grid item xs={12}>
                     <TextField
                         required
                         id="address1"
@@ -224,7 +224,7 @@ const PersonalInfo = forwardRef((props, ref) => {
                         error={errorPhone !== ""}
                         helperText={errorPhone}
                     />
-                </Grid>
+                </Grid> */}
 
                 <Grid item xs={12} sm={6}>
                     <TextField

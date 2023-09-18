@@ -13,6 +13,7 @@ import 'react-calendar/dist/Calendar.css';
 import {
     InfoCircleOutlined
 } from "@ant-design/icons";
+import dayjs from "dayjs";
 const BusinessInfo = forwardRef((props, ref) => {
     const currentDate = new Date();
     const maxDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 3, currentDate.getDate());
@@ -34,8 +35,8 @@ const BusinessInfo = forwardRef((props, ref) => {
     const [isDailyHourOpen, setIsDailyHourOpen] = useState(false);
     const [isNeedSort, setIsNeedSort] = useState(false);
     const [consultHours, setConsultHours] = useState(businessHours);
-    const [startTime, setStartTime] = useState(null);
-    const [endTime, setEndTime] = useState(null);
+    const [startTime, setStartTime] = useState(dayjs('00:00', 'HH:mm'));
+    const [endTime, setEndTime] = useState(dayjs('00:00', 'HH:mm'));
     const [selectedBusiness, setSelectedBusiness] = useState(null);
     const bubbleSortDailyHour = () => {
         var output = overrideTimes;
@@ -142,13 +143,13 @@ const BusinessInfo = forwardRef((props, ref) => {
         tempItems[selectedBusiness].periods.push({ startTime: startTime.format("HH:mm"), endTime: endTime.format("HH:mm") });
         tempItems = bubbleSortPeriods();
         setConsultHours([...tempItems]);
-        setStartTime(null);
-        setEndTime(null);
+        setStartTime(dayjs('00:00', 'HH:mm'));
+        setEndTime(dayjs('00:00', 'HH:mm'));
     }
     const handleCancel = () => {
         setIsOpen(false);
-        setStartTime(null);
-        setEndTime(null);
+        setStartTime(dayjs('00:00', 'HH:mm'));
+        setEndTime(dayjs('00:00', 'HH:mm'));
     }
     const handleClose = (event, reason) => {
         if (reason && reason === "backdropClick")
@@ -346,7 +347,7 @@ const BusinessInfo = forwardRef((props, ref) => {
     }
     return (
         <div className={"BusinessInfo"}>
-            <Typography style={{ marginTop: 10 }} variant="h6" gutterBottom>
+            <Typography style={{ marginTop: 10, fontSize: 20 }} gutterBottom>
                 {"填寫諮商時段(Weekly Hours)"}
             </Typography>
 
@@ -389,7 +390,7 @@ const BusinessInfo = forwardRef((props, ref) => {
                 <Grid item xs={12}>
                     {overrideTimes.map((overrideTime, index) => {
                         return (
-                            <div style={{ marginBottom: 10 }}>
+                            <div style={{ marginBottom: 10 }} key={index}>
                                 <div>
                                     <span>{overrideTime.DayTime}</span>
                                     <Tooltip title="刪除" placement="top" arrow={true}>
