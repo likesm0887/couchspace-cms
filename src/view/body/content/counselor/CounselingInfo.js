@@ -123,7 +123,7 @@ const CounselingInfo = () => {
         let tempConsultingFees = counselingItems;
         let tempLanguages = languagesItems;
         let tempExpertiseList = [];
-        counselorInfo.ConsultingFees.map((consultingFee, index) => {
+        counselorInfo.ConsultingFees?.map((consultingFee, index) => {
             let tempIndex = tempConsultingFees.findIndex((item) => item.label === consultingFee.Type.Label);
             if (tempIndex !== -1) {
                 tempConsultingFees[tempIndex].enabled = true;
@@ -131,7 +131,7 @@ const CounselingInfo = () => {
             }
             return tempConsultingFees;
         });
-        counselorInfo.Languages.map((language, index) => {
+        counselorInfo.Languages?.map((language, index) => {
             let tempIndex = tempLanguages.findIndex((item) => item.label === language);
             if (tempIndex !== -1) {
                 tempLanguages[tempIndex].enabled = true;
@@ -160,7 +160,7 @@ const CounselingInfo = () => {
         ClearAllError();
         var output = true;
 
-        if (languages.every((language) => language.enabled === false)) {
+        if (languages?.every((language) => language.enabled === false)) {
             setErrorLanguages("請選擇語言");
             output = false;
         }
@@ -208,7 +208,7 @@ const CounselingInfo = () => {
         if (output) {
             let info = new Counselor();
             let backupInfo = counselorInfo;
-            info.Languages = languages.filter((language) => language.enabled === true).map((item) => item.label);
+            info.Languages = languages?.filter((language) => language.enabled === true).map((item) => item.label);
             info.Educational = education.trim();
             info.Seniority = seniority.trim();
             info.Position = position;
@@ -435,7 +435,7 @@ const CounselingInfo = () => {
                 <Grid item xs={12}>
                     <div>
                         <span style={{ color: errorLanguages === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"語言 *"}</span>
-                        {languages.map((item, index) => {
+                        {languages?.map((item, index) => {
                             return (
                                 <span style={{ marginLeft: 10 }} key={index}>
                                     <Checkbox checked={item.enabled} onClick={() => {
