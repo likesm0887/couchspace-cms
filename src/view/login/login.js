@@ -32,6 +32,7 @@ function Login() {
     };
     const onClickLogin = async () => {
         try {
+            counselorInfo.clearAll = null;
             // showToast(toastType.error, "213123");
             // showToast(toastType.info, "213123");
             // showToast(toastType.success, "213123");
@@ -45,8 +46,6 @@ function Login() {
                 showToast(toastType.error, "密碼需包含英數且至少8個字元");
             }
             else {
-                console.log("account", account);
-                console.log("password", password);
                 var res = await counselorService.login(account, password);
                 var info = await counselorService.getCounselorInfo();
                 var business = await counselorService.getAppointmentTime();

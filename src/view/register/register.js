@@ -114,41 +114,46 @@ export function Register() {
         counselorInfo.clearAll = null;
     };
     const finishRegister = async () => {
-        let appointmentTime = new AppointmentTime();
-        appointmentTime.BusinessTimes = counselorInfo.BusinessTimes;
-        appointmentTime.OverrideTimes = counselorInfo.OverrideTimes;
+        try {
+            let appointmentTime = new AppointmentTime();
+            appointmentTime.BusinessTimes = counselorInfo.BusinessTimes;
+            appointmentTime.OverrideTimes = counselorInfo.OverrideTimes;
 
-        // step1: Register
-        var result = await counselorService.register(account, password);
-        console.log("Register", result);
-        if (result.status !== 200) {
-            showToast(toastType.error, "註冊失敗");
-            return;
+            // step1: Register
+            var result = await counselorService.register(account, password);
+            console.log("Register", result);
+            if (result.status !== 200) {
+                showToast(toastType.error, "註冊失敗");
+                return;
+            }
+
+            // step2: Login to get token
+            result = await counselorService.login(account, password);
+
+            // step3: Upload Photo
+            result = await counselorService.upload(counselorInfo.Photo);
+            counselorInfo.updatePhoto = result.Photo;
+
+            // step4: Update Counselor Info and AppointmentTime
+            let [res1, res2] = await Promise.all([
+                counselorService.updateCounselorInfo(counselorInfo),
+                counselorService.setAppointmentTime(appointmentTime),
+            ]);
+            console.log("Update Counselor Info", res1);
+            console.log("Update AppointmentTime", res2);
+            if (!res1.success) {
+                showToast(toastType.error, "建立諮商師資料失敗");
+                return;
+            }
+            if (!res2.success) {
+                showToast(toastType.error, "建立諮商時段失敗");
+                return;
+            }
+            console.log("register finish");
         }
-
-        // step2: Login to get token
-        result = await counselorService.login(account, password);
-
-        // step3: Upload Photo
-        result = await counselorService.upload(counselorInfo.Photo);
-        counselorInfo.updatePhoto = result.Photo;
-
-        // step4: Update Counselor Info and AppointmentTime
-        let [res1, res2] = await Promise.all([
-            counselorService.updateCounselorInfo(counselorInfo),
-            counselorService.setAppointmentTime(appointmentTime),
-        ]);
-        console.log("Update Counselor Info", res1);
-        console.log("Update AppointmentTime", res2);
-        if (!res1.success) {
-            showToast(toastType.error, "建立諮商師資料失敗");
-            return;
+        catch (err) {
+            showToast(toastType.error, `註冊失敗，請聯繫客服 (${err})`);
         }
-        if (!res2.success) {
-            showToast(toastType.error, "建立諮商時段失敗");
-            return;
-        }
-        console.log("register finish");
     }
     function getStepContent(step) {
         console.log("step", step);

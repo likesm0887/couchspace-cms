@@ -27,6 +27,8 @@ const VideoChat = (props) => {
     Video.connect(
       token, {
       name: appointment.RoomID,
+      video: true,
+      audio: true,
     })
       .then((room) => {
         setConnecting(false);
