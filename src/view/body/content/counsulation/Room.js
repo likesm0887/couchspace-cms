@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Participant from "./Participant";
 import "./counseling.css"
-import { Button, Image } from "antd";
 
 const Room = ({ roomName, room, handleLogout }) => {
   const [participants, setParticipants] = useState([]);
@@ -82,7 +81,7 @@ const Room = ({ roomName, room, handleLogout }) => {
         <div className={"stopWatch"}>00:00:10</div>
         <button style={{ marginLeft: 20 }} onClick={onClickCamera}> <img style={{ height: 30, width: 40, verticalAlign: 'middle' }} src={showCamera ? require("../../../img/content/camera_enabled.png") : require("../../../img/content/camera_disabled.png")} alt="myCamera" />{"鏡頭"} </button>
         <button style={{ marginLeft: 20 }} onClick={onClickMic}> <img style={{ height: 40, width: 25, verticalAlign: 'middle' }} src={showMic ? require("../../../img/content/mic_enabled.png") : require("../../../img/content/mic_disabled.png")} alt="myMic" /> {"麥克風"}</button>
-        <button onClick={handleLogout} className={"stop"}>結束諮詢</button>
+        <button onClick={handleLogout} className={"stop"}>結束諮商</button>
       </div>
     </div>
   );
