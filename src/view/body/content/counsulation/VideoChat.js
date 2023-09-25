@@ -14,12 +14,10 @@ const VideoChat = (props) => {
   const handleUsernameChange = useCallback((event) => {
     setUsername("我是誰");
   }, []);
-
+  const [appointment, setAppointment] = useState(null);
 
 
   const handleSubmit = async () => {
-
-    const appointment = await appointmentService.getAppointment(props.appointmentID)
     const token = await appointmentService.getAppointmentRoomToken(props.appointmentID)
     console.log("roomToken", token);
     setConnecting(true);
@@ -65,6 +63,9 @@ const VideoChat = (props) => {
   }, []);
 
   useEffect(() => {
+    appointmentService.getAppointment(props.appointmentID).then((res) => {
+      setAppointment(res);
+    });
     if (room) {
       const tidyUp = (event) => {
         if (event.persisted) {
@@ -87,7 +88,7 @@ const VideoChat = (props) => {
   let render;
   if (room) {
     render = (
-      <Room roomName={roomName} room={room} handleLogout={handleLogout} />
+      <Room roomName={roomName} room={room} handleLogout={handleLogout} appointmentTime={appointment.Time} />
 
     );
   } else {
