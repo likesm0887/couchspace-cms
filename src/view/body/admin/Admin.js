@@ -29,7 +29,7 @@ const items = [
   //   getItem('音樂', '5'),
   //   getItem('分類', '6'),
   // ]),
-  getItem('諮商專區', 'sub2', <TeamOutlined />, [getItem('諮商師 1', '6'), getItem('預約訂單 2', '8')]),
+  getItem('諮商專區', 'sub2', <TeamOutlined />, [getItem('諮商師 1', '8'), getItem('預約訂單 2', '8')]),
   getItem('行銷專區', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
   getItem('系統設定', '9', <FileOutlined />),
 ];
@@ -75,6 +75,9 @@ function Admin() {
     }
     if (e.key ==7) {
       navigate("banner", { replace: true });
+    }
+    if (e.key ==8) {
+      navigate("counselor", { replace: true });
     }
   };
 
