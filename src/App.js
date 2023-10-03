@@ -24,39 +24,23 @@ import Teacher from "./view/body/admin/Teacher";
 import Setting from "./view/body/admin/Setting";
 import User from "./view/body/admin/User";
 import Membership from "./view/body/admin/Membership";
+import Counselor from "./view/body/admin/Counselor";
 import Banner from "./view/body/admin/Banner";
-
-function askForNotificationPermission() {
-    Notification.requestPermission(function (result) {
-        // 這裡result只會有兩種結果：一個是用戶允許(granted)，另一個是用戶封鎖(denied)
-        console.log('User Choice', result);
-        if (result !== 'granted') {
-            console.log('No notification permission granted!');
-        } else {
-            new Notification("Hi there! ", {
-                body: '\\ ^o^ /',
-                tag: 'newArrival' // 設定標籤
-            });
-        }
-    });
-}
-
+import {
+    useQuery,
+    useMutation,
+    useQueryClient,
+    QueryClient,
+    QueryClientProvider,
+  } from 'react-query'
+  
+const queryClient = new QueryClient()
 function App() {
     // registerServiceWorker()
     // Notification()
     boot()
-    new Notification("Hi there! ", {
-        body: '\\ ^o^ /',
-        icon: '/firebase-logo.png',
-        tag: 'newArrival' // 設定標籤
-    });
-    askForNotificationPermission()
-    requestForToken()
-    onMessageListener().then(payload => {
-        console.log(payload);
-    }).catch(err => console.log('failed: ', err));
     return (
-
+    <QueryClientProvider client={queryClient}>
         <BrowserRouter>
             <Routes>
                 <Route path="Login" element={<Login2 />}></Route>
@@ -69,6 +53,7 @@ function App() {
                     <Route path="user" element={<User />}></Route>
                     <Route path="setting" element={<Setting />}></Route>
                     <Route path="membership" element={<Membership />}></Route>
+                    <Route path="counselor" element={<Counselor />}></Route>
                 </Route>
                 <Route path="couchspace-cms/register" element={<Register />} />
 
@@ -92,14 +77,8 @@ function App() {
                 </Route>
             </Routes>
         </BrowserRouter>
-        // <div className="App">
-        //   <header className="header">
-        //       <Header></Header>
-        //   </header>
-        //
-        //     <Body></Body>
-        // </div>
-
+       
+    </QueryClientProvider> 
     );
 }
 
