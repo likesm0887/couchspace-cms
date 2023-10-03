@@ -8,12 +8,12 @@ import {
   Tag,
   Modal,
   Menu,
+  Calendar,
 } from "antd";
-import { Layout, theme, Descriptions,Badge} from "antd";
+import { Layout, theme, Descriptions, Badge, Outlet } from "antd";
 import {
   LaptopOutlined,
   NotificationOutlined,
-
   UserOutlined,
 } from "@ant-design/icons";
 
@@ -77,6 +77,7 @@ const Counselor = () => {
   const [currentSelectCounselorId, setCurrentSelectCounselorId] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
+
   const {
     token: { colorBgContainer },
   } = theme.useToken();
@@ -197,73 +198,78 @@ const Counselor = () => {
     setIsModalOpen(false);
   };
   const handleMenuClick = (e) => {
+    console.log(e.key)
     setSelectedCategory(e.key);
   };
-  const items1 = ["1", "2", "3"].map((key) => ({
-    key,
-    label: `nav ${key}`,
-  }));
-  const items2 = [UserOutlined, LaptopOutlined, NotificationOutlined].map(
-    (icon, index) => {
-      const key = String(index + 1);
-      return {
-        key: `sub${key}`,
-        icon: React.createElement(icon),
-        label: `subnav ${key}`,
-      };
-    }
-  );
+  const items2 = [
+    {
+      key: `information`,
+      icon: React.createElement(UserOutlined),
+      label: `Information`,
+    },
+    {
+      key: `AppointmentTime`,
+      icon: React.createElement(NotificationOutlined),
+      label: `Appointment Time`,
+    },
+    {
+      key: `appointments`,
+      icon: React.createElement(LaptopOutlined),
+      label: `Appointments`,
+    },
+  ];
+
   const items = [
     {
-      key: '1',
-      label: 'Product',
-      children: 'Cloud Database',
+      key: "1",
+      label: "Product",
+      children: "Cloud Database",
     },
     {
-      key: '2',
-      label: 'Billing Mode',
-      children: 'Prepaid',
+      key: "2",
+      label: "Billing Mode",
+      children: "Prepaid",
     },
     {
-      key: '3',
-      label: 'Automatic Renewal',
-      children: 'YES',
+      key: "3",
+      label: "Automatic Renewal",
+      children: "YES",
     },
     {
-      key: '4',
-      label: 'Order time',
-      children: '2018-04-24 18:00:00',
+      key: "4",
+      label: "Order time",
+      children: "2018-04-24 18:00:00",
     },
     {
-      key: '5',
-      label: 'Usage Time',
+      key: "5",
+      label: "Usage Time",
       span: 2,
-      children: '2019-04-24 18:00:00',
+      children: "2019-04-24 18:00:00",
     },
     {
-      key: '6',
-      label: 'Status',
+      key: "6",
+      label: "Status",
       span: 3,
       children: <Badge status="processing" text="Running" />,
     },
     {
-      key: '7',
-      label: 'Negotiated Amount',
-      children: '$80.00',
+      key: "7",
+      label: "Negotiated Amount",
+      children: "$80.00",
     },
     {
-      key: '8',
-      label: 'Discount',
-      children: '$20.00',
+      key: "8",
+      label: "Discount",
+      children: "$20.00",
     },
     {
-      key: '9',
-      label: 'Official Receipts',
-      children: '$60.00',
+      key: "9",
+      label: "Official Receipts",
+      children: "$60.00",
     },
     {
-      key: '10',
-      label: 'Config Info',
+      key: "10",
+      label: "Config Info",
       children: (
         <>
           Data disk type: MongoDB
@@ -282,6 +288,26 @@ const Counselor = () => {
       ),
     },
   ];
+  const onPanelChange = (value, mode) => {
+    console.log(value.format('YYYY-MM-DD'), mode);
+  };
+  const renderContent = () => {
+    console.log(selectedCategory);
+    if (selectedCategory === "information") {
+      console.log(selectedCategory);
+      return <div>
+        <Descriptions
+          extra={<Button type="primary">Edit</Button>}
+          bordered
+          title="User Info"
+          items={items}
+        />
+      </div>;
+    } else if (selectedCategory === "appointments") {
+      return <Calendar onPanelChange={onPanelChange}></Calendar>;
+    }
+    // Add more conditions for other menu items if needed
+  };
   return (
     <>
       <Statistic
@@ -305,37 +331,33 @@ const Counselor = () => {
         onOk={handleOk}
         onCancel={handleCancel}
         style={{ top: 20 }} // 设置高度为80%视窗高度
-        width={'80%'}
+        width={"80%"}
         bodyStyle={{ height: "55vh" }}
       >
         <Layout>
           <Layout>
             <Sider width={200} style={{ background: colorBgContainer }}>
               <Menu
+                onClick={handleMenuClick}
                 mode="inline"
                 defaultSelectedKeys={["1"]}
                 defaultOpenKeys={["sub1"]}
+               
                 style={{ height: "100%", borderRight: 0 }}
                 items={items2}
               />
             </Sider>
-            <Layout style={{ background: colorBgContainer, overflowY: 'auto'}}>
-        
+            <Layout style={{ background: colorBgContainer, overflowY: "auto" }}>
               <Content
                 style={{
                   background: colorBgContainer,
                   padding: 0,
                   margin: 10,
                   minHeight: 300,
-                  maxHeight:450
+                  maxHeight: 450,
                 }}
               >
-                <Descriptions 
-                extra={<Button type="primary">Edit</Button>}
-                bordered 
-                title="User Info" 
-                 items={items} />
-                
+                { renderContent()}
               </Content>
             </Layout>
           </Layout>
