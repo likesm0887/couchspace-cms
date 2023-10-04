@@ -35,12 +35,13 @@ const useStyles = makeStyles((theme) => ({
 const CounselingInfo = () => {
     const [disableSaveBtn, setDisabledSaveBtn] = useState(true);
     const classes = useStyles();
+    const maximumFee = 10000;
     const counselingItems = [
-        { enabled: false, label: "個別諮商", fee: 0, time: 50, value: "IND_COUNSELING" },
+        // { enabled: false, label: "個別諮商", fee: 0, time: 50, value: "IND_COUNSELING" },
         // { enabled: false, label: "諮商90分鐘", fee: 0, time: 90, value: "IND_COUNSELING" }, // 0607: currently not support 90 min counseling
         { enabled: false, label: "初談", fee: 0, time: 10, value: "FIRST" },
         { enabled: false, label: "個別諮詢", fee: 0, time: 50, value: "IND_CONSULTATION" },
-        { enabled: false, label: "實體諮商", fee: 0, time: 0, value: "IN_PERSON" },
+        { enabled: false, label: "實體諮商", fee: 0, time: 50, value: "IN_PERSON" },
     ]
     const languagesItems = [
         { enabled: false, label: "中文", value: "zh" },
@@ -283,7 +284,7 @@ const CounselingInfo = () => {
             fullWidth={true}
             onClose={handleClose}
             value={"sm"}>
-            <DialogTitle id="alert-dialog-title">{"諮商項目設定"}</DialogTitle>
+            <DialogTitle id="alert-dialog-title">{"諮商項目設定(上限金額 10,000)"}</DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-description">
                     {consultingFees.map((item, index) => {
@@ -319,7 +320,7 @@ const CounselingInfo = () => {
                                             value={item.fee}
                                             onChange={(text) => {
                                                 var tempItems = consultingFees;
-                                                tempItems[index].fee = Number(text.target.value);
+                                                tempItems[index].fee = Number(text.target.value) <= maximumFee ? Number(text.target.value) : maximumFee;
                                                 setConsultingFees([...tempItems]);
                                                 setDisabledSaveBtn(false);
                                             }}
