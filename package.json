@@ -33,6 +33,7 @@
     "react-calendar": "^4.3.0",
     "react-cookies": "^0.1.1",
     "react-countup": "^6.4.2",
+    "react-cropper": "^2.3.3",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.42.0",
     "react-hot-toast": "^2.2.0",

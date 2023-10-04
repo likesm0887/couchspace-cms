@@ -1,35 +1,44 @@
 .PersonalInfo {
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    width: 100%;
-    border-width: 1px;
-    padding-left: 24px;
-    padding-right: 24px;
-    box-sizing: border-box;
-    border-style: solid;
-    border-color: #C7C7C7;
-    margin-right: auto;
-    display: block;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  border-width: 1px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+  border-style: solid;
+  border-color: #c7c7c7;
+  margin-right: auto;
+  display: block;
 }
 
 .PersonalInfo-Input {
-    margin-top: 200px;
+  margin-top: 200px;
 }
 
 .PersonalInfo img[src=""] {
-    display: none;
+  display: none;
 }
 
 .PersonalInfo img {
-    margin-left: 50px;
-    max-width: 300px;
-    width: auto;
-    height: auto;
+  margin-left: 50px;
+  max-width: 300px;
+  width: auto;
+  height: auto;
 }
 
 #the-count {
   float: right;
   padding: 0.1rem 0 0 0;
   font-size: 0.875rem;
+}
+.cropper-crop-box,
+.cropper-view-box {
+  border-radius: 50%;
+}
+
+.cropper-view-box {
+  box-shadow: 0 0 0 1px #39f;
+  outline: 0;
 }
