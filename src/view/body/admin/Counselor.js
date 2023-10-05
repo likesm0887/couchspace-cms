@@ -159,7 +159,7 @@ const Counselor = () => {
   ];
 
   const fetchData = async () => {
-    const result = await counselorService.getAllCounselorInfo();
+    const result = await counselorService.getAllCounselorInfo(false);
     console.log(result);
 
     const form = result.map((u) => {

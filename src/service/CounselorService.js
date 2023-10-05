@@ -55,12 +55,14 @@ export class CounselorService {
             });
     }
 
-    getAllCounselorInfo() {
-        console.log(this.token);
+    getAllCounselorInfo(isFilterUnVerify) {
+        console.log(this.adminToken);
         if (this.adminToken === undefined) {
             return;
         }
-        const api = this.base_url + "/api/v1/counselors/all";
+        console.log(isFilterUnVerify?"Y":"N")
+        const api = this.base_url + "/api/v1/counselors/all?isFilterUnVerify="+ (isFilterUnVerify?"Y":"N");
+     
         const requestOptions = {
             method: 'GET',
             headers: { "Authorization": this.adminToken, 'Content-Type': 'application/json' },
