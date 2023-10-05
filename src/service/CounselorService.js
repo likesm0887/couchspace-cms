@@ -5,6 +5,7 @@ export class CounselorService {
     constructor(base_url) {
         this.base_url = base_url;
         this.token = cookie.load("token_counselor");
+        this.adminToken = cookie.load("token");
         console.log("token_counselor cookie:" + this.token);
     }
     register(account, password) {
@@ -54,6 +55,61 @@ export class CounselorService {
             });
     }
 
+    getAllCounselorInfo() {
+        console.log(this.token);
+        if (this.adminToken === undefined) {
+            return;
+        }
+        const api = this.base_url + "/api/v1/counselors/all";
+        const requestOptions = {
+            method: 'GET',
+            headers: { "Authorization": this.adminToken, 'Content-Type': 'application/json' },
+        };
+
+        return fetch(api, requestOptions)
+            .then(res => res.json())
+            .then((result) => {
+                return result;
+            });
+    }
+    setCounselorVerify(id,verify) {
+        if (this.adminToken === undefined) {
+            return;
+        }
+        const api = this.base_url + "/api/v1/counselors/verify"
+        const requestOptions = {
+            method: 'POST',
+            headers: { "Authorization": this.adminToken, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                CounselorId:id,
+                Verify:verify
+            }),
+        };
+
+        return fetch(api, requestOptions)
+            .then(res => res.json())
+            .then(res => {
+                console.log("res", res);
+                return res;
+            });
+    }
+    getCounselorVerify(id){
+        console.log(this.token);
+        if (this.adminToken === undefined) {
+            return;
+        }
+        const api = this.base_url + "/api/v1/counselors/verify/"+id;
+        const requestOptions = {
+            method: 'GET',
+            headers: { "Authorization": this.adminToken, 'Content-Type': 'application/json' },
+        };
+
+        return fetch(api, requestOptions)
+            .then(res => res.json())
+            .then((result) => {
+                return result;
+            });
+    }
     updateCounselorInfo(counselorInfo) {
         if (this.token === undefined) {
             return;
@@ -107,7 +163,7 @@ export class CounselorService {
                 return res;
             });
     }
-    async checkAccountExist(account) {
+    checkAccountExist(account) {
         const api = this.base_url + "/api/v1/counselors/checkAccountExist";
         const requestOptions = {
             method: 'POST',
@@ -115,9 +171,13 @@ export class CounselorService {
             body: JSON.stringify({ Account: account }),
 
         }
-        return (await fetch(api, requestOptions)).text();
+        return fetch(api, requestOptions)
+            .then((res) => res.text())
+            .then((res) => {
+                return res;
+            });
     }
-    async upload(file) {
+    upload(file) {
         if (this.token === undefined) {
             return;
         }
@@ -130,6 +190,10 @@ export class CounselorService {
             headers: { "Authorization": this.token },
             body: data,
         }
-        return (await fetch(api, requestOptions));
+        return fetch(api, requestOptions)
+            .then((res) => res.json())
+            .then((res) => {
+                return res;
+            });
     }
 }

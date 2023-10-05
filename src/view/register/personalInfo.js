@@ -1,4 +1,4 @@
-import { FormHelperText, Grid, IconButton, TextField } from "@mui/material";
+import { FormHelperText, Grid, IconButton, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import "./PersonalInfo.css";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
@@ -10,6 +10,9 @@ import { forwardRef, useImperativeHandle } from "react";
 import { checkEmail, checkPhone } from "../../common/method";
 import { Counselor, counselorInfo } from "../../dataContract/counselor";
 import { counselorService } from "../../service/ServicePool";
+import Cropper from "react-cropper";
+import "cropperjs/dist/cropper.css";
+
 const useStyles = makeStyles((theme) => ({
     root: {
         '& > *': {
@@ -26,8 +29,31 @@ const PersonalInfo = forwardRef((props, ref) => {
     const cities = ["基隆市", "台北市", "新北市", "桃園縣", "新竹市", "新竹縣", "苗栗縣", "台中市", "彰化縣", "南投縣", "雲林縣", "嘉義市", "嘉義縣", "台南市", "高雄市", "屏東縣", "台東縣", "花蓮縣", "宜蘭縣", "澎湖縣", "金門縣", "連江縣", "海外"];
 
     const upload = async (event) => {
-        setPhoto(event.target.files[0]);
+        if (event.target.files) {
+            var binaryData = [];
+            binaryData.push(event.target.files[0]);
+            setTempPhoto(URL.createObjectURL(new File(binaryData, "newAvatar.png", { type: "image/png" })));
+            setIsOpen(true);
+        }
     }
+    const [isOpen, setIsOpen] = useState(false);
+    const [tempPhoto, setTempPhoto] = useState(null);
+    const [bindingPhoto, setBindingPhoto] = useState(null);
+    const getCropData = async () => {
+        if (cropper) {
+            const file = await fetch(cropper.getCroppedCanvas().toDataURL())
+                .then((res) => res.blob())
+                .then((blob) => {
+                    return new File([blob], "newAvatar.png", { type: "image/png" });
+                });
+            if (file) {
+                console.log(file);
+                setPhoto(file);
+                setBindingPhoto(URL.createObjectURL(file));
+            }
+        }
+    };
+    const [cropper, setCropper] = useState(null);
     // setting columns
     const [firstName, setFirstName] = useState(counselorInfo.UserName.Name.FirstName);
     const [lastName, setLastName] = useState(counselorInfo.UserName.Name.LastName);
@@ -82,18 +108,18 @@ const PersonalInfo = forwardRef((props, ref) => {
                 setErrorLastName("請輸入姓氏");
                 output = false;
             }
-            if (address === "") {
-                setErrorAddress("請輸入居住地址");
-                output = false;
-            }
+            // if (address === "") {
+            //     setErrorAddress("請輸入居住地址");
+            //     output = false;
+            // }
             if (selectedCity === "請選擇縣市") {
                 setErrorCity("請選擇居住地區");
                 output = false;
             }
-            if (phone === "") {
-                setErrorPhone("請輸入聯絡電話");
-                output = false;
-            }
+            // if (phone === "") {
+            //     setErrorPhone("請輸入聯絡電話");
+            //     output = false;
+            // }
             if (email === "" || !checkEmail(email)) {
                 setErrorEmail("請輸入有效的電子信箱");
                 output = false;
@@ -135,10 +161,47 @@ const PersonalInfo = forwardRef((props, ref) => {
             return output;
         }
     }))
-
+    const handleClose = () => {
+        setIsOpen(false);
+    }
+    const handleAccept = () => {
+        getCropData();
+        setIsOpen(false);
+    }
+    const createDialog = () => {
+        return <Dialog
+            open={isOpen}
+            fullWidth={true}
+            onClose={handleClose}
+            value={"sm"}>
+            <DialogTitle id="alert-dialog-title">{"裁切圖片"}</DialogTitle>
+            <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                    <Cropper
+                        src={tempPhoto}
+                        style={{ height: 400, width: 400 }}
+                        initialAspectRatio={1}
+                        cropBoxResizable={false}
+                        minCropBoxHeight={200}
+                        minCropBoxWidth={200}
+                        guides={false}
+                        checkOrientation={false}
+                        onInitialized={(instance) => {
+                            setCropper(instance);
+                        }}
+                    />
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <button className={"acceptButton"} onClick={handleAccept} color="primary" autoFocus>
+                    {"剪裁完成"}
+                </button>
+            </DialogActions>
+        </Dialog>
+    }
     return (
         <div className={"PersonalInfo"}>
-            <Typography style={{ marginTop: 10 }} variant="h6" gutterBottom>
+            <Typography style={{ marginTop: 10, fontSize: 20 }} gutterBottom>
                 填寫個人資料
             </Typography>
 
@@ -195,7 +258,7 @@ const PersonalInfo = forwardRef((props, ref) => {
                         <FormHelperText error={errorGender !== ""}>{errorGender}</FormHelperText>
                     </div>
                 </Grid>
-                <Grid item xs={12}>
+                {/* <Grid item xs={12}>
                     <TextField
                         required
                         id="address1"
@@ -224,7 +287,7 @@ const PersonalInfo = forwardRef((props, ref) => {
                         error={errorPhone !== ""}
                         helperText={errorPhone}
                     />
-                </Grid>
+                </Grid> */}
 
                 <Grid item xs={12} sm={6}>
                     <TextField
@@ -251,7 +314,7 @@ const PersonalInfo = forwardRef((props, ref) => {
                                 <IconButton color="primary" aria-label="upload picture" component="span">
                                     <PhotoCamera />
                                 </IconButton>
-                                <img src={photo} alt=""></img>
+                                <img style={{ borderRadius: "50%" }} src={bindingPhoto} alt=""></img>
                             </label>
                         </div>
                         <FormHelperText error={errorPhoto !== ""}>{errorPhoto}</FormHelperText>
@@ -294,6 +357,7 @@ const PersonalInfo = forwardRef((props, ref) => {
                     </div>
                 </Grid>
             </Grid>
+            {createDialog()}
         </div>
 
     );

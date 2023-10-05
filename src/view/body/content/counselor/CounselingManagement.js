@@ -53,8 +53,8 @@ const CounselingManagement = () => {
     const [isDailyHourOpen, setIsDailyHourOpen] = useState(false);
     const [isNeedSort, setIsNeedSort] = useState(false);
     const [consultHours, setConsultHours] = useState(businessHours);
-    const [startTime, setStartTime] = useState(null);
-    const [endTime, setEndTime] = useState(null);
+    const [startTime, setStartTime] = useState(dayjs('00:00', 'HH:mm'));
+    const [endTime, setEndTime] = useState(dayjs('00:00', 'HH:mm'));
     const [selectedBusiness, setSelectedBusiness] = useState(null);
     const bubbleSortDailyHour = () => {
         var output = overrideTimes;
@@ -195,14 +195,14 @@ const CounselingManagement = () => {
         tempItems[selectedBusiness].periods.push({ startTime: startTime.format("HH:mm"), endTime: endTime.format("HH:mm") });
         tempItems = bubbleSortPeriods();
         setConsultHours([...tempItems]);
-        setStartTime(null);
-        setEndTime(null);
+        setStartTime(dayjs('00:00', 'HH:mm'));
+        setEndTime(dayjs('00:00', 'HH:mm'));
         setDisabledSaveBtn(false);
     }
     const handleCancel = () => {
         setIsOpen(false);
-        setStartTime(null);
-        setEndTime(null);
+        setStartTime(dayjs('00:00', 'HH:mm'));
+        setEndTime(dayjs('00:00', 'HH:mm'));
     }
     const handleClose = (event, reason) => {
         if (reason && reason === "backdropClick")
@@ -376,8 +376,8 @@ const CounselingManagement = () => {
                 <DialogContentText id="alert-dialog-description">
                     <div>
                         {Array.from({ length: 24 }, (_, index) => (
-                            <div>
-                                <label key={index}>
+                            <div key={index}>
+                                <label>
                                     <input
                                         type="checkbox"
                                         checked={checkedHours.includes(index)}
@@ -402,7 +402,7 @@ const CounselingManagement = () => {
     }
     return (
         <div className={"CounselingManagement"} style={{ height: '100%', overflowY: 'scroll' }}>
-            <Typography style={{ marginTop: 10 }} variant="h6" gutterBottom>
+            <Typography style={{ marginTop: 10, fontSize: 20 }} gutterBottom>
                 諮商時段管理
             </Typography>
             <Button
@@ -454,7 +454,7 @@ const CounselingManagement = () => {
                 <Grid item xs={12}>
                     {overrideTimes.map((overrideTime, index) => {
                         return (
-                            <div style={{ marginBottom: 10 }}>
+                            <div style={{ marginBottom: 10 }} key={index}>
                                 <div>
                                     <span>{overrideTime.DayTime}</span>
                                     <Tooltip title="刪除" placement="top" arrow={true}>

@@ -45,3 +45,11 @@ export const checkPhone = (phone) => {
   return true;
 
 }
+
+export const checkLines = (inputText, splitChar, count) => {
+  let splitText = inputText.split(splitChar);
+  if (splitText.length > count) {
+    return false;
+  }
+  return true;
+}

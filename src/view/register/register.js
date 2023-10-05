@@ -13,6 +13,8 @@ import { counselorService } from '../../service/ServicePool';
 import { AppointmentTime, counselorInfo } from '../../dataContract/counselor';
 import BusinessInfo from './businessInfo';
 import CertificateInfo from './certificateInfo';
+import "./Register.css";
+import { showToast, toastType } from '../../common/method';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -29,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
     instructions: {
         marginTop: theme.spacing(1),
         marginBottom: theme.spacing(1),
-    },
+    }
 }));
 
 function getSteps() {
@@ -38,6 +40,7 @@ function getSteps() {
 
 
 export function Register() {
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
     const classes = useStyles();
@@ -84,7 +87,9 @@ export function Register() {
             newSkipped.delete(activeStep);
         }
         if (activeStep === 3) {
-            finishRegister();
+            setLoading(true);
+            await finishRegister();
+            setLoading(false);
         }
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
         setSkipped(newSkipped);
@@ -109,20 +114,46 @@ export function Register() {
         counselorInfo.clearAll = null;
     };
     const finishRegister = async () => {
-        console.log("finish register");
-        let appointmentTime = new AppointmentTime();
-        appointmentTime.BusinessTimes = counselorInfo.BusinessTimes;
-        appointmentTime.OverrideTimes = counselorInfo.OverrideTimes;
-        var result = await counselorService.register(account, password);
-        console.log("result", result);
-        result = await counselorService.login(account, password);
-        result = await counselorService.upload(counselorInfo.Photo);
-        result = await result.json();
-        counselorInfo.updatePhoto = result.Photo;
-        result = await counselorService.updateCounselorInfo(counselorInfo);
-        console.log("appointmentTime", JSON.stringify(appointmentTime));
-        result = await counselorService.setAppointmentTime(appointmentTime);
-        console.log("result", result);
+        try {
+            let appointmentTime = new AppointmentTime();
+            appointmentTime.BusinessTimes = counselorInfo.BusinessTimes;
+            appointmentTime.OverrideTimes = counselorInfo.OverrideTimes;
+
+            // step1: Register
+            var result = await counselorService.register(account, password);
+            console.log("Register", result);
+            if (result.status !== 200) {
+                showToast(toastType.error, "註冊失敗");
+                return;
+            }
+
+            // step2: Login to get token
+            result = await counselorService.login(account, password);
+
+            // step3: Upload Photo
+            result = await counselorService.upload(counselorInfo.Photo);
+            counselorInfo.updatePhoto = result.Photo;
+
+            // step4: Update Counselor Info and AppointmentTime
+            let [res1, res2] = await Promise.all([
+                counselorService.updateCounselorInfo(counselorInfo),
+                counselorService.setAppointmentTime(appointmentTime),
+            ]);
+            console.log("Update Counselor Info", res1);
+            console.log("Update AppointmentTime", res2);
+            if (!res1.success) {
+                showToast(toastType.error, "建立諮商師資料失敗");
+                return;
+            }
+            if (!res2.success) {
+                showToast(toastType.error, "建立諮商時段失敗");
+                return;
+            }
+            console.log("register finish");
+        }
+        catch (err) {
+            showToast(toastType.error, `註冊失敗，請聯繫客服 (${err})`);
+        }
     }
     function getStepContent(step) {
         console.log("step", step);
@@ -141,52 +172,59 @@ export function Register() {
     }
 
     return (
-        <div className={classes.root}>
-            <Stepper activeStep={activeStep}>
-                {steps.map((label, index) => {
-                    const stepProps = {};
-                    const labelProps = {};
+        <div>
+            {loading ?
+                <div className="loader-container">
+                    <div className="spinner"></div>
+                    <div style={{ font: 'caption', fontSize: 40, color: 'white' }}>{"資料創建中..."}</div>
+                </div> : null}
+            <div className={classes.root}>
+                <Stepper activeStep={activeStep}>
+                    {steps.map((label, index) => {
+                        const stepProps = {};
+                        const labelProps = {};
 
-                    if (isStepSkipped(index)) {
-                        stepProps.completed = false;
-                    }
-                    return (
-                        <Step key={label} {...stepProps}>
-                            <StepLabel {...labelProps}>{label}</StepLabel>
-                        </Step>
-                    );
-                })}
-            </Stepper>
-            <div>
-                {activeStep === (steps.length - 1) ? (
-                    <div>
-                        <Typography className={classes.instructions}>
-                            填寫已完成，待審核完畢，會再與您聯絡
-                        </Typography>
-                        <Button onClick={handleReset} className={classes.button} variant="contained" color='primary'>
-                            完成
-                        </Button>
-                    </div>
-                ) : (
-                    <div>
-                        <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography>
+                        if (isStepSkipped(index)) {
+                            stepProps.completed = false;
+                        }
+                        return (
+                            <Step key={label} {...stepProps}>
+                                <StepLabel {...labelProps}>{label}</StepLabel>
+                            </Step>
+                        );
+                    })}
+                </Stepper>
+                <div>
+                    {activeStep === (steps.length - 1) ? (
                         <div>
-                            <Button onClick={handleBack} className={classes.button}>
-                                {activeStep === 0 ? '返回' : '上一步'}
-                            </Button>
-
-
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={handleNext}
-                                className={classes.button}
-                            >
-                                {activeStep === steps.length - 1 ? '完成' : '下一步'}
+                            <Typography className={classes.instructions}>
+                                填寫已完成，待審核完畢，會再與您聯絡
+                            </Typography>
+                            <Button onClick={handleReset} className={classes.button} variant="contained" color='primary'>
+                                完成
                             </Button>
                         </div>
-                    </div>
-                )}
+                    ) : (
+                        <div>
+                            <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography>
+                            <div>
+                                <Button onClick={handleBack} className={classes.button}>
+                                    {activeStep === 0 ? '返回' : '上一步'}
+                                </Button>
+
+
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleNext}
+                                    className={classes.button}
+                                >
+                                    {activeStep === steps.length - 1 ? '完成' : '下一步'}
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

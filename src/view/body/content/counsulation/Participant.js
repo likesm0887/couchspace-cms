@@ -65,7 +65,7 @@ const Participant = ({ participant }) => {
   return (
     <div className="participant" style={{ flex: 1, alignItems: 'center', justifyItems: 'center', height: 500 }}>
       <video style={{ flex: 1, height: "100%" }} ref={videoRef} autoPlay={true} />
-      <audio ref={audioRef} autoPlay={true} muted={true} />
+      <audio ref={audioRef} autoPlay={true} muted={false} />
     </div>
   );
 };

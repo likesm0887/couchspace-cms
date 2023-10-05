@@ -18,7 +18,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Counselor, counselorInfo, Expertise } from '../../../../dataContract/counselor';
 import { useEffect, useRef } from "react";
 import { counselorService } from "../../../../service/ServicePool";
-import { showToast, toastType } from "../../../../common/method";
+import { checkLines, showToast, toastType } from "../../../../common/method";
 const useStyles = makeStyles((theme) => ({
     root: {
         '& > *': {
@@ -35,12 +35,13 @@ const useStyles = makeStyles((theme) => ({
 const CounselingInfo = () => {
     const [disableSaveBtn, setDisabledSaveBtn] = useState(true);
     const classes = useStyles();
+    const maximumFee = 10000;
     const counselingItems = [
-        { enabled: false, label: "個別諮商", fee: 0, time: 50, value: "IND_COUNSELING" },
+        // { enabled: false, label: "個別諮商", fee: 0, time: 50, value: "IND_COUNSELING" },
         // { enabled: false, label: "諮商90分鐘", fee: 0, time: 90, value: "IND_COUNSELING" }, // 0607: currently not support 90 min counseling
         { enabled: false, label: "初談", fee: 0, time: 10, value: "FIRST" },
         { enabled: false, label: "個別諮詢", fee: 0, time: 50, value: "IND_CONSULTATION" },
-        { enabled: false, label: "實體諮商", fee: 0, time: 0, value: "IN_PERSON" },
+        { enabled: false, label: "實體諮商", fee: 0, time: 50, value: "IN_PERSON" },
     ]
     const languagesItems = [
         { enabled: false, label: "中文", value: "zh" },
@@ -123,7 +124,7 @@ const CounselingInfo = () => {
         let tempConsultingFees = counselingItems;
         let tempLanguages = languagesItems;
         let tempExpertiseList = [];
-        counselorInfo.ConsultingFees.map((consultingFee, index) => {
+        counselorInfo.ConsultingFees?.map((consultingFee, index) => {
             let tempIndex = tempConsultingFees.findIndex((item) => item.label === consultingFee.Type.Label);
             if (tempIndex !== -1) {
                 tempConsultingFees[tempIndex].enabled = true;
@@ -131,7 +132,7 @@ const CounselingInfo = () => {
             }
             return tempConsultingFees;
         });
-        counselorInfo.Languages.map((language, index) => {
+        counselorInfo.Languages?.map((language, index) => {
             let tempIndex = tempLanguages.findIndex((item) => item.label === language);
             if (tempIndex !== -1) {
                 tempLanguages[tempIndex].enabled = true;
@@ -160,15 +161,15 @@ const CounselingInfo = () => {
         ClearAllError();
         var output = true;
 
-        if (languages.every((language) => language.enabled === false)) {
+        if (languages?.every((language) => language.enabled === false)) {
             setErrorLanguages("請選擇語言");
             output = false;
         }
-        if (education === "") {
+        if (education.trim() === "") {
             setErrorEducation("請輸入學歷");
             output = false;
         }
-        if (seniority === "") {
+        if (seniority.trim() === "") {
             setErrorSeniority("請輸入諮商經歷");
             output = false;
         }
@@ -192,7 +193,7 @@ const CounselingInfo = () => {
             setErrorLicenseTitle("請輸入證照名稱");
             output = false;
         }
-        if (expertisesInfo.length === 0) {
+        if (expertisesInfo.trim() === "") {
             setErrorExpertisesInfo("請輸入專長");
             output = false;
         }
@@ -208,9 +209,9 @@ const CounselingInfo = () => {
         if (output) {
             let info = new Counselor();
             let backupInfo = counselorInfo;
-            info.Languages = languages.filter((language) => language.enabled === true).map((item) => item.label);
-            info.Educational = education;
-            info.Seniority = seniority;
+            info.Languages = languages?.filter((language) => language.enabled === true).map((item) => item.label);
+            info.Educational = education.trim();
+            info.Seniority = seniority.trim();
             info.Position = position;
             info.Accumulative = accumulative;
             info.License.LicenseNumber = licenseNumber;
@@ -283,7 +284,7 @@ const CounselingInfo = () => {
             fullWidth={true}
             onClose={handleClose}
             value={"sm"}>
-            <DialogTitle id="alert-dialog-title">{"諮商項目設定"}</DialogTitle>
+            <DialogTitle id="alert-dialog-title">{"諮商項目設定(上限金額 10,000)"}</DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-description">
                     {consultingFees.map((item, index) => {
@@ -319,7 +320,7 @@ const CounselingInfo = () => {
                                             value={item.fee}
                                             onChange={(text) => {
                                                 var tempItems = consultingFees;
-                                                tempItems[index].fee = Number(text.target.value);
+                                                tempItems[index].fee = Number(text.target.value) <= maximumFee ? Number(text.target.value) : maximumFee;
                                                 setConsultingFees([...tempItems]);
                                                 setDisabledSaveBtn(false);
                                             }}
@@ -339,7 +340,7 @@ const CounselingInfo = () => {
     }
     return (
         <div className={"CounselingInfo"} style={{ height: '100%', overflowY: 'scroll' }}>
-            <Typography style={{ marginTop: 10 }} variant="h6" gutterBottom>
+            <Typography style={{ marginTop: 10, fontSize: 20 }} gutterBottom>
                 我的諮商資料
             </Typography>
             <Button
@@ -358,15 +359,22 @@ const CounselingInfo = () => {
                         required
                         id="education"
                         name="education"
-                        label="學歷"
+                        label="學歷(最多 3 項，請換行輸入)"
                         fullWidth
                         autoComplete="family-name"
                         variant="standard"
                         placeholder="couchspace大學 心理所 碩士"
                         value={education}
-                        onChange={(text) => setEducation(text.target.value.trim())}
+                        onChange={(text) => {
+                            if (checkLines(text.target.value, '\n', 3)) {
+                                setEducation(text.target.value)
+                            }
+                        }}
                         error={errorEducation !== ""}
                         helperText={errorEducation}
+                        multiline={true}
+                        maxRows={3}
+                        minRows={1}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -374,15 +382,22 @@ const CounselingInfo = () => {
                         required
                         id="seniority"
                         name="seniority"
-                        label="經歷"
+                        label="經歷(最多 5 項，請換行輸入)"
                         fullWidth
                         autoComplete="family-name"
                         variant="standard"
                         placeholder="couchspace診所 諮商師"
                         value={seniority}
-                        onChange={(text) => setSeniority(text.target.value.trim())}
+                        onChange={(text) => {
+                            if (checkLines(text.target.value, '\n', 5)) {
+                                setSeniority(text.target.value)
+                            }
+                        }}
                         error={errorSeniority !== ""}
                         helperText={errorSeniority}
+                        multiline={true}
+                        maxRows={5}
+                        minRows={1}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -421,7 +436,7 @@ const CounselingInfo = () => {
                 <Grid item xs={12}>
                     <div>
                         <span style={{ color: errorLanguages === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"語言 *"}</span>
-                        {languages.map((item, index) => {
+                        {languages?.map((item, index) => {
                             return (
                                 <span style={{ marginLeft: 10 }} key={index}>
                                     <Checkbox checked={item.enabled} onClick={() => {
@@ -494,11 +509,11 @@ const CounselingInfo = () => {
                                 style={{ color: 'rgba(0,0,0,0.6)', resize: 'none', width: '100%', height: 100 }}
                                 onChange={(text) => setExpertisesInfo(text.target.value)}
                                 value={expertisesInfo}
-                                maxLength={30}
+                                maxLength={300}
                             ></textarea>
                             <div id="the-count">
                                 <span id="current">{expertisesInfo.length}</span>
-                                <span id="maximum">/ 30</span>
+                                <span id="maximum">/ 300</span>
                             </div>
                         </div>
                         <FormHelperText error={errorExpertisesInfo !== ""}>{errorExpertisesInfo}</FormHelperText>

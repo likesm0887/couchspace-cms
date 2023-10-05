@@ -207,10 +207,19 @@ export class Counselor {
         this.License = info;
     }
     set updateBusinessTimes(businessTimes: BusinessTime[]) {
-        this.BusinessTimes = businessTimes;
+        if (businessTimes == null) return;
+        this.BusinessTimes = [];
+        for (let i = 0; i < businessTimes.length; i++) {
+            this.BusinessTimes.push(businessTimes[i]);
+        }
+
     }
     set updateOverrideTimes(overrideTimes: OverrideTime[]) {
-        this.OverrideTimes = overrideTimes;
+        if (overrideTimes == null) return;
+        this.OverrideTimes = [];
+        for (let i = 0; i < overrideTimes.length; i++) {
+            this.OverrideTimes.push(overrideTimes[i]);
+        }
     }
     set clearAll(info: Counselor) {
         this.ID = "";
