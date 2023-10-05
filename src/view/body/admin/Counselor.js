@@ -288,7 +288,7 @@ const Counselor = () => {
       {
         key: "20",
         label: "語言",
-        children: currentSelectCounselor.Languages.map((r) => {
+        children: currentSelectCounselor?.Languages?.map((r) => {
           if (r == "EN") {
             return <Tag color="magenta">英文</Tag>;
           }
