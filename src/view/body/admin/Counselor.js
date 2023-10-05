@@ -8,6 +8,7 @@ import {
   Tag,
   Modal,
   Menu,
+  Tabs,
   Image,
   Calendar,
   Space,
@@ -61,7 +62,12 @@ const DrawerForm = ({ id, visible, onClose, record, callback }) => {
     >
       <label>Membership:</label>
       <br />
-      <Switch checked={verify} onChange={changeVerify} />
+      <Switch
+        checkedChildren="已認證"
+        unCheckedChildren="未認證"
+        checked={verify}
+        onChange={changeVerify}
+      />
       <Space>
         <Button onClick={handleSubmit}>{record ? "Save" : "儲存"}</Button>
       </Space>
@@ -80,7 +86,7 @@ const Counselor = () => {
   const [active, setActive] = useState(0);
   const [currentSelectCounselorId, setCurrentSelectCounselorId] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [detail, setDetail] = useState("");
 
   const {
     token: { colorBgContainer },
@@ -174,19 +180,23 @@ const Counselor = () => {
         expertises: u.Expertises.map((r) => r.Skill),
         photo: u.Photo == "" ? img_account : u.Photo,
         account: u.Email,
-        isverify: u.IsVerify ? "Y" : "N",
+        isverify: u.IsVerify ? "已認證" : "未認證",
       };
     });
     setUserData(form);
     setUserCount(result.length);
   };
   const [currentSelectCounselor, setCurrentSelectCounselor] = useState({});
+
   const openModal = async (id) => {
-    console.log(id);
     const res = await counselorService.getCounselorInfoById(id);
+    setCurrentSelectCounselor(res);
+    createDescription(res);
+    console.log(id);
+  
     setIsModalOpen(true);
     console.log(res);
-    setCurrentSelectCounselor(res);
+   
   };
   useEffect(() => {
     fetchData();
@@ -210,219 +220,210 @@ const Counselor = () => {
     setIsModalOpen(false);
   };
   const handleMenuClick = (e) => {
-    console.log(e.key);
-    setSelectedCategory(e.key);
+    createDescription();
   };
   const items2 = [
     {
       key: `information`,
       icon: React.createElement(UserOutlined),
       label: `個人資訊`,
+      children: (
+        <Descriptions
+          extra={<Button type="primary">Edit</Button>}
+          bordered
+          title="個人資訊"
+          items={detail}
+        />
+      ),
     },
     {
       key: `appointmentTime`,
       icon: React.createElement(NotificationOutlined),
       label: `預約時間`,
+      children:(<div></div>)
     },
     {
       key: `appointments`,
       icon: React.createElement(LaptopOutlined),
       label: `預約`,
+      children:(<div></div>)
     },
   ];
 
-  const onPanelChange = (value, mode) => {
-    console.log(value.format("YYYY-MM-DD"), mode);
-  };
-  const renderContent = () => {
-    console.log(selectedCategory);
-    if (selectedCategory === "information") {
-      const items = [
-        {
-          key: "3",
-          label: "照片",
-          span: 2,
-          children: (
-            <Image src={currentSelectCounselor.Photo} height={100}></Image>
-          ),
-        },
-        {
-          key: "1",
-          label: "姓名",
-          children:
-            currentSelectCounselor.UserName.Name.LastName +
-            currentSelectCounselor.UserName.Name.FirstName,
-        },
-        {
-          key: "2",
-          label: "暱稱",
-          children: currentSelectCounselor.UserName.NickName,
-        },
+  
+  const createDescription = (currentSelectCounselor) => {
+    setDetail([
+      {
+        key: "3",
+        label: "照片",
+        span: 2,
+        children: (
+          <Image src={currentSelectCounselor.Photo} height={100}></Image>
+        ),
+      },
+      {
+        key: "1",
+        label: "姓名",
+        children:
+          currentSelectCounselor.UserName.Name.LastName +
+          currentSelectCounselor.UserName.Name.FirstName,
+      },
+      {
+        key: "2",
+        label: "暱稱",
+        children: currentSelectCounselor.UserName.NickName,
+      },
 
-        {
-          key: "3",
-          label: "Email",
-          children: currentSelectCounselor.Email,
-        },
-        {
-          key: "5",
-          label: "手機",
+      {
+        key: "3",
+        label: "Email",
+        children: currentSelectCounselor.Email,
+      },
+      {
+        key: "5",
+        label: "手機",
 
-          children: currentSelectCounselor.Phone,
-        },
-        {
-          key: "20",
-          label: "語言",
-          children: currentSelectCounselor.Languages.map((r) => {
-            if (r == "EN") {
-              return <Tag color="magenta">英文</Tag>;
-            }
-            if (r == "ZH") {
-              return <Tag color="magenta">中文</Tag>;
-            }
-            if (r == "NAN") {
-              return <Tag color="magenta">台語</Tag>;
-            }
-            if (r == "YUE") {
-              return <Tag color="magenta">粵語</Tag>;
-            }
-          }),
-        },
-        {
-          key: "13",
-          label: "地點",
-          children: currentSelectCounselor.Location,
-        },
-        {
-          key: "8",
-          label: "學歷",
+        children: currentSelectCounselor.Phone,
+      },
+      {
+        key: "20",
+        label: "語言",
+        children: currentSelectCounselor.Languages.map((r) => {
+          if (r == "EN") {
+            return <Tag color="magenta">英文</Tag>;
+          }
+          if (r == "ZH") {
+            return <Tag color="magenta">中文</Tag>;
+          }
+          if (r == "NAN") {
+            return <Tag color="magenta">台語</Tag>;
+          }
+          if (r == "YUE") {
+            return <Tag color="magenta">粵語</Tag>;
+          }
+        }),
+      },
+      {
+        key: "13",
+        label: "地點",
+        children: currentSelectCounselor.Location,
+      },
+      {
+        key: "8",
+        label: "學歷",
 
-          children: currentSelectCounselor.Educational,
-        },
-        {
-          key: "10",
-          label: "職稱",
-          children: currentSelectCounselor.Position,
-        },
-        {
-          key: "7",
-          label: "經歷",
+        children: currentSelectCounselor.Educational,
+      },
+      {
+        key: "10",
+        label: "職稱",
+        children: currentSelectCounselor.Position,
+      },
+      {
+        key: "7",
+        label: "經歷",
 
-          children: currentSelectCounselor.Seniority,
-        },
-        {
-          key: "14",
-          label: "從業時間",
-          children: currentSelectCounselor.Accumulative + "+",
-        },
+        children: currentSelectCounselor.Seniority,
+      },
+      {
+        key: "14",
+        label: "從業時間",
+        children: currentSelectCounselor.Accumulative + "+",
+      },
 
-        {
-          key: "6",
-          label: "認證狀態",
+      {
+        key: "6",
+        label: "認證狀態",
 
-          children: (
-            <Badge
-              status="processing"
-              text={currentSelectCounselor.isVerify ? "已認證" : "未認證"}
-            />
-          ),
-        },
-        {
-          key: "9",
-          label: "機構資訊",
-
-          children: currentSelectCounselor.InstitutionTemp,
-        },
-
-        {
-          key: "16",
-          label: "服務類別",
-          children: currentSelectCounselor.ConsultingFees.map((r) => {
-            return (
-              <Tag color="blue">
-                {r.Type.Label}
-                {r.Time}分鐘{r.Fee}元<br />
-              </Tag>
-            );
-          }),
-          span: 3,
-        },
-        {
-          key: "17",
-          label: "專長",
-          children: currentSelectCounselor.Expertises.map((r) => {
-            return (
-              <Tag color="green">
-                {r.Skill}
-                <br />
-              </Tag>
-            );
-          }),
-        },
-        {
-          key: "18",
-          label: "證照",
-          children: (
-            <>
-              <Tag color='purple'>
-                發照單位:{currentSelectCounselor.License.LicenseIssuing}
-              </Tag>
-              <Tag color='purple'>
-                證照號碼:{currentSelectCounselor.License.LicenseNumber}
-              </Tag>
-              <Tag color='purple'>
-                證照名稱:{currentSelectCounselor.License.LicenseTitle}
-              </Tag>
-            </>
-          ),
-        },
-        {
-          key: "19",
-          label: "性別",
-          children: currentSelectCounselor.Gender == "MALE" ? "男" : "女",
-        },
-
-        {
-          key: "10",
-          label: "地址",
-          children: currentSelectCounselor.Address,
-          span: 3,
-        },
-        {
-          key: "15",
-          label: "專長描述",
-          children: currentSelectCounselor.ExpertisesInfo,
-          span: 3,
-        },
-        {
-          key: "11",
-          label: "自我介紹(簡短)",
-          span: 3,
-          children: currentSelectCounselor.ShortIntroduction,
-        },
-        {
-          key: "12",
-          label: "自我介紹(長)",
-          span: 3,
-          children: currentSelectCounselor.LongIntroduction,
-        },
-      ];
-      console.log(selectedCategory);
-      return (
-        <div>
-          <Descriptions
-            extra={<Button type="primary">Edit</Button>}
-            bordered
-            title="個人資訊"
-            items={items}
+        children: (
+          <Badge
+            status="processing"
+            text={currentSelectCounselor.isVerify ? "已認證" : "未認證"}
           />
-        </div>
-      );
-    } else if (selectedCategory === "appointments") {
-      return <Calendar onPanelChange={onPanelChange}></Calendar>;
-    }
-    // Add more conditions for other menu items if needed
+        ),
+      },
+      {
+        key: "9",
+        label: "機構資訊",
+
+        children: currentSelectCounselor.InstitutionTemp,
+      },
+
+      {
+        key: "16",
+        label: "服務類別",
+        children: currentSelectCounselor.ConsultingFees.map((r) => {
+          return (
+            <Tag color="blue">
+              {r.Type.Label}
+              {r.Time}分鐘{r.Fee}元<br />
+            </Tag>
+          );
+        }),
+        span: 3,
+      },
+      {
+        key: "17",
+        label: "專長",
+        children: currentSelectCounselor.Expertises.map((r) => {
+          return (
+            <Tag color="green">
+              {r.Skill}
+              <br />
+            </Tag>
+          );
+        }),
+      },
+      {
+        key: "18",
+        label: "證照",
+        children: (
+          <>
+            <Tag color="purple">
+              發照單位:{currentSelectCounselor.License.LicenseIssuing}
+            </Tag>
+            <Tag color="purple">
+              證照號碼:{currentSelectCounselor.License.LicenseNumber}
+            </Tag>
+            <Tag color="purple">
+              證照名稱:{currentSelectCounselor.License.LicenseTitle}
+            </Tag>
+          </>
+        ),
+      },
+      {
+        key: "19",
+        label: "性別",
+        children: currentSelectCounselor.Gender == "MALE" ? "男" : "女",
+      },
+
+      {
+        key: "10",
+        label: "地址",
+        children: currentSelectCounselor.Address,
+        span: 3,
+      },
+      {
+        key: "15",
+        label: "專長描述",
+        children: currentSelectCounselor.ExpertisesInfo,
+        span: 3,
+      },
+      {
+        key: "11",
+        label: "自我介紹(簡短)",
+        span: 3,
+        children: currentSelectCounselor.ShortIntroduction,
+      },
+      {
+        key: "12",
+        label: "自我介紹(長)",
+        span: 3,
+        children: currentSelectCounselor.LongIntroduction,
+      },
+    ]);
   };
+
   return (
     <>
       <Statistic
@@ -451,29 +452,13 @@ const Counselor = () => {
       >
         <Layout>
           <Layout>
-            <Sider width={200} style={{ background: colorBgContainer }}>
-              <Menu
-                onClick={handleMenuClick}
-                mode="inline"
-                defaultSelectedKeys={["0"]}
-                defaultOpenKeys={["information"]}
-                style={{ height: "100%", borderRight: 0 }}
-                items={items2}
-              />
-            </Sider>
-            <Layout style={{ background: colorBgContainer, overflowY: "auto" }}>
-              <Content
-                style={{
-                  background: colorBgContainer,
-                  padding: 0,
-                  margin: 10,
-                  minHeight: 400,
-                  maxHeight: 400,
-                }}
-              >
-                {renderContent()}
-              </Content>
-            </Layout>
+            <Tabs
+              defaultActiveKey={'information'}
+              onChange={handleMenuClick}
+              tabPosition="left"
+              style={{ height: "480px", borderRight: 0, overflowY: "auto", background: colorBgContainer }}
+              items={items2}
+            />
           </Layout>
         </Layout>
       </Modal>
