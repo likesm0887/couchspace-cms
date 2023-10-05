@@ -154,7 +154,7 @@ const Banner = () => {
       return {
         key: e.Seq,
         imageUrl: e.ImageUrl,
-        linkSourceID: course.CourseName,
+        linkSourceID: course?.CourseName,
         seq: e.Seq,
       };
     });
