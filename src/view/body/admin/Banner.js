@@ -150,7 +150,7 @@ const Banner = () => {
     });
 
     let banner = commonData.NewBanners.map((e) => {
-      let course = courses.find((c) => c.CourseID === e.LinkSourceID);
+      let course = courses?.find((c) => c.CourseID === e.LinkSourceID);
       return {
         key: e.Seq,
         imageUrl: e.ImageUrl,

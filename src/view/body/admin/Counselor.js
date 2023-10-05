@@ -8,7 +8,9 @@ import {
   Tag,
   Modal,
   Menu,
+  Image,
   Calendar,
+  Space,
 } from "antd";
 import { Layout, theme, Descriptions, Badge, Outlet } from "antd";
 import {
@@ -60,7 +62,9 @@ const DrawerForm = ({ id, visible, onClose, record, callback }) => {
       <label>Membership:</label>
       <br />
       <Switch checked={verify} onChange={changeVerify} />
-      <Button onClick={handleSubmit}>{record ? "Save" : "Submit"}</Button>
+      <Space>
+        <Button onClick={handleSubmit}>{record ? "Save" : "儲存"}</Button>
+      </Space>
     </Drawer>
   );
 };
@@ -101,7 +105,7 @@ const Counselor = () => {
       dataIndex: "name",
       key: "name",
       render: (text, record) => (
-        <a style={{ color: "#1677FF" }} onClick={() => setIsModalOpen(true)}>
+        <a style={{ color: "#1677FF" }} onClick={() => openModal(record.id)}>
           {text}
         </a>
       ),
@@ -176,6 +180,14 @@ const Counselor = () => {
     setUserData(form);
     setUserCount(result.length);
   };
+  const [currentSelectCounselor, setCurrentSelectCounselor] = useState({});
+  const openModal = async (id) => {
+    console.log(id);
+    const res = await counselorService.getCounselorInfoById(id);
+    setIsModalOpen(true);
+    console.log(res);
+    setCurrentSelectCounselor(res);
+  };
   useEffect(() => {
     fetchData();
   }, []);
@@ -183,7 +195,6 @@ const Counselor = () => {
   const handleEdit = (id) => {
     console.log(id);
     setCurrentSelectCounselorId(id);
-    //setRecord(data);
     setVisible(true);
   };
 
@@ -191,6 +202,7 @@ const Counselor = () => {
     setRecord(null);
     setVisible(false);
   };
+
   const handleOk = () => {
     setIsModalOpen(false);
   };
@@ -198,111 +210,214 @@ const Counselor = () => {
     setIsModalOpen(false);
   };
   const handleMenuClick = (e) => {
-    console.log(e.key)
+    console.log(e.key);
     setSelectedCategory(e.key);
   };
   const items2 = [
     {
       key: `information`,
       icon: React.createElement(UserOutlined),
-      label: `Information`,
+      label: `個人資訊`,
     },
     {
-      key: `AppointmentTime`,
+      key: `appointmentTime`,
       icon: React.createElement(NotificationOutlined),
-      label: `Appointment Time`,
+      label: `預約時間`,
     },
     {
       key: `appointments`,
       icon: React.createElement(LaptopOutlined),
-      label: `Appointments`,
+      label: `預約`,
     },
   ];
 
-  const items = [
-    {
-      key: "1",
-      label: "Product",
-      children: "Cloud Database",
-    },
-    {
-      key: "2",
-      label: "Billing Mode",
-      children: "Prepaid",
-    },
-    {
-      key: "3",
-      label: "Automatic Renewal",
-      children: "YES",
-    },
-    {
-      key: "4",
-      label: "Order time",
-      children: "2018-04-24 18:00:00",
-    },
-    {
-      key: "5",
-      label: "Usage Time",
-      span: 2,
-      children: "2019-04-24 18:00:00",
-    },
-    {
-      key: "6",
-      label: "Status",
-      span: 3,
-      children: <Badge status="processing" text="Running" />,
-    },
-    {
-      key: "7",
-      label: "Negotiated Amount",
-      children: "$80.00",
-    },
-    {
-      key: "8",
-      label: "Discount",
-      children: "$20.00",
-    },
-    {
-      key: "9",
-      label: "Official Receipts",
-      children: "$60.00",
-    },
-    {
-      key: "10",
-      label: "Config Info",
-      children: (
-        <>
-          Data disk type: MongoDB
-          <br />
-          Database version: 3.4
-          <br />
-          Package: dds.mongo.mid
-          <br />
-          Storage space: 10 GB
-          <br />
-          Replication factor: 3
-          <br />
-          Region: East China 1
-          <br />
-        </>
-      ),
-    },
-  ];
   const onPanelChange = (value, mode) => {
-    console.log(value.format('YYYY-MM-DD'), mode);
+    console.log(value.format("YYYY-MM-DD"), mode);
   };
   const renderContent = () => {
     console.log(selectedCategory);
     if (selectedCategory === "information") {
+      const items = [
+        {
+          key: "3",
+          label: "照片",
+          span: 2,
+          children: (
+            <Image src={currentSelectCounselor.Photo} height={100}></Image>
+          ),
+        },
+        {
+          key: "1",
+          label: "姓名",
+          children:
+            currentSelectCounselor.UserName.Name.LastName +
+            currentSelectCounselor.UserName.Name.FirstName,
+        },
+        {
+          key: "2",
+          label: "暱稱",
+          children: currentSelectCounselor.UserName.NickName,
+        },
+
+        {
+          key: "3",
+          label: "Email",
+          children: currentSelectCounselor.Email,
+        },
+        {
+          key: "5",
+          label: "手機",
+
+          children: currentSelectCounselor.Phone,
+        },
+        {
+          key: "20",
+          label: "語言",
+          children: currentSelectCounselor.Languages.map((r) => {
+            if (r == "EN") {
+              return <Tag color="magenta">英文</Tag>;
+            }
+            if (r == "ZH") {
+              return <Tag color="magenta">中文</Tag>;
+            }
+            if (r == "NAN") {
+              return <Tag color="magenta">台語</Tag>;
+            }
+            if (r == "YUE") {
+              return <Tag color="magenta">粵語</Tag>;
+            }
+          }),
+        },
+        {
+          key: "13",
+          label: "地點",
+          children: currentSelectCounselor.Location,
+        },
+        {
+          key: "8",
+          label: "學歷",
+
+          children: currentSelectCounselor.Educational,
+        },
+        {
+          key: "10",
+          label: "職稱",
+          children: currentSelectCounselor.Position,
+        },
+        {
+          key: "7",
+          label: "經歷",
+
+          children: currentSelectCounselor.Seniority,
+        },
+        {
+          key: "14",
+          label: "從業時間",
+          children: currentSelectCounselor.Accumulative + "+",
+        },
+
+        {
+          key: "6",
+          label: "認證狀態",
+
+          children: (
+            <Badge
+              status="processing"
+              text={currentSelectCounselor.isVerify ? "已認證" : "未認證"}
+            />
+          ),
+        },
+        {
+          key: "9",
+          label: "機構資訊",
+
+          children: currentSelectCounselor.InstitutionTemp,
+        },
+
+        {
+          key: "16",
+          label: "服務類別",
+          children: currentSelectCounselor.ConsultingFees.map((r) => {
+            return (
+              <Tag color="blue">
+                {r.Type.Label}
+                {r.Time}分鐘{r.Fee}元<br />
+              </Tag>
+            );
+          }),
+          span: 3,
+        },
+        {
+          key: "17",
+          label: "專長",
+          children: currentSelectCounselor.Expertises.map((r) => {
+            return (
+              <Tag color="green">
+                {r.Skill}
+                <br />
+              </Tag>
+            );
+          }),
+        },
+        {
+          key: "18",
+          label: "證照",
+          children: (
+            <>
+              <Tag color='purple'>
+                發照單位:{currentSelectCounselor.License.LicenseIssuing}
+              </Tag>
+              <Tag color='purple'>
+                證照號碼:{currentSelectCounselor.License.LicenseNumber}
+              </Tag>
+              <Tag color='purple'>
+                證照名稱:{currentSelectCounselor.License.LicenseTitle}
+              </Tag>
+            </>
+          ),
+        },
+        {
+          key: "19",
+          label: "性別",
+          children: currentSelectCounselor.Gender == "MALE" ? "男" : "女",
+        },
+
+        {
+          key: "10",
+          label: "地址",
+          children: currentSelectCounselor.Address,
+          span: 3,
+        },
+        {
+          key: "15",
+          label: "專長描述",
+          children: currentSelectCounselor.ExpertisesInfo,
+          span: 3,
+        },
+        {
+          key: "11",
+          label: "自我介紹(簡短)",
+          span: 3,
+          children: currentSelectCounselor.ShortIntroduction,
+        },
+        {
+          key: "12",
+          label: "自我介紹(長)",
+          span: 3,
+          children: currentSelectCounselor.LongIntroduction,
+        },
+      ];
       console.log(selectedCategory);
-      return <div>
-        <Descriptions
-          extra={<Button type="primary">Edit</Button>}
-          bordered
-          title="User Info"
-          items={items}
-        />
-      </div>;
+      return (
+        <div>
+          <Descriptions
+            extra={<Button type="primary">Edit</Button>}
+            bordered
+            title="個人資訊"
+            items={items}
+          />
+        </div>
+      );
     } else if (selectedCategory === "appointments") {
       return <Calendar onPanelChange={onPanelChange}></Calendar>;
     }
@@ -332,7 +447,7 @@ const Counselor = () => {
         onCancel={handleCancel}
         style={{ top: 20 }} // 设置高度为80%视窗高度
         width={"80%"}
-        bodyStyle={{ height: "55vh" }}
+        bodyStyle={{ height: "500px" }}
       >
         <Layout>
           <Layout>
@@ -340,9 +455,8 @@ const Counselor = () => {
               <Menu
                 onClick={handleMenuClick}
                 mode="inline"
-                defaultSelectedKeys={["1"]}
-                defaultOpenKeys={["sub1"]}
-               
+                defaultSelectedKeys={["0"]}
+                defaultOpenKeys={["information"]}
                 style={{ height: "100%", borderRight: 0 }}
                 items={items2}
               />
@@ -353,11 +467,11 @@ const Counselor = () => {
                   background: colorBgContainer,
                   padding: 0,
                   margin: 10,
-                  minHeight: 300,
-                  maxHeight: 450,
+                  minHeight: 400,
+                  maxHeight: 400,
                 }}
               >
-                { renderContent()}
+                {renderContent()}
               </Content>
             </Layout>
           </Layout>

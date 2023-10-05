@@ -54,7 +54,22 @@ export class CounselorService {
                 return result;
             });
     }
+    getCounselorInfoById(id) {
+        if (this.adminToken === undefined) {
+            return;
+        }
+        const api = this.base_url + "/api/v1/counselor/"+id;
+        const requestOptions = {
+            method: 'GET',
+            headers: { "Authorization": this.adminToken, 'Content-Type': 'application/json' },
+        };
 
+        return fetch(api, requestOptions)
+            .then(res => res.json())
+            .then((result) => {
+                return result;
+            });
+    }
     getAllCounselorInfo(isFilterUnVerify) {
         console.log(this.adminToken);
         if (this.adminToken === undefined) {
