@@ -11,7 +11,7 @@ import { ConsoleSqlOutlined } from "@ant-design/icons";
 import reducers from "./redux/reducers/reducers.js";
 import store from "./redux/store/store.js"
 //let baseUrl =  cookie.load("url")?"https://couchspace-test.azurewebsites.net":cookie.load("url");
-const baseUrl = "https://couchspace-prod.azurewebsites.net" 
+ const baseUrl = "https://couchspace-prod.azurewebsites.net"
  //const baseUrl = "https://couchspace-test.azurewebsites.net"
 //const baseUrl = "https://couchspace-test.azurewebsites.net"
 //const baseUrl = "http://localhost:9000"
