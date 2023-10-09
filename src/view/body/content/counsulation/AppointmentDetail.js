@@ -25,7 +25,7 @@ function AppointmentDetail() {
     const [reservedDate, setReservedDate] = useState("");
     const [reservedTime, setReservedTime] = useState("");
     const [fee, setFee] = useState(0);
-    const [consultType, setConsultType] = useState("諮商");
+    const [consultType, setConsultType] = useState("");
     useEffect(() => {
         setAppointment(state.appointment);
         console.log("state", state.appointment);
@@ -34,7 +34,7 @@ function AppointmentDetail() {
         setReservedDate(outputs[0]);
         setReservedTime(outputs[1]);
         setFee(new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(appointment.Fee));
-        setConsultType(appointment.Service === 0 ? "諮商" : "諮商");
+        setConsultType(appointment.Service.Type.Label);
     }, [])
     const [open, setOpen] = useState(false);
     const theme = createTheme({
