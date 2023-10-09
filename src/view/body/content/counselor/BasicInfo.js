@@ -40,6 +40,7 @@ const BasicInfo = () => {
     }
     const [isOpen, setIsOpen] = useState(false);
     const [tempPhoto, setTempPhoto] = useState(null);
+    const [bindingPhoto, setBindingPhoto] = useState(counselorInfo.Photo);
     const getCropData = async () => {
         if (cropper) {
             const file = await fetch(cropper.getCroppedCanvas().toDataURL())
@@ -48,9 +49,8 @@ const BasicInfo = () => {
                     return new File([blob], "newAvatar.png", { type: "image/png" });
                 });
             if (file) {
-                counselorService.upload(file).then((res) => {
-                    setPhoto(res.Photo);
-                })
+                setPhoto(file);
+                setBindingPhoto(URL.createObjectURL(file));
             }
         }
     };
@@ -59,8 +59,6 @@ const BasicInfo = () => {
     const [firstName, setFirstName] = useState(counselorInfo.UserName.Name.FirstName);
     const [lastName, setLastName] = useState(counselorInfo.UserName.Name.LastName);
     const [selectedCity, setSelectedCity] = useState(counselorInfo.Location);
-    const [address, setAddress] = useState(counselorInfo.Address);
-    const [phone, setPhone] = useState(counselorInfo.Phone);
     const [photo, setPhoto] = useState(counselorInfo.Photo);
     const [email, setEmail] = useState(counselorInfo.Email);
     const [gender, setGender] = useState(counselorInfo.Gender);
@@ -71,8 +69,6 @@ const BasicInfo = () => {
     const [errorFirstName, setErrorFirstName] = useState("");
     const [errorLastName, setErrorLastName] = useState("");
     const [errorCity, setErrorCity] = useState("");
-    const [errorAddress, setErrorAddress] = useState("");
-    const [errorPhone, setErrorPhone] = useState("");
     const [errorEmail, setErrorEmail] = useState("");
     const [errorGender, setErrorGender] = useState("");
     const [errorPhoto, setErrorPhoto] = useState("");
@@ -88,9 +84,7 @@ const BasicInfo = () => {
     function ClearAllError() {
         setErrorFirstName("");
         setErrorLastName("");
-        setErrorAddress("");
         setErrorCity("");
-        setErrorPhone("");
         setErrorEmail("");
         setErrorGender("");
         setErrorPhoto("");
@@ -100,12 +94,11 @@ const BasicInfo = () => {
     const initialBasicInfo = () => {
         setFirstName(counselorInfo.UserName.Name.FirstName);
         setLastName(counselorInfo.UserName.Name.LastName);
-        setAddress(counselorInfo.Address);
         setSelectedCity(counselorInfo.Location);
-        setPhone(counselorInfo.Phone);
         setEmail(counselorInfo.Email);
         setGender(counselorInfo.Gender);
         setPhoto(counselorInfo.Photo);
+        setBindingPhoto(counselorInfo.Photo);
         setShortIntro(counselorInfo.ShortIntroduction);
         setLongIntro(counselorInfo.LongIntroduction);
     }
@@ -120,18 +113,10 @@ const BasicInfo = () => {
             setErrorLastName("請輸入姓氏");
             output = false;
         }
-        // if (address === "") {
-        //     setErrorAddress("請輸入居住地址");
-        //     output = false;
-        // }
         if (selectedCity === "請選擇縣市") {
             setErrorCity("請選擇居住地區");
             output = false;
         }
-        // if (phone === "") {
-        //     setErrorPhone("請輸入聯絡電話");
-        //     output = false;
-        // }
         if (email === "" || !checkEmail(email)) {
             setErrorEmail("請輸入有效的電子信箱");
             output = false;
@@ -159,18 +144,20 @@ const BasicInfo = () => {
         if (output) {
             let info = new Counselor();
             let backupInfo = counselorInfo;
+            if (photo !== counselorInfo.Photo) {
+                let result = await counselorService.upload(photo);
+                info.updatePhoto = result.Photo;
+            }
             info.UserName.Name.FirstName = firstName;
             info.UserName.Name.LastName = lastName;
-            info.Photo = photo;
-            info.CoverImage = photo;
             info.Location = selectedCity;
-            info.Address = address;
             info.Gender = gender;
             info.ShortIntroduction = shortIntro.trim();
             info.LongIntroduction = longIntro.trim();
-            info.Phone = phone;
             info.Email = email;
+            console.log("info", info);
             counselorInfo.updatePersonalInfo = info;
+
             let res = await counselorService.updateCounselorInfo(counselorInfo);
             if (res.success) {
                 showToast(toastType.success, "儲存成功");
@@ -195,8 +182,6 @@ const BasicInfo = () => {
         if (firstName !== counselorInfo.UserName.Name.FirstName ||
             lastName !== counselorInfo.UserName.Name.LastName ||
             selectedCity !== counselorInfo.Location ||
-            address !== counselorInfo.Address ||
-            phone !== counselorInfo.Phone ||
             photo !== counselorInfo.Photo ||
             email !== counselorInfo.Email ||
             gender !== counselorInfo.Gender ||
@@ -207,7 +192,7 @@ const BasicInfo = () => {
         else {
             setDisabledSaveBtn(true);
         }
-    }, [firstName, lastName, selectedCity, address, phone, photo, email, gender, shortIntro, longIntro])
+    }, [firstName, lastName, selectedCity, photo, email, gender, shortIntro, longIntro])
 
     const handleClose = () => {
         setIsOpen(false);
@@ -316,37 +301,6 @@ const BasicInfo = () => {
                         <FormHelperText error={errorGender !== ""}>{errorGender}</FormHelperText>
                     </div>
                 </Grid>
-                {/* <Grid item xs={12}>
-                    <TextField
-                        required
-                        id="address1"
-                        name="address1"
-                        label="居住地址"
-                        fullWidth
-                        autoComplete="shipping address-line1"
-                        variant="standard"
-                        value={address}
-                        onChange={(text) => setAddress(text.target.value.trim())}
-                        error={errorAddress !== ""}
-                        helperText={errorAddress}
-                    />
-                </Grid> */}
-
-                {/* <Grid item xs={12} sm={6}>
-                    <TextField
-                        required
-                        id="phone"
-                        name="phone"
-                        label="聯絡電話"
-                        fullWidth
-                        variant="standard"
-                        value={phone}
-                        onChange={(text) => setPhone(text.target.value.trim())}
-                        error={errorPhone !== ""}
-                        helperText={errorPhone}
-                    />
-                </Grid> */}
-
                 <Grid item xs={12} sm={6}>
                     <TextField
                         required
@@ -372,7 +326,7 @@ const BasicInfo = () => {
                                 <IconButton color="primary" aria-label="upload picture" component="span">
                                     <PhotoCamera />
                                 </IconButton>
-                                <img style={{ borderRadius: "50%" }} src={photo} alt=""></img>
+                                <img style={{ borderRadius: "50%" }} src={bindingPhoto} alt=""></img>
                             </label>
                         </div>
                         <FormHelperText error={errorPhoto !== ""}>{errorPhoto}</FormHelperText>

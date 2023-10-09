@@ -405,7 +405,6 @@ const ConsultationInfo = forwardRef((props, ref) => {
                                 value={expertises}
                                 tokenSeparators={[","]}
                                 options={expertiseList}
-                                showArrow={true}
                                 showSearch={true}
                                 style={{ width: "100%" }}
                             />
@@ -429,7 +428,6 @@ const ConsultationInfo = forwardRef((props, ref) => {
                                 value={tags}
                                 tokenSeparators={[","]}
                                 options={tagList}
-                                showArrow={true}
                                 showSearch={true}
                                 style={{ width: "100%" }}
                             />
