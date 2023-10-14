@@ -146,7 +146,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
                 output = false;
             }
             if (checkPositionLengthIsValid(position) === false) {
-                setErrorPosition("字數過長");
+                setErrorPosition("字數過長，最多中文8個字；英文16個字");
                 output = false;
             }
             // whether output is true or false => update info to counselor model

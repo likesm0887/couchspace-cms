@@ -149,8 +149,8 @@ const BasicInfo = () => {
             output = false;
         }
         if (checkNameLengthIsValid(firstName, lastName) === false) {
-            setErrorFirstName("字數過長");
-            setErrorLastName("字數過長");
+            setErrorFirstName("字數過長，姓名最多中文6個字；英文12個字");
+            setErrorLastName("字數過長，姓名最多中文6個字；英文12個字");
             output = false;
         }
         if (output) {
