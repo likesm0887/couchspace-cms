@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { forwardRef, useImperativeHandle } from "react";
 import { Select } from "antd";
 import { Counselor, Expertise, counselorInfo } from "../../dataContract/counselor";
-import { checkLines } from "../../common/method";
+import { calTextLength, checkLines } from "../../common/method";
 
 const ConsultationInfo = forwardRef((props, ref) => {
     const maximumFee = 10000;
@@ -80,6 +80,13 @@ const ConsultationInfo = forwardRef((props, ref) => {
     const [errorConsultingFees, setErrorConsultingFees] = useState("");
 
     const inputRef = useRef();
+    const checkPositionLengthIsValid = (position) => {
+        let totalLength = calTextLength(position);
+        if (totalLength > 16) {
+            return false;
+        }
+        return true;
+    }
     function ClearAllError() {
         setErrorLanguages("");
         setErrorEducation("");
@@ -136,6 +143,10 @@ const ConsultationInfo = forwardRef((props, ref) => {
 
             if (consultingFees.every((value, index, array) => value.enabled === false)) {
                 setErrorConsultingFees("請設定諮商項目");
+                output = false;
+            }
+            if (checkPositionLengthIsValid(position) === false) {
+                setErrorPosition("字數過長");
                 output = false;
             }
             // whether output is true or false => update info to counselor model

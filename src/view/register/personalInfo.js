@@ -7,7 +7,7 @@ import { useState } from "react";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import { forwardRef, useImperativeHandle } from "react";
-import { checkEmail, checkPhone } from "../../common/method";
+import { calTextLength, checkEmail, checkPhone, showToast, toastType } from "../../common/method";
 import { Counselor, counselorInfo } from "../../dataContract/counselor";
 import { counselorService } from "../../service/ServicePool";
 import Cropper from "react-cropper";
@@ -73,6 +73,13 @@ const PersonalInfo = forwardRef((props, ref) => {
     const [errorPhoto, setErrorPhoto] = useState("");
     const [errorShortIntro, setErrorShortIntro] = useState("");
     const [errorLongIntro, setErrorLongIntro] = useState("");
+    const checkNameLengthIsValid = (firstName, lastName) => {
+        let totalLength = calTextLength(firstName) + calTextLength(lastName);
+        if (totalLength > 12) {
+            return false;
+        }
+        return true;
+    }
     function DropdownCity() {
         return (<DropdownButton id="dropdown-basic-button" size="sm" title={selectedCity}>
             {cities.map((city, index) => {
@@ -128,6 +135,11 @@ const PersonalInfo = forwardRef((props, ref) => {
             }
             if (longIntro.length < 50) {
                 setErrorLongIntro("至少50字以上");
+                output = false;
+            }
+            if (checkNameLengthIsValid(firstName, lastName) === false) {
+                setErrorFirstName("字數過長");
+                setErrorLastName("字數過長");
                 output = false;
             }
             // whether output is true or false => update info to counselor model

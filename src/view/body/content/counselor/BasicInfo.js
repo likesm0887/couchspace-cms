@@ -6,7 +6,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Counselor, counselorInfo } from '../../../../dataContract/counselor';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
-import { checkEmail, showToast, toastType } from "../../../../common/method";
+import { checkEmail, showToast, toastType, calTextLength } from "../../../../common/method";
 import PhotoCamera from '@material-ui/icons/PhotoCamera';
 import { useEffect } from "react";
 import { counselorService } from "../../../../service/ServicePool";
@@ -74,6 +74,13 @@ const BasicInfo = () => {
     const [errorPhoto, setErrorPhoto] = useState("");
     const [errorShortIntro, setErrorShortIntro] = useState("");
     const [errorLongIntro, setErrorLongIntro] = useState("");
+    const checkNameLengthIsValid = (firstName, lastName) => {
+        let totalLength = calTextLength(firstName) + calTextLength(lastName);
+        if (totalLength > 12) {
+            return false;
+        }
+        return true;
+    }
     function DropdownCity() {
         return (<DropdownButton id="dropdown-basic-button" size="sm" title={selectedCity}>
             {cities.map((city, index) => {
@@ -139,6 +146,11 @@ const BasicInfo = () => {
         }
         if (longIntro.length < 50) {
             setErrorLongIntro("至少50字以上");
+            output = false;
+        }
+        if (checkNameLengthIsValid(firstName, lastName) === false) {
+            setErrorFirstName("字數過長");
+            setErrorLastName("字數過長");
             output = false;
         }
         if (output) {
