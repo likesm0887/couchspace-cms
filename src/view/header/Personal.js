@@ -21,8 +21,7 @@ function Personal() {
         setName(counselorInfo.UserName.Name.LastName + counselorInfo.UserName.Name.FirstName);
         setTitle(counselorInfo.Position === "" ? "諮商師" : counselorInfo.Position);
         setPhoto(counselorInfo.Photo === "" ? selfie : counselorInfo.Photo);
-    }, [])
-
+    })
     window.addEventListener('mouseup', (event) => {
         if (event.target.className === "menu")
             return;

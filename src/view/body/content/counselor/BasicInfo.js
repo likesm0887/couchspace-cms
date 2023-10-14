@@ -167,9 +167,9 @@ const BasicInfo = () => {
             info.ShortIntroduction = shortIntro.trim();
             info.LongIntroduction = longIntro.trim();
             info.Email = email;
-            console.log("info", info);
+            
             counselorInfo.updatePersonalInfo = info;
-
+            console.log("info", counselorInfo);
             let res = await counselorService.updateCounselorInfo(counselorInfo);
             if (res.success) {
                 showToast(toastType.success, "儲存成功");
