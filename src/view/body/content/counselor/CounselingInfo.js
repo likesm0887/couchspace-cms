@@ -18,7 +18,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Counselor, counselorInfo, Expertise } from '../../../../dataContract/counselor';
 import { useEffect, useRef } from "react";
 import { counselorService } from "../../../../service/ServicePool";
-import { checkLines, showToast, toastType } from "../../../../common/method";
+import { checkLines, showToast, toastType, calTextLength } from "../../../../common/method";
 const useStyles = makeStyles((theme) => ({
     root: {
         '& > *': {
@@ -113,6 +113,13 @@ const CounselingInfo = () => {
     const [errorConsultingFees, setErrorConsultingFees] = useState("");
 
     const inputRef = useRef();
+    const checkPositionLengthIsValid = (position) => {
+        let totalLength = calTextLength(position);
+        if (totalLength > 16) {
+            return false;
+        }
+        return true;
+    }
     function ClearAllError() {
         setErrorLanguages("");
         setErrorEducation("");
@@ -213,6 +220,10 @@ const CounselingInfo = () => {
 
         if (consultingFees.every((value, index, array) => value.enabled === false)) {
             setErrorConsultingFees("請設定諮商項目");
+            output = false;
+        }
+        if (checkPositionLengthIsValid(position) === false) {
+            setErrorPosition("字數過長");
             output = false;
         }
         if (output) {
