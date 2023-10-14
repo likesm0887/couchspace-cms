@@ -5,7 +5,7 @@ import mail from "../../../img/content/AppointmentDetail/mail.svg"
 import nickname from "../../../img/content/AppointmentDetail/nickname.svg"
 import phone from "../../../img/content/AppointmentDetail/phone.svg"
 import { useNavigate, useLocation } from 'react-router-dom';
-import { appointmentService } from "../../../../service/ServicePool";
+import { appointmentService, memberService } from "../../../../service/ServicePool";
 import { useEffect, useState } from "react";
 import {
     createTheme,
@@ -23,11 +23,25 @@ function AppointmentDetail() {
     let navigate = useNavigate();
     const [appointment, setAppointment] = useState(new Appointment());
     const [fee, setFee] = useState(0);
+    const [userName, setUserName] = useState("");
+    const [userEmail, setUserEmail] = useState("");
+    const [userPhone, setUserPhone] = useState("");
+    const [userAddress, setUserAddress] = useState("");
     useEffect(() => {
+        memberService.getGetUserById(state.appointment.UserID).then((res) => {
+            console.log("userInfo", res);
+            setUserName(res?.UserName?.NickName);
+            setUserEmail(res?.Email);
+            setUserPhone(res?.Phone);
+            setUserAddress(res?.AddressObject?.Address);
+        });
         setAppointment(state.appointment);
         console.log("state", state.appointment);
         setFee(new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(appointment.Fee));
     }, [])
+    useEffect(() => {
+
+    }, [userName, userEmail, userAddress, userPhone])
     const [open, setOpen] = useState(false);
     const theme = createTheme({
         palette: {
@@ -134,19 +148,19 @@ function AppointmentDetail() {
                             <ul>
                                 <li>
                                     <img style={{ verticalAlign: 'middle' }} src={nickname} alt="123"></img>
-                                    <span className={"name"}>阿豪</span>
+                                    <span className={"name"}>{userName}</span>
                                 </li>
                             </ul>
                             <ul>
                                 <li>
                                     <img className={"mail"} style={{ verticalAlign: 'middle' }} src={mail} alt="123"></img>
-                                    <span className={"infoText"}>1234567@gmail</span>
+                                    <span className={"infoText"}>{userEmail}</span>
                                 </li>
                             </ul>
                             <ul>
                                 <li>
                                     <img className={"phone"} style={{ verticalAlign: 'middle' }} src={phone} alt="123"></img>
-                                    <span className={"infoText"}>0977565089</span>
+                                    <span className={"infoText"}>{userPhone}</span>
                                 </li>
                             </ul>
                         </div>
@@ -154,7 +168,7 @@ function AppointmentDetail() {
                             <ul>
                                 <li>
                                     <img style={{ verticalAlign: 'middle' }} src={location} alt="123"></img>
-                                    <span className={"infoText"}>台北市大安區建國南路二段125號</span></li>
+                                    <span className={"infoText"}>{userAddress}</span></li>
                             </ul>
                         </div>
                     </div>

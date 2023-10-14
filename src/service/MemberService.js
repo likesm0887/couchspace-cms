@@ -60,7 +60,7 @@ export class MemberService {
     if (this.token === undefined) {
       return;
     }
-    const api = this.base_url + "/api/v1/members/" + userId;
+    const api = this.base_url + "/api/v1/members/information/" + userId;
     const requestOptions = {
       method: "Get",
       headers: {
