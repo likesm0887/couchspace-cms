@@ -22,19 +22,11 @@ function AppointmentDetail() {
     const { state } = useLocation();
     let navigate = useNavigate();
     const [appointment, setAppointment] = useState(new Appointment());
-    const [reservedDate, setReservedDate] = useState("");
-    const [reservedTime, setReservedTime] = useState("");
     const [fee, setFee] = useState(0);
-    const [consultType, setConsultType] = useState("");
     useEffect(() => {
         setAppointment(state.appointment);
         console.log("state", state.appointment);
-        console.log(state.appointment.Time.Date);
-        const outputs = state.appointment.Time.Date.split(' ');
-        setReservedDate(outputs[0]);
-        setReservedTime(outputs[1]);
         setFee(new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(appointment.Fee));
-        setConsultType(appointment.Service.Type.Label);
     }, [])
     const [open, setOpen] = useState(false);
     const theme = createTheme({
@@ -71,13 +63,13 @@ function AppointmentDetail() {
             <DialogTitle id="alert-dialog-title">{"確認是否要接受阿豪的預約?"}</DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-description">
-                    {"預約日期 " + reservedDate}
+                    {"預約日期 " + appointment.Time.Date}
                     <br></br>
-                    {"預約時間 " + reservedTime}
+                    {"預約時間 " + appointment.Time.StartTime}
                     <br></br>
                     {"時數 " + num2Time(appointment.Time.Total)}
                     <br></br>
-                    {"諮商種類 " + consultType}
+                    {"諮商種類 " + appointment.Service.Type.Label}
                     <br></br>
                     {"金額 " + fee}
                     <br></br>
@@ -109,7 +101,9 @@ function AppointmentDetail() {
         if (code.toUpperCase() === 'NEW') {
             return "訂單成立(未付款)"
         }
-
+        if (code.toUpperCase() === 'UNPAID') {
+            return "訂單成立(未付款)"
+        }
         if (code.toUpperCase() === 'CONFIRMED') {
             return "已確認"
         }
@@ -172,11 +166,11 @@ function AppointmentDetail() {
                             <tbody>
                                 <tr>
                                     <td>預約日期</td>
-                                    <td>{reservedDate}</td>
+                                    <td>{appointment.Time.Date}</td>
                                 </tr>
                                 <tr>
                                     <td>預約時間</td>
-                                    <td>{reservedTime}</td>
+                                    <td>{appointment.Time.StartTime}</td>
                                 </tr>
                                 <tr>
                                     <td>時數</td>
@@ -184,7 +178,7 @@ function AppointmentDetail() {
                                 </tr>
                                 <tr>
                                     <td>諮商種類</td>
-                                    <td>{consultType}</td>
+                                    <td>{appointment.Service.Type.Label}</td>
                                 </tr>
                                 <tr>
                                     <td>狀態</td>
