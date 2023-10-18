@@ -5,7 +5,7 @@ import mail from "../../../img/content/AppointmentDetail/mail.svg"
 import nickname from "../../../img/content/AppointmentDetail/nickname.svg"
 import phone from "../../../img/content/AppointmentDetail/phone.svg"
 import { useNavigate, useLocation } from 'react-router-dom';
-import { appointmentService } from "../../../../service/ServicePool";
+import { appointmentService, memberService } from "../../../../service/ServicePool";
 import { useEffect, useState } from "react";
 import {
     createTheme,
@@ -22,20 +22,26 @@ function AppointmentDetail() {
     const { state } = useLocation();
     let navigate = useNavigate();
     const [appointment, setAppointment] = useState(new Appointment());
-    const [reservedDate, setReservedDate] = useState("");
-    const [reservedTime, setReservedTime] = useState("");
     const [fee, setFee] = useState(0);
-    const [consultType, setConsultType] = useState("諮商");
+    const [userName, setUserName] = useState("");
+    const [userEmail, setUserEmail] = useState("");
+    const [userPhone, setUserPhone] = useState("");
+    const [userAddress, setUserAddress] = useState("");
     useEffect(() => {
+        memberService.getGetUserById(state.appointment.UserID).then((res) => {
+            console.log("userInfo", res);
+            setUserName(res?.UserName?.NickName);
+            setUserEmail(res?.Email);
+            setUserPhone(res?.Phone);
+            setUserAddress(res?.AddressObject?.Address);
+        });
         setAppointment(state.appointment);
         console.log("state", state.appointment);
-        console.log(state.appointment.Time.Date);
-        const outputs = state.appointment.Time.Date.split(' ');
-        setReservedDate(outputs[0]);
-        setReservedTime(outputs[1]);
         setFee(new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(appointment.Fee));
-        setConsultType(appointment.Service === 0 ? "諮商" : "諮商");
     }, [])
+    useEffect(() => {
+
+    }, [userName, userEmail, userAddress, userPhone])
     const [open, setOpen] = useState(false);
     const theme = createTheme({
         palette: {
@@ -71,13 +77,13 @@ function AppointmentDetail() {
             <DialogTitle id="alert-dialog-title">{"確認是否要接受阿豪的預約?"}</DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-description">
-                    {"預約日期 " + reservedDate}
+                    {"預約日期 " + appointment.Time.Date}
                     <br></br>
-                    {"預約時間 " + reservedTime}
+                    {"預約時間 " + appointment.Time.StartTime}
                     <br></br>
                     {"時數 " + num2Time(appointment.Time.Total)}
                     <br></br>
-                    {"諮商種類 " + consultType}
+                    {"諮商種類 " + appointment.Service.Type.Label}
                     <br></br>
                     {"金額 " + fee}
                     <br></br>
@@ -109,7 +115,9 @@ function AppointmentDetail() {
         if (code.toUpperCase() === 'NEW') {
             return "訂單成立(未付款)"
         }
-
+        if (code.toUpperCase() === 'UNPAID') {
+            return "訂單成立(未付款)"
+        }
         if (code.toUpperCase() === 'CONFIRMED') {
             return "已確認"
         }
@@ -140,19 +148,19 @@ function AppointmentDetail() {
                             <ul>
                                 <li>
                                     <img style={{ verticalAlign: 'middle' }} src={nickname} alt="123"></img>
-                                    <span className={"name"}>阿豪</span>
+                                    <span className={"name"}>{userName}</span>
                                 </li>
                             </ul>
                             <ul>
                                 <li>
                                     <img className={"mail"} style={{ verticalAlign: 'middle' }} src={mail} alt="123"></img>
-                                    <span className={"infoText"}>1234567@gmail</span>
+                                    <span className={"infoText"}>{userEmail}</span>
                                 </li>
                             </ul>
                             <ul>
                                 <li>
                                     <img className={"phone"} style={{ verticalAlign: 'middle' }} src={phone} alt="123"></img>
-                                    <span className={"infoText"}>0977565089</span>
+                                    <span className={"infoText"}>{userPhone}</span>
                                 </li>
                             </ul>
                         </div>
@@ -160,7 +168,7 @@ function AppointmentDetail() {
                             <ul>
                                 <li>
                                     <img style={{ verticalAlign: 'middle' }} src={location} alt="123"></img>
-                                    <span className={"infoText"}>台北市大安區建國南路二段125號</span></li>
+                                    <span className={"infoText"}>{userAddress}</span></li>
                             </ul>
                         </div>
                     </div>
@@ -172,11 +180,11 @@ function AppointmentDetail() {
                             <tbody>
                                 <tr>
                                     <td>預約日期</td>
-                                    <td>{reservedDate}</td>
+                                    <td>{appointment.Time.Date}</td>
                                 </tr>
                                 <tr>
                                     <td>預約時間</td>
-                                    <td>{reservedTime}</td>
+                                    <td>{appointment.Time.StartTime}</td>
                                 </tr>
                                 <tr>
                                     <td>時數</td>
@@ -184,7 +192,7 @@ function AppointmentDetail() {
                                 </tr>
                                 <tr>
                                     <td>諮商種類</td>
-                                    <td>{consultType}</td>
+                                    <td>{appointment.Service.Type.Label}</td>
                                 </tr>
                                 <tr>
                                     <td>狀態</td>

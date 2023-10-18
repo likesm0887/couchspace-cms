@@ -3,7 +3,7 @@ import { appointmentService } from "../../../../service/ServicePool";
 import { Backdrop, CircularProgress, createTheme, Pagination } from "@mui/material";
 import "./consultation.css"
 import editButton from "../../../img/content/edit.svg"
-import { useNavigate,useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import userIcon from "../../../img/content/userIcon.svg";
 import { Appointment } from "../../../../dataContract/appointment";
 
@@ -43,48 +43,58 @@ function Consultation() {
         const res = await appointmentService.getAllAppointment();
         console.log("getData", res);
         if (res) {
-            allAppointments = res;
+            allAppointments = res.sort((a, b) => {
+                const dateA = parseDateTime(a.Time.Date, a.Time.StartTime);
+                const dateB = parseDateTime(b.Time.Date, b.Time.StartTime);
+                return dateB - dateA;
+            });
             setCurrentTableData(calCurrentTableData(allAppointments));
             setPagesSize(calPageSize(allAppointments.length));
         }
     }
-
+    const parseDateTime = (dateString, timeString) => {
+        [dateString,] = dateString.split(" "); // old data contain date + time
+        const [year, month, day] = dateString.split("-");
+        const [hours, minutes] = timeString.split(":");
+        return new Date(year, month - 1, day, hours, minutes);
+    }
     const handleChange = (event, value) => {
         setCurrentPage(value);
     }
 
     useEffect(() => {
         getData();
-    }, [])
+    }, [currentPage])
     const clickItem = (appointment) => {
         navigate("/couchspace-cms/home/consultation/" + appointment.AppointmentID, { replace: false, state: { appointment: appointment } });
     }
     const start = (ID) => {
         console.log(ID)
         setOpen(!open);
-        navigate("/couchspace-cms/home/consultation/counseling/"+ID, { replace: false, state: { appointmentID: ID } });
+        navigate("/couchspace-cms/home/consultation/counseling/" + ID, { replace: false, state: { appointmentID: ID } });
     }
 
-    function getStatusDesc(code){
-        if (code.toUpperCase() === 'NEW'){
+    function getStatusDesc(code) {
+        if (code.toUpperCase() === 'NEW') {
             return "訂單成立(未付款)"
         }
-
-        if (code.toUpperCase() === 'CONFIRMED'){
+        if (code.toUpperCase() === 'UNPAID') {
+            return "訂單成立(未付款)"
+        }
+        if (code.toUpperCase() === 'CONFIRMED') {
             return "已確認"
         }
-        if (code.toUpperCase() === 'ROOMCREATED'){
-         
+        if (code.toUpperCase() === 'ROOMCREATED') {
             return "諮商房間已建立"
-        } 
+        }
 
-        if (code.toUpperCase() === 'CANCELLED'){
+        if (code.toUpperCase() === 'CANCELLED') {
             return "已取消"
-        } 
+        }
 
-        if (code.toUpperCase() === 'COMPLETED'){
+        if (code.toUpperCase() === 'COMPLETED') {
             return "已完成"
-        } 
+        }
     }
     function createListItem() {
         return currentTableData.map(allAppointment => {
@@ -100,7 +110,7 @@ function Consultation() {
                         {num2Time(allAppointment.Time.Total)}
                     </div>
                     <div className="content-col">
-                        {allAppointment.Service === 0 ? "諮商" : "諮商"}
+                        {allAppointment.Service.Type.Label}
                     </div>
                     <div className="content-col">
                         <span style={{ color: allAppointment.Status === "RoomCreated" ? "#88A1D2" : "#595757" }}>{getStatusDesc(allAppointment.Status)}

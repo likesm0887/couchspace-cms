@@ -7,7 +7,7 @@ import { useState } from "react";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import { forwardRef, useImperativeHandle } from "react";
-import { checkEmail, checkPhone } from "../../common/method";
+import { calTextLength, checkEmail, checkPhone, showToast, toastType } from "../../common/method";
 import { Counselor, counselorInfo } from "../../dataContract/counselor";
 import { counselorService } from "../../service/ServicePool";
 import Cropper from "react-cropper";
@@ -58,8 +58,6 @@ const PersonalInfo = forwardRef((props, ref) => {
     const [firstName, setFirstName] = useState(counselorInfo.UserName.Name.FirstName);
     const [lastName, setLastName] = useState(counselorInfo.UserName.Name.LastName);
     const [selectedCity, setSelectedCity] = useState(counselorInfo.Location);
-    const [address, setAddress] = useState(counselorInfo.Address);
-    const [phone, setPhone] = useState(counselorInfo.Phone);
     const [photo, setPhoto] = useState(counselorInfo.Photo);
     const [email, setEmail] = useState(counselorInfo.Email);
     const [gender, setGender] = useState(counselorInfo.Gender);
@@ -70,13 +68,18 @@ const PersonalInfo = forwardRef((props, ref) => {
     const [errorFirstName, setErrorFirstName] = useState("");
     const [errorLastName, setErrorLastName] = useState("");
     const [errorCity, setErrorCity] = useState("");
-    const [errorAddress, setErrorAddress] = useState("");
-    const [errorPhone, setErrorPhone] = useState("");
     const [errorEmail, setErrorEmail] = useState("");
     const [errorGender, setErrorGender] = useState("");
     const [errorPhoto, setErrorPhoto] = useState("");
     const [errorShortIntro, setErrorShortIntro] = useState("");
     const [errorLongIntro, setErrorLongIntro] = useState("");
+    const checkNameLengthIsValid = (firstName, lastName) => {
+        let totalLength = calTextLength(firstName) + calTextLength(lastName);
+        if (totalLength > 12) {
+            return false;
+        }
+        return true;
+    }
     function DropdownCity() {
         return (<DropdownButton id="dropdown-basic-button" size="sm" title={selectedCity}>
             {cities.map((city, index) => {
@@ -87,9 +90,7 @@ const PersonalInfo = forwardRef((props, ref) => {
     function ClearAllError() {
         setErrorFirstName("");
         setErrorLastName("");
-        setErrorAddress("");
         setErrorCity("");
-        setErrorPhone("");
         setErrorEmail("");
         setErrorGender("");
         setErrorPhoto("");
@@ -108,18 +109,10 @@ const PersonalInfo = forwardRef((props, ref) => {
                 setErrorLastName("請輸入姓氏");
                 output = false;
             }
-            // if (address === "") {
-            //     setErrorAddress("請輸入居住地址");
-            //     output = false;
-            // }
             if (selectedCity === "請選擇縣市") {
                 setErrorCity("請選擇居住地區");
                 output = false;
             }
-            // if (phone === "") {
-            //     setErrorPhone("請輸入聯絡電話");
-            //     output = false;
-            // }
             if (email === "" || !checkEmail(email)) {
                 setErrorEmail("請輸入有效的電子信箱");
                 output = false;
@@ -144,6 +137,11 @@ const PersonalInfo = forwardRef((props, ref) => {
                 setErrorLongIntro("至少50字以上");
                 output = false;
             }
+            if (checkNameLengthIsValid(firstName, lastName) === false) {
+                setErrorFirstName("字數過長，姓名最多中文6個字；英文12個字");
+                setErrorLastName("字數過長，姓名最多中文6個字；英文12個字");
+                output = false;
+            }
             // whether output is true or false => update info to counselor model
             let info = new Counselor();
             info.UserName.Name.FirstName = firstName;
@@ -151,11 +149,9 @@ const PersonalInfo = forwardRef((props, ref) => {
             info.Photo = photo;
             info.CoverImage = photo;
             info.Location = selectedCity;
-            info.Address = address;
             info.Gender = gender;
             info.ShortIntroduction = shortIntro.trim();
             info.LongIntroduction = longIntro.trim();
-            info.Phone = phone;
             info.Email = email;
             counselorInfo.updatePersonalInfo = info;
             return output;
@@ -258,37 +254,6 @@ const PersonalInfo = forwardRef((props, ref) => {
                         <FormHelperText error={errorGender !== ""}>{errorGender}</FormHelperText>
                     </div>
                 </Grid>
-                {/* <Grid item xs={12}>
-                    <TextField
-                        required
-                        id="address1"
-                        name="address1"
-                        label="居住地址"
-                        fullWidth
-                        autoComplete="shipping address-line1"
-                        variant="standard"
-                        value={address}
-                        onChange={(text) => setAddress(text.target.value.trim())}
-                        error={errorAddress !== ""}
-                        helperText={errorAddress}
-                    />
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                    <TextField
-                        required
-                        id="phone"
-                        name="phone"
-                        label="聯絡電話"
-                        fullWidth
-                        variant="standard"
-                        value={phone}
-                        onChange={(text) => setPhone(text.target.value.trim())}
-                        error={errorPhone !== ""}
-                        helperText={errorPhone}
-                    />
-                </Grid> */}
-
                 <Grid item xs={12} sm={6}>
                     <TextField
                         required

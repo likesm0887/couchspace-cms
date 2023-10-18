@@ -111,12 +111,13 @@ export class Counselor {
         this.CoverImage = ""; // 大頭照
         this.Location = "台北市"; // 地區
 
-        this.Address = ""; // 地址
+        this.Address = ""; // 機構地址
         this.Gender = ""; // 性別
         this.ShortIntroduction = ""; // 簡介
         this.LongIntroduction = ""; // 詳細自我介紹
-        this.Phone = "";
+        this.Phone = ""; // 機構電話
         this.Email = "";
+        this.InstitutionTemp = ""; // 機構名稱
 
         // counselor info
         this.Languages = [] // 語言 英文 中文
@@ -159,6 +160,7 @@ export class Counselor {
         this.LongIntroduction = info.LongIntroduction;
         this.Phone = info.Phone;
         this.Email = info.Email;
+        this.InstitutionTemp = info.InstitutionTemp;
 
         // counselor info
         this.Languages = info.Languages;
@@ -184,11 +186,9 @@ export class Counselor {
         this.Photo = info.Photo;
         this.CoverImage = info.CoverImage;
         this.Location = info.Location;
-        this.Address = info.Address;
         this.Gender = info.Gender;
         this.ShortIntroduction = info.ShortIntroduction;
         this.LongIntroduction = info.LongIntroduction;
-        this.Phone = info.Phone;
         this.Email = info.Email;
     }
     set updateCounselorInfo(info: Counselor) {
@@ -197,14 +197,18 @@ export class Counselor {
         this.Educational = info.Educational;
         this.Position = info.Position;
         this.Accumulative = info.Accumulative;
-        // this.LicenseNumber = info.LicenseNumber;
-        // this.LicenseIssuing = info.LicenseIssuing;
+
         this.Expertises = info.Expertises;
         this.ExpertisesInfo = info.ExpertisesInfo;
         this.ConsultingFees = info.ConsultingFees;
     }
     set updateCertificateInfo(info: License) {
         this.License = info;
+    }
+    set updateInstitution(info: Counselor) {
+        this.Address = info.Address;
+        this.Phone = info.Phone;
+        this.InstitutionTemp = info.InstitutionTemp;
     }
     set updateBusinessTimes(businessTimes: BusinessTime[]) {
         if (businessTimes == null) return;
@@ -229,12 +233,13 @@ export class Counselor {
         this.CoverImage = ""; // 大頭照
         this.Location = "台北市"; // 地區
 
-        this.Address = ""; // 地址
+        this.Address = ""; // 機構地址
         this.Gender = ""; // 性別
         this.ShortIntroduction = ""; // 簡介
         this.LongIntroduction = ""; // 詳細自我介紹
-        this.Phone = "";
+        this.Phone = ""; // 機構電話
         this.Email = "";
+        this.InstitutionTemp = ""; // 機構名稱
 
         // counselor info
         this.Languages = [] // 語言 英文 中文
@@ -263,6 +268,9 @@ export class Counselor {
     set updatePhoto(imageUrl) {
         this.Photo = imageUrl;
         this.CoverImage = imageUrl;
+    }
+    set updateAppointmentID(appointmentTimeID) {
+        this.AppointmentTimeID = appointmentTimeID;
     }
 }
 

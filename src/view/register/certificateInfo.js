@@ -11,13 +11,23 @@ const CertificateInfo = forwardRef((props, ref) => {
     const [licenseNumber, setLicenseNumber] = useState(counselorInfo.License.LicenseNumber); // 證照編號
     const [licenseIssuing, setLicenseIssuing] = useState(counselorInfo.License.LicenseIssuing); // 發證單位
     const [licenseTitle, setLicenseTitle] = useState(counselorInfo.License.LicenseTitle); // 證照名稱
+    const [phone, setPhone] = useState(counselorInfo.Phone); // 機構電話
+    const [address, setAddress] = useState(counselorInfo.Address); // 機構地址
+    const [institution, setInstitution] = useState(counselorInfo.InstitutionTemp); // 機構名稱
+
     const [errorLicenseNumber, setErrorLicenseNumber] = useState("");
     const [errorLicenseIssuing, setErrorLicenseIssuing] = useState("");
     const [errorLicenseTitle, setErrorLicenseTitle] = useState("");
+    const [errorPhone, setErrorPhone] = useState("");
+    const [errorAddress, setErrorAddress] = useState("");
+    const [errorInstitution, setErrorInstitution] = useState("");
     function ClearAllError() {
         setErrorLicenseNumber("");
         setErrorLicenseIssuing("");
         setErrorLicenseTitle("");
+        setErrorAddress("");
+        setErrorPhone("");
+        setErrorInstitution("");
     }
     useImperativeHandle(ref, () => ({
         checkAllInput() {
@@ -37,11 +47,15 @@ const CertificateInfo = forwardRef((props, ref) => {
                 output = false;
             }
             // whether output is true or false => update info to counselor model
-            let info = new License();
-            info.LicenseTitle = licenseTitle;
-            info.LicenseNumber = licenseNumber;
-            info.LicenseIssuing = licenseIssuing;
-            counselorInfo.updateCertificateInfo = info;
+            let info = new Counselor();
+            info.License.LicenseTitle = licenseTitle;
+            info.License.LicenseNumber = licenseNumber;
+            info.License.LicenseIssuing = licenseIssuing;
+            info.Phone = phone;
+            info.Address = address;
+            info.InstitutionTemp = institution;
+            counselorInfo.updateCertificateInfo = info.License;
+            counselorInfo.updateInstitution = info;
             console.log("counselorInfo", counselorInfo);
             return output;
         }
@@ -100,6 +114,46 @@ const CertificateInfo = forwardRef((props, ref) => {
                         onChange={(text) => setLicenseTitle(text.target.value.trim())}
                         error={errorLicenseTitle !== ""}
                         helperText={errorLicenseTitle}
+                    />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                    <TextField
+                        id="institution"
+                        name="institution"
+                        label="機構名稱"
+                        fullWidth
+                        variant="standard"
+                        value={institution}
+                        onChange={(text) => setInstitution(text.target.value)}
+                        error={errorInstitution !== ""}
+                        helperText={errorInstitution}
+                    />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                    <TextField
+                        id="phone"
+                        name="phone"
+                        label="機構電話"
+                        fullWidth
+                        variant="standard"
+                        value={phone}
+                        onChange={(text) => setPhone(text.target.value)}
+                        error={errorPhone !== ""}
+                        helperText={errorPhone}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        id="address1"
+                        name="address1"
+                        label="機構地址"
+                        fullWidth
+                        autoComplete="shipping address-line1"
+                        variant="standard"
+                        value={address}
+                        onChange={(text) => setAddress(text.target.value)}
+                        error={errorAddress !== ""}
+                        helperText={errorAddress}
                     />
                 </Grid>
             </Grid>

@@ -129,11 +129,13 @@ export function Register() {
 
             // step2: Login to get token
             result = await counselorService.login(account, password);
-
+            console.log("Login", result);
             // step3: Upload Photo
             result = await counselorService.upload(counselorInfo.Photo);
+            console.log("Upload Photo", result);
             counselorInfo.updatePhoto = result.Photo;
-
+            counselorInfo.updateAppointmentID = result.AppointmentTimeID;
+            console.log("counselorInfo", counselorInfo);
             // step4: Update Counselor Info and AppointmentTime
             let [res1, res2] = await Promise.all([
                 counselorService.updateCounselorInfo(counselorInfo),

@@ -18,7 +18,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Counselor, counselorInfo, Expertise } from '../../../../dataContract/counselor';
 import { useEffect, useRef } from "react";
 import { counselorService } from "../../../../service/ServicePool";
-import { checkLines, showToast, toastType } from "../../../../common/method";
+import { checkLines, showToast, toastType, calTextLength } from "../../../../common/method";
 const useStyles = makeStyles((theme) => ({
     root: {
         '& > *': {
@@ -90,6 +90,9 @@ const CounselingInfo = () => {
     const [licenseNumber, setLicenseNumber] = useState(counselorInfo.License.LicenseNumber); // 證照編號
     const [licenseIssuing, setLicenseIssuing] = useState(counselorInfo.License.LicenseIssuing); // 發證單位
     const [licenseTitle, setLicenseTitle] = useState(counselorInfo.License.LicenseTitle); // 證照名稱
+    const [phone, setPhone] = useState(counselorInfo.Phone); // 機構電話
+    const [address, setAddress] = useState(counselorInfo.Address); // 機構地址
+    const [institution, setInstitution] = useState(counselorInfo.InstitutionTemp); // 機構名稱
     const [expertisesInfo, setExpertisesInfo] = useState(counselorInfo.ExpertisesInfo); // 諮商師的專長(自行輸入)
     const [expertises, setExpertises] = useState([]); // 諮商師的專項
     const [consultingFees, setConsultingFees] = useState(counselingItems); // 諮商項目: 初談、諮商60min、諮商90min
@@ -102,11 +105,21 @@ const CounselingInfo = () => {
     const [errorLicenseNumber, setErrorLicenseNumber] = useState("");
     const [errorLicenseIssuing, setErrorLicenseIssuing] = useState("");
     const [errorLicenseTitle, setErrorLicenseTitle] = useState("");
+    const [errorPhone, setErrorPhone] = useState("");
+    const [errorAddress, setErrorAddress] = useState("");
+    const [errorInstitution, setErrorInstitution] = useState("");
     const [errorExpertises, setErrorExpertises] = useState("");
     const [errorExpertisesInfo, setErrorExpertisesInfo] = useState("");
     const [errorConsultingFees, setErrorConsultingFees] = useState("");
 
     const inputRef = useRef();
+    const checkPositionLengthIsValid = (position) => {
+        let totalLength = calTextLength(position);
+        if (totalLength > 16) {
+            return false;
+        }
+        return true;
+    }
     function ClearAllError() {
         setErrorLanguages("");
         setErrorEducation("");
@@ -153,6 +166,9 @@ const CounselingInfo = () => {
         setLicenseNumber(counselorInfo.License.LicenseNumber);
         setLicenseIssuing(counselorInfo.License.LicenseIssuing);
         setLicenseTitle(counselorInfo.License.LicenseTitle);
+        setPhone(counselorInfo.Phone);
+        setInstitution(counselorInfo.InstitutionTemp);
+        setAddress(counselorInfo.Address);
         setExpertises(tempExpertiseList);
         setExpertisesInfo(counselorInfo.ExpertisesInfo);
         setConsultingFees(tempConsultingFees);
@@ -206,6 +222,10 @@ const CounselingInfo = () => {
             setErrorConsultingFees("請設定諮商項目");
             output = false;
         }
+        if (checkPositionLengthIsValid(position) === false) {
+            setErrorPosition("字數過長，最多中文8個字；英文16個字");
+            output = false;
+        }
         if (output) {
             let info = new Counselor();
             let backupInfo = counselorInfo;
@@ -217,6 +237,9 @@ const CounselingInfo = () => {
             info.License.LicenseNumber = licenseNumber;
             info.License.LicenseIssuing = licenseIssuing;
             info.License.LicenseTitle = licenseTitle;
+            info.Address = address;
+            info.Phone = phone;
+            info.InstitutionTemp = institution;
             info.Expertises = expertises.map((expertise) => {
                 let object = new Expertise();
                 object.Skill = expertiseList[expertise].label;
@@ -234,6 +257,7 @@ const CounselingInfo = () => {
             });
             counselorInfo.updateCounselorInfo = info;
             counselorInfo.updateCertificateInfo = info.License;
+            counselorInfo.updateInstitution = info;
             let res = await counselorService.updateCounselorInfo(counselorInfo);
             if (res.success) {
                 showToast(toastType.success, "儲存完成");
@@ -262,13 +286,16 @@ const CounselingInfo = () => {
             licenseNumber !== counselorInfo.License.LicenseNumber ||
             licenseIssuing !== counselorInfo.License.LicenseIssuing ||
             licenseTitle !== counselorInfo.License.LicenseTitle ||
+            phone !== counselorInfo.Phone ||
+            address !== counselorInfo.Address ||
+            institution !== counselorInfo.InstitutionTemp ||
             expertisesInfo !== counselorInfo.ExpertisesInfo) {
             setDisabledSaveBtn(false);
         }
         else {
             setDisabledSaveBtn(true);
         }
-    }, [education, seniority, position, accumulative, licenseNumber, licenseIssuing, licenseTitle, expertisesInfo])
+    }, [education, seniority, position, accumulative, licenseNumber, licenseIssuing, licenseTitle, phone, address, institution, expertisesInfo])
     const onClickSetting = () => {
         setIsOpen(true);
     }
@@ -501,6 +528,46 @@ const CounselingInfo = () => {
                         helperText={errorLicenseTitle}
                     />
                 </Grid>
+                <Grid item xs={12} sm={6}>
+                    <TextField
+                        id="institution"
+                        name="institution"
+                        label="機構名稱"
+                        fullWidth
+                        variant="standard"
+                        value={institution}
+                        onChange={(text) => setInstitution(text.target.value)}
+                        error={errorInstitution !== ""}
+                        helperText={errorInstitution}
+                    />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                    <TextField
+                        id="phone"
+                        name="phone"
+                        label="機構電話"
+                        fullWidth
+                        variant="standard"
+                        value={phone}
+                        onChange={(text) => setPhone(text.target.value)}
+                        error={errorPhone !== ""}
+                        helperText={errorPhone}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        id="address1"
+                        name="address1"
+                        label="機構地址"
+                        fullWidth
+                        autoComplete="shipping address-line1"
+                        variant="standard"
+                        value={address}
+                        onChange={(text) => setAddress(text.target.value)}
+                        error={errorAddress !== ""}
+                        helperText={errorAddress}
+                    />
+                </Grid>
                 <Grid item xs={12}>
                     <div>
                         <span style={{ color: errorExpertisesInfo === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"專長 *"}</span>
@@ -536,7 +603,6 @@ const CounselingInfo = () => {
                                 value={expertises}
                                 tokenSeparators={[","]}
                                 options={expertiseList}
-                                showArrow={true}
                                 showSearch={true}
                                 style={{ width: "100%" }}
                             />
@@ -560,7 +626,6 @@ const CounselingInfo = () => {
                                 value={tags}
                                 tokenSeparators={[","]}
                                 options={tagList}
-                                showArrow={true}
                                 showSearch={true}
                                 style={{ width: "100%" }}
                             />

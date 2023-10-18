@@ -10,7 +10,7 @@ export class AppointmentService {
         this.token = token_counselor;
     }
     getAllAppointment() {
-        const api = this.base_url + "/api/v1/appointments/all/new;roomCreated"
+        const api = this.base_url + "/api/v1/appointments/all/UnPaid;roomCreated;Confirmed;Completed"
         const requestOptions = {
             method: 'Get',
             headers: { "Authorization": this.token, 'Content-Type': 'application/json' },

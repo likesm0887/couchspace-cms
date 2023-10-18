@@ -9,7 +9,15 @@ export class TimeUpdateRecord {
     Time = new ReservedTime();
     TimeStamp = "2023-05-13 11:16:22";
 }
-
+export class ServiceType {
+    Label = "";
+    Value = "";
+}
+export class Service {
+    Type = new ServiceType();
+    Time = 0;
+    Fee = 0;
+}
 export class Appointment {
     AppointmentID = "e0721569-9fbe-4e68-a3c6-103d6460c152";
     UserID = "152ce7a6-f313-4829-a564-6b0fb0aa9a4f";
@@ -18,7 +26,7 @@ export class Appointment {
     CounselorName = "陳郁欣";
     Time = new ReservedTime();
     Fee = 2000;
-    Service = 0;
+    Service = new Service();
     ProblemStatement = "失戀";
     SpecialRequirement = "需要背景音樂";
     TimeUpdateRecord = [];

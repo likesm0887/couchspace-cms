@@ -53,3 +53,13 @@ export const checkLines = (inputText, splitChar, count) => {
   }
   return true;
 }
+
+export function calTextLength(text: String) {
+  text = text.trim();
+  let chineseChars = text.match(/[\u4e00-\u9fa5]/g);
+  let chineseCharsCount = chineseChars ? chineseChars.length : 0;
+  let nonChineseCharsCount = text.replace(/[\u4e00-\u9fa5]/g, '').length;
+
+  return (chineseCharsCount * 2 + nonChineseCharsCount);
+
+}

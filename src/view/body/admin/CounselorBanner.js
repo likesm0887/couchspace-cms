@@ -82,7 +82,7 @@ const Row = ({ children, ...props }) => {
   );
 };
 
-const Banner = () => {
+const CounselorBanners= () => {
   const columns = [
     {
       key: "sort",
@@ -128,13 +128,13 @@ const Banner = () => {
     getData();
   }, []);
   const onBannerDelete = async (e) => {
-    let select = oriCommonData.NewBanners.findIndex(
+    let select = oriCommonData.CounselorBanners?.findIndex(
       (o) => o.Seq === e.seq && o.ImageUrl === e.imageUrl
     );
     console.log(select);
-    oriCommonData.NewBanners.splice(select, 1);
-    for (let index = 0; index < oriCommonData.NewBanners.length; index++) {
-        oriCommonData.NewBanners[index].Seq=index+1
+    oriCommonData.CounselorBanners?.splice(select, 1);
+    for (let index = 0; index < oriCommonData.CounselorBanners?.length; index++) {
+        oriCommonData.CounselorBanners[index].Seq=index+1
     }
     setLoading2(true)
     await meditationService.updateCommonData(oriCommonData);
@@ -144,12 +144,12 @@ const Banner = () => {
   const getData = async () => {
     let commonData = await meditationService.getCommonData();
     setOriCommonData(commonData);
-    console.log(commonData.NewBanners.map((b) => b.LinkSourceID));
+    console.log(commonData?.CounselorBanners?.map((b) => b.LinkSourceID));
     let courses = await meditationService.batchQueryCourses({
-      ids: commonData.NewBanners.map((b) => b.LinkSourceID),
+      ids: commonData.CounselorBanners?.map((b) => b.LinkSourceID),
     });
 
-    let banner = commonData.NewBanners.map((e) => {
+    let banner = commonData.CounselorBanners?.map((e) => {
       let course = courses?.find((c) => c.CourseID === e.LinkSourceID);
       return {
         key: e.Seq,
@@ -192,7 +192,7 @@ const Banner = () => {
 
         for (let index = 0; index < result.length; index++) {
           console.log(oriCommonData);
-          let select = oriCommonData.NewBanners.find(
+          let select = oriCommonData.CounselorBanners?.find(
             (o) =>
               o.Seq === result[index].seq &&
               o.ImageUrl === result[index].imageUrl
@@ -205,7 +205,7 @@ const Banner = () => {
           });
           console.log(toChangeCommonData);
         }
-        oriCommonData.NewBanners = toChangeCommonData;
+        oriCommonData.CounselorBanners = toChangeCommonData
         return result;
       });
       setLoading2(true);
@@ -223,8 +223,8 @@ const Banner = () => {
     if (form.getFieldValue("image") === "" || selectCourse === undefined) {
       return;
     }
-    oriCommonData.NewBanners.push({
-      Seq: oriCommonData.NewBanners.length + 1,
+    oriCommonData.CounselorBanners?.push({
+      Seq: oriCommonData.CounselorBanners?.length + 1,
       ImageUrl: form.getFieldValue("image"),
       LinkSourceID: selectCourse,
     });
@@ -255,7 +255,7 @@ const Banner = () => {
         <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
           <SortableContext
             // rowKey array
-            items={dataSource.map((i) => i.key)}
+            items={dataSource?.map((i) => i.key)}
             strategy={verticalListSortingStrategy}
           >
             <Table
@@ -335,4 +335,4 @@ const Banner = () => {
     </div>
   );
 };
-export default Banner;
+export default CounselorBanners;
