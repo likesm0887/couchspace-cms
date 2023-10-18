@@ -172,7 +172,7 @@ const Counselor = () => {
     const result = await counselorService.getAllCounselorInfo(false);
     console.log(result);
 
-    const form = result.map((u) => {
+    const form = result?.map((u) => {
       return {
         id: u.ID,
         name: u.UserName.Name.LastName + u.UserName.Name.FirstName,
