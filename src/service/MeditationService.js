@@ -397,7 +397,7 @@ export class MeditationService {
     if (this.token === undefined) {
       return;
     }
-    const api = this.base_url + "/api/v1/meditation/common";
+    const api = this.base_url + "/api/v1/meditation/noFilterBanner";
     const requestOptions = {
       method: "Get",
       headers: {

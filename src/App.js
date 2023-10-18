@@ -28,6 +28,7 @@ import User from "./view/body/admin/User";
 import Membership from "./view/body/admin/Membership";
 import Counselor from "./view/body/admin/Counselor";
 import Banner from "./view/body/admin/Banner";
+import CounselorBanner from "./view/body/admin/CounselorBanner";
 
 function App() {
   // registerServiceWorker()
@@ -47,6 +48,7 @@ function App() {
           <Route path="setting" element={<Setting />}></Route>
           <Route path="membership" element={<Membership />}></Route>
           <Route path="counselor" element={<Counselor />}></Route>
+          <Route path="counselorBanner" element={<CounselorBanner />}></Route>
         </Route>
         <Route path="couchspace-cms/register" element={<Register />} />
 
