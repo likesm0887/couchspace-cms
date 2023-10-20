@@ -39,8 +39,8 @@ const CounselingInfo = () => {
     const counselingItems = [
         // { enabled: false, label: "個別諮商", fee: 0, time: 50, value: "IND_COUNSELING" },
         // { enabled: false, label: "諮商90分鐘", fee: 0, time: 90, value: "IND_COUNSELING" }, // 0607: currently not support 90 min counseling
-        { enabled: false, label: "初談", fee: 0, time: 10, value: "FIRST" },
-        { enabled: false, label: "個別諮詢", fee: 0, time: 50, value: "IND_CONSULTATION" },
+        { enabled: false, label: "線上初談", fee: 0, time: 10, value: "FIRST" },
+        { enabled: false, label: "線上諮詢", fee: 0, time: 50, value: "IND_CONSULTATION" },
         { enabled: false, label: "實體諮商", fee: 0, time: 50, value: "IN_PERSON" },
     ]
     const languagesItems = [
