@@ -29,7 +29,7 @@ import {
   Drawer,
 } from "antd";
 import React, { useState, useEffect } from "react";
-import { meditationService } from "../../../service/ServicePool";
+import { counselorService, meditationService } from "../../../service/ServicePool";
 
 const Row = ({ children, ...props }) => {
   const {
@@ -158,21 +158,21 @@ const CounselorBanners= () => {
         seq: e.Seq,
       };
     });
-    const allCourses = await meditationService.getAllCourse();
+    const allCounselors = await counselorService.getAllCounselorInfo(true);
 
     setAllCourses(
-      allCourses.map((c) => {
+        allCounselors.map((c) => {
         return {
-          label: c.CourseName,
-          value: c._id,
+            label: c.UserName?.Name?.FirstName + c.UserName?.Name.LastName,
+            value: c.ID,
         };
       })
     );
     console.log(
-      allCourses.map((c) => {
+        allCounselors.map((c) => {
         return {
-          label: c.CourseName,
-          value: c._id,
+          label: c.UserName?.Name?.FirstName + c.UserName?.Name.LastName,
+          value: c.ID,
         };
       })
     );
@@ -302,13 +302,13 @@ const CounselorBanners= () => {
             </Form.Item>
             <p></p>
 
-            <Form.Item name="LinkSourceID" label="轉跳系列">
+            <Form.Item name="LinkSourceID" label="轉跳諮商師">
               <Space>
                 <Select
                   onChange={(e) => {
                     setSelectCourse(e);
                   }}
-                  placeholder="選擇轉跳系列"
+                  placeholder="選擇轉跳諮商師"
                   options={allCourses}
                 />
               </Space>
