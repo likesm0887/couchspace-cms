@@ -256,7 +256,7 @@ const Counselor = () => {
           <Badge.Ribbon text={m.Service.Type.Label.slice(0, 4) } placement="end" color= {m.Status=="COMPLETED"?"":"green"}>
             <Card  size="small" >
               <br></br>
-              { m.Status=="COMPLETED"?"已完成":"" +
+              { (m.Status=="COMPLETED"?"已完成":"") +
                   m.UserName.slice(0, 4) +" "+m.Time.StartTime +
                 "-" +
                 m.Time.EndTime}
