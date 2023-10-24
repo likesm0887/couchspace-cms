@@ -29,6 +29,7 @@ import {
 } from "../../../service/ServicePool";
 import CountUp from "react-countup";
 import img_account from "../../img/login/account.svg";
+import { fontFamily } from "@mui/system";
 const DrawerForm = ({ id, visible, onClose, record, callback }) => {
   // Define state for the form fields
 
@@ -244,23 +245,21 @@ const Counselor = () => {
     createDescription();
   };
   function dateCellRender(value) {
-    // 根据日期找到匹配的数据项
 
-    const matchingData = currentSelectCounselorAppointments.filter(
+    const matchingData = currentSelectCounselorAppointments?.filter(
       (item) => item.Time.Date === value.format("YYYY-MM-DD")
     );
     console.log(matchingData);
     if (matchingData) {
-      // 有匹配的数据，构建时间段列表
-
       const periodList = matchingData.map((m, index) => (
         <li key={index}>
-          <Badge.Ribbon text={m.Service.Type.Label }  color= {m.Status=="COMPLETED"?"":"green"}>
-            <Card title={m.UserName} size="small">
+          <Badge.Ribbon text={m.Service.Type.Label.slice(0, 4) } placement="end" color= {m.Status=="COMPLETED"?"":"green"}>
+            <Card  size="small" >
+              <br></br>
               { m.Status=="COMPLETED"?"已完成":"" +
-                m.Time.StartTime +
+                  m.UserName.slice(0, 4) +" "+m.Time.StartTime +
                 "-" +
-                m.Time.EndTime+"("+m.Time.Total+"分鐘)"}
+                m.Time.EndTime}
             </Card>
           </Badge.Ribbon>
         </li>
