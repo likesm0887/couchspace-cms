@@ -338,7 +338,7 @@ const Counselor = () => {
         label: "照片",
         span: 2,
         children: (
-          <Image src={currentSelectCounselor.Photo} height={100}></Image>
+          <Image src={currentSelectCounselor.Photo} height={150}></Image>
         ),
       },
       {
