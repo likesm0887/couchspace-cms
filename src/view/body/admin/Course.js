@@ -184,7 +184,7 @@ function Course() {
       }
 
       result.push({
-        key: res[i]._id,
+        key: res[i].CourseID,
         courseName: res[i].CourseName,
         image: res[i].Image,
         series: ["nice", "developer"],
@@ -303,7 +303,7 @@ function Course() {
 
   const createOptions = (musics) => {
     musics.forEach((m) => {
-      options.push({ value: m._id, label: m.Title });
+      options.push({ value: m.MusicID, label: m.Title });
     });
     setAllOption(options);
   };
