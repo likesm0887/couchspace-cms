@@ -10,19 +10,26 @@ import {
   Menu,
   Tabs,
   Image,
+  List,
+  Card,
   Calendar,
   Space,
 } from "antd";
 import { Layout, theme, Descriptions, Badge, Outlet } from "antd";
+import "./counselor.css";
 import {
   LaptopOutlined,
   NotificationOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 
-import { counselorService } from "../../../service/ServicePool";
+import {
+  appointmentService,
+  counselorService,
+} from "../../../service/ServicePool";
 import CountUp from "react-countup";
 import img_account from "../../img/login/account.svg";
+import { fontFamily } from "@mui/system";
 const DrawerForm = ({ id, visible, onClose, record, callback }) => {
   // Define state for the form fields
 
@@ -170,6 +177,7 @@ const Counselor = () => {
 
   const fetchData = async () => {
     const result = await counselorService.getAllCounselorInfo(false);
+
     console.log(result);
 
     const form = result?.map((u) => {
@@ -187,16 +195,30 @@ const Counselor = () => {
     setUserCount(result.length);
   };
   const [currentSelectCounselor, setCurrentSelectCounselor] = useState({});
-
+  const [
+    currentSelectCounselorAppointmentTime,
+    setcurrentSelectCounselorAppointmentTime,
+  ] = useState({});
+  const [
+    currentSelectCounselorAppointments,
+    setCurrentSelectCounselorAppointments,
+  ] = useState({});
   const openModal = async (id) => {
     const res = await counselorService.getCounselorInfoById(id);
+    console.log(id);
+    const appointmentTime = await counselorService.getAppointmentTimeById(id);
+    console.log(appointmentTime);
+    const counselorAppointments =
+      await appointmentService.getAppointmentsByCounselorId(id);
+    setcurrentSelectCounselorAppointmentTime(appointmentTime);
+    setCurrentSelectCounselorAppointments(counselorAppointments);
+    console.log(counselorAppointments);
     setCurrentSelectCounselor(res);
     createDescription(res);
     console.log(id);
-  
+
     setIsModalOpen(true);
     console.log(res);
-   
   };
   useEffect(() => {
     fetchData();
@@ -222,6 +244,37 @@ const Counselor = () => {
   const handleMenuClick = (e) => {
     createDescription();
   };
+  function dateCellRender(value) {
+
+    const matchingData = currentSelectCounselorAppointments?.filter(
+      (item) => item.Time.Date === value.format("YYYY-MM-DD")
+    );
+    console.log(matchingData);
+    if (matchingData) {
+      const periodList = matchingData.map((m, index) => (
+        <li key={index}>
+          <Badge.Ribbon text={m.Service.Type.Label.slice(0, 4) } placement="end" color= {m.Status=="COMPLETED"?"":"green"}>
+            <Card  size="small" >
+              <br></br>
+
+              { (m.Status=="COMPLETED"?"已完成":"") +
+                  m.UserName.slice(0, 4) +" "+m.Time.StartTime +
+                "-" +
+                m.Time.EndTime}
+            </Card>
+          </Badge.Ribbon>
+        </li>
+      ));
+
+      return (
+        <div>
+          <ul className="events">{periodList}</ul>
+        </div>
+      );
+    }
+
+    return <p>{value.format("DD")}</p>;
+  }
   const items2 = [
     {
       key: `information`,
@@ -240,17 +293,44 @@ const Counselor = () => {
       key: `appointmentTime`,
       icon: React.createElement(NotificationOutlined),
       label: `預約時間`,
-      children:(<div></div>)
+      children: (
+        <div>
+          <h1>可預約時間</h1>
+          <List
+            grid={{ gutter: 16, column: 7 }}
+            dataSource={currentSelectCounselorAppointmentTime?.BusinessTimes}
+            renderItem={(item) => (
+              <List.Item>
+                <Card
+                  hoverable={true}
+                  bordered={true}
+                  title={item.WeekOfDay} // 設定標題樣式
+                >
+                  <div style={{ flex: 2 }}>
+                    <List
+                      dataSource={item.Periods}
+                      renderItem={(period) => (
+                        <List.Item>
+                          {period.StartTime} ~ {period.EndTime}
+                        </List.Item>
+                      )}
+                    />
+                  </div>
+                </Card>
+              </List.Item>
+            )}
+          />
+        </div>
+      ),
     },
     {
       key: `appointments`,
       icon: React.createElement(LaptopOutlined),
       label: `預約`,
-      children:(<div></div>)
+      children: <Calendar dateCellRender={dateCellRender} fullscreen={false} />,
     },
   ];
 
-  
   const createDescription = (currentSelectCounselor) => {
     setDetail([
       {
@@ -258,7 +338,7 @@ const Counselor = () => {
         label: "照片",
         span: 2,
         children: (
-          <Image src={currentSelectCounselor.Photo} height={100}></Image>
+          <Image src={currentSelectCounselor.Photo} height={150}></Image>
         ),
       },
       {
@@ -453,10 +533,15 @@ const Counselor = () => {
         <Layout>
           <Layout>
             <Tabs
-              defaultActiveKey={'information'}
+              defaultActiveKey={"information"}
               onChange={handleMenuClick}
               tabPosition="left"
-              style={{ height: "480px", borderRight: 0, overflowY: "auto", background: colorBgContainer }}
+              style={{
+                height: "480px",
+                borderRight: 0,
+                overflowY: "auto",
+                background: colorBgContainer,
+              }}
               items={items2}
             />
           </Layout>

@@ -29,7 +29,7 @@ import {
   Drawer,
 } from "antd";
 import React, { useState, useEffect } from "react";
-import { meditationService } from "../../../service/ServicePool";
+import { counselorService, meditationService } from "../../../service/ServicePool";
 
 const Row = ({ children, ...props }) => {
   const {
@@ -93,7 +93,7 @@ const CounselorBanners= () => {
       render: (image) => <Image src={image} width="70px" preview={false} />,
     },
     {
-      title: "連結系列",
+      title: "連結諮商師",
       dataIndex: "linkSourceID",
     },
     {
@@ -145,34 +145,32 @@ const CounselorBanners= () => {
     let commonData = await meditationService.getCommonData();
     setOriCommonData(commonData);
     console.log(commonData?.CounselorBanners?.map((b) => b.LinkSourceID));
-    let courses = await meditationService.batchQueryCourses({
-      ids: commonData.CounselorBanners?.map((b) => b.LinkSourceID),
-    });
-
+    let counselors = await counselorService.getAllCounselorInfo();
+    console.log(counselors)
     let banner = commonData.CounselorBanners?.map((e) => {
-      let course = courses?.find((c) => c.CourseID === e.LinkSourceID);
+      let counselor = counselors?.find((c) => c.ID === e.LinkSourceID);
       return {
         key: e.Seq,
         imageUrl: e.ImageUrl,
-        linkSourceID: course?.CourseName,
+        linkSourceID: counselor?.UserName?.Name?.LastName + counselor?.UserName?.Name?.FirstName,
         seq: e.Seq,
       };
     });
-    const allCourses = await meditationService.getAllCourse();
+    const allCounselors = await counselorService.getAllCounselorInfo(true);
 
     setAllCourses(
-      allCourses.map((c) => {
+        allCounselors.map((c) => {
         return {
-          label: c.CourseName,
-          value: c._id,
+            label: c.UserName?.Name?.FirstName + c.UserName?.Name.LastName,
+            value: c.ID,
         };
       })
     );
     console.log(
-      allCourses.map((c) => {
+        allCounselors.map((c) => {
         return {
-          label: c.CourseName,
-          value: c._id,
+          label: c.UserName?.Name?.FirstName + c.UserName?.Name.LastName,
+          value: c.ID,
         };
       })
     );
@@ -302,13 +300,13 @@ const CounselorBanners= () => {
             </Form.Item>
             <p></p>
 
-            <Form.Item name="LinkSourceID" label="轉跳系列">
+            <Form.Item name="LinkSourceID" label="轉跳諮商師">
               <Space>
                 <Select
                   onChange={(e) => {
                     setSelectCourse(e);
                   }}
-                  placeholder="選擇轉跳系列"
+                  placeholder="選擇轉跳諮商師"
                   options={allCourses}
                 />
               </Space>

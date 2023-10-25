@@ -163,6 +163,43 @@ export class CounselorService {
                 return res;
             });
     }
+    getAppointmentTimeById(id) {
+        if (this.adminToken === undefined) {
+            return;
+        }
+        const api = this.base_url + "/api/v1/appointmentTime/"+id
+        console.log(api)
+        const requestOptions = {
+            method: 'GET',
+            headers: { "Authorization": this.adminToken, 'Content-Type': 'application/json' },
+        };
+
+        return fetch(api, requestOptions)
+            .then(res => res.json())
+            .then(res => {
+                console.log("res", res);
+                return res;
+            });
+    }
+
+    getCalenderById(id) {
+        if (this.adminToken === undefined) {
+            return;
+        }
+        const api = this.base_url + "/api/v1/calender/"+id
+        console.log(api)
+        const requestOptions = {
+            method: 'GET',
+            headers: { "Authorization": this.adminToken, 'Content-Type': 'application/json' },
+        };
+
+        return fetch(api, requestOptions)
+            .then(res => res.json())
+            .then(res => {
+                console.log("res", res);
+                return res;
+            });
+    }
     getAppointmentTime() {
         if (this.token === undefined) {
             return;
