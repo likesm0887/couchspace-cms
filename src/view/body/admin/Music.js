@@ -219,14 +219,14 @@ function Music() {
     setLoading(true);
     const res = await meditationService.getAllMusic();
     const result = res.map((element) => ({
-      key: element._id,
+      key: element.MusicID,
       name: element.Title,
       image: element.Image,
       series: ["nice", "developer"],
       toll: element.Free ? "Free" : "Premium",
       path: element.Path,
       views: element.TotalView,
-      createDate: element.CreationDate,
+      createDate: element.CreateDate,
     }));
     setLoading(false);
     setData(result);

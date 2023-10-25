@@ -195,7 +195,7 @@ function Course() {
         teacherId: teacher===null?"":teacher.TeacherId,
         child: res[i].Musics,
         display: res[i].Display,
-        createDate: res[i].CreationDate,
+        createDate: res[i].CreateDate,
       });
     }
 
