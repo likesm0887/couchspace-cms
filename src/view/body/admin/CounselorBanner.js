@@ -93,7 +93,7 @@ const CounselorBanners= () => {
       render: (image) => <Image src={image} width="70px" preview={false} />,
     },
     {
-      title: "連結系列",
+      title: "連結諮商師",
       dataIndex: "linkSourceID",
     },
     {
@@ -145,16 +145,14 @@ const CounselorBanners= () => {
     let commonData = await meditationService.getCommonData();
     setOriCommonData(commonData);
     console.log(commonData?.CounselorBanners?.map((b) => b.LinkSourceID));
-    let courses = await meditationService.batchQueryCourses({
-      ids: commonData.CounselorBanners?.map((b) => b.LinkSourceID),
-    });
-
+    let counselors = await counselorService.getAllCounselorInfo();
+    console.log(counselors)
     let banner = commonData.CounselorBanners?.map((e) => {
-      let course = courses?.find((c) => c.CourseID === e.LinkSourceID);
+      let counselor = counselors?.find((c) => c.ID === e.LinkSourceID);
       return {
         key: e.Seq,
         imageUrl: e.ImageUrl,
-        linkSourceID: course?.CourseName,
+        linkSourceID: counselor?.UserName?.Name?.LastName + counselor?.UserName?.Name?.FirstName,
         seq: e.Seq,
       };
     });
