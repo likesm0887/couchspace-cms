@@ -227,7 +227,7 @@ function Category() {
   const createOptions = (courses) => {
     let result = [];
     courses.forEach((m) => {
-      result.push({ value: m._id, label: m.CourseName });
+      result.push({ value: m.CourseID, label: m.CourseName });
     });
 
     setAllCourseOption(result);
