@@ -218,10 +218,10 @@ const CounselingInfo = () => {
             output = false;
         }
 
-        if (consultingFees.every((value, index, array) => value.enabled === false)) {
-            setErrorConsultingFees("請設定諮商項目");
-            output = false;
-        }
+        // if (consultingFees.every((value, index, array) => value.enabled === false)) {
+        //     setErrorConsultingFees("請設定諮商項目");
+        //     output = false;
+        // }
         if (checkPositionLengthIsValid(position) === false) {
             setErrorPosition("字數過長，最多中文8個字；英文16個字");
             output = false;
@@ -246,7 +246,7 @@ const CounselingInfo = () => {
                 return object;
             });
             info.ExpertisesInfo = expertisesInfo.trim();
-            info.ConsultingFees = consultingFees.map((consultingFee) => {
+            info.ConsultingFees = consultingFees.filter((consultingFee) => consultingFee.enabled).map((consultingFee) => {
                 let object = {}
                 object.Type = {};
                 object.Type.Label = consultingFee.label;
@@ -635,7 +635,7 @@ const CounselingInfo = () => {
                 </Grid> */}
                 <Grid item xs={12} sm={6}>
                     <div>
-                        <span style={{ color: errorConsultingFees === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"諮商項目 *"}</span>
+                        <span style={{ color: errorConsultingFees === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"諮商項目"}</span>
                         <div>
                             {consultingFees.map((item, index) => {
                                 return (
