@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-
+import "./participant.css";
 const Participant = ({ participant }) => {
   const [videoTracks, setVideoTracks] = useState([]);
   const [audioTracks, setAudioTracks] = useState([]);
@@ -63,7 +63,7 @@ const Participant = ({ participant }) => {
   }, [audioTracks]);
 
   return (
-    <div className="participant" style={{ flex: 1, alignItems: 'center', justifyItems: 'center', height: 500 }}>
+    <div className="Participant" style={{ flex: 1, alignItems: 'center', justifyItems: 'center', height: 500 }}>
       <video style={{ flex: 1, height: "100%" }} ref={videoRef} autoPlay={true} />
       <audio ref={audioRef} autoPlay={true} muted={false} />
     </div>
