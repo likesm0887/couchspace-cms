@@ -111,6 +111,10 @@ export class CounselorService {
             });
     }
     getCounselorVerify(id){
+     
+        if (id==null||id ==''){
+            return
+        }
         console.log(this.token);
         if (this.adminToken === undefined) {
             return;
