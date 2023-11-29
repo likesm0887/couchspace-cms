@@ -30,7 +30,6 @@ import {
 import CountUp from "react-countup";
 import img_account from "../../img/login/account.svg";
 import { fontFamily } from "@mui/system";
-import { isNil } from "@ant-design/pro-components";
 const DrawerForm = ({ id, visible, onClose, record, callback }) => {
   // Define state for the form fields
 
@@ -44,14 +43,12 @@ const DrawerForm = ({ id, visible, onClose, record, callback }) => {
 
   useEffect(() => {
     console.log("JIJI");
-    if (id!==null){
     const getCounselorVerify = async () => {
       const isVerify = await counselorService.getCounselorVerify(id);
       console.log(isVerify);
       setVerify(isVerify);
     };
     getCounselorVerify();
-  }
     console.log("HIHIH");
   }, [id]);
 
@@ -85,7 +82,7 @@ const DrawerForm = ({ id, visible, onClose, record, callback }) => {
   );
 };
 
-const Counselor = () => {
+const Appointments = () => {
   const { Header, Content, Footer, Sider } = Layout;
   const formatter = (value) => <CountUp end={value} separator="," />;
   const [visible, setVisible] = useState(false);
@@ -101,97 +98,90 @@ const Counselor = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-  const columns = [
+  const columns = ()=>{
+  let result =  [
+    // {
+    //   title: "Action",
+    //   key: "action",
+    //   render: (text, record) => (
+    //     <Button type="primary" onClick={() => handleEdit(record.id)}>
+    //       編輯
+    //     </Button>
+    //   ),
+    // },
+    
     {
-      title: "Action",
-      key: "action",
-      render: (text, record) => (
-        <Button type="primary" onClick={() => handleEdit(record.id)}>
-          編輯
-        </Button>
-      ),
+      title: "交易單號",
+      dataIndex: "AppointmentID",
+      key: "AppointmentID",
+    },
+    
+    {
+      title: "案主姓名",
+      dataIndex: "UserName",
+      key: "UserName",
+      
+      
     },
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
-    },
+        title: "諮商師ID",
+        dataIndex: "CounselorID",
+        key: "CounselorID",
+        hide: true 
+
+      },
     {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
+      title: "諮商師姓名",
+      dataIndex: "CounselorName",
+      key: "CounselorName",
       render: (text, record) => (
-        <a style={{ color: "#1677FF" }} onClick={() => openModal(record.id)}>
+        <a style={{ color: "#1677FF" }} onClick={() => openModal(record.CounselorID)}>
           {text}
         </a>
       ),
     },
     {
-      title: "Nickname",
-      dataIndex: "nickname",
-      key: "nickname",
-    },
-    {
-      title: "Email",
-      dataIndex: "email",
-      key: "email",
+      title: "預約日期",
+      dataIndex: "DateTime",
+      key: "DateTime",
     },
 
     {
-      title: "Photo",
-      dataIndex: "photo",
-      key: "photo",
-      render: (url) => (
-        <img src={url} style={{ width: "80px", height: "100px" }} />
-      ),
+      title: "費用",
+      dataIndex: "Fee",
+      key: "Fee"
     },
     {
-      title: "Expertises",
-      key: "expertises",
-      dataIndex: "expertises",
-      render: (tags) => (
-        <span>
-          {tags.map((tag) => {
-            let color = tag.length > 5 ? "geekblue" : "green";
-            if (tag === "loser") {
-              color = "volcano";
-            }
-            return (
-              <Tag color={color} key={tag}>
-                {tag.toUpperCase()}
-              </Tag>
-            );
-          })}
-        </span>
-      ),
-    },
-    {
-      title: "Account",
-      dataIndex: "account",
-      key: "account",
-    },
+      title: "服務項目",
+      key: "Type",
+      dataIndex: "Type",
 
-    {
-      title: "是否通過認證",
-      dataIndex: "isverify",
-      key: "isverify",
     },
+    {
+      title: "狀態",
+      dataIndex: "Status",
+      key: "Status",
+    }
   ];
+  
+  return result.filter(col => col.dataIndex !== 'CounselorID');
+}
 
   const fetchData = async () => {
-    const result = await counselorService.getAllCounselorInfo(false);
+    const result = await appointmentService.getAllAppointment();
 
     console.log(result);
 
     const form = result?.map((u) => {
       return {
-        id: u.ID,
-        name: u.UserName.Name.LastName + u.UserName.Name.FirstName,
-        email: u.Email,
-        expertises: u.Expertises.map((r) => r.Skill),
-        photo: u.Photo == "" ? img_account : u.Photo,
-        account: u.Email,
-        isverify: u.IsVerify ? "已認證" : "未認證",
+        AppointmentID: u.AppointmentID,
+        UserName: u.UserName,
+        CounselorID:u.CounselorID,
+        CounselorName: u.CounselorName,
+        DateTime:u.Time.Date+" "+u.Time.StartTime,
+        Fee: u.Service.Fee,
+        Type:u.Service.Type.Label,
+        Status: u.Status,
       };
     });
     setUserData(form);
@@ -510,13 +500,13 @@ const Counselor = () => {
   return (
     <>
       <Statistic
-        title="Register Users"
+        title="預約數量"
         value={userCount}
         formatter={formatter}
       />
-      <Statistic title="Permium Users" value={permiun} formatter={formatter} />
-      <Statistic title="Active Users" value={active} formatter={formatter} />
-      <Table columns={columns} dataSource={userData} />
+      <Statistic title="已完成數量" value={permiun} formatter={formatter} />
+      <Statistic title="未完成" value={active} formatter={formatter} />
+      <Table columns={columns()} dataSource={userData} />
       <DrawerForm
         id={currentSelectCounselorId}
         callback={fetchData}
@@ -554,4 +544,4 @@ const Counselor = () => {
   );
 };
 
-export default Counselor;
+export default Appointments;

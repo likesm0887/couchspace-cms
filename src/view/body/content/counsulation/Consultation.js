@@ -98,31 +98,38 @@ function Consultation() {
     }
     function createListItem() {
         return currentTableData.map(allAppointment => {
-            return (<div style={{ flexDirection: 'row', flex: 1, justifyContent: 'center', alignItems: 'center' }} key={allAppointment.AppointmentID}>
-                <div className="content-row" onClick={() => clickItem(allAppointment)}>
-                    <div className="content-col">
-                        <img style={{ verticalAlign: 'middle' }} src={userIcon} alt="123"></img>{allAppointment.UserName}
+            return (
+                <div style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }} key={allAppointment.AppointmentID}>
+                    <div className="content-row" onClick={() => clickItem(allAppointment)}>
+                        <div className="content-col">
+                            <img style={{ verticalAlign: 'middle' }} src={userIcon} alt="123"></img>{allAppointment.UserName}
+                        </div>
+                        <div className="content-col">
+                            {allAppointment.Time.Date}
+                        </div>
+                        <div className="content-col">
+                            {num2Time(allAppointment.Time.Total)}
+                        </div>
+                        <div className="content-col">
+                            {allAppointment.Service.Type.Label}
+                        </div>
+                        <div className="content-col">
+                            <span style={{ color: allAppointment.Status === "RoomCreated" ? "#88A1D2" : "#595757" }}>{getStatusDesc(allAppointment.Status)}
+                                <img src={editButton} className={"editButton"} alt={"123"}></img> </span>
+                        </div>
+
                     </div>
-                    <div className="content-col">
-                        {allAppointment.Time.Date}
+                    <div style={{ position: "relative", left: "92%", top: -50, height: 46, width: 80 }}>
+                        {allAppointment.Status.toUpperCase() === "ROOMCREATED" ?
+
+                            <button className={"startButton"} onClick={() => start(allAppointment.AppointmentID)}>
+                                開始
+                            </button>
+
+                            : null
+                        }
                     </div>
-                    <div className="content-col">
-                        {num2Time(allAppointment.Time.Total)}
-                    </div>
-                    <div className="content-col">
-                        {allAppointment.Service.Type.Label}
-                    </div>
-                    <div className="content-col">
-                        <span style={{ color: allAppointment.Status === "RoomCreated" ? "#88A1D2" : "#595757" }}>{getStatusDesc(allAppointment.Status)}
-                            <img src={editButton} className={"editButton"} alt={"123"}></img> </span>
-                    </div>
-                </div>
-                <div>
-                    <button className={"startButton"} onClick={() => start(allAppointment.AppointmentID)}>
-                        開始
-                    </button>
-                </div>
-            </div>)
+                </div>)
         })
     }
     function createListTitle() {
