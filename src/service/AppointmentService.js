@@ -14,7 +14,7 @@ export class AppointmentService {
         const api = this.base_url + "/api/v1/appointments/all/UnPaid;roomCreated;Confirmed;Completed"
         const requestOptions = {
             method: 'Get',
-            headers: { "Authorization": this.adminToken, 'Content-Type': 'application/json' },
+            headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
         };
 
         return fetch(api, requestOptions)
@@ -25,10 +25,27 @@ export class AppointmentService {
 
     }
     getAppointmentsByCounselorId(id) {
+        if (id ==null){
+            return
+        }
         const api = this.base_url + "/api/v1/appointments/all/"+id+"/roomCreated;Confirmed;Completed"
         const requestOptions = {
             method: 'Get',
-            headers: { "Authorization": this.adminToken, 'Content-Type': 'application/json' },
+            headers: { "Authorization": this.token_counselor, 'Content-Type': 'application/json' },
+        };
+
+        return fetch(api, requestOptions)
+            .then(res => res.json())
+            .then(res => {
+                return res;
+            });
+
+    }
+    getAppointmentsByCounselorIdByAdmin(id) {
+        const api = this.base_url + "/api/v1/appointments/all/"+id+"/roomCreated;Confirmed;Completed"
+        const requestOptions = {
+            method: 'Get',
+            headers: { "Authorization": this.token_counselor, 'Content-Type': 'application/json' },
         };
 
         return fetch(api, requestOptions)
