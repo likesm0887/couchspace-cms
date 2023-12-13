@@ -28,7 +28,7 @@ export class AppointmentService {
         const api = this.base_url + "/api/v1/appointments/all/"+id+"/roomCreated;Confirmed;Completed"
         const requestOptions = {
             method: 'Get',
-            headers: { "Authorization": this.adminToken, 'Content-Type': 'application/json' },
+            headers: { "Authorization": this.token_counselor, 'Content-Type': 'application/json' },
         };
 
         return fetch(api, requestOptions)
