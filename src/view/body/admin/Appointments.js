@@ -202,7 +202,7 @@ const Appointments = () => {
     const appointmentTime = await counselorService.getAppointmentTimeById(id);
     console.log(appointmentTime);
     const counselorAppointments =
-      await appointmentService.getAppointmentsByCounselorId(id);
+      await appointmentService.getAppointmentsByCounselorIdForAdmin(id);
     setcurrentSelectCounselorAppointmentTime(appointmentTime);
     setCurrentSelectCounselorAppointments(counselorAppointments);
     console.log(counselorAppointments);
