@@ -1,5 +1,5 @@
 import "./appointmentDetail.css"
-import userPhoto from "../../../img/content/userPhoto.png"
+import defaultUserPhoto from "../../../img/content/userPhoto.png"
 import location from "../../../img/content/AppointmentDetail/location.svg"
 import mail from "../../../img/content/AppointmentDetail/mail.svg"
 import nickname from "../../../img/content/AppointmentDetail/nickname.svg"
@@ -27,17 +27,19 @@ function AppointmentDetail() {
     const [userEmail, setUserEmail] = useState("");
     const [userPhone, setUserPhone] = useState("");
     const [userAddress, setUserAddress] = useState("");
+    const [userPhoto, setUserPhoto] = useState("");
     useEffect(() => {
         memberService.getGetUserById(state.appointment.UserID).then((res) => {
             console.log("userInfo", res);
-            setUserName(res?.UserName?.NickName);
+            setUserName(state.appointment.UserName);
             setUserEmail(res?.Email);
             setUserPhone(res?.Phone);
             setUserAddress(res?.AddressObject?.Address);
+            setUserPhoto(res ? res.Photo : defaultUserPhoto);
         });
         setAppointment(state.appointment);
         console.log("state", state.appointment);
-        setFee(new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(appointment.Fee));
+        setFee(new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(state.appointment.Fee));
     }, [])
     useEffect(() => {
 
