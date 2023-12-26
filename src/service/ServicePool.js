@@ -32,7 +32,6 @@ export const memberService = new MemberService(baseUrl);
 
 export const boot = () => {
     service.login("admin@gmail.com", "admin");
-    service.login("ace@gmail.com", "test123");
 }
 
 
