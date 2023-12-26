@@ -98,90 +98,116 @@ const Appointments = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-  const columns = ()=>{
-  let result =  [
-    // {
-    //   title: "Action",
-    //   key: "action",
-    //   render: (text, record) => (
-    //     <Button type="primary" onClick={() => handleEdit(record.id)}>
-    //       編輯
-    //     </Button>
-    //   ),
-    // },
-    
-    {
-      title: "交易單號",
-      dataIndex: "AppointmentID",
-      key: "AppointmentID",
-    },
-    
-    {
-      title: "案主姓名",
-      dataIndex: "UserName",
-      key: "UserName",
-      
-      
-    },
-    {
+  const columns = () => {
+    let result = [
+      // {
+      //   title: "Action",
+      //   key: "action",
+      //   render: (text, record) => (
+      //     <Button type="primary" onClick={() => handleEdit(record.id)}>
+      //       編輯
+      //     </Button>
+      //   ),
+      // },
+
+      {
+        title: "交易單號",
+        dataIndex: "AppointmentID",
+        key: "AppointmentID",
+      },
+
+      {
+        title: "案主姓名",
+        dataIndex: "UserName",
+        key: "UserName",
+      },
+      {
+        title: "案主信箱",
+        dataIndex: "UserEmail",
+        key: "UserEmail",
+      },
+      {
         title: "諮商師ID",
         dataIndex: "CounselorID",
         key: "CounselorID",
-        hide: true 
-
+        hide: true,
       },
-    {
-      title: "諮商師姓名",
-      dataIndex: "CounselorName",
-      key: "CounselorName",
-      render: (text, record) => (
-        <a style={{ color: "#1677FF" }} onClick={() => openModal(record.CounselorID)}>
-          {text}
-        </a>
-      ),
-    },
-    {
-      title: "預約日期",
-      dataIndex: "DateTime",
-      key: "DateTime",
-    },
+      {
+        title: "諮商師姓名",
+        dataIndex: "CounselorName",
+        key: "CounselorName",
+        render: (text, record) => (
+          <a
+            style={{ color: "#1677FF" }}
+            onClick={() => openModal(record.CounselorID)}
+          >
+            {text}
+          </a>
+        ),
+      },
+      {
+        title: "預約日期",
+        dataIndex: "DateTime",
+        key: "DateTime",
+      },
 
-    {
-      title: "費用",
-      dataIndex: "Fee",
-      key: "Fee"
-    },
-    {
-      title: "服務項目",
-      key: "Type",
-      dataIndex: "Type",
+      {
+        title: "費用",
+        dataIndex: "Fee",
+        key: "Fee",
+      },
+      {
+        title: "服務項目",
+        key: "Type",
+        dataIndex: "Type",
+      },
+      {
+        title: "狀態",
+        dataIndex: "Status",
+        key: "Status",
+      },
+    ];
 
-    },
-    {
-      title: "狀態",
-      dataIndex: "Status",
-      key: "Status",
+    return result.filter((col) => col.dataIndex !== "CounselorID");
+  };
+  function getStatusDesc(code) {
+    if (code.toUpperCase() === "NEW") {
+      return "訂單成立(未付款)";
     }
-  ];
-  
-  return result.filter(col => col.dataIndex !== 'CounselorID');
-}
+    if (code.toUpperCase() === "UNPAID") {
+      return "訂單成立(未付款)";
+    }
+    if (code.toUpperCase() === "CONFIRMED") {
+      return "已確認";
+    }
+    if (code.toUpperCase() === "ROOMCREATED") {
+      return "諮商房間已建立";
+    }
 
+    if (code.toUpperCase() === "CANCELLED") {
+      return "已取消";
+    }
+
+    if (code.toUpperCase() === "COMPLETED") {
+      return "已完成";
+    }
+  }
   const fetchData = async () => {
-    const result = await appointmentService.getAllAppointment();
+    const result = await appointmentService.getAllAppointmentForAdmin();
 
     console.log(result);
 
     const form = result?.map((u) => {
       return {
         AppointmentID: u.AppointmentID,
+        UserEmail:"尚未開發",
         UserName: u.UserName,
-        CounselorID:u.CounselorID,
+        CounselorID: u.CounselorID,
         CounselorName: u.CounselorName,
-        DateTime:u.Time.Date+" "+u.Time.StartTime,
+        DateTime: u.Time.Date + " " + u.Time.StartTime,
         Fee: u.Service.Fee,
-        Type:u.Service.Type.Label,
-        Status: u.Status,
+        Type: u.Service.Type.Label,
+        Status: getStatusDesc(u.Status),
       };
     });
     setUserData(form);
@@ -202,7 +228,7 @@ const Appointments = () => {
     const appointmentTime = await counselorService.getAppointmentTimeById(id);
     console.log(appointmentTime);
     const counselorAppointments =
-      await appointmentService.getAppointmentsByCounselorIdForAdmin(id);
+      await appointmentService.getAppointmentsByCounselorIdByAdmin(id);
     setcurrentSelectCounselorAppointmentTime(appointmentTime);
     setCurrentSelectCounselorAppointments(counselorAppointments);
     console.log(counselorAppointments);
@@ -238,7 +264,6 @@ const Appointments = () => {
     createDescription();
   };
   function dateCellRender(value) {
-
     const matchingData = currentSelectCounselorAppointments?.filter(
       (item) => item.Time.Date === value.format("YYYY-MM-DD")
     );
@@ -246,12 +271,18 @@ const Appointments = () => {
     if (matchingData) {
       const periodList = matchingData.map((m, index) => (
         <li key={index}>
-          <Badge.Ribbon text={m.Service.Type.Label.slice(0, 4) } placement="end" color= {m.Status=="COMPLETED"?"":"green"}>
-            <Card  size="small" >
+          <Badge.Ribbon
+            text={m.Service.Type.Label.slice(0, 4)}
+            placement="end"
+            color={m.Status == "COMPLETED" ? "" : "green"}
+          >
+            <Card size="small">
               <br></br>
 
-              { (m.Status=="COMPLETED"?"已完成":"") +
-                  m.UserName.slice(0, 4) +" "+m.Time.StartTime +
+              {(m.Status == "COMPLETED" ? "已完成" : "") +
+                m.UserName.slice(0, 4) +
+                " " +
+                m.Time.StartTime +
                 "-" +
                 m.Time.EndTime}
             </Card>
@@ -499,11 +530,7 @@ const Appointments = () => {
 
   return (
     <>
-      <Statistic
-        title="預約數量"
-        value={userCount}
-        formatter={formatter}
-      />
+      <Statistic title="預約數量" value={userCount} formatter={formatter} />
       <Statistic title="已完成數量" value={permiun} formatter={formatter} />
       <Statistic title="未完成" value={active} formatter={formatter} />
       <Table columns={columns()} dataSource={userData} />
