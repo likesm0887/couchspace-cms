@@ -71,18 +71,22 @@ const CounselingManagement = () => {
 
     }
     const initialBusinessInfo = () => {
-        counselorInfo.BusinessTimes.forEach((businessTime, index) => {
-            let tempIndex = businessHours.findIndex((businessHour) => businessHour.day === businessTime.WeekOfDay);
-            if (tempIndex !== -1) {
-                businessHours[tempIndex].enabled = true;
-                businessTime.Periods.map((period, index) => {
-                    businessHours[tempIndex].periods.push({ startTime: period.StartTime, endTime: period.EndTime });
-                });
-            }
+        counselorService.getAppointmentTime().then((business) => {
+            counselorInfo.updateBusinessTimes = business.BusinessTimes;
+            counselorInfo.updateOverrideTimes = business.OverrideTimes;
+            counselorInfo.BusinessTimes.forEach((businessTime, index) => {
+                let tempIndex = businessHours.findIndex((businessHour) => businessHour.day === businessTime.WeekOfDay);
+                if (tempIndex !== -1) {
+                    businessHours[tempIndex].enabled = true;
+                    businessTime.Periods.map((period, index) => {
+                        businessHours[tempIndex].periods.push({ startTime: period.StartTime, endTime: period.EndTime });
+                    });
+                }
 
+            });
+            setConsultHours(businessHours);
+            setOverrideTimes(counselorInfo.OverrideTimes);
         });
-        setConsultHours(businessHours);
-        setOverrideTimes(counselorInfo.OverrideTimes);
     }
     useEffect(() => {
         if (isNeedSort) {

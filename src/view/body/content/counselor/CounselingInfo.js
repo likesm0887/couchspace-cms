@@ -134,44 +134,47 @@ const CounselingInfo = () => {
         setErrorConsultingFees("");
     }
     const initialCounselingInfo = () => {
-        let tempConsultingFees = counselingItems;
-        let tempLanguages = languagesItems;
-        let tempExpertiseList = [];
-        counselorInfo.ConsultingFees?.map((consultingFee, index) => {
-            let tempIndex = tempConsultingFees.findIndex((item) => item.label === consultingFee.Type.Label);
-            if (tempIndex !== -1) {
-                tempConsultingFees[tempIndex].enabled = true;
-                tempConsultingFees[tempIndex].fee = consultingFee.Fee;
-            }
-            return tempConsultingFees;
-        });
-        counselorInfo.Languages?.map((language, index) => {
-            let tempIndex = tempLanguages.findIndex((item) => item.label === language);
-            if (tempIndex !== -1) {
-                tempLanguages[tempIndex].enabled = true;
-            }
-            return tempLanguages;
+        counselorService.getCounselorInfo().then((info) => {
+            counselorInfo.setCounselorInfo = info;
+            let tempConsultingFees = counselingItems;
+            let tempLanguages = languagesItems;
+            let tempExpertiseList = [];
+            counselorInfo.ConsultingFees?.map((consultingFee, index) => {
+                let tempIndex = tempConsultingFees.findIndex((item) => item.label === consultingFee.Type.Label);
+                if (tempIndex !== -1) {
+                    tempConsultingFees[tempIndex].enabled = true;
+                    tempConsultingFees[tempIndex].fee = consultingFee.Fee;
+                }
+                return tempConsultingFees;
+            });
+            counselorInfo.Languages?.map((language, index) => {
+                let tempIndex = tempLanguages.findIndex((item) => item.label === language);
+                if (tempIndex !== -1) {
+                    tempLanguages[tempIndex].enabled = true;
+                }
+                return tempLanguages;
+            })
+            tempExpertiseList = counselorInfo.Expertises.map((expertise, index) => {
+                let tempIndex = expertiseList.findIndex((item) => item.label === expertise.Skill);
+                if (tempIndex !== -1) {
+                    return tempIndex.toString();
+                }
+            })
+            setLanguages(tempLanguages);
+            setEducation(counselorInfo?.Educational);
+            setSeniority(counselorInfo?.Seniority);
+            setPosition(counselorInfo?.Position);
+            setAccumulative(counselorInfo?.Accumulative);
+            setLicenseNumber(counselorInfo?.License?.LicenseNumber);
+            setLicenseIssuing(counselorInfo?.License?.LicenseIssuing);
+            setLicenseTitle(counselorInfo?.License?.LicenseTitle);
+            setPhone(counselorInfo?.Phone);
+            setInstitution(counselorInfo?.InstitutionTemp);
+            setAddress(counselorInfo?.Address);
+            setExpertises(tempExpertiseList);
+            setExpertisesInfo(counselorInfo?.ExpertisesInfo);
+            setConsultingFees(tempConsultingFees);
         })
-        tempExpertiseList = counselorInfo.Expertises.map((expertise, index) => {
-            let tempIndex = expertiseList.findIndex((item) => item.label === expertise.Skill);
-            if (tempIndex !== -1) {
-                return tempIndex.toString();
-            }
-        })
-        setLanguages(tempLanguages);
-        setEducation(counselorInfo.Educational);
-        setSeniority(counselorInfo.Seniority);
-        setPosition(counselorInfo.Position);
-        setAccumulative(counselorInfo.Accumulative);
-        setLicenseNumber(counselorInfo.License.LicenseNumber);
-        setLicenseIssuing(counselorInfo.License.LicenseIssuing);
-        setLicenseTitle(counselorInfo.License.LicenseTitle);
-        setPhone(counselorInfo.Phone);
-        setInstitution(counselorInfo.InstitutionTemp);
-        setAddress(counselorInfo.Address);
-        setExpertises(tempExpertiseList);
-        setExpertisesInfo(counselorInfo.ExpertisesInfo);
-        setConsultingFees(tempConsultingFees);
     }
     const handleSave = async () => {
         ClearAllError();
@@ -229,7 +232,7 @@ const CounselingInfo = () => {
         if (output) {
             let info = new Counselor();
             let backupInfo = counselorInfo;
-            info.Languages = languages?.filter((language) => language.enabled === true).map((item) => item.label);
+            info.Languages = languages?.filter((language) => language.enabled === true)?.map((item) => item.label);
             info.Educational = education.trim();
             info.Seniority = seniority.trim();
             info.Position = position;
@@ -240,13 +243,13 @@ const CounselingInfo = () => {
             info.Address = address;
             info.Phone = phone;
             info.InstitutionTemp = institution;
-            info.Expertises = expertises.map((expertise) => {
+            info.Expertises = expertises?.map((expertise) => {
                 let object = new Expertise();
                 object.Skill = expertiseList[expertise].label;
                 return object;
             });
             info.ExpertisesInfo = expertisesInfo.trim();
-            info.ConsultingFees = consultingFees.filter((consultingFee) => consultingFee.enabled).map((consultingFee) => {
+            info.ConsultingFees = consultingFees.filter((consultingFee) => consultingFee.enabled)?.map((consultingFee) => {
                 let object = {}
                 object.Type = {};
                 object.Type.Label = consultingFee.label;
@@ -314,7 +317,7 @@ const CounselingInfo = () => {
             <DialogTitle id="alert-dialog-title">{"諮商項目設定(上限金額 10,000)"}</DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-description">
-                    {consultingFees.map((item, index) => {
+                    {consultingFees?.map((item, index) => {
                         return (
                             <div style={{ display: "block", marginTop: 30 }} key={index}>
                                 <Checkbox checked={item.enabled} onClick={() => {
@@ -637,7 +640,7 @@ const CounselingInfo = () => {
                     <div>
                         <span style={{ color: errorConsultingFees === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"諮商項目"}</span>
                         <div>
-                            {consultingFees.map((item, index) => {
+                            {consultingFees?.map((item, index) => {
                                 return (
                                     item.enabled ?
                                         <div key={index}>
