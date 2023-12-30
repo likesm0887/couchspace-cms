@@ -1,7 +1,7 @@
 import "./basicInfo.css";
 import { Grid, TextField, FormHelperText, IconButton, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import Typography from "@material-ui/core/Typography";
-import { useState, forwardRef, useImperativeHandle } from 'react';
+import { useState } from 'react';
 import { makeStyles } from "@material-ui/core/styles";
 import { Counselor, counselorInfo } from '../../../../dataContract/counselor';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -99,15 +99,18 @@ const BasicInfo = () => {
         setErrorLongIntro("");
     }
     const initialBasicInfo = () => {
-        setFirstName(counselorInfo.UserName.Name.FirstName);
-        setLastName(counselorInfo.UserName.Name.LastName);
-        setSelectedCity(counselorInfo.Location);
-        setEmail(counselorInfo.Email);
-        setGender(counselorInfo.Gender);
-        setPhoto(counselorInfo.Photo);
-        setBindingPhoto(counselorInfo.Photo);
-        setShortIntro(counselorInfo.ShortIntroduction);
-        setLongIntro(counselorInfo.LongIntroduction);
+        counselorService.getCounselorInfo().then((info) => {
+            counselorInfo.setCounselorInfo = info;
+            setFirstName(counselorInfo.UserName.Name.FirstName);
+            setLastName(counselorInfo.UserName.Name.LastName);
+            setSelectedCity(counselorInfo.Location);
+            setEmail(counselorInfo.Email);
+            setGender(counselorInfo.Gender);
+            setPhoto(counselorInfo.Photo);
+            setBindingPhoto(counselorInfo.Photo);
+            setShortIntro(counselorInfo.ShortIntroduction);
+            setLongIntro(counselorInfo.LongIntroduction);
+        })
     }
     const handleSave = async () => {
         ClearAllError();
@@ -167,9 +170,7 @@ const BasicInfo = () => {
             info.ShortIntroduction = shortIntro.trim();
             info.LongIntroduction = longIntro.trim();
             info.Email = email;
-            
             counselorInfo.updatePersonalInfo = info;
-            console.log("info", counselorInfo);
             let res = await counselorService.updateCounselorInfo(counselorInfo);
             if (res.success) {
                 showToast(toastType.success, "儲存成功");
