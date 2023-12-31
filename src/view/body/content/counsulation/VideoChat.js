@@ -1,52 +1,41 @@
 import React, { useState, useCallback, useEffect } from "react";
+import "./VideoChat.css";
 import Video from "twilio-video";
 import Room from "./Room";
 import { appointmentService } from "../../../../service/ServicePool";
 import { Appointment } from "../../../../dataContract/appointment";
+import { useNavigate } from "react-router-dom";
 
 const VideoChat = (props) => {
-
-  const [username, setUsername] = useState("");
+  const navigate = useNavigate();
   const [roomName, setRoomName] = useState("");
   const [room, setRoom] = useState(null);
   const [connecting, setConnecting] = useState(false);
-  const [buttonName, setButtonName] = useState("開始視訊");
-  const handleUsernameChange = useCallback((event) => {
-    setUsername("我是誰");
-  }, []);
   const [appointment, setAppointment] = useState(null);
-
-
+  const [loading, setLoading] = useState(false);
   const handleSubmit = async () => {
+    setLoading(true);
+    const tempAppointment = await appointmentService.getAppointment(props.appointmentID);
     const token = await appointmentService.getAppointmentRoomToken(props.appointmentID)
     console.log("roomToken", token);
+    setAppointment(tempAppointment);
     setConnecting(true);
-
     Video.connect(
       token, {
-      name: appointment.RoomID,
+      name: tempAppointment.RoomID,
       video: true,
       audio: true,
     })
       .then((room) => {
         setConnecting(false);
         setRoom(room);
+        setLoading(false);
       })
       .catch((err) => {
         console.error(err);
         setConnecting(false);
+        setLoading(false);
       });
-
-    navigator.mediaDevices.getUserMedia()
-      .then(function (stream) {
-
-        // 取得所有串流的裝置，並全部關閉
-        stream.getTracks().forEach(function (track) {
-          track.stop()
-        })
-
-      })
-    // setButtonName("連線中....")
   }
 
 
@@ -58,14 +47,13 @@ const VideoChat = (props) => {
         });
         prevRoom.disconnect();
       }
+      navigate("/couchspace-cms/home/consultation");
       return null;
     });
   }, []);
 
   useEffect(() => {
-    appointmentService.getAppointment(props.appointmentID).then((res) => {
-      setAppointment(res);
-    });
+    handleSubmit();
     if (room) {
       const tidyUp = (event) => {
         if (event.persisted) {
@@ -83,21 +71,18 @@ const VideoChat = (props) => {
         handleLogout();
       };
     }
-  }, [room, handleLogout]);
+  }, []);
 
-  let render;
-  if (room) {
-    render = (
-      <Room roomName={roomName} room={room} handleLogout={handleLogout} appointmentTime={appointment.Time} />
-
-    );
-  } else {
-    render = (
-      <button onClick={() => handleSubmit()}>{buttonName}</button>
-    );
-  }
-
-  return render;
+  return (
+    <div>
+      {loading ?
+        <div className="loader-container">
+          <div className="spinner"></div>
+          <div style={{ font: 'caption', fontSize: 40, color: 'black' }}>{"連接視訊中..."}</div>
+        </div> : null}
+      {room ? <Room roomName={roomName} room={room} handleLogout={handleLogout} appointmentTime={appointment.Time} /> : null}
+    </div>
+  )
 };
 
 export default VideoChat;
