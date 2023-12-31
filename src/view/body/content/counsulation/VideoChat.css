@@ -5,7 +5,7 @@
   justify-content: center;
   position: absolute;
   align-items: center;
-  background: hsl(0, 0%, 100%);
+  background: #f7f8f8;
   z-index: 1;
   flex-direction: column;
   border-radius: 20px;
