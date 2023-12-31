@@ -105,7 +105,7 @@ function Consultation() {
                             <img style={{ verticalAlign: 'middle' }} src={userIcon} alt="123"></img>{allAppointment.UserName}
                         </div>
                         <div className="content-col">
-                            {allAppointment.Time.Date}
+                            {allAppointment.Time.Date + " " + allAppointment.Time.StartTime}
                         </div>
                         <div className="content-col">
                             {num2Time(allAppointment.Time.Total)}

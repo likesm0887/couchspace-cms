@@ -8,7 +8,7 @@ const Room = ({ roomName, room, handleLogout, appointmentTime }) => {
   const [participants, setParticipants] = useState([]);
   const [showCamera, setShowCamera] = useState(true);
   const [showMic, setShowMic] = useState(true);
-  const [remainTime, setRemainTime] = useState(appointmentTime.Total * 60);
+  const [elapsedTime, setElapsedTime] = useState(appointmentTime.Total * 60);
   startDateTime = appointmentTime.Date;
   startTime = appointmentTime.StartTime;
   let totalTime = appointmentTime.Total * 60;
@@ -75,6 +75,7 @@ const Room = ({ roomName, room, handleLogout, appointmentTime }) => {
     var hour = parseInt(number / 3600)
       .toString()
       .padStart(2, "0");
+    number -= hour * 3600;
     var minute = parseInt(number / 60)
       .toString()
       .padStart(2, "0");
@@ -85,20 +86,18 @@ const Room = ({ roomName, room, handleLogout, appointmentTime }) => {
   }
   function updateCountDown() {
     setTimeout(() => {
-      console.log("startDateTime", startDateTime);
       if (startDateTime === null || startTime === null) {
         return;
       }
       var startTimeStamp = parseInt(parseDateTime(startDateTime, startTime).valueOf() / 1000); // ms to second
       var currentTimeStamp = parseInt(new Date().valueOf() / 1000); // ms to second
       var diff = currentTimeStamp - startTimeStamp;
-      console.log("startTimeStamp, currentTimeStamp, diff", startTimeStamp, currentTimeStamp, diff);
       if (diff > 0) {
-        setRemainTime(diff);
+        setElapsedTime(diff);
         updateCountDown();
       }
       else {
-        setRemainTime(0);
+        setElapsedTime(0);
       }
     }, 500);
   }
@@ -125,7 +124,7 @@ const Room = ({ roomName, room, handleLogout, appointmentTime }) => {
         </div>
       </div>
       <div className={"stopAndClose"}>
-        <div className={"stopWatch"}>{num2HourTime(remainTime)}</div>
+        <div className={"stopWatch"}>{num2HourTime(elapsedTime)}</div>
         <button style={{ marginLeft: 20 }} onClick={onClickCamera}> <img style={{ height: 30, width: 40, verticalAlign: 'middle' }} src={showCamera ? require("../../../img/content/camera_enabled.png") : require("../../../img/content/camera_disabled.png")} alt="myCamera" />{"鏡頭"} </button>
         <button style={{ marginLeft: 20 }} onClick={onClickMic}> <img style={{ height: 40, width: 25, verticalAlign: 'middle' }} src={showMic ? require("../../../img/content/mic_enabled.png") : require("../../../img/content/mic_disabled.png")} alt="myMic" /> {"麥克風"}</button>
         <button onClick={onClickExit} className={"stop"}>離開房間</button>
