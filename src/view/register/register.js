@@ -55,7 +55,6 @@ export function Register() {
     const [password, setPassword] = useState("");
 
     useEffect(() => {
-        console.log(location);
         setAccount(location.state.email);
         setPassword(location.state.password);
     }, []);
@@ -93,9 +92,6 @@ export function Register() {
         }
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
         setSkipped(newSkipped);
-        console.log("activeStep", activeStep);
-        console.log("steps.length", steps.length);
-
     };
 
     const handleBack = () => {
@@ -121,7 +117,6 @@ export function Register() {
 
             // step1: Register
             var result = await counselorService.register(account, password);
-            console.log("Register", result);
             if (result.status !== 200) {
                 showToast(toastType.error, "註冊失敗");
                 return;
@@ -129,20 +124,20 @@ export function Register() {
 
             // step2: Login to get token
             result = await counselorService.login(account, password);
-            console.log("Login", result);
+            // console.log("Login", result);
             // step3: Upload Photo
             result = await counselorService.upload(counselorInfo.Photo);
-            console.log("Upload Photo", result);
+            // console.log("Upload Photo", result);
             counselorInfo.updatePhoto = result.Photo;
             counselorInfo.updateAppointmentID = result.AppointmentTimeID;
-            console.log("counselorInfo", counselorInfo);
+            // console.log("counselorInfo", counselorInfo);
             // step4: Update Counselor Info and AppointmentTime
             let [res1, res2] = await Promise.all([
                 counselorService.updateCounselorInfo(counselorInfo),
                 counselorService.setAppointmentTime(appointmentTime),
             ]);
-            console.log("Update Counselor Info", res1);
-            console.log("Update AppointmentTime", res2);
+            // console.log("Update Counselor Info", res1);
+            // console.log("Update AppointmentTime", res2);
             if (!res1.success) {
                 showToast(toastType.error, "建立諮商師資料失敗");
                 return;

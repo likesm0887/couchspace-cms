@@ -56,7 +56,7 @@ const CertificateInfo = forwardRef((props, ref) => {
             info.InstitutionTemp = institution;
             counselorInfo.updateCertificateInfo = info.License;
             counselorInfo.updateInstitution = info;
-            console.log("counselorInfo", counselorInfo);
+            // console.log("counselorInfo", counselorInfo);
             return output;
         }
     }))
