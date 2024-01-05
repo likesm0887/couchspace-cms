@@ -42,19 +42,19 @@ function Login() {
             // }
             // console.log("account", account);
             // console.log("password", password);
-            if (!checkPassword(password)) {
-                showToast(toastType.error, "密碼需包含英數且至少8個字元");
+            // if (!checkPassword(password)) {
+            //     showToast(toastType.error, "密碼需包含英數且至少8個字元");
+            // }
+            // else {
+            var res = await counselorService.login(account, password);
+            if (res.user_id) {
+                navigate("home", { replace: true });
             }
             else {
-                var res = await counselorService.login(account, password);
-                if (res.user_id) {
-                    navigate("home", { replace: true });
-                }
-                else {
-                    // if res is token, res.message is undefined => will not show toast
-                    showToast(toastType.error, res.message);
-                }
+                // if res is token, res.message is undefined => will not show toast
+                showToast(toastType.error, res.message);
             }
+            // }
         }
         catch (err) { // http status not 200
             console.log(err);
