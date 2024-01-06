@@ -40,26 +40,21 @@ function Login() {
             // if (!checkEmail(account)) {
             //     showToast(toastType.error, "email格式有誤");
             // }
-            console.log("account", account);
-            console.log("password", password);
-            if (!checkPassword(password)) {
-                showToast(toastType.error, "密碼需包含英數且至少8個字元");
+            // console.log("account", account);
+            // console.log("password", password);
+            // if (!checkPassword(password)) {
+            //     showToast(toastType.error, "密碼需包含英數且至少8個字元");
+            // }
+            // else {
+            var res = await counselorService.login(account, password);
+            if (res.user_id) {
+                navigate("home", { replace: true });
             }
             else {
-                var res = await counselorService.login(account, password);
-                var info = await counselorService.getCounselorInfo();
-                var business = await counselorService.getAppointmentTime();
-                counselorInfo.setCounselorInfo = info;
-                counselorInfo.updateBusinessTimes = business.BusinessTimes;
-                counselorInfo.updateOverrideTimes = business.OverrideTimes;
-                if (res.user_id) {
-                    navigate("home", { replace: true });
-                }
-                else {
-                    // if res is token, res.message is undefined => will not show toast
-                    showToast(toastType.error, res.message);
-                }
+                // if res is token, res.message is undefined => will not show toast
+                showToast(toastType.error, res.message);
             }
+            // }
         }
         catch (err) { // http status not 200
             console.log(err);
@@ -68,11 +63,11 @@ function Login() {
     }
     const checkAccountExist = async () => {
         let res = await counselorService.checkAccountExist(account);
-        console.log("res", res);
+        // console.log("res", res);
         return res;
     }
     const onClickRegister = async () => {
-        console.log(account);
+        // console.log(account);
         if (!checkPassword(password)) {
             showToast(toastType.error, "密碼需包含英數且至少8個字元");
         }

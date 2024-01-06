@@ -47,7 +47,7 @@ const PersonalInfo = forwardRef((props, ref) => {
                     return new File([blob], "newAvatar.png", { type: "image/png" });
                 });
             if (file) {
-                console.log(file);
+                // console.log(file);
                 setPhoto(file);
                 setBindingPhoto(URL.createObjectURL(file));
             }

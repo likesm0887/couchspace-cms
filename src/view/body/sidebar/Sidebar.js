@@ -17,7 +17,7 @@ function Sidebar() {
     const [currentSelected, setCurrentSelected] = useState("consultation");
     const selectSlide = (selected) => {
         if (currentSelected === selected) return;
-        console.log(selected)
+        // console.log(selected)
         setCurrentSelected(selected);
     };
     const getStyle = (selected) => {
@@ -50,7 +50,7 @@ function Sidebar() {
         return output;
     }
     const updateSelected = () => {
-        console.log(location);
+        // console.log(location);
         let paths = location.pathname.split('/');
         let selected = paths[paths.length - 1];
         if (selected !== 'repair') {
