@@ -11,7 +11,7 @@ export class AppointmentService {
         this.token = token_counselor;
     }
     getAllAppointment() {
-        const api = this.base_url + "/api/v1/appointments/all/UnPaid;roomCreated;Confirmed;Completed"
+        const api = this.base_url + "/api/v1/appointments/all/UnPaid;roomCreated;Confirmed;Completed;CANCELLED"
         const requestOptions = {
             method: 'Get',
             headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
@@ -25,7 +25,7 @@ export class AppointmentService {
 
     }
     getAllAppointmentForAdmin() {
-        const api = this.base_url + "/api/v1/appointments/all/UnPaid;roomCreated;Confirmed;Completed"
+        const api = this.base_url + "/api/v1/appointments/all/UnPaid;roomCreated;Confirmed;Completed;CANCELLED"
         const requestOptions = {
             method: 'Get',
             headers: { "Authorization": this.adminToken, 'Content-Type': 'application/json' },
