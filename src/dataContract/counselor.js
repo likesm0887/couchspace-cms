@@ -83,7 +83,7 @@ export class Period {
 
 export class OverrideTime {
     constructor() {
-        this.Unavailable = true;
+        this.Unavailable = false;
         this.DayTime = new Date().toLocaleDateString('zh-CN');
         this.Periods = [];
     }
