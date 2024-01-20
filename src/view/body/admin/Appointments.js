@@ -17,6 +17,7 @@ import {
 } from "antd";
 import { Layout, theme, Descriptions, Badge, Outlet } from "antd";
 import "./counselor.css";
+import moment from "moment";
 import {
   LaptopOutlined,
   NotificationOutlined,
@@ -24,6 +25,7 @@ import {
 } from "@ant-design/icons";
 
 import {
+  memberService,
   appointmentService,
   counselorService,
 } from "../../../service/ServicePool";
@@ -42,14 +44,12 @@ const DrawerForm = ({ id, visible, onClose, record, callback }) => {
   };
 
   useEffect(() => {
-    console.log("JIJI");
     const getCounselorVerify = async () => {
       const isVerify = await counselorService.getCounselorVerify(id);
       console.log(isVerify);
       setVerify(isVerify);
     };
     getCounselorVerify();
-    console.log("HIHIH");
   }, [id]);
 
   // Handle form submission
@@ -89,12 +89,12 @@ const Appointments = () => {
   const [record, setRecord] = useState(null);
   const [userData, setUserData] = useState();
   const [userCount, setUserCount] = useState(0);
-  const [permiun, setPermiun] = useState(0);
-  const [active, setActive] = useState(0);
   const [currentSelectCounselorId, setCurrentSelectCounselorId] = useState("");
+  const [currentSelectMember, setCurrentSelectMember] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModal2Open, setIsModal2Open] = useState(false);
   const [detail, setDetail] = useState("");
-
+  const [memberDetail, setMemberDetail] = useState("");
   const {
     token: { colorBgContainer },
   } = theme.useToken();
@@ -120,11 +120,14 @@ const Appointments = () => {
         title: "案主姓名",
         dataIndex: "UserName",
         key: "UserName",
-      },
-      {
-        title: "案主信箱",
-        dataIndex: "UserEmail",
-        key: "UserEmail",
+        render: (text, record) => (
+          <a
+            style={{ color: "#1677FF" }}
+            onClick={() => openModal2(record.UserID)}
+          >
+            {text}
+          </a>
+        ),
       },
       {
         title: "諮商師ID",
@@ -162,9 +165,16 @@ const Appointments = () => {
         dataIndex: "Type",
       },
       {
+        title: "預約成立時間",
+        dataIndex: "CreateDate",
+        key: "CreateDate",
+        sorter: (a,b)=>Date.parse(a.CreateDate)-Date.parse(b.CreateDate),
+      },
+      {
         title: "狀態",
         dataIndex: "Status",
         key: "Status",
+        sorter: (a,b)=>a.Status.localeCompare(b.Status,'en')
       },
     ];
 
@@ -200,13 +210,17 @@ const Appointments = () => {
     const form = result?.map((u) => {
       return {
         AppointmentID: u.AppointmentID,
-        UserEmail:"尚未開發",
+        UserEmail: "member.Email",
+        UserID: u.UserID,
         UserName: u.UserName,
         CounselorID: u.CounselorID,
         CounselorName: u.CounselorName,
         DateTime: u.Time.Date + " " + u.Time.StartTime,
         Fee: u.Service.Fee,
         Type: u.Service.Type.Label,
+        CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
+          .format("YYYY-MM-DD HH:mm:SS")
+          .toString(),
         Status: getStatusDesc(u.Status),
       };
     });
@@ -222,6 +236,16 @@ const Appointments = () => {
     currentSelectCounselorAppointments,
     setCurrentSelectCounselorAppointments,
   ] = useState({});
+
+  const openModal2 = async (id) => {
+    console.log(id);
+    const res = await memberService.getGetUserById(id);
+
+    setCurrentSelectMember(res);
+    setIsModal2Open(true);
+    createMemberDescription(res)
+    console.log(res);
+  };
   const openModal = async (id) => {
     const res = await counselorService.getCounselorInfoById(id);
     console.log(id);
@@ -256,9 +280,12 @@ const Appointments = () => {
 
   const handleOk = () => {
     setIsModalOpen(false);
+    setIsModal2Open(false);
   };
+
   const handleCancel = () => {
     setIsModalOpen(false);
+    setIsModal2Open(false);
   };
   const handleMenuClick = (e) => {
     createDescription();
@@ -299,6 +326,26 @@ const Appointments = () => {
 
     return <p>{value.format("DD")}</p>;
   }
+  const items3 = [
+    {
+      key: `information`,
+      icon: React.createElement(UserOutlined),
+      label: `個人資訊`,
+      children: (
+        <Descriptions
+          extra={<Button type="primary">Edit</Button>}
+          bordered
+          title="個人資訊"
+          items={memberDetail}
+        />
+      ),
+    },
+    {
+      key: `appointmentTime`,
+      icon: React.createElement(NotificationOutlined),
+      label: `預約紀錄`,
+    }
+  ];
   const items2 = [
     {
       key: `information`,
@@ -354,7 +401,42 @@ const Appointments = () => {
       children: <Calendar dateCellRender={dateCellRender} fullscreen={false} />,
     },
   ];
+  const createMemberDescription = (member) => {
+    setMemberDetail([
+      {
+        key: "3",
+        label: "照片",
+        span: 2,
+        children: (
+          <Image src={member.Photo} height={150}></Image>
+        ),
+      },
+      {
+        key: "1",
+        label: "姓名",
+        children:
+        member.UserName.Name.LastName +
+        member.UserName.Name.FirstName,
+      },
+      {
+        key: "2",
+        label: "暱稱",
+        children: member.UserName.NickName,
+      },
 
+      {
+        key: "3",
+        label: "Email",
+        children: member.Email,
+      },
+      {
+        key: "5",
+        label: "手機",
+
+        children: member.Phone,
+      }
+    ]);
+  };
   const createDescription = (currentSelectCounselor) => {
     setDetail([
       {
@@ -531,8 +613,6 @@ const Appointments = () => {
   return (
     <>
       <Statistic title="預約數量" value={userCount} formatter={formatter} />
-      <Statistic title="已完成數量" value={permiun} formatter={formatter} />
-      <Statistic title="未完成" value={active} formatter={formatter} />
       <Table columns={columns()} dataSource={userData} />
       <DrawerForm
         id={currentSelectCounselorId}
@@ -541,6 +621,7 @@ const Appointments = () => {
         onClose={handleClose}
         record={record}
       />
+
       <Modal
         title="Information"
         open={isModalOpen}
@@ -563,6 +644,32 @@ const Appointments = () => {
                 background: colorBgContainer,
               }}
               items={items2}
+            />
+          </Layout>
+        </Layout>
+      </Modal>
+      <Modal
+        title="Information"
+        open={isModal2Open}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        style={{ top: 20 }} // 设置高度为80%视窗高度
+        width={"80%"}
+        bodyStyle={{ height: "500px" }}
+      >
+        <Layout>
+          <Layout>
+            <Tabs
+              defaultActiveKey={"information"}
+              onChange={handleMenuClick}
+              tabPosition="left"
+              style={{
+                height: "480px",
+                borderRight: 0,
+                overflowY: "auto",
+                background: colorBgContainer,
+              }}
+              items={items3}
             />
           </Layout>
         </Layout>
