@@ -222,6 +222,7 @@ export class Counselor {
         if (overrideTimes == null) return;
         this.OverrideTimes = [];
         for (let i = 0; i < overrideTimes.length; i++) {
+            overrideTimes[i].Unavailable = false;
             this.OverrideTimes.push(overrideTimes[i]);
         }
     }
