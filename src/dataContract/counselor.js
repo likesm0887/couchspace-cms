@@ -83,7 +83,7 @@ export class Period {
 
 export class OverrideTime {
     constructor() {
-        this.Unavailable = true;
+        this.Unavailable = false;
         this.DayTime = new Date().toLocaleDateString('zh-CN');
         this.Periods = [];
     }
@@ -222,6 +222,7 @@ export class Counselor {
         if (overrideTimes == null) return;
         this.OverrideTimes = [];
         for (let i = 0; i < overrideTimes.length; i++) {
+            overrideTimes[i].Unavailable = false;
             this.OverrideTimes.push(overrideTimes[i]);
         }
     }

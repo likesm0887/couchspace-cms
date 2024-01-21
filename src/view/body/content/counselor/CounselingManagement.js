@@ -264,8 +264,16 @@ const CounselingManagement = () => {
             return ele !== value;
         });
     }
-    function disabledTimes(now: Dayjs) {
-        const hours = [];
+    function disabledStartTimes(now: Dayjs) {
+        const hours = [0,23];
+        return {
+            disabledHours: () => hours,
+            disabledMinutes: () => [],
+            disabledSeconds: () => [],
+        };
+    }
+    function disabledEndTimes(now: Dayjs) {
+        const hours = [0,23];
         const minutes = [];
         if (startTime === null) {
             return {
@@ -296,7 +304,7 @@ const CounselingManagement = () => {
         }
         return {
             disabledHours: () => hours,
-            disabledMinutes: () => minutes,
+            disabledMinutes: () => [],
             disabledSeconds: () => [],
         };
     }
@@ -336,6 +344,7 @@ const CounselingManagement = () => {
                             }
                             changeOnBlur={true}
                             showNow={false}
+                            disabledTime={(date)=>disabledStartTimes(date)}
                         />
                         <span>結束時間</span>
                         <TimePicker
@@ -353,8 +362,8 @@ const CounselingManagement = () => {
                             }
                             }
                             changeOnBlur={true}
-                            // disabledTime={disabledTimes}
                             showNow={false}
+                            disabledTime={(date)=>disabledEndTimes(date)}
                         />
                     </div>
                 </DialogContentText>
@@ -370,6 +379,8 @@ const CounselingManagement = () => {
         </Dialog>
     }
     const createDailyHourDialog = () => {
+        const startHour = 1;
+        const finishHour = 23;
         return <Dialog
             open={isDailyHourOpen}
             fullWidth={true}
@@ -379,18 +390,21 @@ const CounselingManagement = () => {
             <DialogContent>
                 <DialogContentText id="alert-dialog-description">
                     <div>
-                        {Array.from({ length: 24 }, (_, index) => (
-                            <div key={index}>
-                                <label>
-                                    <input
-                                        type="checkbox"
-                                        checked={checkedHours.includes(index)}
-                                        onChange={() => handleHourToggle(index)}
-                                    />
-                                    {index}:00 - {index + 1}:00
-                                </label>
-                            </div>
-                        ))}
+                        {Array.from({ length: finishHour-startHour }, (_, hour) => {
+                            hour += startHour;
+                            return(
+                                <div key={hour}>
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            checked={checkedHours.includes(hour)}
+                                            onChange={() => handleHourToggle(hour)}
+                                        />
+                                        {hour}:00 - {hour + 1}:00
+                                    </label>
+                                </div>
+                            )
+                        })}
                     </div>
                 </DialogContentText>
             </DialogContent>
