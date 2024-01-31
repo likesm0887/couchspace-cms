@@ -87,6 +87,7 @@ const Appointments = () => {
   const formatter = (value) => <CountUp end={value} separator="," />;
   const [visible, setVisible] = useState(false);
   const [record, setRecord] = useState(null);
+  const [confirmedAppointment, setConfirmedAppointment] = useState();
   const [userData, setUserData] = useState();
   const [userCount, setUserCount] = useState(0);
   const [currentSelectCounselorId, setCurrentSelectCounselorId] = useState("");
@@ -115,11 +116,10 @@ const Appointments = () => {
         dataIndex: "AppointmentID",
         key: "AppointmentID",
       },
-
       {
-        title: "案主姓名",
-        dataIndex: "UserName",
-        key: "UserName",
+        title: "案主ID",
+        dataIndex: "UserID",
+        key: "UserID",
         render: (text, record) => (
           <a
             style={{ color: "#1677FF" }}
@@ -128,6 +128,11 @@ const Appointments = () => {
             {text}
           </a>
         ),
+      },
+      {
+        title: "案主姓名",
+        dataIndex: "UserName",
+        key: "UserName",
       },
       {
         title: "諮商師ID",
@@ -206,8 +211,26 @@ const Appointments = () => {
     const result = await appointmentService.getAllAppointmentForAdmin();
 
     console.log(result);
+    
+    const form = result?.filter(s=>s.Status!=='CONFIRMED').map((u) => {
+      return {
+        AppointmentID: u.AppointmentID,
+        UserEmail: "member.Email",
+        UserID: u.UserID,
+        UserName: u.UserName,
+        CounselorID: u.CounselorID,
+        CounselorName: u.CounselorName,
+        DateTime: u.Time.Date + " " + u.Time.StartTime,
+        Fee: u.Service.Fee,
+        Type: u.Service.Type.Label,
+        CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
+          .format("YYYY-MM-DD HH:mm:SS")
+          .toString(),
+        Status: getStatusDesc(u.Status),
+      };
+    });
 
-    const form = result?.map((u) => {
+    const form2 = result?.filter(s=>s.Status=='CONFIRMED').map((u) => {
       return {
         AppointmentID: u.AppointmentID,
         UserEmail: "member.Email",
@@ -225,6 +248,7 @@ const Appointments = () => {
       };
     });
     setUserData(form);
+    setConfirmedAppointment(form2)
     setUserCount(result.length);
   };
   const [currentSelectCounselor, setCurrentSelectCounselor] = useState({});
@@ -613,7 +637,10 @@ const Appointments = () => {
   return (
     <>
       <Statistic title="預約數量" value={userCount} formatter={formatter} />
-      <Table columns={columns()} dataSource={userData} />
+      <Statistic title="即將要開始的諮商" value={confirmedAppointment?.length} formatter={formatter} />
+      <Table columns={columns()} dataSource={confirmedAppointment} />
+      <Statistic title="歷史清單" value={userData?.length} formatter={formatter} />
+      <Table columns={columns()} dataSource={userData} /> 
       <DrawerForm
         id={currentSelectCounselorId}
         callback={fetchData}
