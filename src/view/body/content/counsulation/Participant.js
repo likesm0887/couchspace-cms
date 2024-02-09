@@ -1,12 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./participant.css";
-const Participant = ({ participant }) => {
+import { Pipeline, GaussianBlurBackgroundProcessor, isSupported } from "@twilio/video-processors";
+const Participant = ({ participant, blur, isLocalTrack }) => {
   const [videoTracks, setVideoTracks] = useState([]);
   const [audioTracks, setAudioTracks] = useState([]);
 
   const videoRef = useRef();
   const audioRef = useRef();
-
+  const bg = isSupported ? new GaussianBlurBackgroundProcessor({
+    assetsPath: '/',
+    maskBlurRadius: 20,
+    blurFilterRadius: 10,
+    pipeline: Pipeline.WebGL2,
+    debounce: true,
+  }) : null;
   const trackpubsToTracks = (trackMap) =>
     Array.from(trackMap.values())
       .map((publication) => publication.track)
@@ -40,16 +47,18 @@ const Participant = ({ participant }) => {
       setAudioTracks([]);
       participant.removeAllListeners();
     };
-  }, [participant]);
+  }, [participant, blur]);
 
   useEffect(() => {
-    const videoTrack = videoTracks[0];
-    if (videoTrack) {
-      videoTrack.attach(videoRef.current);
-      return () => {
-        videoTrack.detach();
-      };
-    }
+    blurBackground(videoTracks[0]).then((value) => {
+      const videoTrack = value;
+      if (videoTrack) {
+        videoTrack.attach(videoRef.current);
+        return () => {
+          videoTrack.detach();
+        };
+      }
+    })
   }, [videoTracks]);
 
   useEffect(() => {
@@ -61,6 +70,25 @@ const Participant = ({ participant }) => {
       };
     }
   }, [audioTracks]);
+  const blurBackground = async (videoTrack) => {
+    if (isLocalTrack && isSupported) {
+      if (blur) {
+        await bg.loadModel();
+        videoTrack.addProcessor(bg, {
+          inputFrameBufferType: 'video',
+          outputFrameBufferContextType: 'webgl2',
+        });
+        console.log("blur video track", videoTrack);
+      }
+      else {
+        if (videoTrack.processor) {
+          console.log("unblur video track", videoTrack);
+          videoTrack.removeProcessor(videoTrack.processor);
+        }
+      }
+    }
+    return videoTrack;
+  }
 
   return (
     <div className="Participant" style={{ flex: 1, alignItems: 'center', justifyItems: 'center', height: 500 }}>
