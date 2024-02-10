@@ -91,7 +91,7 @@ const Participant = ({ participant, blur, isLocalTrack }) => {
   }
 
   return (
-    <div className="Participant" style={{ flex: 1, alignItems: 'center', justifyItems: 'center', height: 500 }}>
+    <div className="Participant" style={{ flex: 1, alignItems: 'center', justifyItems: 'center', height: isLocalTrack ? 300 : 500, marginTop: isLocalTrack ? 200 : 0 }}>
       <video style={{ flex: 1, height: "100%" }} ref={videoRef} autoPlay={true} />
       <audio ref={audioRef} autoPlay={true} muted={false} />
     </div>
