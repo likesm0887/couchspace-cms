@@ -19,9 +19,7 @@
   alignment: right;
   margin-left: 150px;
 }
-.stopWatch {
-  alignment: left;
-}
+
 .headshotAndNameAndTime {
   display: flex;
   flex-direction: row;
