@@ -55,8 +55,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
-    "postinstall": "copyfiles -f node_modules/@twilio/video-processors/dist/build/* public"
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
