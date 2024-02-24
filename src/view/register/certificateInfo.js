@@ -1,6 +1,6 @@
 import { Grid, TextField } from "@mui/material";
 import "./Consultation.css";
-import Typography from "@material-ui/core/Typography";
+import Typography from "@mui/material/Typography";
 import { useState } from "react";
 import { forwardRef, useImperativeHandle } from "react";
 import { Counselor, License, counselorInfo } from "../../dataContract/counselor";

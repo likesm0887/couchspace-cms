@@ -12,29 +12,15 @@ import {
     Button,
 } from "@mui/material";
 import { Select } from "antd";
-import Typography from "@material-ui/core/Typography";
+import Typography from "@mui/material/Typography";
 import { useState, forwardRef } from 'react';
-import { makeStyles } from "@material-ui/core/styles";
 import { Counselor, counselorInfo, Expertise } from '../../../../dataContract/counselor';
 import { useEffect, useRef } from "react";
 import { counselorService } from "../../../../service/ServicePool";
 import { checkLines, showToast, toastType, calTextLength } from "../../../../common/method";
-const useStyles = makeStyles((theme) => ({
-    root: {
-        '& > *': {
-            margin: theme.spacing(1),
-        },
-    },
-    input: {
-        display: 'none',
-    },
-    button: {
-        marginRight: theme.spacing(1),
-    },
-}));
+
 const CounselingInfo = () => {
     const [disableSaveBtn, setDisabledSaveBtn] = useState(true);
-    const classes = useStyles();
     const maximumFee = 10000;
     const counselingItems = [
         // { enabled: false, label: "個別諮商", fee: 0, time: 50, value: "IND_COUNSELING" },
@@ -377,7 +363,6 @@ const CounselingInfo = () => {
                 variant="contained"
                 color="primary"
                 onClick={handleSave}
-                className={classes.button}
                 style={{ float: 'right' }}
                 disabled={disableSaveBtn}
             >
