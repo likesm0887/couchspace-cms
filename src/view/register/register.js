@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Stepper from '@material-ui/core/Stepper';
-import Step from '@material-ui/core/Step';
-import StepLabel from '@material-ui/core/StepLabel';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
+import StepLabel from '@mui/material/StepLabel';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 import PersonalInfo from "./personalInfo";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRef } from 'react';
@@ -16,24 +15,6 @@ import CertificateInfo from './certificateInfo';
 import "./Register.css";
 import { showToast, toastType } from '../../common/method';
 
-
-const useStyles = makeStyles((theme) => ({
-    root: {
-        height: '100%',
-        width: '60%',
-        marginLeft: '20%',
-        marginTop: '2%',
-        marginBottom: '2%',
-    },
-    button: {
-        marginRight: theme.spacing(1),
-    },
-    instructions: {
-        marginTop: theme.spacing(1),
-        marginBottom: theme.spacing(1),
-    }
-}));
-
 function getSteps() {
     return ['填寫個人資料', '填寫諮商資訊', '相關諮商證照', '諮商時段設定', '完成'];
 }
@@ -43,7 +24,6 @@ export function Register() {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
-    const classes = useStyles();
     const [activeStep, setActiveStep] = React.useState(0);
     const [skipped, setSkipped] = React.useState(new Set());
     const steps = getSteps();
@@ -175,54 +155,59 @@ export function Register() {
                     <div className="spinner"></div>
                     <div style={{ font: 'caption', fontSize: 40, color: 'white' }}>{"資料創建中..."}</div>
                 </div> : null}
-            <div className={classes.root}>
-                <Stepper activeStep={activeStep}>
-                    {steps.map((label, index) => {
-                        const stepProps = {};
-                        const labelProps = {};
+            <div style={{
+                height: '100%',
+                width: '60%',
+                marginLeft: '20%',
+                marginTop: '2%',
+                marginBottom: '2%',
+            }}>
+            <Stepper activeStep={activeStep}>
+                {steps.map((label, index) => {
+                    const stepProps = {};
+                    const labelProps = {};
 
-                        if (isStepSkipped(index)) {
-                            stepProps.completed = false;
-                        }
-                        return (
-                            <Step key={label} {...stepProps}>
-                                <StepLabel {...labelProps}>{label}</StepLabel>
-                            </Step>
-                        );
-                    })}
-                </Stepper>
-                <div>
-                    {activeStep === (steps.length - 1) ? (
+                    if (isStepSkipped(index)) {
+                        stepProps.completed = false;
+                    }
+                    return (
+                        <Step key={label} {...stepProps}>
+                            <StepLabel {...labelProps}>{label}</StepLabel>
+                        </Step>
+                    );
+                })}
+            </Stepper>
+            <div>
+                {activeStep === (steps.length - 1) ? (
+                    <div>
+                        <Typography>
+                            填寫已完成，待審核完畢，會再與您聯絡
+                        </Typography>
+                        <Button onClick={handleReset} variant="contained" color='primary'>
+                            完成
+                        </Button>
+                    </div>
+                ) : (
+                    <div>
+                        <Typography>{getStepContent(activeStep)}</Typography>
                         <div>
-                            <Typography className={classes.instructions}>
-                                填寫已完成，待審核完畢，會再與您聯絡
-                            </Typography>
-                            <Button onClick={handleReset} className={classes.button} variant="contained" color='primary'>
-                                完成
+                            <Button onClick={handleBack}>
+                                {activeStep === 0 ? '返回' : '上一步'}
+                            </Button>
+
+
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleNext}
+                            >
+                                {activeStep === steps.length - 1 ? '完成' : '下一步'}
                             </Button>
                         </div>
-                    ) : (
-                        <div>
-                            <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography>
-                            <div>
-                                <Button onClick={handleBack} className={classes.button}>
-                                    {activeStep === 0 ? '返回' : '上一步'}
-                                </Button>
-
-
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={handleNext}
-                                    className={classes.button}
-                                >
-                                    {activeStep === steps.length - 1 ? '完成' : '下一步'}
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
         </div>
+        </div >
     );
 }

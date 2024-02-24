@@ -1,8 +1,7 @@
 import { FormHelperText, Grid, IconButton, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import "./PersonalInfo.css";
-import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/core/styles";
-import PhotoCamera from '@material-ui/icons/PhotoCamera';
+import Typography from "@mui/material/Typography";
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import { useState } from "react";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
@@ -13,19 +12,7 @@ import { counselorService } from "../../service/ServicePool";
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        '& > *': {
-            margin: theme.spacing(1),
-        },
-    },
-    input: {
-        display: 'none',
-    },
-}));
-
 const PersonalInfo = forwardRef((props, ref) => {
-    const classes = useStyles();
     const cities = ["基隆市", "台北市", "新北市", "桃園縣", "新竹市", "新竹縣", "苗栗縣", "台中市", "彰化縣", "南投縣", "雲林縣", "嘉義市", "嘉義縣", "台南市", "高雄市", "屏東縣", "台東縣", "花蓮縣", "宜蘭縣", "澎湖縣", "金門縣", "連江縣", "海外"];
 
     const upload = async (event) => {
@@ -274,7 +261,7 @@ const PersonalInfo = forwardRef((props, ref) => {
                     <div>
                         <span style={{ color: errorPhoto === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"上傳一張你的照片 *"}</span>
                         <div>
-                            <input accept="image/*" onChange={(e) => upload(e)} className={classes.input} id="icon-button-file" type="file" />
+                            <input accept="image/*" onChange={(e) => upload(e)} id="icon-button-file" type="file" />
                             <label htmlFor="icon-button-file">
                                 <IconButton color="primary" aria-label="upload picture" component="span">
                                     <PhotoCamera />
