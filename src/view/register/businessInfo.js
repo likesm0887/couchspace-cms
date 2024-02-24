@@ -302,7 +302,7 @@ const BusinessInfo = forwardRef((props, ref) => {
                             views={['hours']}
                             shouldDisableTime={(value, view) => {
                                 let hour = parseInt(value.format("HH"));
-                                if (hour === 0 || hour === 23) {
+                                if (hour === 0 || hour === 23 || hour < parseInt(startTime.format("HH"))) {
                                     return true;
                                 }
                                 return false;
