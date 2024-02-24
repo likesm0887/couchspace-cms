@@ -344,7 +344,7 @@ const CounselingManagement = () => {
                             }
                             changeOnBlur={true}
                             showNow={false}
-                            // disabledTime={(date)=>disabledStartTimes(date)}
+                            disabledTime={(date)=>disabledStartTimes(date)}
                         />
                         <span>結束時間</span>
                         <TimePicker
