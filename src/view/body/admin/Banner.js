@@ -159,12 +159,12 @@ const Banner = () => {
       };
     });
     const allCourses = await meditationService.getAllCourse();
-
+    console.log(allCourses)
     setAllCourses(
       allCourses.map((c) => {
         return {
           label: c.CourseName,
-          value: c._id,
+          value: c.CourseID,
         };
       })
     );
@@ -172,7 +172,7 @@ const Banner = () => {
       allCourses.map((c) => {
         return {
           label: c.CourseName,
-          value: c._id,
+          value: c.CourseID,
         };
       })
     );
@@ -235,6 +235,9 @@ const Banner = () => {
     setModal1Open(false);
     getData();
     setLoading(false);
+  };
+  const handleChange = (value) => {
+    console.log(`selected ${value}`);
   };
   return (
     <div>
@@ -305,9 +308,7 @@ const Banner = () => {
             <Form.Item name="LinkSourceID" label="轉跳系列">
               <Space>
                 <Select
-                  onChange={(e) => {
-                    setSelectCourse(e);
-                  }}
+                  onChange={handleChange}
                   placeholder="選擇轉跳系列"
                   options={allCourses}
                 />
