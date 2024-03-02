@@ -1,6 +1,6 @@
 import { FormHelperText, Grid, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Checkbox } from "@mui/material";
 import "./Consultation.css";
-import Typography from "@material-ui/core/Typography";
+import Typography from "@mui/material/Typography";
 import { useRef, useState } from "react";
 import { forwardRef, useImperativeHandle } from "react";
 import { Select } from "antd";

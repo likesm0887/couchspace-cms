@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from "react";
 import Participant from "./Participant";
 import "./counseling.css";
-
+import { Switch } from "@mui/material";
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
 let startDateTime = null;
 let startTime = null;
 const Room = ({ roomName, room, handleLogout, appointmentTime }) => {
   const [participants, setParticipants] = useState([]);
   const [showCamera, setShowCamera] = useState(true);
   const [showMic, setShowMic] = useState(true);
+  const [showBlur, setShowBlur] = useState(true);
   const [elapsedTime, setElapsedTime] = useState(appointmentTime.Total * 60);
   startDateTime = appointmentTime.Date;
   startTime = appointmentTime.StartTime;
-  let totalTime = appointmentTime.Total * 60;
   useEffect(() => {
     const participantConnected = (participant) => {
       setParticipants((prevParticipants) => [...prevParticipants, participant]);
@@ -34,7 +38,7 @@ const Room = ({ roomName, room, handleLogout, appointmentTime }) => {
   }, [room]);
 
   const remoteParticipants = participants.map((participant) => (
-    <Participant key={participant.sid} participant={participant} />
+    <Participant key={participant.sid} participant={participant} blur={false} isLocalTrack={false} />
   ));
   const onClickCamera = () => {
     if (showCamera) {
@@ -64,7 +68,9 @@ const Room = ({ roomName, room, handleLogout, appointmentTime }) => {
     }
     setShowMic(!showMic);
   }
-
+  const onClickBlur = () => {
+    setShowBlur(!showBlur);
+  }
   const parseDateTime = (dateString, timeString) => {
     [dateString,] = dateString.split(" ");
     const [year, month, day] = dateString.split("-");
@@ -114,6 +120,8 @@ const Room = ({ roomName, room, handleLogout, appointmentTime }) => {
             <Participant
               key={room.localParticipant.sid}
               participant={room.localParticipant}
+              blur={showBlur}
+              isLocalTrack={true}
             />
           ) : (
             ""
@@ -124,10 +132,39 @@ const Room = ({ roomName, room, handleLogout, appointmentTime }) => {
         </div>
       </div>
       <div className={"stopAndClose"}>
-        <div className={"stopWatch"}>{num2HourTime(elapsedTime)}</div>
-        <button style={{ marginLeft: 20 }} onClick={onClickCamera}> <img style={{ height: 30, width: 40, verticalAlign: 'middle' }} src={showCamera ? require("../../../img/content/camera_enabled.png") : require("../../../img/content/camera_disabled.png")} alt="myCamera" />{"鏡頭"} </button>
-        <button style={{ marginLeft: 20 }} onClick={onClickMic}> <img style={{ height: 40, width: 25, verticalAlign: 'middle' }} src={showMic ? require("../../../img/content/mic_enabled.png") : require("../../../img/content/mic_disabled.png")} alt="myMic" /> {"麥克風"}</button>
-        <button onClick={onClickExit} className={"stop"}>離開房間</button>
+        <FormControl component="fieldset">
+          <FormGroup aria-label="position" row>
+            <FormControlLabel
+              value="bottom"
+              control={<div style={{width: 100, height: 50, textAlign:'center', alignSelf:'center', justifySelf:'center'}}>{num2HourTime(elapsedTime)}</div>}
+              label="諮商時間"
+              labelPlacement="bottom"
+            />
+            <FormControlLabel
+              value="bottom"
+              control={<button style={{ width: 50, height: 50, borderColor:'transparent', backgroundColor:'transparent' }} onClick={onClickCamera}> <img style={{ verticalAlign: 'middle' }} src={showCamera ? require("../../../img/content/camera_enabled.png") : require("../../../img/content/camera_disabled.png")} alt="myCamera" /></button>}
+              label="鏡頭"
+              labelPlacement="bottom"
+            />
+            <FormControlLabel
+              value="bottom"
+              control={<button style={{ width: 50, height: 50, borderColor:'transparent', backgroundColor:'transparent' }} onClick={onClickMic}> <img style={{ verticalAlign: 'middle' }} src={showMic ? require("../../../img/content/mic_enabled.png") : require("../../../img/content/mic_disabled.png")} alt="myMic" /></button>}
+              label="麥克風"
+              labelPlacement="bottom"
+            />
+            <FormControlLabel
+              value="bottom"
+              control={<div style={{ width: 50, height: 50}}><Switch onChange={onClickBlur} checked={showBlur}> {"模糊背景"}</Switch></div> }
+              label="模糊背景"
+              labelPlacement="bottom"
+            />
+            <FormControlLabel
+              value="bottom"
+              control={<button onClick={onClickExit} className={"stop"}>離開房間</button>}
+              labelPlacement="bottom"
+            />
+          </FormGroup>
+        </FormControl>
       </div>
     </div>
   );

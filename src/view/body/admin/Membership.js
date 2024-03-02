@@ -16,7 +16,7 @@ import {
   Divider,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import { CardMembership } from "@material-ui/icons";
+import { CardMembership } from "@mui/icons-material";
 import { memberService } from "../../../service/ServicePool";
 import dayjs from "dayjs";
 const { RangePicker } = DatePicker;

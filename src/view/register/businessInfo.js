@@ -1,13 +1,14 @@
 import { Grid, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, IconButton, Tooltip } from "@mui/material";
 import "./BusinessInfo.css";
-import Typography from "@material-ui/core/Typography";
+import Typography from "@mui/material/Typography";
 import { useState, useEffect } from "react";
 import { forwardRef, useImperativeHandle } from "react";
 import plus from "../img/register/plus.svg";
 import trash from "../img/register/trash.svg";
 import { counselorInfo, WeekType, BusinessTime, Period, OverrideTime } from "../../dataContract/counselor";
-import { TimePicker } from "antd";
 import { showToast, toastType } from "../../common/method";
+import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import Calender from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
 import {
@@ -35,8 +36,9 @@ const BusinessInfo = forwardRef((props, ref) => {
     const [isDailyHourOpen, setIsDailyHourOpen] = useState(false);
     const [isNeedSort, setIsNeedSort] = useState(false);
     const [consultHours, setConsultHours] = useState(businessHours);
-    const [startTime, setStartTime] = useState(dayjs('00:00', 'HH:mm'));
-    const [endTime, setEndTime] = useState(dayjs('00:00', 'HH:mm'));
+    const defaultSelectedTime = dayjs('01:00', 'HH:mm');
+    const [startTime, setStartTime] = useState(defaultSelectedTime);
+    const [endTime, setEndTime] = useState(defaultSelectedTime);
     const [selectedBusiness, setSelectedBusiness] = useState(null);
     const bubbleSortDailyHour = () => {
         var output = overrideTimes;
@@ -143,13 +145,13 @@ const BusinessInfo = forwardRef((props, ref) => {
         tempItems[selectedBusiness].periods.push({ startTime: startTime.format("HH:mm"), endTime: endTime.format("HH:mm") });
         tempItems = bubbleSortPeriods();
         setConsultHours([...tempItems]);
-        setStartTime(dayjs('00:00', 'HH:mm'));
-        setEndTime(dayjs('00:00', 'HH:mm'));
+        setStartTime(defaultSelectedTime);
+        setEndTime(defaultSelectedTime);
     }
     const handleCancel = () => {
         setIsOpen(false);
-        setStartTime(dayjs('00:00', 'HH:mm'));
-        setEndTime(dayjs('00:00', 'HH:mm'));
+        setStartTime(defaultSelectedTime);
+        setEndTime(defaultSelectedTime);
     }
     const handleClose = (event, reason) => {
         if (reason && reason === "backdropClick")
@@ -268,43 +270,44 @@ const BusinessInfo = forwardRef((props, ref) => {
             <DialogTitle id="alert-dialog-title">{"請選擇時段"}</DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-description">
-                    <div>
-                        <span>開始時間</span>
+                    <div style={{ marginBottom: 10, display:'flex', justifyItems:'center', alignItems:'center'}}>
+                        <span style={{marginRight:10}}>開始時間</span>
                         <TimePicker
-                            style={{ margin: 10 }}
-                            popupStyle={{ zIndex: 9999 }}
                             format={"HH:mm"}
-                            minuteStep={15}
-                            hourStep={1}
-                            showSecond={false}
-                            showMinute={false} // 0607: only support hours
                             value={startTime}
-                            onSelect={(value) => {
+                            onChange={(value) => {
                                 setStartTime(value);
                             }
                             }
-                            changeOnBlur={true}
-                            showNow={false}
-                            disabledTime={(date)=>disabledStartTimes(date)}
+                            views={['hours']}
+                            shouldDisableTime={(value, view) => {
+                                let hour = parseInt(value.format("HH"));
+                                if (hour === 0 || hour === 23) {
+                                    return true;
+                                }
+                                return false;
+                            }}
+                            ampm={false}
                         />
-                        <span>結束時間</span>
+                    </div>
+                    <div style={{ marginBottom: 10, display:'flex', justifyItems:'center', alignItems:'center'}}>
+                        <span style={{marginRight:10}}>結束時間</span>
                         <TimePicker
-                            style={{ margin: 10 }}
-                            popupStyle={{ zIndex: 9999 }}
                             format={"HH:mm"}
-                            minuteStep={15}
-                            hourStep={1}
-                            showSecond={false}
-                            showMinute={false} // 0607: only support hours
                             value={endTime}
-                            disabled={startTime == null}
-                            onSelect={(value) => {
+                            onChange={(value) => {
                                 setEndTime(value);
                             }
                             }
-                            changeOnBlur={true}
-                            showNow={false}
-                            disabledTime={(date)=>disabledEndTimes(date)}
+                            views={['hours']}
+                            shouldDisableTime={(value, view) => {
+                                let hour = parseInt(value.format("HH"));
+                                if (hour === 0 || hour === 23 || hour < parseInt(startTime.format("HH"))) {
+                                    return true;
+                                }
+                                return false;
+                            }}
+                            ampm={false}
                         />
                     </div>
                 </DialogContentText>
@@ -399,7 +402,7 @@ const BusinessInfo = forwardRef((props, ref) => {
             </div>
             <Grid container spacing={3}>
                 <Grid item xs={12}>
-                    <Calender calendarType="US" maxDate={maxDate} minDate={currentDate} locale="en" onClickDay={(value) => onClickDay(value)}></Calender>
+                    <Calender calendarType="gregory" maxDate={maxDate} minDate={currentDate} locale="en" onClickDay={(value) => onClickDay(value)}></Calender>
                 </Grid>
                 <Grid item xs={12}>
                     {overrideTimes.map((overrideTime, index) => {
@@ -426,9 +429,9 @@ const BusinessInfo = forwardRef((props, ref) => {
                 </Grid>
             </Grid>
             <div style={{ height: 30 }}></div>
-            <div>
+            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={'zh-cn'} >
                 {createDialog()}
-            </div>
+            </LocalizationProvider>
             <div>
                 {createDailyHourDialog()}
             </div>

@@ -1,38 +1,23 @@
 import { Grid, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, Button, Tooltip } from "@mui/material";
 import "./counselingManagement.css";
-import Typography from "@material-ui/core/Typography";
+import Typography from "@mui/material/Typography";
 import { useState, useEffect } from "react";
 import plus from "../../../img/register/plus.svg";
 import trash from "../../../img/register/trash.svg";
 import { counselorInfo, WeekType, BusinessTime, Period, OverrideTime, AppointmentTime } from "../../../../dataContract/counselor";
-import { TimePicker } from "antd";
+import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { showToast, toastType } from "../../../../common/method";
 import Calender from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
 import {
     InfoCircleOutlined
 } from "@ant-design/icons";
-import { makeStyles } from "@material-ui/core/styles";
 import { counselorService } from "../../../../service/ServicePool";
 import dayjs from "dayjs";
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        '& > *': {
-            margin: theme.spacing(1),
-        },
-    },
-    input: {
-        display: 'none',
-    },
-    button: {
-        marginRight: theme.spacing(1),
-    },
-}));
-
 const CounselingManagement = () => {
     const [disableSaveBtn, setDisabledSaveBtn] = useState(true);
-    const classes = useStyles();
     const currentDate = new Date();
     const maxDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 3, currentDate.getDate());
     const [chooseDate, setChooseDate] = useState(currentDate);
@@ -53,8 +38,9 @@ const CounselingManagement = () => {
     const [isDailyHourOpen, setIsDailyHourOpen] = useState(false);
     const [isNeedSort, setIsNeedSort] = useState(false);
     const [consultHours, setConsultHours] = useState(businessHours);
-    const [startTime, setStartTime] = useState(dayjs('00:00', 'HH:mm'));
-    const [endTime, setEndTime] = useState(dayjs('00:00', 'HH:mm'));
+    const defaultSelectedTime = dayjs('01:00', 'HH:mm');
+    const [startTime, setStartTime] = useState(defaultSelectedTime);
+    const [endTime, setEndTime] = useState(defaultSelectedTime);
     const [selectedBusiness, setSelectedBusiness] = useState(null);
     const bubbleSortDailyHour = () => {
         var output = overrideTimes;
@@ -199,14 +185,14 @@ const CounselingManagement = () => {
         tempItems[selectedBusiness].periods.push({ startTime: startTime.format("HH:mm"), endTime: endTime.format("HH:mm") });
         tempItems = bubbleSortPeriods();
         setConsultHours([...tempItems]);
-        setStartTime(dayjs('00:00', 'HH:mm'));
-        setEndTime(dayjs('00:00', 'HH:mm'));
+        setStartTime(defaultSelectedTime);
+        setEndTime(defaultSelectedTime);
         setDisabledSaveBtn(false);
     }
     const handleCancel = () => {
         setIsOpen(false);
-        setStartTime(dayjs('00:00', 'HH:mm'));
-        setEndTime(dayjs('00:00', 'HH:mm'));
+        setStartTime(defaultSelectedTime);
+        setEndTime(defaultSelectedTime);
     }
     const handleClose = (event, reason) => {
         if (reason && reason === "backdropClick")
@@ -327,43 +313,44 @@ const CounselingManagement = () => {
             <DialogTitle id="alert-dialog-title">{"請選擇時段"}</DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-description">
-                    <div>
-                        <span>開始時間</span>
+                    <div style={{ marginBottom: 10, display:'flex', justifyItems:'center', alignItems:'center'}}>
+                        <span style={{marginRight:10}}>開始時間</span>
                         <TimePicker
-                            style={{ margin: 10 }}
-                            popupStyle={{ zIndex: 9999 }}
                             format={"HH:mm"}
-                            minuteStep={15}
-                            hourStep={1}
-                            showSecond={false}
-                            showMinute={false} // 0607: only support hours
                             value={startTime}
-                            onSelect={(value) => {
+                            onChange={(value) => {
                                 setStartTime(value);
                             }
                             }
-                            changeOnBlur={true}
-                            showNow={false}
-                            disabledTime={(date)=>disabledStartTimes(date)}
+                            views={['hours']}
+                            shouldDisableTime={(value, view) => {
+                                let hour = parseInt(value.format("HH"));
+                                if (hour === 0 || hour === 23) {
+                                    return true;
+                                }
+                                return false;
+                            }}
+                            ampm={false}
                         />
-                        <span>結束時間</span>
+                    </div>
+                    <div style={{ marginBottom: 10, display:'flex', justifyItems:'center', alignItems:'center'}}>
+                        <span style={{marginRight:10}}>結束時間</span>
                         <TimePicker
-                            style={{ margin: 10 }}
-                            popupStyle={{ zIndex: 9999 }}
                             format={"HH:mm"}
-                            minuteStep={15}
-                            hourStep={1}
-                            showSecond={false}
-                            showMinute={false} // 0607: only support hours
                             value={endTime}
-                            disabled={startTime == null}
-                            onSelect={(value) => {
+                            onChange={(value) => {
                                 setEndTime(value);
                             }
                             }
-                            changeOnBlur={true}
-                            showNow={false}
-                            disabledTime={(date)=>disabledEndTimes(date)}
+                            views={['hours']}
+                            shouldDisableTime={(value, view) => {
+                                let hour = parseInt(value.format("HH"));
+                                if (hour === 0 || hour === 23 || hour < parseInt(startTime.format("HH"))) {
+                                    return true;
+                                }
+                                return false;
+                            }}
+                            ampm={false}
                         />
                     </div>
                 </DialogContentText>
@@ -390,9 +377,9 @@ const CounselingManagement = () => {
             <DialogContent>
                 <DialogContentText id="alert-dialog-description">
                     <div>
-                        {Array.from({ length: finishHour-startHour }, (_, hour) => {
+                        {Array.from({ length: finishHour - startHour }, (_, hour) => {
                             hour += startHour;
-                            return(
+                            return (
                                 <div key={hour}>
                                     <label>
                                         <input
@@ -427,7 +414,6 @@ const CounselingManagement = () => {
                 variant="contained"
                 color="primary"
                 onClick={handleSave}
-                className={classes.button}
                 style={{ float: 'right' }}
                 disabled={disableSaveBtn}
             >
@@ -467,7 +453,7 @@ const CounselingManagement = () => {
             </div>
             <Grid container spacing={3}>
                 <Grid item xs={12}>
-                    <Calender calendarType="US" maxDate={maxDate} minDate={currentDate} locale="en" onClickDay={(value) => onClickDay(value)}></Calender>
+                    <Calender calendarType="gregory" maxDate={maxDate} minDate={currentDate} locale="en" onClickDay={(value) => onClickDay(value)}></Calender>
                 </Grid>
                 <Grid item xs={12}>
                     {overrideTimes.map((overrideTime, index) => {
@@ -494,9 +480,9 @@ const CounselingManagement = () => {
                 </Grid>
             </Grid>
             <div style={{ height: 30 }}></div>
-            <div>
+            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={'zh-cn'} >
                 {createDialog()}
-            </div>
+            </LocalizationProvider>
             <div>
                 {createDailyHourDialog()}
             </div>
