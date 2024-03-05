@@ -308,7 +308,7 @@ const Banner = () => {
             <Form.Item name="LinkSourceID" label="轉跳系列">
               <Space>
                 <Select
-                  onChange={handleChange}
+                  onChange={(e)=>setSelectCourse(e)}
                   placeholder="選擇轉跳系列"
                   options={allCourses}
                 />
