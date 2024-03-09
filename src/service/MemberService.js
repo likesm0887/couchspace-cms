@@ -115,4 +115,62 @@ export class MemberService {
     });
     
   }
+
+  getGetAllPromoCode() {
+    if (this.token === undefined) {
+      return;
+    }
+    const api = this.base_url + "/api/v1/members/promo-codes";
+    const requestOptions = {
+      method: "Get",
+      headers: {
+        Authorization: this.token,
+        "Content-Type": "application/json",
+      },
+    };
+
+    return fetch(api, requestOptions)
+      .then((res) => res.json())
+      .then((res) => {
+        cookie.save("Info", JSON.stringify(res));
+        return res;
+      });
+  }
+  uploadPromoCode(input){
+    const api = this.base_url + "/api/v1/members/promo-codes";
+    const requestOptions = {
+      method: "Put",
+      headers: {
+        Authorization: this.token,
+      
+      },
+      body: input,
+    };
+
+    return fetch(api, requestOptions)
+    .then((res) => res.json())
+    .then((res) => {
+      cookie.save("Info", JSON.stringify(res));
+      return res;
+    });
+    
+  }
+  addPromoCode(input){
+    const api = this.base_url + "/api/v1/members/promo-codes";
+    const requestOptions = {
+      method: "Post",
+      headers: {
+        Authorization: this.token,
+      
+      },
+      body: input,
+    };
+
+    return fetch(api, requestOptions)
+    .then((res) => res.json())
+    .then((res) => {
+      cookie.save("Info", JSON.stringify(res));
+      return res;
+    });
+  }
 }
