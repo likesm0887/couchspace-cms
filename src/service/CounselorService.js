@@ -1,5 +1,6 @@
 import cookie from 'react-cookies'
 import { appointmentService } from './ServicePool';
+import { ForgetPassword, ResetPassword } from '../dataContract/counselor';
 export class CounselorService {
 
     constructor(base_url) {
@@ -58,7 +59,7 @@ export class CounselorService {
         if (this.adminToken === undefined) {
             return;
         }
-        const api = this.base_url + "/api/v1/counselor/"+id;
+        const api = this.base_url + "/api/v1/counselor/" + id;
         const requestOptions = {
             method: 'GET',
             headers: { "Authorization": this.adminToken, 'Content-Type': 'application/json' },
@@ -75,9 +76,9 @@ export class CounselorService {
         if (this.adminToken === undefined) {
             return;
         }
-        console.log(isFilterUnVerify?"Y":"N")
-        const api = this.base_url + "/api/v1/counselors/all?isFilterUnVerify="+ (isFilterUnVerify?"Y":"N");
-     
+        console.log(isFilterUnVerify ? "Y" : "N")
+        const api = this.base_url + "/api/v1/counselors/all?isFilterUnVerify=" + (isFilterUnVerify ? "Y" : "N");
+
         const requestOptions = {
             method: 'GET',
             headers: { "Authorization": this.adminToken, 'Content-Type': 'application/json' },
@@ -89,7 +90,7 @@ export class CounselorService {
                 return result;
             });
     }
-    setCounselorVerify(id,verify) {
+    setCounselorVerify(id, verify) {
         if (this.adminToken === undefined) {
             return;
         }
@@ -98,8 +99,8 @@ export class CounselorService {
             method: 'POST',
             headers: { "Authorization": this.adminToken, 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                CounselorId:id,
-                Verify:verify
+                CounselorId: id,
+                Verify: verify
             }),
         };
 
@@ -110,16 +111,16 @@ export class CounselorService {
                 return res;
             });
     }
-    getCounselorVerify(id){
-     
-        if (id==null||id ==''){
+    getCounselorVerify(id) {
+
+        if (id == null || id == '') {
             return
         }
         console.log(this.token);
         if (this.adminToken === undefined) {
             return;
         }
-        const api = this.base_url + "/api/v1/counselors/verify/"+id;
+        const api = this.base_url + "/api/v1/counselors/verify/" + id;
         const requestOptions = {
             method: 'GET',
             headers: { "Authorization": this.adminToken, 'Content-Type': 'application/json' },
@@ -171,7 +172,7 @@ export class CounselorService {
         if (this.adminToken === undefined) {
             return;
         }
-        const api = this.base_url + "/api/v1/appointmentTime/"+id
+        const api = this.base_url + "/api/v1/appointmentTime/" + id
         console.log(api)
         const requestOptions = {
             method: 'GET',
@@ -190,7 +191,7 @@ export class CounselorService {
         if (this.adminToken === undefined) {
             return;
         }
-        const api = this.base_url + "/api/v1/calender/"+id
+        const api = this.base_url + "/api/v1/calender/" + id
         console.log(api)
         const requestOptions = {
             method: 'GET',
@@ -218,6 +219,7 @@ export class CounselorService {
             .then(res => res.json())
             .then(res => {
                 console.log("res", res);
+                console.log("type of res", typeof res);
                 return res;
             });
     }
@@ -231,6 +233,36 @@ export class CounselorService {
         }
         return fetch(api, requestOptions)
             .then((res) => res.text())
+            .then((res) => {
+                return res;
+            });
+    }
+    requestForgetPassword(data: ForgetPassword) {
+        const api = this.base_url + "/api/v1/counselors/forget";
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+
+        }
+        return fetch(api, requestOptions)
+            .then((res) => res.json())
+            .then((res) => {
+                console.log("type of res", typeof res);
+                return res;
+            });
+    }
+    resetPassword(data: ResetPassword) {
+        console.log("data", data);
+        const api = this.base_url + "/api/v1/counselors/resetPassword";
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+
+        }
+        return fetch(api, requestOptions)
+            .then((res) => res.json())
             .then((res) => {
                 return res;
             });

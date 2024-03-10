@@ -21,17 +21,17 @@ export class Register {
 }
 
 export class ForgetPassword {
-    constructor() {
-        this.email = "";
-        this.redirect = "";
+    constructor(email, account) {
+        this.email = email;
+        this.account = account;
     }
 }
 
 export class ResetPassword {
-    constructor() {
-        this.email = "";
-        this.token = "";
-        this.newPassword = "";
+    constructor(account, token, newPassword) {
+        this.account = account;
+        this.token = token;
+        this.newPassword = newPassword;
     }
 }
 
