@@ -21,7 +21,6 @@ function Login() {
     const [confirmedPassword, setConfirmedPassword] = useState("");
     const [selectedTab, setSelectedTab] = useState(tabType.login);
     const [email, setEmail] = useState("");
-    const [isSend, setIsSend] = useState(false);
     const [timeLeft, setTimeLeft] = useState(0);
     const [verifyCode, setVerifyCode] = useState("");
     useEffect(() => {
@@ -120,11 +119,10 @@ function Login() {
         setPassword("");
         setConfirmedPassword("");
         setEmail("");
-        setIsSend(false);
+        setVerifyCode("");
     }
     async function setTimeDown() {
         let seconds = 30;
-        setIsSend(true);
         const interval = setInterval(() => {
             setTimeLeft(seconds);
             seconds--;
