@@ -30,6 +30,7 @@ import Counselor from "./view/body/admin/Counselor";
 import Banner from "./view/body/admin/Banner";
 import CounselorBanner from "./view/body/admin/CounselorBanner";
 import Appointments from "./view/body/admin/Appointments";
+import PromoCode from "./view/body/admin/Promo_code";
 function App() {
   // registerServiceWorker()
   // Notification()
@@ -50,7 +51,7 @@ function App() {
           <Route path="counselor" element={<Counselor />}></Route>
           <Route path="counselorBanner" element={<CounselorBanner />}></Route>
           <Route path="appointments" element={<Appointments />}></Route>
-         
+          <Route path="promocode" element={<PromoCode />}></Route>
         </Route>
         <Route path="couchspace-cms/register" element={<Register />} />
 

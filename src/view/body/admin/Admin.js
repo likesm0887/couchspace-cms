@@ -24,6 +24,7 @@ const items = [
   getItem('用戶', '5', <DesktopOutlined />),
   getItem('開通', '6', <DesktopOutlined />),
   getItem('Banner', '7', <DesktopOutlined />),
+  getItem('優惠代碼', '12', <DesktopOutlined />),
   // getItem('放鬆專區', 'sub1', <UserOutlined />, [
   //   getItem('系列', '4'),
   //   getItem('音樂', '5'),
@@ -84,6 +85,9 @@ function Admin() {
     }
     if (e.key ==11) {
       navigate("appointments", { replace: true });
+    }
+    if (e.key ==12) {
+      navigate("promocode", { replace: true });
     }
   };
 
