@@ -19,7 +19,6 @@ import { UploadOutlined } from "@ant-design/icons";
 import { CardMembership } from "@mui/icons-material";
 import { memberService } from "../../../service/ServicePool";
 import dayjs from "dayjs";
-const { RangePicker } = DatePicker;
 const Membership = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [memberAccount, setMemberAccount] = useState("");
