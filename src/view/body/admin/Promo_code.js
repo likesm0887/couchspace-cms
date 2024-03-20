@@ -1,19 +1,6 @@
-import { MenuOutlined } from "@ant-design/icons";
-import { esESIntl } from "@ant-design/pro-components";
-import { DndContext } from "@dnd-kit/core";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import {
   PlusCircleOutlined,
   EditOutlined,
-  DeleteFilled,
-  CustomerServiceOutlined,
 } from "@ant-design/icons";
 
 import {
@@ -23,8 +10,11 @@ import {
   Space,
   Input,
   Select,
+  Modal,
+  QRCode,
   Spin,
   Form,
+  message,
   Row,
   Col,
   Switch,
@@ -35,14 +25,14 @@ import {
 import React, { useState, useEffect } from "react";
 import {
   counselorService,
-  meditationService,
   memberService,
 } from "../../../service/ServicePool";
 import { MemberService } from "../../../service/MemberService";
 import dayjs from "dayjs";
-const { RangePicker } = DatePicker;
 
 const PromoCode = () => {
+  const { RangePicker } = DatePicker;
+
   const columns = [
     {
       key: "sort",
@@ -68,6 +58,16 @@ const PromoCode = () => {
     {
       title: "Code",
       dataIndex: "PresentToken",
+      render: (i, element) => (
+        <Button
+          type="text"
+          onClick={(e) => {
+            openQRModal(element);
+          }}
+        >
+          {i}
+        </Button>
+      ),
     },
     {
       title: "優惠類型",
@@ -90,9 +90,9 @@ const PromoCode = () => {
       dataIndex: "ForCounselorList",
     },
     {
-        title: "是否啟用重複使用",
-        dataIndex: "DuplicateUse",
-      },
+      title: "是否啟用重複使用",
+      dataIndex: "DuplicateUse",
+    },
     {
       title: "單一使用者使用",
       dataIndex: "ForOneMember",
@@ -111,14 +111,16 @@ const PromoCode = () => {
     },
   ];
   const [modal1Open, setModal1Open] = useState(false);
-  const [dataSource, setDataSource] = useState([]);
-  const [previewBannerImage, setPreviewBannerImage] = useState([]);
   const [allCourses, setAllCourses] = useState([]);
-  const [selectCourse, setSelectCourse] = useState([]);
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
-  const [loading2, setLoading2] = useState(false);
   const [promoCode, setPromoCode] = useState([]);
+  const [visible, setVisible] = useState(false);
+  const [loading,setLoading]=useState(false)
+  const openQRModal = (element) => {
+    console.log(element);
+    setQRCodeValue(element.PresentToken);
+    setVisible(true);
+  };
   useEffect(() => {
     getData();
   }, []);
@@ -130,6 +132,7 @@ const PromoCode = () => {
       return "減" + e.Action.Value + "元";
     }
   };
+
   const getData = async () => {
     let promoCodes = await memberService.getGetAllPromoCode();
     let counselores = await counselorService.getAllCounselorInfo();
@@ -193,11 +196,65 @@ const PromoCode = () => {
     const randomString = generateRandomString(randomSize);
     console.log(randomString);
     setInputValue(randomString);
+    form.setFieldsValue({ PresentToken: randomString });
+  };
+  const onFinish = async (values) => {
+    const jsonData = {
+      Group: {
+        groupDesc: "",
+        groupCode: "",
+      },
+      Token: values.Token,
+      PresentToken: values.PresentToken,
+      EffectiveStartTime: dayjs(values.EffectiveDate[0]).format("YYYY-MM-DD"), // 格式化日期
+      EffectiveEndTime: dayjs(values.EffectiveDate[1]).format("YYYY-MM-DD"), // 格式化日期
+      ForCounselorList: values.CounselorList,
+      ForOneMember: values.ForOneMember,
+      DuplicateUse: values.DuplicateUse,
+      CanUseTimes: values.EnableUseTimesText ? -1 : values.CanUseTimes,
+      Type: values.Type,
+      Action: {
+        Value: values.Value,
+        ActionCode: values["ActionCode"],
+        ActionPresent: values.ActionPresent,
+      },
+      Effective: true,
+    };
+
+    console.log(jsonData); // 输出 JSON 数据到控制台
+
+    memberService
+      .addPromoCode(jsonData)
+      .then((e) => {
+        console.log(e);
+        if (e.error_code === "9999") {
+          message.error(e.message);
+          getData()
+          setModal1Open(true);
+        } else {
+          message.success("新增成功");
+          setModal1Open(false);
+        }
+      })
+      .catch((e) => {
+        message.error(e);
+      });
   };
   const [inputValue, setInputValue] = useState("");
 
   const [enableUseTimesText, setEnableUseTimesText] = useState(true);
   const [randomSize, setRandomSize] = useState(5);
+  const [qrCodeValue, setQRCodeValue] = useState("");
+  const validateMessages = {
+    required: "${label}不能為空!",
+    types: {
+      email: "${label}不是有效的邮箱地址!",
+      number: "${label}不是有效的数字!",
+    },
+    number: {
+      range: "${label}必须在${min}和${max}之间!",
+    },
+  };
   return (
     <div>
       <FloatButton
@@ -206,15 +263,23 @@ const PromoCode = () => {
         style={{ right: 94 }}
         onClick={() => {
           setModal1Open(true);
-          setSelectCourse(null);
           form.setFieldValue("image", "");
-          setPreviewBannerImage("");
         }}
         tooltip={<div>Add Banner</div>}
         icon={<PlusCircleOutlined />}
       />
       <Table columns={columns} dataSource={promoCode} />
-
+      <Modal
+        title="QR Code"
+        visible={visible}
+        onCancel={() => setVisible(false)}
+        footer={null}
+      >
+        <QRCode
+          value={qrCodeValue}
+          // icon="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg"
+        />
+      </Modal>
       <Drawer
         title={"新增"}
         style={{
@@ -234,110 +299,129 @@ const PromoCode = () => {
         bodyStyle={{ paddingBottom: 50 }}
       >
         <Spin size="large" spinning={loading}>
-          <Form form={form}>
+          <Form
+            form={form}
+            onFinish={onFinish}
+            validateMessages={validateMessages}
+            initialValues={{
+              EffectiveDate: [dayjs(), dayjs().add(1, "year")],
+              ActionCode: "MUL",
+              ActionPresent: "兌換成功!!",
+            }}
+          >
             <p></p>
-            <Form.Item name="選擇代碼種類" label="選擇代碼種類">
-              <Space>
-                <Select
-                  //onChange={(e) => setSelectCourse(e)}
-                  placeholder="選擇代碼種類"
-                  options={[
-                    {
-                      label: "諮商",
-                      value: "COUNSELING",
-                    },
-                    {
-                      label: "冥想",
-                      value: "MEDITATION",
-                    },
-                  ]}
-                />
-              </Space>
+            <Form.Item
+              name="Type"
+              label="選擇類型"
+              rules={[{ required: true }]}
+            >
+              <Select
+                placeholder="選擇類型"
+                options={[
+                  {
+                    label: "諮商",
+                    value: "COUNSELING",
+                  },
+                  {
+                    label: "冥想",
+                    value: "MEDITATION",
+                  },
+                ]}
+              />
             </Form.Item>
-            <Form.Item name="description" label="優惠代碼">
-              <Input rows={3} placeholder="請輸入優惠代碼" maxLength={10} />
+            <Form.Item
+              name="Token"
+              label="優惠代碼"
+              rules={[{ required: true }]}
+            >
+              <Input rows={3} placeholder="請輸入優惠代碼" maxLength={25} />
             </Form.Item>
-
-            <Form.Item name="Code" label="Code">
-              <Row gutter={[10, 10]}>
+            <Row gutter={[10, 10]}>
+              <Form.Item
+                name="PresentToken"
+                label="Code"
+                rules={[{ required: true }]}
+              >
                 <Col span={10}>
                   <Input
                     style={{ width: 100 }}
                     placeholder="Code"
-                    maxLength={15}
+                    maxLength={25}
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                   />
                 </Col>
-                <Col span={9}>
-                  <Button type="primary" onClick={handleButtonClick}>
-                    Random
-                  </Button>
-                </Col>
-                <Col span={2}>
-                  <InputNumber
-                    min={1}
-                    max={15}
-                    style={{ width: 50 }}
-                    defaultValue={5}
-                    onChange={(e) => setRandomSize(e)}
-                  />
-                </Col>
-              </Row>
-            </Form.Item>
+              </Form.Item>
+              <Col span={9}>
+                <Button type="primary" onClick={handleButtonClick}>
+                  Random
+                </Button>
+              </Col>
+              <Col span={2}>
+                <InputNumber
+                  min={1}
+                  max={15}
+                  style={{ width: 50 }}
+                  defaultValue={5}
+                  onChange={(e) => setRandomSize(e)}
+                />
+              </Col>
+            </Row>
             <p></p>
             <Row gutter={[16, 16]}>
               <Col span={10}>
-                <Form.Item name="優惠內容" label="優惠內容">
-                  <Space>
-                    <Select
-                      //  onChange={(e) => setSelectCourse(e)}
-                      placeholder=""
-                      options={[
-                        {
-                          label: "乘",
-                          value: "MUL",
-                        },
-                        {
-                          label: "減",
-                          value: "SUB",
-                        },
-                      ]}
-                    />
-                  </Space>
+                <Form.Item
+                  name="ActionCode"
+                  label="優惠內容"
+                  rules={[{ required: true }]}
+                >
+                  <Select
+                    placeholder=""
+                    options={[
+                      {
+                        label: "乘",
+                        value: "MUL",
+                      },
+                      {
+                        label: "減",
+                        value: "SUB",
+                      },
+                    ]}
+                  />
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item name="value">
-                  <Input placeholder="請輸入數值" maxLength={5} />
+                <Form.Item name="Value" rules={[{ required: true }]}>
+                  <InputNumber  placeholder="請輸入數值" maxLength={5} />
                 </Form.Item>
               </Col>
             </Row>
-            <Form.Item name="ActionPresent" label="優惠介紹">
+            <Form.Item
+              name="ActionPresent"
+              label="成功後顯示說明"
+              rules={[{ required: true }]}
+            >
               <Input placeholder="使用成功後說明(15字)" maxLength={15} />
             </Form.Item>
             <p></p>
-            <Form.Item name="諮商師專屬" label="諮商師專屬">
+            <Form.Item name="CounselorList" label="諮商師專屬">
               <Select
                 mode="multiple"
-                onChange={(e) => setSelectCourse(e)}
                 width="100px"
                 placeholder="選擇轉跳系列"
                 options={allCourses}
               />
             </Form.Item>
-            <Form.Item name="ActionPresent" label="優惠介紹">
-              <Input placeholder="使用成功後說明(15字)" maxLength={15} />
-            </Form.Item>
             <p></p>
-            <Form.Item name="EnableCanUseTimes" label="啟用使用次數無上限">
-              <Switch
-                defaultChecked
-                onChange={(e) => {
-                  console.log(e);
-                  setEnableUseTimesText(e);
-                }}
-              />
+
+            <Form.Item name="DuplicateUse" label="是否允許重複使用">
+              <Switch/>
+            </Form.Item>
+            <Form.Item name="ForOneMember" label="單一使用者">
+              <Switch/>
+            </Form.Item>
+            <Form.Item name="EnableUseTimesText" label="啟用使用次數無上限">
+              <Switch defaultChecked onChange={(e)=>setEnableUseTimesText(e)}> </Switch> 
             </Form.Item>
             <Form.Item
               hidden={enableUseTimesText}
@@ -352,12 +436,26 @@ const PromoCode = () => {
                 // onChange={onChange}
               />
             </Form.Item>
-            <Form.Item name="EffectiveDate" label="有效期間">
-              <RangePicker allowClear={true} defaultValue={dayjs(Date.now())} />
+            <Form.Item
+              name="EffectiveDate"
+              label="有效期間"
+              rules={[
+                { type: "array", required: true, message: "请选择有效期間" },
+              ]}
+            >
+              <RangePicker
+                allowClear={true}
+                defaultValue={[dayjs(), dayjs().add(1, "year")]}
+              />
             </Form.Item>
           </Form>
           <Space>
-            <Button onClick={() => {}} type="primary">
+            <Button
+              onClick={() => {
+                form.submit();
+              }}
+              type="primary"
+            >
               確認
             </Button>
             <Button
