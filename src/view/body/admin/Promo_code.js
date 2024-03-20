@@ -242,6 +242,7 @@ const PromoCode = () => {
         } else {
           message.success("新增成功");
           setModal1Open(false);
+          getData();
         }
       })
       .catch((e) => {
