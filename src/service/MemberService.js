@@ -156,6 +156,7 @@ export class MemberService {
     
   }
   addPromoCode(input){
+    console.log(input)
     const api = this.base_url + "/api/v1/members/promo-codes";
     const requestOptions = {
       method: "Post",
@@ -163,7 +164,7 @@ export class MemberService {
         Authorization: this.token,
       
       },
-      body: input,
+      body: JSON.stringify(input),
     };
 
     return fetch(api, requestOptions)
