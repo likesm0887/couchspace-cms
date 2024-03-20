@@ -1,7 +1,4 @@
-import {
-  PlusCircleOutlined,
-  EditOutlined,
-} from "@ant-design/icons";
+import { PlusCircleOutlined, EditOutlined } from "@ant-design/icons";
 
 import {
   Table,
@@ -23,10 +20,7 @@ import {
   Drawer,
 } from "antd";
 import React, { useState, useEffect } from "react";
-import {
-  counselorService,
-  memberService,
-} from "../../../service/ServicePool";
+import { counselorService, memberService } from "../../../service/ServicePool";
 import { MemberService } from "../../../service/MemberService";
 import dayjs from "dayjs";
 
@@ -115,7 +109,7 @@ const PromoCode = () => {
   const [form] = Form.useForm();
   const [promoCode, setPromoCode] = useState([]);
   const [visible, setVisible] = useState(false);
-  const [loading,setLoading]=useState(false)
+  const [loading, setLoading] = useState(false);
   const openQRModal = (element) => {
     console.log(element);
     setQRCodeValue(element.PresentToken);
@@ -127,9 +121,14 @@ const PromoCode = () => {
   const onBannerDelete = async (e) => {};
   const toAction = (e) => {
     if (e.Action.ActionCode == "MUL") {
-      return e.Action.Value + "折";
-    } else {
+      return e.Action.Value*10 + "折";
+    }
+    if (e.Action.ActionCode == "SUB") {
       return "減" + e.Action.Value + "元";
+    }
+
+    if (e.Action.ActionCode == "PREMIUM") {
+      return "開通"+e.Action.Value+"個月";
     }
   };
 
@@ -198,7 +197,16 @@ const PromoCode = () => {
     setInputValue(randomString);
     form.setFieldsValue({ PresentToken: randomString });
   };
+  const getValue=(UseTimes,CanUseTimes)=>{
+    if(UseTimes||UseTimes==undefined){
+      return -1
+    }else{
+     return CanUseTimes
+    }
+
+  }
   const onFinish = async (values) => {
+    console.log(values)
     const jsonData = {
       Group: {
         groupDesc: "",
@@ -211,7 +219,7 @@ const PromoCode = () => {
       ForCounselorList: values.CounselorList,
       ForOneMember: values.ForOneMember,
       DuplicateUse: values.DuplicateUse,
-      CanUseTimes: values.EnableUseTimesText ? -1 : values.CanUseTimes,
+      CanUseTimes: getValue(values.EnableUseTimesText,values.CanUseTimes),
       Type: values.Type,
       Action: {
         Value: values.Value,
@@ -229,7 +237,7 @@ const PromoCode = () => {
         console.log(e);
         if (e.error_code === "9999") {
           message.error(e.message);
-          getData()
+          getData();
           setModal1Open(true);
         } else {
           message.success("新增成功");
@@ -369,15 +377,21 @@ const PromoCode = () => {
             </Row>
             <p></p>
             <Row gutter={[16, 16]}>
-              <Col span={10}>
+              <Col span={14}>
                 <Form.Item
+                  width="150px"
                   name="ActionCode"
                   label="優惠內容"
                   rules={[{ required: true }]}
                 >
                   <Select
+                    width="100px"
                     placeholder=""
                     options={[
+                      {
+                        label: "開通(月)",
+                        value: "PREMIUM",
+                      },
                       {
                         label: "乘",
                         value: "MUL",
@@ -390,9 +404,9 @@ const PromoCode = () => {
                   />
                 </Form.Item>
               </Col>
-              <Col span={12}>
+              <Col span={9}>
                 <Form.Item name="Value" rules={[{ required: true }]}>
-                  <InputNumber  placeholder="請輸入數值" maxLength={5} />
+                  <InputNumber placeholder="請輸入數值" maxLength={5} />
                 </Form.Item>
               </Col>
             </Row>
@@ -415,13 +429,15 @@ const PromoCode = () => {
             <p></p>
 
             <Form.Item name="DuplicateUse" label="是否允許重複使用">
-              <Switch/>
+              <Switch />
             </Form.Item>
             <Form.Item name="ForOneMember" label="單一使用者">
-              <Switch/>
+              <Switch />
             </Form.Item>
             <Form.Item name="EnableUseTimesText" label="啟用使用次數無上限">
-              <Switch defaultChecked onChange={(e)=>setEnableUseTimesText(e)}> </Switch> 
+              <Switch defaultChecked onChange={(e) => setEnableUseTimesText(e)}>
+                {" "}
+              </Switch>
             </Form.Item>
             <Form.Item
               hidden={enableUseTimesText}
