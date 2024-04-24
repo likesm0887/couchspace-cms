@@ -136,7 +136,7 @@ export class MemberService {
         return res;
       });
   }
-  uploadPromoCode(input){
+  updatePromoCode(input){
     const api = this.base_url + "/api/v1/members/promo-codes";
     const requestOptions = {
       method: "Put",
@@ -144,7 +144,7 @@ export class MemberService {
         Authorization: this.token,
       
       },
-      body: input,
+      body: JSON.stringify(input),
     };
 
     return fetch(api, requestOptions)
@@ -173,5 +173,26 @@ export class MemberService {
       cookie.save("Info", JSON.stringify(res));
       return res;
     });
+  }
+
+  getPromoCode(id) {
+    if (this.token === undefined) {
+      return;
+    }
+    const api = this.base_url + "/api/v1/members/promo-code/"+id;
+    const requestOptions = {
+      method: "Get",
+      headers: {
+        Authorization: this.token,
+        "Content-Type": "application/json",
+      },
+    };
+
+    return fetch(api, requestOptions)
+      .then((res) => res.json())
+      .then((res) => {
+        cookie.save("Info", JSON.stringify(res));
+        return res;
+      });
   }
 }

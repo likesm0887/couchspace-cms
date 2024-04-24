@@ -40,10 +40,14 @@ const PromoCode = () => {
           icon={<EditOutlined />}
           type="primary"
           onClick={(e) => {
-            onBannerDelete(element);
+            onEdit(element);
           }}
         ></Button>
       ),
+    },
+    {
+      title: "ID",
+      dataIndex: "ID",
     },
     {
       title: "優惠代碼",
@@ -110,6 +114,8 @@ const PromoCode = () => {
   const [promoCode, setPromoCode] = useState([]);
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState("new");
+  const [selectedID, setSelectedID] = useState("");
   const openQRModal = (element) => {
     console.log(element);
     setQRCodeValue(element.PresentToken);
@@ -118,26 +124,52 @@ const PromoCode = () => {
   useEffect(() => {
     getData();
   }, []);
-  const onBannerDelete = async (e) => {};
+  const onEdit = async (e) => {
+    setStatus("edit");
+    setModal1Open(true);
+    console.log(e);
+    var jsonData = await memberService.getPromoCode(e.ID);
+    console.log(jsonData);
+    setSelectedID(e.ID)
+    setInputValue(jsonData.PresentToken);
+    form.setFieldValue("ID", jsonData.ID);
+    form.setFieldValue("Type", jsonData.Type);
+    form.setFieldValue("Token", jsonData.Token);
+    form.setFieldValue("PresentToken", jsonData.PresentToken);
+    form.setFieldValue("Value", jsonData.Action.Value);
+    form.setFieldValue("ActionCode", jsonData.Action.ActionCode);
+    form.setFieldValue("CounselorList", jsonData.ForCounselorList);
+    form.setFieldValue("DuplicateUse", jsonData.DuplicateUse);
+    form.setFieldValue("Effective", jsonData.Effective);
+    form.setFieldValue("ForOneMember", jsonData.ForOneMember);
+    form.setFieldValue("EnableUseTimesText", jsonData.CanUseTimes === -1);
+    form.setFieldValue("ActionPresent", jsonData.Action.ActionPresent);
+    form.setFieldValue("EffectiveDate", [
+      dayjs(jsonData.EffectiveStartTime),
+      dayjs(jsonData.EffectiveEndTime),
+    ]);
+  };
   const toAction = (e) => {
     if (e.Action.ActionCode == "MUL") {
-      return e.Action.Value*10 + "折";
+      return e.Action.Value * 10 + "折";
     }
     if (e.Action.ActionCode == "SUB") {
       return "減" + e.Action.Value + "元";
     }
 
     if (e.Action.ActionCode == "PREMIUM") {
-      return "開通"+e.Action.Value+"個月";
+      return "開通" + e.Action.Value + "個月";
     }
   };
 
   const getData = async () => {
+    setLoading(true);
     let promoCodes = await memberService.getGetAllPromoCode();
     let counselores = await counselorService.getAllCounselorInfo();
-
+    setLoading(false);
     promoCodes = promoCodes.map((p) => {
       return {
+        ID: p.ID,
         Token: p.Token,
         PresentToken: p.PresentToken,
         Type: p.Type === "COUNSELING" ? "諮商" : "冥想",
@@ -148,6 +180,7 @@ const PromoCode = () => {
         DuplicateUse: p.DuplicateUse ? "啟用" : "不啟用",
         Action: toAction(p),
         CanUseTimes: p.CanUseTimes == "-1" ? "無上限" : p.CanUseTimes,
+
         UsedTimes:
           p?.MemberPromoCodeRecord?.length > 0
             ? p?.MemberPromoCodeRecord?.length
@@ -197,17 +230,17 @@ const PromoCode = () => {
     setInputValue(randomString);
     form.setFieldsValue({ PresentToken: randomString });
   };
-  const getValue=(UseTimes,CanUseTimes)=>{
-    if(UseTimes||UseTimes==undefined){
-      return -1
-    }else{
-     return CanUseTimes
+  const getValue = (UseTimes, CanUseTimes) => {
+    if (UseTimes || UseTimes == undefined) {
+      return -1;
+    } else {
+      return CanUseTimes;
     }
-
-  }
+  };
   const onFinish = async (values) => {
-    console.log(values)
+    console.log(values);
     const jsonData = {
+      ID:selectedID,
       Group: {
         groupDesc: "",
         groupCode: "",
@@ -219,38 +252,58 @@ const PromoCode = () => {
       ForCounselorList: values.CounselorList,
       ForOneMember: values.ForOneMember,
       DuplicateUse: values.DuplicateUse,
-      CanUseTimes: getValue(values.EnableUseTimesText,values.CanUseTimes),
+      CanUseTimes: getValue(values.EnableUseTimesText, values.CanUseTimes),
       Type: values.Type,
       Action: {
         Value: values.Value,
         ActionCode: values["ActionCode"],
         ActionPresent: values.ActionPresent,
       },
-      Effective: true,
+      Effective: values.Effective
     };
 
     console.log(jsonData); // 输出 JSON 数据到控制台
-
-    memberService
-      .addPromoCode(jsonData)
-      .then((e) => {
-        console.log(e);
-        if (e.error_code === "9999") {
-          message.error(e.message);
-          getData();
-          setModal1Open(true);
-        } else {
-          message.success("新增成功");
-          setModal1Open(false);
-          getData();
-        }
-      })
-      .catch((e) => {
-        message.error(e);
-      });
+    if (status === "new") {
+      console.log("new");
+      memberService
+        .addPromoCode(jsonData)
+        .then((e) => {
+          console.log(e);
+          if (e.error_code === "9999") {
+            message.error(e.message);
+            getData();
+            setModal1Open(true);
+          } else {
+            message.success("新增成功");
+            setModal1Open(false);
+            getData();
+          }
+        })
+        .catch((e) => {
+          message.error(e);
+        });
+    } else {
+      console.log("edit");
+      memberService
+        .updatePromoCode(jsonData)
+        .then((e) => {
+          console.log(e);
+          if (e.error_code === "9999") {
+            message.error(e.message);
+            getData();
+            setModal1Open(true);
+          } else {
+            message.success("編輯成功");
+            setModal1Open(false);
+            getData();
+          }
+        })
+        .catch((e) => {
+          message.error(e);
+        });
+    }
   };
   const [inputValue, setInputValue] = useState("");
-
   const [enableUseTimesText, setEnableUseTimesText] = useState(true);
   const [randomSize, setRandomSize] = useState(5);
   const [qrCodeValue, setQRCodeValue] = useState("");
@@ -264,6 +317,12 @@ const PromoCode = () => {
       range: "${label}必须在${min}和${max}之间!",
     },
   };
+  const newPromoCode = () => {
+    form.resetFields();
+    setModal1Open(true);
+    form.setFieldValue("image", "");
+    setStatus("new");
+  };
   return (
     <div>
       <FloatButton
@@ -271,13 +330,14 @@ const PromoCode = () => {
         type="primary"
         style={{ right: 94 }}
         onClick={() => {
-          setModal1Open(true);
-          form.setFieldValue("image", "");
+          newPromoCode();
         }}
         tooltip={<div>Add Banner</div>}
         icon={<PlusCircleOutlined />}
       />
-      <Table columns={columns} dataSource={promoCode} />
+      <Spin size="large" spinning={loading}>
+        <Table columns={columns} dataSource={promoCode} />
+      </Spin>
       <Modal
         title="QR Code"
         visible={visible}
@@ -289,6 +349,7 @@ const PromoCode = () => {
           // icon="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg"
         />
       </Modal>
+
       <Drawer
         title={"新增"}
         style={{
@@ -312,11 +373,12 @@ const PromoCode = () => {
             form={form}
             onFinish={onFinish}
             validateMessages={validateMessages}
-            initialValues={{
-              EffectiveDate: [dayjs(), dayjs().add(1, "year")],
-              ActionCode: "MUL",
-              ActionPresent: "兌換成功!!",
-            }}
+            // initialValues={initialValues}
+            // initialValues={{
+            //   EffectiveDate: [dayjs(), dayjs().add(1, "year")],
+            //   ActionCode: "MUL",
+            //   ActionPresent: "兌換成功!!",
+            // }}
           >
             <p></p>
             <Form.Item
@@ -440,6 +502,7 @@ const PromoCode = () => {
                 {" "}
               </Switch>
             </Form.Item>
+
             <Form.Item
               hidden={enableUseTimesText}
               name="CanUseTimes"
@@ -453,16 +516,19 @@ const PromoCode = () => {
                 // onChange={onChange}
               />
             </Form.Item>
+            <Form.Item name="Effective" label="啟用">
+              <Switch />
+            </Form.Item>
             <Form.Item
               name="EffectiveDate"
               label="有效期間"
               rules={[
-                { type: "array", required: true, message: "请选择有效期間" },
+                { type: "array", required: true, message: "請選擇有效期間" },
               ]}
             >
               <RangePicker
                 allowClear={true}
-                defaultValue={[dayjs(), dayjs().add(1, "year")]}
+                //defaultValue={[dayjs(), dayjs().add(1, "year")]}
               />
             </Form.Item>
           </Form>
