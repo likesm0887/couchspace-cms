@@ -76,7 +76,7 @@ function Personal() {
                         onClose={handleClose}
                     >
                         <li style={{ margin: 10, alignItems: 'center', justifyItems: 'center' }}>
-                            <MenuItem className={"menuItem"} onClick={onClickBasicInfo}>會員資本資料</MenuItem>
+                            <MenuItem className={"menuItem"} onClick={onClickBasicInfo}>會員基本資料</MenuItem>
                         </li>
                         <li style={{ margin: 10, alignItems: 'center', justifyItems: 'center' }}>
                             <MenuItem className={"menuItem"} onClick={onClickCounselingInfo}>我的諮商資料</MenuItem>
