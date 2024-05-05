@@ -149,6 +149,9 @@ const BasicInfo = () => {
                 let result = await counselorService.upload(photo);
                 info.updatePhoto = result.Photo;
             }
+            else{
+                info.updatePhoto = counselorInfo.Photo;
+            }
             info.UserName.Name.FirstName = firstName;
             info.UserName.Name.LastName = lastName;
             info.Location = selectedCity;
@@ -289,11 +292,11 @@ const BasicInfo = () => {
                         <span style={{ color: errorGender === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"性別 *"}</span>
 
                         <div style={{ flex: 1, flexDirection: 'row' }} onChange={(value) => setGender(value.target.value)}>
-                            <input style={{ marginRight: 5 }} type="radio" value="男" name="gender" defaultChecked={gender === "男"} />
+                            <input style={{ marginRight: 5 }} type="radio" value="男" name="gender" checked={gender === "男"} />
                             <span style={{ marginRight: 10 }}>男</span>
-                            <input style={{ marginRight: 5 }} type="radio" value="女" name="gender" defaultChecked={gender === "女"} />
+                            <input style={{ marginRight: 5 }} type="radio" value="女" name="gender" checked={gender === "女"} />
                             <span style={{ marginRight: 10 }}>女</span>
-                            <input style={{ marginRight: 5 }} type="radio" value="其他" name="gender" defaultChecked={gender === "其他"} />
+                            <input style={{ marginRight: 5 }} type="radio" value="其他" name="gender" checked={gender === "其他"} />
                             <span>其他</span>
                         </div>
                         <FormHelperText error={errorGender !== ""}>{errorGender}</FormHelperText>
