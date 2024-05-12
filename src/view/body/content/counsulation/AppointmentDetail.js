@@ -115,16 +115,16 @@ function AppointmentDetail() {
     }
     function getStatusDesc(code) {
         if (code.toUpperCase() === 'NEW') {
-            return "訂單成立(未付款)"
+            return "未付款"
         }
         if (code.toUpperCase() === 'UNPAID') {
-            return "訂單成立(未付款)"
+            return "未付款"
         }
         if (code.toUpperCase() === 'CONFIRMED') {
             return "已確認"
         }
         if (code.toUpperCase() === 'ROOMCREATED') {
-            return "諮商房間已建立"
+            return "即將開始"
         }
 
         if (code.toUpperCase() === 'CANCELLED') {

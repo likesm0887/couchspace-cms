@@ -18,6 +18,20 @@ export class Service {
     Time = 0;
     Fee = 0;
 }
+export class Emergency{
+    Name = "";
+    Phone = "";
+    Relationship = "";
+}
+export class SymptomRating{
+    SleepDifficulty = 0;
+    Nervous = 0;
+    Irritated = 0;
+    MelancholyDepressed = 0;
+    InferiorFeeling =0;
+    Suicidalthoughts = 0;
+    TotalScore = 0;
+}
 export class Appointment {
     AppointmentID = "e0721569-9fbe-4e68-a3c6-103d6460c152";
     UserID = "152ce7a6-f313-4829-a564-6b0fb0aa9a4f";
@@ -32,5 +46,8 @@ export class Appointment {
     TimeUpdateRecord = [];
     Status = "ROOMCREATED";
     RoomID = "e67a7980-749b-4b6b-8665-6d91ff29fa54";
-
+    Emergency = new Emergency();
+    SymptomRating = new SymptomRating();
+    CarrierType = "";
+    CarrierCode = "";
 }
