@@ -57,16 +57,6 @@
 
   color: #c7c7c7;
 }
-.arrow_down {
-  width: 0;
-  height: 0;
-  margin-top: 7px;
-  margin-left: 2px;
-  border-style: solid;
-  border-width: 8px 7px 0 7px;
-  border-color: #c7c7c7 transparent transparent transparent;
-}
-
 .menuItem:hover {
   color: #f2a246;
 }

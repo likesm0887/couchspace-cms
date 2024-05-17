@@ -44,7 +44,7 @@ function Consultation() {
         const res = await appointmentService.getAllAppointment();
         console.log("getData", res);
         if (res) {
-            setAllAppointments(res.sort((a, b) => {
+            await setAllAppointments(res.sort((a, b) => {
                 const dateA = parseDateTime(a.Time.Date, a.Time.StartTime);
                 const dateB = parseDateTime(b.Time.Date, b.Time.StartTime);
                 return dateB - dateA;
@@ -82,7 +82,7 @@ function Consultation() {
         }
         return output;
     }
-    const filterAppointments = () => {
+    const filterAppointments = async () => {
         let filterAppointments: Appointment[] = [];
         let filterType = getFilterType(titleType);
         if (filterType) {
@@ -96,11 +96,10 @@ function Consultation() {
     }
     useEffect(() => {
         getData();
-        filterAppointments();
     }, [])
     useEffect(() => {
         filterAppointments();
-    }, [titleType])
+    }, [titleType, allAppointments])
     const clickItem = (appointment) => {
         navigate("/couchspace-cms/home/consultation/" + appointment.AppointmentID, { replace: false, state: { appointment: appointment } });
     }
@@ -153,7 +152,7 @@ function Consultation() {
                             {allAppointment.Service.Type.Label}
                         </div>
                         <div className="content-col">
-                            <span style={{ color: allAppointment.Status.toUpperCase() === "ROOMCREATED" ? "#88A1D2" : "#595757" }}>{getStatusDesc(allAppointment.Status)}</span>
+                            <span>{getStatusDesc(allAppointment.Status)}</span>
                         </div>
                         <div className="content-col">
                             <button className={"editButton"} onClick={() => clickItem(allAppointment)}>檢視</button>
@@ -222,17 +221,12 @@ function Consultation() {
     return (
         <div style={{ width: "100%", height: "100%", backgroundColor: "#F7F8F8" }}>
             {createListTitleType()}
-            <div style={{ display: 'block', padding: 30, overflowY: 'hidden', overflowX: 'hidden' }}>
+            <div style={{ marginLeft: 40, marginTop: 20, display: 'block', width: "90%", height: "85%", backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
                 {createListTitle()}
                 {createListItem()}
                 <div className={"Page"}>
                     <Pagination color="primary" count={pagesSize} defaultPage={1} onChange={handleChange} />
                 </div>
-
-                <Backdrop className={""} open={open} >
-                    <CircularProgress />
-                    <p>正在檢查您的裝置</p>
-                </Backdrop>
             </div>
         </div>
     );

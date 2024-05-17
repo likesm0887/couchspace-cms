@@ -11,10 +11,10 @@ import setting from "../../img/slidebar/setting.svg";
 import setting_unselect from "../../img/slidebar/setting_unselect.svg";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-
+const SelectedTab = Object.freeze({ "Consultation": "Consultation", "Meditation": "Meditation", "Article": "Article", "Manager": "Manager", "Setting": "Setting" })
 function Sidebar() {
     const location = useLocation();
-    const [currentSelected, setCurrentSelected] = useState("consultation");
+    const [currentSelected, setCurrentSelected] = useState(SelectedTab.Consultation);
     const selectSlide = (selected) => {
         if (currentSelected === selected) return;
         // console.log(selected)
@@ -22,76 +22,68 @@ function Sidebar() {
     };
     const getStyle = (selected) => {
         return {
-            backgroundColor: currentSelected === selected ? ' #F7F8F8' : '#88A1D2',
-            color: currentSelected === selected ? '#88A1D2' : ' #F7F8F8',
+            backgroundColor: currentSelected === selected ? '#F7F8F8' : '#88A1D2',
+            color: currentSelected === selected ? '#88A1D2' : '#F7F8F8',
         }
     }
     const getImage = (selected) => {
         let output = null;
+        console.log("selected", selected);
+        console.log("currentSelected", currentSelected);
         switch (selected) {
-            case 'consultation':
+            case SelectedTab.Consultation:
                 output = (currentSelected === selected) ? consultation : consultation_unselect;
                 break;
-            case 'meditation':
+            case SelectedTab.Meditation:
                 output = (currentSelected === selected) ? meditation : meditation_unselect;
                 break;
-            case 'article':
+            case SelectedTab.Article:
                 output = (currentSelected === selected) ? article : article_unselect;
                 break;
-            case 'manager':
+            case SelectedTab.Manager:
                 output = (currentSelected === selected) ? manager : manager_unselect;
                 break;
-            case 'setting':
+            case SelectedTab.Setting:
                 output = (currentSelected === selected) ? setting : setting_unselect;
                 break;
             default:
                 break;
         }
+        console.log("output", output);
         return output;
     }
-    const updateSelected = () => {
-        // console.log(location);
-        let paths = location.pathname.split('/');
-        let selected = paths[paths.length - 1];
-        if (selected !== 'repair') {
-            setCurrentSelected(paths[paths.length - 1]);
-        }
-    }
-    useEffect(() => {
-        updateSelected();
-    })
     return (
         <div className="sidebar">
             <div className={"line"}>
-                <Link to="consultation" style={getStyle("consultation")} className={"consultation"}>
-                    <li onClick={() => selectSlide("consultation")} className={"slide-line"} style={getStyle("consultation")}>
-                        <img src={getImage("consultation")} alt={"123"}></img>
+                <Link to="consultation" className={"consultation"}>
+                    <li onClick={() => selectSlide(SelectedTab.Consultation)} className={"slide-line"} style={getStyle(SelectedTab.Consultation)}>
+                        <img src={getImage(SelectedTab.Consultation)} alt={"123"}></img>
                         <span style={{ marginLeft: 10 }}>諮商</span>
                     </li>
                 </Link>
-                <Link to="repair" style={getStyle("meditation")} className={"meditation"}>
-                    <li onClick={() => selectSlide("meditation")} className={"slide-line"} style={getStyle("meditation")}>
-                        <img src={getImage("meditation")} alt={"123"}></img>
+                <Link to="repair" className={"meditation"}>
+                    <li onClick={() => selectSlide(SelectedTab.Meditation)} className={"slide-line"} style={getStyle(SelectedTab.Meditation)}>
+                        <img src={getImage(SelectedTab.Meditation)} alt={"123"}></img>
                         <span style={{ marginLeft: 10 }}>冥想</span>
                     </li>
                 </Link>
 
-                <Link to="repair" style={getStyle("article")} className={"article"}>
-                    <li onClick={() => selectSlide("article")} className={"slide-line"} style={getStyle("article")}>
-                        <img src={getImage("article")} alt={"123"}></img>
+                <Link to="repair" className={"article"}>
+                    <li onClick={() => selectSlide(SelectedTab.Article)} className={"slide-line"} style={getStyle(SelectedTab.Article)}>
+                        <img src={getImage(SelectedTab.Article)} alt={"123"}></img>
                         <span style={{ marginLeft: 10 }}>文章</span>
                     </li>
                 </Link>
-                <Link to="repair" style={getStyle("manager")} className={"manager"}>
-                    <li onClick={() => selectSlide("manager")} className={"slide-line"} style={getStyle("manager")}>
-                        <img src={getImage("manager")} alt={"123"}></img>
+                <Link to="repair" className={"manager"}>
+                    <li onClick={() => selectSlide(SelectedTab.Manager)} className={"slide-line"} style={getStyle(SelectedTab.Manager)}>
+                        <img src={getImage(SelectedTab.Manager)} alt={"123"}></img>
                         <span style={{ marginLeft: 10 }}>管理</span>
                     </li>
                 </Link>
 
-                <Link to="repair" style={getStyle("setting")} className={"setting"}>
-                    <li onClick={() => selectSlide("setting")} className={"slide-line"} style={getStyle("setting")}>
-                        <img src={getImage("setting")} alt={"123"}></img>
+                <Link to="repair" className={"setting"}>
+                    <li onClick={() => selectSlide(SelectedTab.Setting)} className={"slide-line"} style={getStyle(SelectedTab.Setting)}>
+                        <img src={getImage(SelectedTab.Setting)} alt={"123"}></img>
                         <span style={{ marginLeft: 10 }}>設定</span>
                     </li>
                 </Link>
