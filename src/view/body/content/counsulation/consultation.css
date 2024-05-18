@@ -14,48 +14,110 @@
   background-color: #ffffff;
 }
 
-.startButton:hover {
-  cursor: pointer;
-  box-shadow: 0 3px 3px 3px #e3ebfa, 0 3px 1px -2px rgb(33 150 243 / 20%),
-    0 1px 5px 0 rgb(33 150 243 / 12%);
-}
-.startButton {
-  width: 80px;
-  height: 46px;
-  border-radius: 20px;
+.startButton-enabled {
+  width: 88px;
+  height: 25px;
+  border-radius: 4px;
   border: 0;
   font-family: "PingFang TC";
   font-style: normal;
   font-weight: 500;
-  font-size: 20px;
-  line-height: 28px;
-  background-color: #88a1d2;
-  margin-left: -10px;
+  font-size: 15px;
+  background-color: #89a2d0;
+  text-align: center;
+  justify-self: center;
+  align-self: center;
   /* identical to box height */
-  color: #f7f8f8;
+  color: #ffffff;
 }
-
+.startButton-enabled:hover {
+  cursor: pointer;
+  box-shadow: 0 3px 3px 3px #e3ebfa, 0 3px 1px -2px rgb(33 150 243 / 20%), 0 1px 5px 0 rgb(33 150 243 / 12%);
+}
+.startButton-disabled {
+  width: 88px;
+  height: 25px;
+  border-radius: 4px;
+  border: 0;
+  font-family: "PingFang TC";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 15px;
+  background-color: #c9c9c9;
+  text-align: center;
+  justify-self: center;
+  align-self: center;
+  /* identical to box height */
+  color: #ffffff;
+}
+.startButton-disabled:hover {
+  cursor: default;
+}
 .editButton {
-  width: 20px;
-  height: 20px;
+  width: 62px;
+  height: 25px;
+  border-radius: 4px;
+  border: 0;
+  font-family: "PingFang TC";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 15px;
+  background-color: #89a2d0;
+  text-align: center;
+  justify-self: center;
+  align-self: center;
+  /* identical to box height */
+  color: #ffffff;
+}
+.titleType-row {
+  display: flex;
+  align-items: center;
+  justify-items: center;
+  width: 400px;
+  background-color: #f7f8f8;
+  margin-left: 40px;
+  margin-top: 30px;
+}
+.titleType-col-enabled {
+  flex: 1;
+  font-weight: bold;
+  font-family: "PingFang TC";
+  color: #89a2d0;
+  font-size: 18px;
+  text-align: center;
+  border-bottom: solid;
+  border-bottom-color: #89a2d0;
+  border-bottom-width: 4;
+  cursor: pointer;
+}
+.titleType-col-disabled {
+  flex: 1;
+  font-weight: bold;
+  font-family: "PingFang TC";
+  color: #555654;
+  font-size: 18px;
+  text-align: center;
+  cursor: pointer;
 }
 
 .title-row {
   display: flex;
   align-items: center;
   justify-items: center;
-  width: 90%;
+  width: 100%;
+  background-color: #ffffff;
+  border-bottom: solid;
+  border-bottom-color: #f7f8f8;
+  border-bottom-width: 1;
+  height: 55px;
 }
 
 .title-col {
+  flex: 1;
   font-weight: bold;
-  font-family: Microsoft JhengHei, sans-serif;
-  color: #859cc9;
-  background-color: #f7f8f8;
-  font-size: 20px;
-  margin-inline: 10px;
-  width: 1000px;
-  margin-bottom: 40px;
+  font-family: "PingFang TC";
+  color: #555654;
+  font-size: 15px;
   text-align: center;
 }
 
@@ -64,21 +126,20 @@
   align-items: center;
   justify-items: center;
   background-color: #ffffff;
-  cursor: pointer;
   color: #000000;
-  margin-top: -20px;
-  border-radius: 20px;
-  width: 90%;
-  height: 60px;
+  width: 100%;
+  height: 55px;
+  border-bottom: solid;
+  border-bottom-color: #f7f8f8;
 }
 
 .content-col {
-  font-family: "Nunito";
+  flex: 1;
+  font-family: "PingFang TC";
   font-style: normal;
   font-weight: 800;
-  font-size: 20px;
+  font-size: 15px;
   line-height: 27px;
   text-align: center;
-  margin-inline: 10px;
-  width: 1000px;
+  color: #555654;
 }
