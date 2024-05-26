@@ -56,14 +56,16 @@ function Personal() {
         setAnchorEl(null);
     };
     return (
-        <div style={{ flexDirection: 'row', marginTop: 20 }} className={"personal-content"}>
-            <img style={{ alignSelf: 'center', justifyContent: 'center', width: 80, height: 80, objectFit: 'contain', marginRight: 10, borderRadius: 1000, overflow: 'hidden' }} src={photo} className="selfie" alt={"selfie"} />
-            <div className={"info"}>
-                <div style={{ display: 'flex', flexDirection: 'row' }} className={"nameAndTitle"}>
+        <div class="container-fluid">
+            <div class="row row-cols-auto align-items-center justify-content-end">
+                <div class="col">
+                    <img style={{ width: 80, height: 80, objectFit: 'contain', borderRadius: 1000, overflow: 'hidden' }} src={photo} className="selfie" alt={"selfie"} />
+                </div>
+                <div class="col">
                     <span className={"personal-name"}>{name}</span>
-                    <div style={{ marginLeft: 10 }} onClick={handleClick}>
-                        <img style={{ height: 25, weight: 25 }} src={userInfo} alt={"123"}></img>
-                    </div>
+                </div>
+                <div class="col">
+                    <img onClick={handleClick} src={userInfo} alt={"123"}></img>
                     <Menu
                         id="simple-menu"
                         anchorEl={anchorEl}
@@ -85,16 +87,7 @@ function Personal() {
                         </li>
                     </Menu>
                 </div>
-
             </div>
-            {/* <div className={"bell"}>
-                <Badge max={10} anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                }} badgeContent={1} color="error">
-                    <img style={{ objectFit: 'contain' }} src={bell} className="bellImg" alt="" />
-                </Badge>
-            </div> */}
         </div>
     );
 
