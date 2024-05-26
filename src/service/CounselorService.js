@@ -286,4 +286,24 @@ export class CounselorService {
                 return res;
             });
     }
+    getGetUserById(userId) {
+        if (this.token === undefined) {
+            return;
+        }
+        const api = this.base_url + "/api/v1/members/information/" + userId;
+        const requestOptions = {
+            method: "Get",
+            headers: {
+                Authorization: this.token,
+                "Content-Type": "application/json",
+            },
+        };
+
+        return fetch(api, requestOptions)
+            .then((res) => res.json())
+            .then((res) => {
+                cookie.save("Info", JSON.stringify(res));
+                return res;
+            });
+    }
 }
