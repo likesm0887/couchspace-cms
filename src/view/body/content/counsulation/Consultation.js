@@ -85,7 +85,10 @@ function Consultation() {
     const filterAppointments = async () => {
         let filterAppointments: Appointment[] = [];
         let filterType = getFilterType(titleType);
-        if (filterType) {
+        if (filterType === "ROOMCREATED") {
+            filterAppointments = allAppointments.filter((appointment) => appointment.Status === filterType || appointment.Status === "CONFIRMED");
+        }
+        else if (filterType) {
             filterAppointments = allAppointments.filter((appointment) => appointment.Status === filterType);
         }
         else {
