@@ -1,7 +1,7 @@
 import "./appointmentDetail.css"
 import healthDescription from "../../../img/content/AppointmentDetail/health_description.svg"
 import { useNavigate, useLocation } from 'react-router-dom';
-import { memberService } from "../../../../service/ServicePool";
+import { counselorService } from "../../../../service/ServicePool";
 import { useEffect, useState } from "react";
 import {
     createTheme,
@@ -27,7 +27,7 @@ function AppointmentDetail() {
     const [totalScore, setTotalScore] = useState(0);
 
     useEffect(() => {
-        memberService.getGetUserById(state.appointment.UserID).then((res) => {
+        counselorService.getGetUserById(state.appointment.UserID).then((res) => {
             console.log("userInfo", res);
             setUserName(state.appointment.UserName);
             setUserEmail(res?.Email);

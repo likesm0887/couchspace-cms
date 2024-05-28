@@ -21,6 +21,7 @@ const BusinessInfo = forwardRef((props, ref) => {
     const [chooseDate, setChooseDate] = useState(currentDate);
     const [checkedHours, setCheckedHours] = useState([]);
     const [overrideTimes, setOverrideTimes] = useState([]);
+    const [unavailable, setUnavailable] = useState(false);
     // 定義多個營業時間
     let businessHours = [
         { enabled: false, day: WeekType.Sunday, periods: [] },
@@ -162,6 +163,7 @@ const BusinessInfo = forwardRef((props, ref) => {
         let overrideTime = new OverrideTime();
         setCheckedHours(checkedHours.sort((a, b) => a - b));
         overrideTime.DayTime = chooseDate.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        overrideTime.Unavailable = unavailable;
         overrideTime.Periods = checkedHours.map((checkedHour, index) => {
             let period = new Period();
             period.StartTime = `${checkedHour}:00`;
@@ -189,6 +191,7 @@ const BusinessInfo = forwardRef((props, ref) => {
         clearAndCloseDailyHourDialog();
     }
     const clearAndCloseDailyHourDialog = () => {
+        setUnavailable(false);
         setIsDailyHourOpen(false);
         setChooseDate(currentDate);
         setCheckedHours([]);
@@ -203,13 +206,17 @@ const BusinessInfo = forwardRef((props, ref) => {
             setCheckedHours([...checkedHours, hour]);
         }
     };
+    const clearHourToggle = (unavailable) => {
+        setCheckedHours([]);
+        setUnavailable(unavailable);
+    }
     function arrayRemove(arr, value) {
         return arr.filter(function (ele) {
             return ele !== value;
         });
     }
     function disabledStartTimes(now: Dayjs) {
-        const hours = [0,23];
+        const hours = [0, 23];
         return {
             disabledHours: () => hours,
             disabledMinutes: () => [],
@@ -217,7 +224,7 @@ const BusinessInfo = forwardRef((props, ref) => {
         };
     }
     function disabledEndTimes(now: Dayjs) {
-        const hours = [0,23];
+        const hours = [0, 23];
         const minutes = [];
         if (startTime === null) {
             return {
@@ -270,8 +277,8 @@ const BusinessInfo = forwardRef((props, ref) => {
             <DialogTitle id="alert-dialog-title">{"請選擇時段"}</DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-description">
-                    <div style={{ marginBottom: 10, display:'flex', justifyItems:'center', alignItems:'center'}}>
-                        <span style={{marginRight:10}}>開始時間</span>
+                    <div style={{ marginBottom: 10, display: 'flex', justifyItems: 'center', alignItems: 'center' }}>
+                        <span style={{ marginRight: 10 }}>開始時間</span>
                         <TimePicker
                             format={"HH:mm"}
                             value={startTime}
@@ -290,8 +297,8 @@ const BusinessInfo = forwardRef((props, ref) => {
                             ampm={false}
                         />
                     </div>
-                    <div style={{ marginBottom: 10, display:'flex', justifyItems:'center', alignItems:'center'}}>
-                        <span style={{marginRight:10}}>結束時間</span>
+                    <div style={{ marginBottom: 10, display: 'flex', justifyItems: 'center', alignItems: 'center' }}>
+                        <span style={{ marginRight: 10 }}>結束時間</span>
                         <TimePicker
                             format={"HH:mm"}
                             value={endTime}
@@ -334,9 +341,19 @@ const BusinessInfo = forwardRef((props, ref) => {
             <DialogContent>
                 <DialogContentText id="alert-dialog-description">
                     <div>
-                        {Array.from({ length: finishHour-startHour }, (_, hour) => {
+                        <div>
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={unavailable}
+                                    onChange={() => clearHourToggle(!unavailable)}
+                                />
+                                {"無可預約時段"}
+                            </label>
+                        </div>
+                        {Array.from({ length: finishHour - startHour }, (_, hour) => {
                             hour += startHour;
-                            return(
+                            return (
                                 <div key={hour}>
                                     <label>
                                         <input
@@ -414,15 +431,21 @@ const BusinessInfo = forwardRef((props, ref) => {
                                         <img style={{ marginLeft: 3, marginRight: 10, height: 15, width: 15, verticalAlign: 'middle' }} src={trash} alt="" onClick={() => onClickDeleteDailyHour(index)} />
                                     </Tooltip>
                                 </div>
-                                <div>
-                                    {overrideTime.Periods.map((period, period_index) => {
-                                        return (
-                                            <span key={period_index}> {(period.StartTime + " - " + period.EndTime)}
-                                                {period_index === overrideTime.Periods.length - 1 ? null : <span>{" / "}</span>}
-                                            </span>
-                                        )
-                                    })}
-                                </div>
+                                {overrideTime.Unavailable ?
+                                    <div>
+                                        {"無可預約時段"}
+                                    </div>
+                                    :
+                                    <div>
+                                        {overrideTime.Periods.map((period, period_index) => {
+                                            return (
+                                                <span key={period_index}> {(period.StartTime + " - " + period.EndTime)}
+                                                    {period_index === overrideTime.Periods.length - 1 ? null : <span>{" / "}</span>}
+                                                </span>
+                                            )
+                                        })}
+                                    </div>
+                                }
                             </div>
                         )
                     })}
