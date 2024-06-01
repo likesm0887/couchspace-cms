@@ -212,7 +212,7 @@ const Appointments = () => {
 
     console.log(result);
     
-    const form = result?.filter(s=>s.Status!=='CONFIRMED'||s.Status!=='ROOMCREATED').map((u) => {
+    const form = result?.filter(s=>s.Status!=='CONFIRMED'&&s.Status!=='ROOMCREATED').map((u) => {
       return {
         AppointmentID: u.AppointmentID,
         UserEmail: "member.Email",
