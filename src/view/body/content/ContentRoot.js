@@ -6,7 +6,6 @@ import "./contentRoot.css"
 function ContentRoot() {
     return (
         <div className={"ContentRoot"}>
-
             <Outlet />
         </div>
 

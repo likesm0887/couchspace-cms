@@ -8,7 +8,7 @@ function Header() {
     return (
         <header>
             <div class="container-fluid">
-                <div class="row row-cols-auto align-items-center" style={{ height: 100 }}>
+                <div class="row align-items-center">
                     <div class="col-8">
                         <a href={currentHtml}>
                             <img style={{ objectFit: 'contain' }} src={logo} className="logo" alt="logo" />
