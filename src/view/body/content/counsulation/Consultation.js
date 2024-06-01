@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { appointmentService } from "../../../../service/ServicePool";
-import { Backdrop, CircularProgress, createTheme, Pagination } from "@mui/material";
+import { Pagination } from "react-bootstrap";
 import "./consultation.css"
 import editButton from "../../../img/content/edit.svg"
 import { useNavigate, useLocation } from "react-router-dom";
@@ -59,8 +59,13 @@ function Consultation() {
         const [hours, minutes] = timeString.split(":");
         return new Date(year, month - 1, day, hours, minutes);
     }
-    const handleChange = (event, value) => {
-        setCurrentPage(value);
+    const handleChange = (event) => {
+        let selectedPage = parseInt(event.target.innerText);
+        setCurrentPage(selectedPage);
+    }
+    const handleSelectType = (type) => {
+        setCurrentPage(1);
+        setTitleType(type);
     }
     const getFilterType = (titleType) => {
         let output = "";
@@ -102,7 +107,7 @@ function Consultation() {
     }, [])
     useEffect(() => {
         filterAppointments();
-    }, [titleType, allAppointments])
+    }, [titleType, allAppointments, currentPage])
     const clickItem = (appointment) => {
         navigate("/couchspace-cms/home/consultation/" + appointment.AppointmentID, { replace: false, state: { appointment: appointment } });
     }
@@ -111,7 +116,6 @@ function Consultation() {
         setOpen(!open);
         navigate("/couchspace-cms/home/consultation/counseling/" + ID, { replace: false, state: { appointmentID: ID } });
     }
-
     function getStatusDesc(code) {
         if (code.toUpperCase() === 'NEW') {
             return "未付款"
@@ -177,16 +181,16 @@ function Consultation() {
     }
     function createListTitleType() {
         return (<div className="titleType-row">
-            <div className={titleType === TitleType.OnComing ? "titleType-col-enabled" : "titleType-col-disabled"} onClick={() => setTitleType(TitleType.OnComing)}>
+            <div className={titleType === TitleType.OnComing ? "titleType-col-enabled" : "titleType-col-disabled"} onClick={() => handleSelectType(TitleType.OnComing)}>
                 即將開始
             </div>
-            <div className={titleType === TitleType.Finished ? "titleType-col-enabled" : "titleType-col-disabled"} onClick={() => setTitleType(TitleType.Finished)}>
+            <div className={titleType === TitleType.Finished ? "titleType-col-enabled" : "titleType-col-disabled"} onClick={() => handleSelectType(TitleType.Finished)}>
                 已完成
             </div>
-            <div className={titleType === TitleType.Cancelled ? "titleType-col-enabled" : "titleType-col-disabled"} onClick={() => setTitleType(TitleType.Cancelled)}>
+            <div className={titleType === TitleType.Cancelled ? "titleType-col-enabled" : "titleType-col-disabled"} onClick={() => handleSelectType(TitleType.Cancelled)}>
                 已取消
             </div>
-            <div className={titleType === TitleType.All ? "titleType-col-enabled" : "titleType-col-disabled"} onClick={() => setTitleType(TitleType.All)}>
+            <div className={titleType === TitleType.All ? "titleType-col-enabled" : "titleType-col-disabled"} onClick={() => handleSelectType(TitleType.All)}>
                 全部預約
             </div>
         </div>);
@@ -218,6 +222,17 @@ function Consultation() {
             </div>
         </div>);
     }
+    function createPagination() {
+        let items = [];
+        for (let number = 1; number <= pagesSize; number++) {
+            items.push(
+                <Pagination.Item key={number} active={number === currentPage} onClick={handleChange}>
+                    {number}
+                </Pagination.Item>
+            );
+        }
+        return items;
+    }
     const handleClose = () => {
         setOpen(false);
     };
@@ -228,7 +243,11 @@ function Consultation() {
                 {createListTitle()}
                 {createListItem()}
                 <div className={"Page"}>
-                    <Pagination color="primary" count={pagesSize} defaultPage={1} onChange={handleChange} />
+                    <Pagination>
+                        <Pagination.Prev onClick={() => setCurrentPage(currentPage > 1 ? currentPage - 1 : currentPage)} />
+                        {createPagination()}
+                        <Pagination.Next onClick={() => setCurrentPage(currentPage < pagesSize ? currentPage + 1 : currentPage)}/>
+                    </Pagination>
                 </div>
             </div>
         </div>
