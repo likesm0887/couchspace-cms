@@ -11,9 +11,12 @@ import {
   Tabs,
   Image,
   List,
+  Form,
   Card,
+  message,
   Calendar,
   Space,
+  Input,
 } from "antd";
 import { Layout, theme, Descriptions, Badge, Outlet } from "antd";
 import "./counselor.css";
@@ -34,8 +37,9 @@ import img_account from "../../img/login/account.svg";
 import { fontFamily } from "@mui/system";
 const DrawerForm = ({ id, visible, onClose, record, callback }) => {
   // Define state for the form fields
-
+  const [form] = Form.useForm();
   const [verify, setVerify] = useState(false);
+
   // Clear form fields
 
   const changeVerify = (e) => {
@@ -44,6 +48,7 @@ const DrawerForm = ({ id, visible, onClose, record, callback }) => {
   };
 
   useEffect(() => {
+    console.log(id);
     const getCounselorVerify = async () => {
       const isVerify = await counselorService.getCounselorVerify(id);
       console.log(isVerify);
@@ -53,31 +58,55 @@ const DrawerForm = ({ id, visible, onClose, record, callback }) => {
   }, [id]);
 
   // Handle form submission
-  const handleSubmit = async () => {
-    console.log(verify);
-    await counselorService.setCounselorVerify(id, verify);
+  const handleSubmit = async (value) => {
+    console.log(value);
+    console.log(id);
+    let time = {
+      AppointmentId: id,
+      Date: value.date,
+      StartTime: value.startTime,
+      EndTime: value.endTime,
+    };
+    appointmentService
+    .changeAppointmentTime(time)
+    .then((e) => {
+      message.success("修改成功");
+    });
+
     onClose();
     callback();
   };
 
   return (
-    <Drawer
-      title={record ? "Edit User" : "Add User"}
-      width={400}
-      onClose={onClose}
-      visible={visible}
-    >
-      <label>Membership:</label>
-      <br />
-      <Switch
+    <Drawer title={"Edit"} width={400} onClose={onClose} visible={visible}>
+      <Form form={form} onFinish={handleSubmit}>
+        <Form.Item name="date" label="日期" rules={[{ required: true }]}>
+          <Input placeholder="2022-05-06" />
+        </Form.Item>
+        <Form.Item
+          name="startTime"
+          label="起始時間"
+          rules={[{ required: true }]}
+        >
+          <Input placeholder="09:00" />
+        </Form.Item>
+        <Form.Item name="endTime" label="結束時間" rules={[{ required: true }]}>
+          <Input placeholder="10:00" />
+        </Form.Item>
+        <br />
+        {/* <label>Membership:</label> */}
+        {/* <Switch
         checkedChildren="已認證"
         unCheckedChildren="未認證"
         checked={verify}
         onChange={changeVerify}
-      />
-      <Space>
-        <Button onClick={handleSubmit}>{record ? "Save" : "儲存"}</Button>
-      </Space>
+      /> */}
+        <Space>
+          <Button onClick={() => form.submit()}>
+            {record ? "Save" : "儲存"}
+          </Button>
+        </Space>
+      </Form>
     </Drawer>
   );
 };
@@ -101,15 +130,18 @@ const Appointments = () => {
   } = theme.useToken();
   const columns = () => {
     let result = [
-      // {
-      //   title: "Action",
-      //   key: "action",
-      //   render: (text, record) => (
-      //     <Button type="primary" onClick={() => handleEdit(record.id)}>
-      //       編輯
-      //     </Button>
-      //   ),
-      // },
+      {
+        title: "Action",
+        key: "action",
+        render: (text, record) => (
+          <Button
+            type="primary"
+            onClick={() => handleEdit(record.AppointmentID)}
+          >
+            編輯
+          </Button>
+        ),
+      },
 
       {
         title: "交易單號",
@@ -173,13 +205,13 @@ const Appointments = () => {
         title: "預約成立時間",
         dataIndex: "CreateDate",
         key: "CreateDate",
-        sorter: (a,b)=>Date.parse(a.CreateDate)-Date.parse(b.CreateDate),
+        sorter: (a, b) => Date.parse(a.CreateDate) - Date.parse(b.CreateDate),
       },
       {
         title: "狀態",
         dataIndex: "Status",
         key: "Status",
-        sorter: (a,b)=>a.Status.localeCompare(b.Status,'en')
+        sorter: (a, b) => a.Status.localeCompare(b.Status, "en"),
       },
     ];
 
@@ -211,44 +243,48 @@ const Appointments = () => {
     const result = await appointmentService.getAllAppointmentForAdmin();
 
     console.log(result);
-    
-    const form = result?.filter(s=>s.Status!=='CONFIRMED'&&s.Status!=='ROOMCREATED').map((u) => {
-      return {
-        AppointmentID: u.AppointmentID,
-        UserEmail: "member.Email",
-        UserID: u.UserID,
-        UserName: u.UserName,
-        CounselorID: u.CounselorID,
-        CounselorName: u.CounselorName,
-        DateTime: u.Time.Date + " " + u.Time.StartTime,
-        Fee: u.Service.Fee,
-        Type: u.Service.Type.Label,
-        CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
-          .format("YYYY-MM-DD HH:mm:SS")
-          .toString(),
-        Status: getStatusDesc(u.Status),
-      };
-    });
 
-    const form2 = result?.filter(s=>s.Status=='CONFIRMED'||s.Status=='ROOMCREATED').map((u) => {
-      return {
-        AppointmentID: u.AppointmentID,
-        UserEmail: "member.Email",
-        UserID: u.UserID,
-        UserName: u.UserName,
-        CounselorID: u.CounselorID,
-        CounselorName: u.CounselorName,
-        DateTime: u.Time.Date + " " + u.Time.StartTime,
-        Fee: u.Service.Fee,
-        Type: u.Service.Type.Label,
-        CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
-          .format("YYYY-MM-DD HH:mm:SS")
-          .toString(),
-        Status: getStatusDesc(u.Status),
-      };
-    });
+    const form = result
+      ?.filter((s) => s.Status !== "CONFIRMED" && s.Status !== "ROOMCREATED")
+      .map((u) => {
+        return {
+          AppointmentID: u.AppointmentID,
+          UserEmail: "member.Email",
+          UserID: u.UserID,
+          UserName: u.UserName,
+          CounselorID: u.CounselorID,
+          CounselorName: u.CounselorName,
+          DateTime: u.Time.Date + " " + u.Time.StartTime,
+          Fee: u.Service.Fee,
+          Type: u.Service.Type.Label,
+          CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
+            .format("YYYY-MM-DD HH:mm:SS")
+            .toString(),
+          Status: getStatusDesc(u.Status),
+        };
+      });
+
+    const form2 = result
+      ?.filter((s) => s.Status == "CONFIRMED" || s.Status == "ROOMCREATED")
+      .map((u) => {
+        return {
+          AppointmentID: u.AppointmentID,
+          UserEmail: "member.Email",
+          UserID: u.UserID,
+          UserName: u.UserName,
+          CounselorID: u.CounselorID,
+          CounselorName: u.CounselorName,
+          DateTime: u.Time.Date + " " + u.Time.StartTime,
+          Fee: u.Service.Fee,
+          Type: u.Service.Type.Label,
+          CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
+            .format("YYYY-MM-DD HH:mm:SS")
+            .toString(),
+          Status: getStatusDesc(u.Status),
+        };
+      });
     setUserData(form);
-    setConfirmedAppointment(form2)
+    setConfirmedAppointment(form2);
     setUserCount(result.length);
   };
   const [currentSelectCounselor, setCurrentSelectCounselor] = useState({});
@@ -267,7 +303,7 @@ const Appointments = () => {
 
     setCurrentSelectMember(res);
     setIsModal2Open(true);
-    createMemberDescription(res)
+    createMemberDescription(res);
     console.log(res);
   };
   const openModal = async (id) => {
@@ -368,7 +404,7 @@ const Appointments = () => {
       key: `appointmentTime`,
       icon: React.createElement(NotificationOutlined),
       label: `預約紀錄`,
-    }
+    },
   ];
   const items2 = [
     {
@@ -431,16 +467,13 @@ const Appointments = () => {
         key: "3",
         label: "照片",
         span: 2,
-        children: (
-          <Image src={member.Photo} height={150}></Image>
-        ),
+        children: <Image src={member.Photo} height={150}></Image>,
       },
       {
         key: "1",
         label: "姓名",
         children:
-        member.UserName.Name.LastName +
-        member.UserName.Name.FirstName,
+          member.UserName.Name.LastName + member.UserName.Name.FirstName,
       },
       {
         key: "2",
@@ -458,7 +491,7 @@ const Appointments = () => {
         label: "手機",
 
         children: member.Phone,
-      }
+      },
     ]);
   };
   const createDescription = (currentSelectCounselor) => {
@@ -637,10 +670,18 @@ const Appointments = () => {
   return (
     <>
       <Statistic title="預約數量" value={userCount} formatter={formatter} />
-      <Statistic title="即將要開始的諮商" value={confirmedAppointment?.length} formatter={formatter} />
+      <Statistic
+        title="即將要開始的諮商"
+        value={confirmedAppointment?.length}
+        formatter={formatter}
+      />
       <Table columns={columns()} dataSource={confirmedAppointment} />
-      <Statistic title="歷史清單" value={userData?.length} formatter={formatter} />
-      <Table columns={columns()} dataSource={userData} /> 
+      <Statistic
+        title="歷史清單"
+        value={userData?.length}
+        formatter={formatter}
+      />
+      <Table columns={columns()} dataSource={userData} />
       <DrawerForm
         id={currentSelectCounselorId}
         callback={fetchData}
