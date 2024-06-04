@@ -13,6 +13,7 @@ import {
   List,
   Form,
   Card,
+  message,
   Calendar,
   Space,
   Input,
@@ -47,7 +48,7 @@ const DrawerForm = ({ id, visible, onClose, record, callback }) => {
   };
 
   useEffect(() => {
-    console.log(id)
+    console.log(id);
     const getCounselorVerify = async () => {
       const isVerify = await counselorService.getCounselorVerify(id);
       console.log(isVerify);
@@ -59,26 +60,25 @@ const DrawerForm = ({ id, visible, onClose, record, callback }) => {
   // Handle form submission
   const handleSubmit = async (value) => {
     console.log(value);
-    console.log(id)
-    let time =   {
+    console.log(id);
+    let time = {
       AppointmentId: id,
       Date: value.date,
       StartTime: value.startTime,
       EndTime: value.endTime,
-    }
-    await appointmentService.changeAppointmentTime(time)
+    };
+    appointmentService
+    .changeAppointmentTime(time)
+    .then((e) => {
+      message.success("修改成功");
+    });
 
     onClose();
     callback();
   };
 
   return (
-    <Drawer
-      title={record ? "Edit User" : "Add User"}
-      width={400}
-      onClose={onClose}
-      visible={visible}
-    >
+    <Drawer title={"Edit"} width={400} onClose={onClose} visible={visible}>
       <Form form={form} onFinish={handleSubmit}>
         <Form.Item name="date" label="日期" rules={[{ required: true }]}>
           <Input placeholder="2022-05-06" />
@@ -134,7 +134,10 @@ const Appointments = () => {
         title: "Action",
         key: "action",
         render: (text, record) => (
-          <Button type="primary" onClick={() => handleEdit(record.AppointmentID)}>
+          <Button
+            type="primary"
+            onClick={() => handleEdit(record.AppointmentID)}
+          >
             編輯
           </Button>
         ),
