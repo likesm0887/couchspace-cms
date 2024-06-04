@@ -90,4 +90,15 @@ export class AppointmentService {
         };
         return (await fetch(api, requestOptions)).json();
     }
+
+    async changeAppointmentTime(time) {
+        console.log(time)
+        const api = this.base_url + "/api/v1/appointments/time"
+        const requestOptions = {
+            method: 'POST',
+            body: JSON.stringify(time),
+            headers: { "Authorization": this.adminToken, 'Content-Type': 'application/json' },
+        };
+        return (await fetch(api, requestOptions)).json();
+    }
 }
