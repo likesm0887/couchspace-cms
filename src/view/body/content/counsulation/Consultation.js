@@ -143,22 +143,22 @@ function Consultation() {
             return (
                 <div style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }} key={allAppointment.AppointmentID}>
                     <div className="content-row">
-                        <div className="content-col">
+                        <div className="content-col text-wrap">
                             {allAppointment.AppointmentID.slice(allAppointment.AppointmentID.length - 5, allAppointment.AppointmentID.length).toUpperCase()}
                         </div>
-                        <div className="content-col">
+                        <div className="content-col text-wrap">
                             {allAppointment.UserName}
                         </div>
-                        <div className="content-col" style={{ textAlign: "left", marginLeft: 10 }}>
+                        <div className="content-col text-wrap" style={{ textAlign: "left", marginLeft: 10 }}>
                             {allAppointment.Time.Date.replaceAll("-", "/") + " " + allAppointment.Time.StartTime}
                         </div>
-                        <div className="content-col">
+                        <div className="content-col text-wrap">
                             {num2Time(allAppointment.Time.Total)}
                         </div>
-                        <div className="content-col" style={{ textAlign: "left", marginLeft: 10 }}>
+                        <div className="content-col text-wrap" style={{ textAlign: "left", marginLeft: 10 }}>
                             {allAppointment.Service.Type.Label}
                         </div>
-                        <div className="content-col">
+                        <div className="content-col text-wrap">
                             <span>{getStatusDesc(allAppointment.Status)}</span>
                         </div>
                         <div className="content-col">
@@ -237,9 +237,11 @@ function Consultation() {
         setOpen(false);
     };
     return (
-        <div style={{ width: "100%", height: "100%", backgroundColor: "#F7F8F8" }}>
-            {createListTitleType()}
-            <div style={{ marginLeft: 40, marginTop: 20, display: 'block', width: "90%", height: "85%", backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
+        <div style={{ width: "100%", height: "100%", backgroundColor: "#F7F8F8", display: "block" }}>
+            <div style={{ height: "8%" }}>
+                {createListTitleType()}
+            </div>
+            <div style={{ paddingLeft: 40, display: 'block', width: "95%", height: "92%", backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
                 {createListTitle()}
                 {createListItem()}
                 <div className={"Page"}>

@@ -1,9 +1,10 @@
-.Body{
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 13.02%;
-    bottom: 0;
+.Body {
+  height: 85%;
+  width: 100%;
+  background: #88a1d2;
+}
 
-    background: #88A1D2;
+.no-padding {
+   padding: 0 !important;
+   margin: 0 !important;
 }
