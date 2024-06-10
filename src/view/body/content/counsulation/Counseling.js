@@ -7,7 +7,7 @@ function Counseling() {
   const { state } = useLocation();
   console.log(state.appointmentID)
   return (
-    <div className={"VideoCall"}>
+    <div class="container-fluid" style={{ width: "100%", height: "100%" }}>
       <VideoChat appointmentID={state.appointmentID} />
     </div>
   );

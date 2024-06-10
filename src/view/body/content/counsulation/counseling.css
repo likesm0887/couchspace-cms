@@ -49,7 +49,37 @@ video {
   transform: rotateY(180deg);
   -webkit-transform: rotateY(180deg); /* Safari and Chrome */
   -moz-transform: rotateY(180deg); /* Firefox */
+  height: 100%;
+}
+.remote-participant {
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg); /* Safari and Chrome */
+  -moz-transform: rotateY(180deg); /* Firefox */
+  height: 100%;
 }
 .room {
-  padding: 100px;
+  columns: 2 auto;
+  justify-content: center;
+  align-items: center;
+  height: 90%;
+}
+@media screen and (max-width: 992px) {
+  .local-participant {
+    transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg); /* Safari and Chrome */
+    -moz-transform: rotateY(180deg); /* Firefox */
+    height: 40%;
+  }
+  .remote-participant {
+    transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg); /* Safari and Chrome */
+    -moz-transform: rotateY(180deg); /* Firefox */
+    height: 60%;
+  }
+  .room {
+    columns: 1 auto;
+    justify-content: center;
+    align-items: center;
+    height: 90%;
+  }
 }

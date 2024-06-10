@@ -74,13 +74,13 @@ const VideoChat = (props) => {
   }, []);
 
   return (
-    <div>
+    <div class="row h-100 align-items-center">
       {loading ?
         <div className="loader-container">
           <div className="spinner"></div>
           <div style={{ font: 'caption', fontSize: 40, color: 'black' }}>{"連接視訊中..."}</div>
-        </div> : null}
-      {room ? <Room roomName={roomName} room={room} handleLogout={handleLogout} appointmentTime={appointment.Time} /> : null}
+        </div> :
+        room ? <Room roomName={roomName} room={room} handleLogout={handleLogout} appointmentTime={appointment.Time} /> : null}
     </div>
   )
 };

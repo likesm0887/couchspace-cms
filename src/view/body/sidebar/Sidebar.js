@@ -87,7 +87,7 @@ function Sidebar() {
                 </Link>
             </div>
             <div class="row" className={"slide-line"} style={getStyle(SelectedTab.Setting)}>
-                <Link to="repair" className={"setting"}>
+                <Link to="repair">
                     <li onClick={() => selectSlide(SelectedTab.Setting)} >
                         <img src={getImage(SelectedTab.Setting)} alt={"123"}></img>
                         <span style={{ marginLeft: 10, color: currentSelected === SelectedTab.Setting ? "#88A1D2" : "#f7f8f8" }}>設定</span>

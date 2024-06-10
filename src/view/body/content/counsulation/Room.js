@@ -2,10 +2,6 @@ import React, { useEffect, useState } from "react";
 import Participant from "./Participant";
 import "./counseling.css";
 import { Switch } from "@mui/material";
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
 let startDateTime = null;
 let startTime = null;
 const Room = ({ roomName, room, handleLogout, appointmentTime }) => {
@@ -113,58 +109,50 @@ const Room = ({ roomName, room, handleLogout, appointmentTime }) => {
     handleLogout();
   }
   return (
-    <div className="room">
-      <div className={"Screen"}>
-        <div className={"local-participant"}>
-          {room ? (
-            <Participant
-              key={room.localParticipant.sid}
-              participant={room.localParticipant}
-              blur={showBlur}
-              isLocalTrack={true}
-            />
-          ) : (
-            ""
-          )}
-        </div>
-        <div className={"remote-participants"}>
+    <div class="container" style={{ width: "100%", height: "100%" }}>
+      <div class="room">
+        <div class="remote-participant">
           {remoteParticipants}
         </div>
+        <div class="order-first local-participant">
+          {room ? <Participant key={room.localParticipant.sid} participant={room.localParticipant} blur={showBlur} isLocalTrack={true} /> : null}
+        </div>
       </div>
-      <div className={"stopAndClose"}>
-        <FormControl component="fieldset">
-          <FormGroup aria-label="position" row>
-            <FormControlLabel
-              value="bottom"
-              control={<div style={{width: 100, height: 50, textAlign:'center', alignSelf:'center', justifySelf:'center'}}>{num2HourTime(elapsedTime)}</div>}
-              label="諮商時間"
-              labelPlacement="bottom"
-            />
-            <FormControlLabel
-              value="bottom"
-              control={<button style={{ width: 50, height: 50, borderColor:'transparent', backgroundColor:'transparent' }} onClick={onClickCamera}> <img style={{ verticalAlign: 'middle' }} src={showCamera ? require("../../../img/content/camera_enabled.png") : require("../../../img/content/camera_disabled.png")} alt="myCamera" /></button>}
-              label="鏡頭"
-              labelPlacement="bottom"
-            />
-            <FormControlLabel
-              value="bottom"
-              control={<button style={{ width: 50, height: 50, borderColor:'transparent', backgroundColor:'transparent' }} onClick={onClickMic}> <img style={{ verticalAlign: 'middle' }} src={showMic ? require("../../../img/content/mic_enabled.png") : require("../../../img/content/mic_disabled.png")} alt="myMic" /></button>}
-              label="麥克風"
-              labelPlacement="bottom"
-            />
-            <FormControlLabel
-              value="bottom"
-              control={<div style={{ width: 50, height: 50}}><Switch onChange={onClickBlur} checked={showBlur}> {"模糊背景"}</Switch></div> }
-              label="模糊背景"
-              labelPlacement="bottom"
-            />
-            <FormControlLabel
-              value="bottom"
-              control={<button onClick={onClickExit} className={"stop"}>離開房間</button>}
-              labelPlacement="bottom"
-            />
-          </FormGroup>
-        </FormControl>
+      <div class="row justify-content-center align-items-center" style={{ marginTop: 5 }}>
+        <div class="col-auto">
+          <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
+            <p>{num2HourTime(elapsedTime)}</p>
+            <p>諮商時間</p>
+          </div>
+        </div>
+        <div class="col-auto">
+          <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
+            <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickCamera}>
+              <img style={{ verticalAlign: 'middle' }} src={showCamera ? require("../../../img/content/camera_enabled.png") : require("../../../img/content/camera_disabled.png")} alt="myCamera" />
+            </button>
+            <p>鏡頭</p>
+          </div>
+        </div>
+        <div class="col-auto">
+          <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
+            <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickMic}>
+              <img style={{ verticalAlign: 'middle' }} src={showMic ? require("../../../img/content/mic_enabled.png") : require("../../../img/content/mic_disabled.png")} alt="myMic" />
+            </button>
+            <p>麥克風</p>
+          </div>
+        </div>
+        <div class="col-auto">
+          <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
+            <Switch onChange={onClickBlur} checked={showBlur}>
+            </Switch>
+            <p>模糊背景</p>
+          </div>
+        </div>
+        <div class="col-auto">
+          <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
+            <button onClick={onClickExit}>離開房間</button>
+          </div>
+        </div>
       </div>
     </div>
   );
