@@ -1,7 +1,4 @@
 .personal-content {
-  float: right;
-  display: inline-flex;
-  flex-direction: row;
 }
 
 .bellImg {
@@ -14,9 +11,6 @@
   margin-right: 50px;
 }
 .info {
-  display: flex;
-  flex-direction: column;
-  margin-right: 20px;
 }
 .nameAndTitle {
   width: 150px;

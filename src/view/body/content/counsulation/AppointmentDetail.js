@@ -172,7 +172,7 @@ function AppointmentDetail() {
                                     </div>
                                 </div>
                                 <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left" style={{ flex: 1 }}>
+                                    <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
                                         姓名
                                     </div>
                                     <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
@@ -180,7 +180,7 @@ function AppointmentDetail() {
                                     </div>
                                 </div>
                                 <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left" style={{ flex: 1 }}>
+                                    <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
                                         電子信箱
                                     </div>
                                     <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
@@ -188,7 +188,7 @@ function AppointmentDetail() {
                                     </div>
                                 </div>
                                 <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left" style={{ flex: 1 }}>
+                                    <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
                                         預約時間
                                     </div>
                                     <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
@@ -196,7 +196,7 @@ function AppointmentDetail() {
                                     </div>
                                 </div>
                                 <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left" style={{ flex: 1 }}>
+                                    <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
                                         預約服務
                                     </div>
                                     <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
@@ -223,7 +223,7 @@ function AppointmentDetail() {
                                     </div>
                                 </div>
                                 <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left" style={{ flex: 1 }}>
+                                    <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
                                         姓名
                                     </div>
                                     <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
@@ -231,7 +231,7 @@ function AppointmentDetail() {
                                     </div>
                                 </div>
                                 <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left" style={{ flex: 1 }}>
+                                    <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
                                         關係
                                     </div>
                                     <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
@@ -239,7 +239,7 @@ function AppointmentDetail() {
                                     </div>
                                 </div>
                                 <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left" style={{ flex: 1 }}>
+                                    <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
                                         聯絡電話
                                     </div>
                                     <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
@@ -248,7 +248,7 @@ function AppointmentDetail() {
                                 </div>
                             </div>
                         </div>
-                        <div style={{ marginLeft: 40, marginTop: 20, width: "30%" }}>
+                        <div style={{ marginLeft: 20, marginTop: 20, width: "40%" }}>
                             <div style={{ display: 'block', width: "100%", backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
                                 <div className="detail-title-row">
                                     <div className="detail-title-col detail-title-left">
@@ -310,7 +310,7 @@ function AppointmentDetail() {
                                 </div>
                                 <div className="detail-content-row">
                                     <div className="detail-content-col detail-content-left">
-                                        有過『自殺』的念頭
+                                        6.有過『自殺』的念頭
                                     </div>
                                     <div className="detail-content-col detail-content-right">
                                         {getTextByScore(appointment.SymptomRating.Suicidalthoughts)}
