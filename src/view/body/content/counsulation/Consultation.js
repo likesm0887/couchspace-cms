@@ -162,16 +162,18 @@ function Consultation() {
                             <span>{getStatusDesc(allAppointment.Status)}</span>
                         </div>
                         <div className="content-col">
-                            <button className={"editButton"} onClick={() => clickItem(allAppointment)}>檢視</button>
+                            <button className={"editButton"} onClick={() => clickItem(allAppointment)}>
+                                <span style={{ verticalAlign: 'center' }}>檢視</span>
+                            </button>
                         </div>
                         <div className="content-col">
                             {allAppointment.Status.toUpperCase() === "ROOMCREATED" ?
                                 <button className={"startButton-enabled startButton-enabled_hover"} onClick={() => start(allAppointment.AppointmentID)} >
-                                    開始諮詢
+                                    <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
                                 </button>
                                 :
                                 <button className={"startButton-disabled startButton-disabled_hover"}>
-                                    開始諮詢
+                                    <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
                                 </button>
                             }
                         </div>
@@ -238,17 +240,17 @@ function Consultation() {
     };
     return (
         <div style={{ width: "100%", height: "100%", backgroundColor: "#F7F8F8", display: "block" }}>
-            <div style={{ height: "8%" }}>
+            <div style={{ height: "10%" }}>
                 {createListTitleType()}
             </div>
-            <div style={{ paddingLeft: 40, display: 'block', width: "95%", height: "92%", backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
+            <div style={{ paddingLeft: 40, display: 'block', width: "95%", height: "90%", backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
                 {createListTitle()}
                 {createListItem()}
                 <div className={"Page"}>
                     <Pagination>
                         <Pagination.Prev onClick={() => setCurrentPage(currentPage > 1 ? currentPage - 1 : currentPage)} />
                         {createPagination()}
-                        <Pagination.Next onClick={() => setCurrentPage(currentPage < pagesSize ? currentPage + 1 : currentPage)}/>
+                        <Pagination.Next onClick={() => setCurrentPage(currentPage < pagesSize ? currentPage + 1 : currentPage)} />
                     </Pagination>
                 </div>
             </div>

@@ -212,7 +212,7 @@ function AppointmentDetail() {
                                 </div>
                                 <div className="detail-content-row">
                                     <div className="problemStatement">
-                                        {appointment.ProblemStatement}
+                                        {appointment.ProblemStatement.length === 0 ? "未填寫" : appointment.ProblemStatement}
                                     </div>
                                 </div>
                             </div>
@@ -318,12 +318,12 @@ function AppointmentDetail() {
                                 </div>
                                 <div className="detail-content-row">
                                     <div className="detail-content-col detail-content-left">
-                                        總分
+                                        <span style={{ fontSize: 16 }}>總分</span>
                                     </div>
                                     <div className="detail-content-col detail-content-right">
                                         <div style={{ float: 'right', display: 'flex', flexDirection: 'row', alignItems: 'center', textAlign: 'center', justifyContent: 'center' }}>
-                                            <span style={{ color: "#F1A250" }}>{totalScore}</span>
-                                            <span style={{ color: "#555654" }}>{"/24"}</span>
+                                            <span style={{ color: "#F1A250", fontSize: 16 }}>{totalScore}</span>
+                                            <span style={{ color: "#555654", fontSize: 16 }}>{"/24"}</span>
                                             <div style={{ marginLeft: 5, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }} onClick={() => showHealthDescriptionDialog(true)}>
                                                 <img style={{ height: 15, width: 15 }} src={healthDescription} alt={"123"}></img>
                                             </div>
@@ -338,7 +338,7 @@ function AppointmentDetail() {
                                         訂單金額
                                     </div>
                                     <div className="detail-title-col detail-title-right">
-                                        <div style={{ fontFamily: "PingFang TC", lineHeight: 2, float: "right", alignSelf: 'center', justifySelf: 'center', textAlign: "center", width: 77, color: "#89A2D0", fontWeight: "bold" }}>
+                                        <div style={{ fontSize: 16, fontFamily: "PingFang TC", lineHeight: 2, float: "right", alignSelf: 'center', justifySelf: 'center', textAlign: "center", width: 77, color: "#89A2D0", fontWeight: "bold" }}>
                                             {"NT$" + appointment.Fee}
                                         </div>
                                     </div>
