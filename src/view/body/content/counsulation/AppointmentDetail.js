@@ -172,7 +172,7 @@ function AppointmentDetail() {
                                     </div>
                                 </div>
                                 <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left" style={{ flex: 1 }}>
+                                    <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
                                         姓名
                                     </div>
                                     <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
@@ -180,7 +180,7 @@ function AppointmentDetail() {
                                     </div>
                                 </div>
                                 <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left" style={{ flex: 1 }}>
+                                    <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
                                         電子信箱
                                     </div>
                                     <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
@@ -188,7 +188,7 @@ function AppointmentDetail() {
                                     </div>
                                 </div>
                                 <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left" style={{ flex: 1 }}>
+                                    <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
                                         預約時間
                                     </div>
                                     <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
@@ -196,7 +196,7 @@ function AppointmentDetail() {
                                     </div>
                                 </div>
                                 <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left" style={{ flex: 1 }}>
+                                    <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
                                         預約服務
                                     </div>
                                     <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
@@ -212,7 +212,7 @@ function AppointmentDetail() {
                                 </div>
                                 <div className="detail-content-row">
                                     <div className="problemStatement">
-                                        {appointment.ProblemStatement}
+                                        {appointment.ProblemStatement.length === 0 ? "未填寫" : appointment.ProblemStatement}
                                     </div>
                                 </div>
                             </div>
@@ -223,7 +223,7 @@ function AppointmentDetail() {
                                     </div>
                                 </div>
                                 <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left" style={{ flex: 1 }}>
+                                    <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
                                         姓名
                                     </div>
                                     <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
@@ -231,7 +231,7 @@ function AppointmentDetail() {
                                     </div>
                                 </div>
                                 <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left" style={{ flex: 1 }}>
+                                    <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
                                         關係
                                     </div>
                                     <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
@@ -239,7 +239,7 @@ function AppointmentDetail() {
                                     </div>
                                 </div>
                                 <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left" style={{ flex: 1 }}>
+                                    <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
                                         聯絡電話
                                     </div>
                                     <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
@@ -248,7 +248,7 @@ function AppointmentDetail() {
                                 </div>
                             </div>
                         </div>
-                        <div style={{ marginLeft: 40, marginTop: 20, width: "30%" }}>
+                        <div style={{ marginLeft: 20, marginTop: 20, width: "40%" }}>
                             <div style={{ display: 'block', width: "100%", backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
                                 <div className="detail-title-row">
                                     <div className="detail-title-col detail-title-left">
@@ -310,7 +310,7 @@ function AppointmentDetail() {
                                 </div>
                                 <div className="detail-content-row">
                                     <div className="detail-content-col detail-content-left">
-                                        有過『自殺』的念頭
+                                        6.有過『自殺』的念頭
                                     </div>
                                     <div className="detail-content-col detail-content-right">
                                         {getTextByScore(appointment.SymptomRating.Suicidalthoughts)}
@@ -318,12 +318,12 @@ function AppointmentDetail() {
                                 </div>
                                 <div className="detail-content-row">
                                     <div className="detail-content-col detail-content-left">
-                                        總分
+                                        <span style={{ fontSize: 16 }}>總分</span>
                                     </div>
                                     <div className="detail-content-col detail-content-right">
                                         <div style={{ float: 'right', display: 'flex', flexDirection: 'row', alignItems: 'center', textAlign: 'center', justifyContent: 'center' }}>
-                                            <span style={{ color: "#F1A250" }}>{totalScore}</span>
-                                            <span style={{ color: "#555654" }}>{"/24"}</span>
+                                            <span style={{ color: "#F1A250", fontSize: 16 }}>{totalScore}</span>
+                                            <span style={{ color: "#555654", fontSize: 16 }}>{"/24"}</span>
                                             <div style={{ marginLeft: 5, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }} onClick={() => showHealthDescriptionDialog(true)}>
                                                 <img style={{ height: 15, width: 15 }} src={healthDescription} alt={"123"}></img>
                                             </div>
@@ -338,7 +338,7 @@ function AppointmentDetail() {
                                         訂單金額
                                     </div>
                                     <div className="detail-title-col detail-title-right">
-                                        <div style={{ fontFamily: "PingFang TC", lineHeight: 2, float: "right", alignSelf: 'center', justifySelf: 'center', textAlign: "center", width: 77, color: "#89A2D0", fontWeight: "bold" }}>
+                                        <div style={{ fontSize: 16, fontFamily: "PingFang TC", lineHeight: 2, float: "right", alignSelf: 'center', justifySelf: 'center', textAlign: "center", width: 77, color: "#89A2D0", fontWeight: "bold" }}>
                                             {"NT$" + appointment.Fee}
                                         </div>
                                     </div>

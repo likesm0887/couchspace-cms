@@ -53,46 +53,48 @@ function Sidebar() {
         return output;
     }
     return (
-        <div className="sidebar">
-            <div className={"line"}>
-                <Link to="consultation" className={"consultation"}>
-                    <li onClick={() => selectSlide(SelectedTab.Consultation)} className={"slide-line"} style={getStyle(SelectedTab.Consultation)}>
+        <div className={"line"}>
+            <div class="row" className={"slide-line"} style={getStyle(SelectedTab.Consultation)}>
+                <Link to="consultation">
+                    <li onClick={() => selectSlide(SelectedTab.Consultation)}>
                         <img src={getImage(SelectedTab.Consultation)} alt={"123"}></img>
-                        <span style={{ marginLeft: 10 }}>諮商</span>
+                        <span style={{ marginLeft: 10, color: currentSelected === SelectedTab.Consultation ? "#88A1D2" : "#f7f8f8" }}>諮商</span>
                     </li>
                 </Link>
-                <Link to="repair" className={"meditation"}>
-                    <li onClick={() => selectSlide(SelectedTab.Meditation)} className={"slide-line"} style={getStyle(SelectedTab.Meditation)}>
-                        <img src={getImage(SelectedTab.Meditation)} alt={"123"}></img>
-                        <span style={{ marginLeft: 10 }}>冥想</span>
-                    </li>
-                </Link>
-
-                <Link to="repair" className={"article"}>
-                    <li onClick={() => selectSlide(SelectedTab.Article)} className={"slide-line"} style={getStyle(SelectedTab.Article)}>
-                        <img src={getImage(SelectedTab.Article)} alt={"123"}></img>
-                        <span style={{ marginLeft: 10 }}>文章</span>
-                    </li>
-                </Link>
-                <Link to="repair" className={"manager"}>
-                    <li onClick={() => selectSlide(SelectedTab.Manager)} className={"slide-line"} style={getStyle(SelectedTab.Manager)}>
-                        <img src={getImage(SelectedTab.Manager)} alt={"123"}></img>
-                        <span style={{ marginLeft: 10 }}>管理</span>
-                    </li>
-                </Link>
-
-                <Link to="repair" className={"setting"}>
-                    <li onClick={() => selectSlide(SelectedTab.Setting)} className={"slide-line"} style={getStyle(SelectedTab.Setting)}>
-                        <img src={getImage(SelectedTab.Setting)} alt={"123"}></img>
-                        <span style={{ marginLeft: 10 }}>設定</span>
-                    </li>
-                </Link>
-
             </div>
-
+            <div class="row" className={"slide-line"} style={getStyle(SelectedTab.Meditation)}>
+                <Link to="repair">
+                    <li onClick={() => selectSlide(SelectedTab.Meditation)}>
+                        <img src={getImage(SelectedTab.Meditation)} alt={"123"}></img>
+                        <span style={{ marginLeft: 10, color: currentSelected === SelectedTab.Meditation ? "#88A1D2" : "#f7f8f8" }}>冥想</span>
+                    </li>
+                </Link>
+            </div>
+            <div class="row" className={"slide-line"} style={getStyle(SelectedTab.Article)}>
+                <Link to="repair">
+                    <li onClick={() => selectSlide(SelectedTab.Article)} >
+                        <img src={getImage(SelectedTab.Article)} alt={"123"}></img>
+                        <span style={{ marginLeft: 10, color: currentSelected === SelectedTab.Article ? "#88A1D2" : "#f7f8f8" }}>文章</span>
+                    </li>
+                </Link>
+            </div>
+            <div class="row" className={"slide-line"} style={getStyle(SelectedTab.Manager)}>
+                <Link to="repair">
+                    <li onClick={() => selectSlide(SelectedTab.Manager)} >
+                        <img src={getImage(SelectedTab.Manager)} alt={"123"}></img>
+                        <span style={{ marginLeft: 10, color: currentSelected === SelectedTab.Manager ? "#88A1D2" : "#f7f8f8" }}>管理</span>
+                    </li>
+                </Link>
+            </div>
+            <div class="row" className={"slide-line"} style={getStyle(SelectedTab.Setting)}>
+                <Link to="repair">
+                    <li onClick={() => selectSlide(SelectedTab.Setting)} >
+                        <img src={getImage(SelectedTab.Setting)} alt={"123"}></img>
+                        <span style={{ marginLeft: 10, color: currentSelected === SelectedTab.Setting ? "#88A1D2" : "#f7f8f8" }}>設定</span>
+                    </li>
+                </Link>
+            </div>
         </div>
-
-
     );
 
 }

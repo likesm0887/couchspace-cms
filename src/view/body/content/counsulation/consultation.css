@@ -75,8 +75,8 @@
   justify-items: center;
   width: 400px;
   background-color: #f7f8f8;
-  margin-left: 40px;
-  margin-top: 30px;
+  padding-left: 40px;
+  padding-top: 20px;
 }
 .titleType-col-enabled {
   flex: 1;
@@ -139,7 +139,6 @@
   font-style: normal;
   font-weight: 800;
   font-size: 15px;
-  line-height: 27px;
   text-align: center;
   color: #555654;
 }
