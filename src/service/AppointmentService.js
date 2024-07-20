@@ -101,4 +101,15 @@ export class AppointmentService {
         };
         return (await fetch(api, requestOptions)).json();
     }
+
+    async changeAdminFlag(changeAdminFlag) {
+        console.log(changeAdminFlag)
+        const api = this.base_url + "/api/v1/appointments/admin-flag"
+        const requestOptions = {
+            method: 'PUT',
+            body: JSON.stringify(changeAdminFlag),
+            headers: { "Authorization": this.adminToken, 'Content-Type': 'application/json' },
+        };
+        return (await fetch(api, requestOptions)).json();
+    }
 }
