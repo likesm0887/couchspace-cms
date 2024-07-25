@@ -196,7 +196,7 @@ const Appointments = () => {
               <div style={{ display: "flex", alignItems: "center" }}>
                 <a
                   style={{ color: "#1677FF", marginRight: 8 }}
-                  onClick={() => openModal(record.UserID)}
+                  onClick={() => openModal2(record.UserID)}
                 >
                   {text.slice(-5)}
                 </a>
