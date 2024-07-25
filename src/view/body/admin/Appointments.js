@@ -14,13 +14,18 @@ import {
   Form,
   Card,
   message,
+  Tooltip,
   Calendar,
+  Select,
   Space,
   Input,
 } from "antd";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import { Layout, theme, Descriptions, Badge, Outlet } from "antd";
 import "./counselor.css";
 import moment from "moment";
+import { CopyOutlined } from "@ant-design/icons";
 import {
   LaptopOutlined,
   NotificationOutlined,
@@ -67,9 +72,7 @@ const DrawerForm = ({ id, visible, onClose, record, callback }) => {
       StartTime: value.startTime,
       EndTime: value.endTime,
     };
-    appointmentService
-    .changeAppointmentTime(time)
-    .then((e) => {
+    appointmentService.changeAppointmentTime(time).then((e) => {
       message.success("修改成功");
     });
 
@@ -112,6 +115,7 @@ const DrawerForm = ({ id, visible, onClose, record, callback }) => {
 };
 
 const Appointments = () => {
+  const { Option } = Select;
   const { Header, Content, Footer, Sider } = Layout;
   const formatter = (value) => <CountUp end={value} separator="," />;
   const [visible, setVisible] = useState(false);
@@ -125,13 +129,35 @@ const Appointments = () => {
   const [isModal2Open, setIsModal2Open] = useState(false);
   const [detail, setDetail] = useState("");
   const [memberDetail, setMemberDetail] = useState("");
+  const [statusMap, setStatusMap] = useState({});
+  const [filteredInfo, setFilteredInfo] = useState({});
+  const [sortedInfo, setSortedInfo] = useState({});
+  const [loading, setLoading] = useState(false);
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-  const columns = () => {
+  const handleChange = (pagination, filters, sorter) => {
+    console.log("Various parameters", pagination, filters, sorter);
+    setFilteredInfo(filters);
+    setSortedInfo(sorter);
+  };
+  const clearFilters = () => {
+    setFilteredInfo({});
+  };
+  const clearAll = () => {
+    setFilteredInfo({});
+    setSortedInfo({});
+  };
+  const setAgeSort = () => {
+    setSortedInfo({
+      order: "descend",
+      columnKey: "age",
+    });
+  };
+  const columns = (showAdminFlag) => {
     let result = [
       {
-        title: "Action",
+        title: "編輯",
         key: "action",
         render: (text, record) => (
           <Button
@@ -142,23 +168,46 @@ const Appointments = () => {
           </Button>
         ),
       },
-
+      {
+        title: "預約成立時間",
+        dataIndex: "CreateDate",
+        key: "CreateDate",
+        sorter: (a, b) => Date.parse(a.CreateDate) - Date.parse(b.CreateDate),
+      },
       {
         title: "交易單號",
+
         dataIndex: "AppointmentID",
         key: "AppointmentID",
+        sortOrder: sortedInfo.columnKey === "name" ? sortedInfo.order : null,
+        render: (text) => (
+          <Tooltip title={text}>
+            <span>{text.slice(-5)}</span>
+          </Tooltip>
+        ),
       },
       {
         title: "案主ID",
         dataIndex: "UserID",
         key: "UserID",
         render: (text, record) => (
-          <a
-            style={{ color: "#1677FF" }}
-            onClick={() => openModal2(record.UserID)}
-          >
-            {text}
-          </a>
+          <div>
+            <Tooltip title={text}>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <a
+                  style={{ color: "#1677FF", marginRight: 8 }}
+                  onClick={() => openModal2(record.UserID)}
+                >
+                  {text.slice(-5)}
+                </a>
+                <Button
+                  type="link"
+                  icon={<CopyOutlined />}
+                  onClick={() => copyToClipboard(record.UserID)}
+                />
+              </div>
+            </Tooltip>
+          </div>
         ),
       },
       {
@@ -176,19 +225,28 @@ const Appointments = () => {
         title: "諮商師姓名",
         dataIndex: "CounselorName",
         key: "CounselorName",
+        width: 120,
         render: (text, record) => (
-          <a
-            style={{ color: "#1677FF" }}
-            onClick={() => openModal(record.CounselorID)}
-          >
-            {text}
-          </a>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <a
+              style={{ color: "#1677FF", marginRight: 6 }}
+              onClick={() => openModal(record.CounselorID)}
+            >
+              {text}
+            </a>
+            <Button
+              type="link"
+              icon={<CopyOutlined />}
+              onClick={() => copyToClipboard(text)}
+            />
+          </div>
         ),
       },
       {
         title: "預約日期",
         dataIndex: "DateTime",
         key: "DateTime",
+        sorter: (a, b) => new Date(a.DateTime) - new Date(b.DateTime),
       },
 
       {
@@ -202,6 +260,16 @@ const Appointments = () => {
         dataIndex: "Type",
       },
       {
+        title: "優惠代碼",
+        key: "PromoCodeID",
+        dataIndex: "PromoCodeID",
+      },
+      {
+        title: "折扣費用",
+        key: "DiscountFee",
+        dataIndex: "DiscountFee",
+      },
+      {
         title: "預約成立時間",
         dataIndex: "CreateDate",
         key: "CreateDate",
@@ -213,9 +281,53 @@ const Appointments = () => {
         key: "Status",
         sorter: (a, b) => a.Status.localeCompare(b.Status, "en"),
       },
+      {
+        title: "標記狀態",
+        dataIndex: "AdminFlag",
+        key: "AdminFlag",
+        hidden: showAdminFlag,
+        width: 200,
+        optionSelectedColor: "red",
+        render: (key, record) => (
+          <Select
+            style={{ width: 150, color: "red" }}
+            value={record.AdminFlag} // 优先显示已选择的值，否则显示原始值
+            onChange={(value) =>
+              handleChangeStatus(value, record.AppointmentID)
+            }
+          >
+            <Option value="Completed">已完成</Option>
+            <Option value="CounselorUnCompleted" style={{ color: "red" }}>
+              諮商師未完成
+            </Option>
+            <Option value="UserUnCompleted" style={{ color: "red" }}>
+              案主未完成
+            </Option>
+            <Option value="CustomerServiceProcess">平台處理</Option>
+            <Option value="WaitForProcess">待處理</Option>
+            <Option value="Cancelled">已取消</Option>
+          </Select>
+        ),
+      },
     ];
 
     return result.filter((col) => col.dataIndex !== "CounselorID");
+  };
+
+  
+  const handleChangeStatus = async (value, key) => {
+    setLoading(true);
+    appointmentService
+      .changeAdminFlag({
+        AppointmentId: key,
+        AdminFlag: value,
+      })
+      .then((e) => {
+        message.success("修改成功");
+        fetchData();
+      });
+
+    setLoading(false);
   };
   function getStatusDesc(code) {
     if (code.toUpperCase() === "NEW") {
@@ -239,6 +351,17 @@ const Appointments = () => {
       return "已完成";
     }
   }
+  const copyToClipboard = (text) => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        message.success("Copied to clipboard!");
+      })
+      .catch((err) => {
+        message.error("Failed to copy!");
+      });
+  };
+
   const fetchData = async () => {
     const result = await appointmentService.getAllAppointmentForAdmin();
 
@@ -257,6 +380,7 @@ const Appointments = () => {
           DateTime: u.Time.Date + " " + u.Time.StartTime,
           Fee: u.Service.Fee,
           Type: u.Service.Type.Label,
+          AdminFlag: u.AdminFlag,
           CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
             .format("YYYY-MM-DD HH:mm:SS")
             .toString(),
@@ -276,6 +400,8 @@ const Appointments = () => {
           CounselorName: u.CounselorName,
           DateTime: u.Time.Date + " " + u.Time.StartTime,
           Fee: u.Service.Fee,
+          PromoCodeID: u.PromoCodeID,
+          DiscountFee: u.DiscountFee,
           Type: u.Service.Type.Label,
           CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
             .format("YYYY-MM-DD HH:mm:SS")
@@ -508,25 +634,25 @@ const Appointments = () => {
         key: "1",
         label: "姓名",
         children:
-          currentSelectCounselor.UserName.Name.LastName +
-          currentSelectCounselor.UserName.Name.FirstName,
+          currentSelectCounselor?.UserName?.Name?.LastName +
+          currentSelectCounselor?.UserName?.Name?.FirstName,
       },
       {
         key: "2",
         label: "暱稱",
-        children: currentSelectCounselor.UserName.NickName,
+        children: currentSelectCounselor?.UserName?.NickName,
       },
 
       {
         key: "3",
         label: "Email",
-        children: currentSelectCounselor.Email,
+        children: currentSelectCounselor?.Email,
       },
       {
         key: "5",
         label: "手機",
 
-        children: currentSelectCounselor.Phone,
+        children: currentSelectCounselor?.Phone,
       },
       {
         key: "20",
@@ -589,13 +715,13 @@ const Appointments = () => {
         key: "9",
         label: "機構資訊",
 
-        children: currentSelectCounselor.InstitutionTemp,
+        children: currentSelectCounselor?.InstitutionTemp,
       },
 
       {
         key: "16",
         label: "服務類別",
-        children: currentSelectCounselor.ConsultingFees.map((r) => {
+        children: currentSelectCounselor?.ConsultingFees?.map((r) => {
           return (
             <Tag color="blue">
               {r.Type.Label}
@@ -608,7 +734,7 @@ const Appointments = () => {
       {
         key: "17",
         label: "專長",
-        children: currentSelectCounselor.Expertises.map((r) => {
+        children: currentSelectCounselor?.Expertises?.map((r) => {
           return (
             <Tag color="green">
               {r.Skill}
@@ -623,13 +749,13 @@ const Appointments = () => {
         children: (
           <>
             <Tag color="purple">
-              發照單位:{currentSelectCounselor.License.LicenseIssuing}
+              發照單位:{currentSelectCounselor?.License?.LicenseIssuing}
             </Tag>
             <Tag color="purple">
-              證照號碼:{currentSelectCounselor.License.LicenseNumber}
+              證照號碼:{currentSelectCounselor?.License?.LicenseNumber}
             </Tag>
             <Tag color="purple">
-              證照名稱:{currentSelectCounselor.License.LicenseTitle}
+              證照名稱:{currentSelectCounselor?.License?.LicenseTitle}
             </Tag>
           </>
         ),
@@ -637,51 +763,74 @@ const Appointments = () => {
       {
         key: "19",
         label: "性別",
-        children: currentSelectCounselor.Gender == "MALE" ? "男" : "女",
+        children: currentSelectCounselor?.Gender == "MALE" ? "男" : "女",
       },
 
       {
         key: "10",
         label: "地址",
-        children: currentSelectCounselor.Address,
+        children: currentSelectCounselor?.Address,
         span: 3,
       },
       {
         key: "15",
         label: "專長描述",
-        children: currentSelectCounselor.ExpertisesInfo,
+        children: currentSelectCounselor?.ExpertisesInfo,
         span: 3,
       },
       {
         key: "11",
         label: "自我介紹(簡短)",
         span: 3,
-        children: currentSelectCounselor.ShortIntroduction,
+        children: currentSelectCounselor?.ShortIntroduction,
       },
       {
         key: "12",
         label: "自我介紹(長)",
         span: 3,
-        children: currentSelectCounselor.LongIntroduction,
+        children: currentSelectCounselor?.LongIntroduction,
       },
     ]);
   };
+  const ExportButton = ({ data }) => {
+    const handleExport = () => {
 
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+      const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+      saveAs(
+        new Blob([wbout], { type: "application/octet-stream" }),
+        "table-data.xlsx"
+      );
+    };
+
+    return <Button onClick={handleExport}>下載</Button>;
+  };
   return (
     <>
+      <ExportButton data={userData} />
       <Statistic title="預約數量" value={userCount} formatter={formatter} />
       <Statistic
         title="即將要開始的諮商"
         value={confirmedAppointment?.length}
         formatter={formatter}
       />
-      <Table columns={columns()} dataSource={confirmedAppointment} />
+      <Table
+        columns={columns(true)}
+        dataSource={confirmedAppointment}
+        spinning={loading}
+      />
       <Statistic
         title="歷史清單"
         value={userData?.length}
         formatter={formatter}
       />
-      <Table columns={columns()} dataSource={userData} />
+      <Table
+        columns={columns(false)}
+        dataSource={userData}
+        spinning={loading}
+      />
       <DrawerForm
         id={currentSelectCounselorId}
         callback={fetchData}
