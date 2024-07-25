@@ -196,7 +196,7 @@ const Appointments = () => {
               <div style={{ display: "flex", alignItems: "center" }}>
                 <a
                   style={{ color: "#1677FF", marginRight: 8 }}
-                  onClick={() => openModal(record.UserID)}
+                  onClick={() => openModal2(record.UserID)}
                 >
                   {text.slice(-5)}
                 </a>
@@ -794,17 +794,11 @@ const Appointments = () => {
   };
   const ExportButton = ({ data }) => {
     const handleExport = () => {
-      // 创建工作簿
-      const wb = XLSX.utils.book_new();
 
-      // 将表格数据转换为工作表
+      const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.json_to_sheet(data);
       XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-
-      // 生成 Excel 文件
       const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-
-      // 触发文件下载
       saveAs(
         new Blob([wbout], { type: "application/octet-stream" }),
         "table-data.xlsx"
