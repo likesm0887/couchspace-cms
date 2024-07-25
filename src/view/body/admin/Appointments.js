@@ -403,7 +403,7 @@ const Appointments = () => {
           DateTime: u.Time.Date + " " + u.Time.StartTime,
           Fee: u.Service.Fee,
           PromoCodeID: u.PromoCodeID,
-          DiscountFee: u.DiscountFee,
+          DiscountFee:u.Service.Fee-u.DiscountFee,
           Type: u.Service.Type.Label,
           CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
             .format("YYYY-MM-DD HH:mm:SS")
