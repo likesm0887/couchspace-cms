@@ -377,6 +377,8 @@ const Appointments = () => {
           UserName: u.UserName,
           CounselorID: u.CounselorID,
           CounselorName: u.CounselorName,
+          PromoCodeID:u.PromoCodeID,
+          DiscountFee:u.Service.Fee-u.DiscountFee,
           DateTime: u.Time.Date + " " + u.Time.StartTime,
           Fee: u.Service.Fee,
           Type: u.Service.Type.Label,
