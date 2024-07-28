@@ -82,8 +82,8 @@ export class AppointmentService {
             });
     }
 
-    async getAppointmentRoomToken(AppointmentId) {
-        const api = this.base_url + "/api/v1/appointments/" + AppointmentId + "/roomToken"
+    async getAppointmentRoomToken(AppointmentId, Type) {
+        const api = this.base_url + "/api/v1/appointments/" + AppointmentId + "/roomToken?sdkType=" + Type
         const requestOptions = {
             method: 'Get',
             headers: { "Authorization": this.token, 'Content-Type': 'application/json' },
