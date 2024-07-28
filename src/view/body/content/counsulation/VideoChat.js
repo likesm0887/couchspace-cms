@@ -3,6 +3,7 @@ import "./VideoChat.css";
 import { appointmentService } from "../../../../service/ServicePool";
 import { useNavigate } from "react-router-dom";
 import ZoomVideo from '@zoom/videosdk'
+import { Switch } from "@mui/material";
 let startDateTime = null;
 let startTime = null;
 
@@ -11,7 +12,7 @@ const VideoChat = (props) => {
   const [loading, setLoading] = useState(false);
   const [showCamera, setShowCamera] = useState(true);
   const [showMic, setShowMic] = useState(true);
-  const [showBlur, setShowBlur] = useState(true);
+  const [showBlur, setShowBlur] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
   let isShowRemoteUser = false;
   let client = ZoomVideo.createClient();
@@ -134,8 +135,24 @@ const VideoChat = (props) => {
     }
 
   }
-  const onClickBlur = () => {
-    setShowBlur(!showBlur);
+  const onClickBlur = async () => {
+    const stream = client.getMediaStream();
+    const localUser = await client.getUser(client.getCurrentUserInfo().userId);
+    const isVideoOn = localUser.bVideoOn;
+    if (isVideoOn) {
+      await stream.stopVideo();
+    }
+
+    if (showBlur) {
+      stream.startVideo({ virtualBackground: { imageUrl: undefined } }).then(() => {
+        setShowBlur(false);
+      })
+    }
+    else {
+      stream.startVideo({ virtualBackground: { imageUrl: 'blur' } }).then(() => {
+        setShowBlur(true);
+      })
+    }
   }
   const parseDateTime = (dateString, timeString) => {
     [dateString,] = dateString.split(" ");
