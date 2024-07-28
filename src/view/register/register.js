@@ -112,10 +112,8 @@ export function Register() {
             counselorInfo.updateAppointmentID = result.AppointmentTimeID;
             // console.log("counselorInfo", counselorInfo);
             // step4: Update Counselor Info and AppointmentTime
-            let [res1, res2] = await Promise.all([
-                counselorService.updateCounselorInfo(counselorInfo),
-                counselorService.setAppointmentTime(appointmentTime),
-            ]);
+            let res1 = await counselorService.updateCounselorInfo(counselorInfo);
+            let res2 = await counselorService.setAppointmentTime(appointmentTime);
             // console.log("Update Counselor Info", res1);
             // console.log("Update AppointmentTime", res2);
             if (!res1.success) {
@@ -162,52 +160,52 @@ export function Register() {
                 marginTop: '2%',
                 marginBottom: '2%',
             }}>
-            <Stepper activeStep={activeStep}>
-                {steps.map((label, index) => {
-                    const stepProps = {};
-                    const labelProps = {};
+                <Stepper activeStep={activeStep}>
+                    {steps.map((label, index) => {
+                        const stepProps = {};
+                        const labelProps = {};
 
-                    if (isStepSkipped(index)) {
-                        stepProps.completed = false;
-                    }
-                    return (
-                        <Step key={label} {...stepProps}>
-                            <StepLabel {...labelProps}>{label}</StepLabel>
-                        </Step>
-                    );
-                })}
-            </Stepper>
-            <div>
-                {activeStep === (steps.length - 1) ? (
-                    <div>
-                        <Typography>
-                            填寫已完成，待審核完畢，會再與您聯絡
-                        </Typography>
-                        <Button onClick={handleReset} variant="contained" color='primary'>
-                            完成
-                        </Button>
-                    </div>
-                ) : (
-                    <div>
-                        <Typography>{getStepContent(activeStep)}</Typography>
+                        if (isStepSkipped(index)) {
+                            stepProps.completed = false;
+                        }
+                        return (
+                            <Step key={label} {...stepProps}>
+                                <StepLabel {...labelProps}>{label}</StepLabel>
+                            </Step>
+                        );
+                    })}
+                </Stepper>
+                <div>
+                    {activeStep === (steps.length - 1) ? (
                         <div>
-                            <Button onClick={handleBack}>
-                                {activeStep === 0 ? '返回' : '上一步'}
-                            </Button>
-
-
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={handleNext}
-                            >
-                                {activeStep === steps.length - 1 ? '完成' : '下一步'}
+                            <Typography>
+                                填寫已完成，待審核完畢，會再與您聯絡
+                            </Typography>
+                            <Button onClick={handleReset} variant="contained" color='primary'>
+                                完成
                             </Button>
                         </div>
-                    </div>
-                )}
+                    ) : (
+                        <div>
+                            <Typography>{getStepContent(activeStep)}</Typography>
+                            <div>
+                                <Button onClick={handleBack}>
+                                    {activeStep === 0 ? '返回' : '上一步'}
+                                </Button>
+
+
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleNext}
+                                >
+                                    {activeStep === steps.length - 1 ? '完成' : '下一步'}
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
-        </div >
     );
 }
