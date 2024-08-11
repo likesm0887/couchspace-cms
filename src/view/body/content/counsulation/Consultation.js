@@ -7,6 +7,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import userIcon from "../../../img/content/userIcon.svg";
 import { Appointment } from "../../../../dataContract/appointment";
 const TitleType = Object.freeze({ "OnComing": "OnComing", "Cancelled": "Cancelled", "Finished": "Finished", "All": "All" })
+const Width = (window.innerWidth * 0.9) > 1200 ? (window.innerWidth * 0.9) : 1200;
 function Consultation() {
     let navigate = useNavigate();
     let pageSize = 8;
@@ -141,7 +142,7 @@ function Consultation() {
     function createListItem() {
         return currentTableData.map(allAppointment => {
             return (
-                <div style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }} key={allAppointment.AppointmentID}>
+                <div style={{ width: Width, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }} key={allAppointment.AppointmentID}>
                     <div className="content-row">
                         <div className="content-col text-wrap">
                             {allAppointment.AppointmentID.slice(allAppointment.AppointmentID.length - 5, allAppointment.AppointmentID.length).toUpperCase()}
@@ -198,7 +199,7 @@ function Consultation() {
         </div>);
     }
     function createListTitle() {
-        return (<div className="title-row">
+        return (<div className="title-row" style={{ width: Width }}>
             <div className="title-col">
                 訂單編號
             </div>
@@ -243,7 +244,7 @@ function Consultation() {
             <div style={{ height: "10%" }}>
                 {createListTitleType()}
             </div>
-            <div style={{ paddingLeft: 40, display: 'block', width: "95%", height: "90%", backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
+            <div style={{ paddingLeft: 40, display: 'block', width: "95%", height: "90%", backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "auto", perspective: 1 }}>
                 {createListTitle()}
                 {createListItem()}
                 <div className={"Page"}>
