@@ -74,13 +74,13 @@ function Personal() {
                         onClose={handleClose}
                     >
                         <li style={{ margin: 10, alignItems: 'center', justifyItems: 'center' }}>
-                            <MenuItem className={"menuItem"} onClick={onClickBasicInfo}>會員基本資料</MenuItem>
+                            <MenuItem className={"menuItem"} onClick={onClickBasicInfo}>基本資料</MenuItem>
                         </li>
                         <li style={{ margin: 10, alignItems: 'center', justifyItems: 'center' }}>
-                            <MenuItem className={"menuItem"} onClick={onClickCounselingInfo}>我的諮商資料</MenuItem>
+                            <MenuItem className={"menuItem"} onClick={onClickCounselingInfo}>服務設定</MenuItem>
                         </li>
                         <li style={{ margin: 10, alignItems: 'center', justifyItems: 'center' }}>
-                            <MenuItem className={"menuItem"} onClick={onClickCounselingManagement}>諮商時段管理</MenuItem>
+                            <MenuItem className={"menuItem"} onClick={onClickCounselingManagement}>時段管理</MenuItem>
                         </li>
                         <li style={{ margin: 10 }}>
                             <MenuItem className={"menuItem"} onClick={onClickLogout}>登出</MenuItem>

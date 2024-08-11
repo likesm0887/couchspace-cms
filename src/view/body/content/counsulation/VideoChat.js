@@ -229,7 +229,7 @@ const VideoChat = (props) => {
           <div class="col-auto">
             <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
               <p>{num2HourTime(elapsedTime)}</p>
-              <p>諮商時間</p>
+              <p>諮詢時間</p>
             </div>
           </div>
           <div class="col-auto">
