@@ -424,7 +424,7 @@ const CounselingManagement = () => {
     return (
         <div className={"CounselingManagement"} style={{ height: '100%', overflowY: 'scroll' }}>
             <Typography style={{ marginTop: 10, fontSize: 20 }} gutterBottom>
-                諮商時段管理
+                時段管理
             </Typography>
             <Button
                 variant="contained"
@@ -461,7 +461,7 @@ const CounselingManagement = () => {
             </Grid>
             <div style={{ flex: 1, flexDirection: 'row', display: 'inline-block' }}>
                 <Typography variant="h6" gutterBottom>
-                    {"填寫諮商時段(Daily Hours)"}
+                    {"填寫時段(Daily Hours)"}
                     <Tooltip title="會根據您指定的日期與時段，覆蓋掉原本的Weekly Hour的時段。" placement="top" enterDelay={0} leaveDelay={200} arrow={true}>
                         <InfoCircleOutlined style={{ marginLeft: 10, verticalAlign: 0 }}></InfoCircleOutlined>
                     </Tooltip>

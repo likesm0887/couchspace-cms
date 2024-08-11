@@ -382,7 +382,7 @@ const BusinessInfo = forwardRef((props, ref) => {
     return (
         <div className={"BusinessInfo"}>
             <Typography style={{ marginTop: 10, fontSize: 20 }} gutterBottom>
-                {"填寫諮商時段(Weekly Hours)"}
+                {"填寫時段(Weekly Hours)"}
             </Typography>
 
             <Grid container spacing={3}>
@@ -411,7 +411,7 @@ const BusinessInfo = forwardRef((props, ref) => {
             </Grid>
             <div style={{ flex: 1, flexDirection: 'row', display: 'inline-block' }}>
                 <Typography variant="h6" gutterBottom>
-                    {"填寫諮商時段(Daily Hours)"}
+                    {"填寫時段(Daily Hours)"}
                     <Tooltip title="會根據您指定的日期與時段，覆蓋掉原本的Weekly Hour的時段。" placement="top" enterDelay={0} leaveDelay={200} arrow={true}>
                         <InfoCircleOutlined style={{ marginLeft: 10, verticalAlign: 0 }}></InfoCircleOutlined>
                     </Tooltip>

@@ -238,7 +238,7 @@ const BasicInfo = () => {
     return (
         <div className={"BasicInfo"} style={{ height: '100%', overflowY: 'scroll' }}>
             <Typography style={{ marginTop: 10, fontSize: 20 }} gutterBottom>
-                會員基本資料
+                基本資料
             </Typography>
             <Button
                 variant="contained"

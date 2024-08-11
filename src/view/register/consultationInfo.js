@@ -65,7 +65,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
     const [expertisesInfo, setExpertisesInfo] = useState(counselorInfo.ExpertisesInfo); // 諮商師的專長(自行輸入)
     const [expertises, setExpertises] = useState([]); // 諮商師的專項
     const [tags, setTags] = useState([]); // 親子, 幫助睡眠, 感情問題
-    const [consultingFees, setConsultingFees] = useState(counselingItems); // 諮商項目: 初談、諮商60min、諮商90min
+    const [consultingFees, setConsultingFees] = useState(counselingItems); // 服務項目: 初談、諮商60min、諮商90min
 
     const [errorLanguages, setErrorLanguages] = useState("");
     const [errorEducation, setErrorEducation] = useState("");
@@ -142,7 +142,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
             }
 
             // if (consultingFees.every((value, index, array) => value.enabled === false)) {
-            //     setErrorConsultingFees("請設定諮商項目");
+            //     setErrorConsultingFees("請設定服務項目");
             //     output = false;
             // }
             if (checkPositionLengthIsValid(position) === false) {
@@ -193,7 +193,7 @@ const ConsultationInfo = forwardRef((props, ref) => {
             fullWidth={true}
             onClose={handleClose}
             value={"sm"}>
-            <DialogTitle id="alert-dialog-title">{"諮商項目設定(上限金額 10,000)"}</DialogTitle>
+            <DialogTitle id="alert-dialog-title">{"服務項目設定(上限金額 10,000)"}</DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-description">
                     {consultingFees.map((item, index) => {
@@ -448,15 +448,15 @@ const ConsultationInfo = forwardRef((props, ref) => {
                 </Grid> */}
                 <Grid item xs={12} sm={6}>
                     <div>
-                        <span style={{ color: errorConsultingFees === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"諮商項目"}</span>
+                        <span style={{ color: errorConsultingFees === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"服務項目"}</span>
                         <div>
                             {consultingFees.map((item, index) => {
                                 return (
                                     item.enabled ?
                                         <div key={index}>
                                             {item.time > 0 ?
-                                                <span>{item.label + item.time + "分鐘\t\t\t諮商費用 " + new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(item.fee)}</span> :
-                                                <span>{item.label + "\t\t\t諮商費用 " + new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(item.fee)}</span>
+                                                <span>{item.label + item.time + "分鐘\t\t\t " + new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(item.fee)}</span> :
+                                                <span>{item.label + "\t\t\t " + new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(item.fee)}</span>
                                             }
                                         </div>
                                         : null)
