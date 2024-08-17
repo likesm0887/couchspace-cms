@@ -7,7 +7,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import userIcon from "../../../img/content/userIcon.svg";
 import { Appointment } from "../../../../dataContract/appointment";
 const TitleType = Object.freeze({ "OnComing": "OnComing", "Cancelled": "Cancelled", "Finished": "Finished", "All": "All" })
-const Width = (window.innerWidth * 0.9) > 1200 ? (window.innerWidth * 0.9) : 1200;
+const Width = (window.innerWidth * 0.8) > 1200 ? (window.innerWidth * 0.8) : 1200;
 function Consultation() {
     let navigate = useNavigate();
     let pageSize = 8;
