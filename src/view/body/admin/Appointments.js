@@ -4,10 +4,8 @@ import {
   Button,
   Table,
   Statistic,
-  Switch,
   Tag,
   Modal,
-  Menu,
   Tabs,
   Image,
   List,
@@ -22,7 +20,7 @@ import {
 } from "antd";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { Layout, theme, Descriptions, Badge, Outlet } from "antd";
+import { Layout, theme, Descriptions, Badge } from "antd";
 import "./counselor.css";
 import moment from "moment";
 import { CopyOutlined } from "@ant-design/icons";
@@ -38,8 +36,6 @@ import {
   counselorService,
 } from "../../../service/ServicePool";
 import CountUp from "react-countup";
-import img_account from "../../img/login/account.svg";
-import { fontFamily } from "@mui/system";
 const DrawerForm = ({ id, visible, onClose, record, callback }) => {
   // Define state for the form fields
   const [form] = Form.useForm();
@@ -116,7 +112,6 @@ const DrawerForm = ({ id, visible, onClose, record, callback }) => {
 
 const Appointments = () => {
   const { Option } = Select;
-  const { Header, Content, Footer, Sider } = Layout;
   const formatter = (value) => <CountUp end={value} separator="," />;
   const [visible, setVisible] = useState(false);
   const [record, setRecord] = useState(null);
@@ -124,36 +119,16 @@ const Appointments = () => {
   const [userData, setUserData] = useState();
   const [userCount, setUserCount] = useState(0);
   const [currentSelectCounselorId, setCurrentSelectCounselorId] = useState("");
-  const [currentSelectMember, setCurrentSelectMember] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModal2Open, setIsModal2Open] = useState(false);
   const [detail, setDetail] = useState("");
   const [memberDetail, setMemberDetail] = useState("");
-  const [statusMap, setStatusMap] = useState({});
-  const [filteredInfo, setFilteredInfo] = useState({});
   const [sortedInfo, setSortedInfo] = useState({});
   const [loading, setLoading] = useState(false);
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-  const handleChange = (pagination, filters, sorter) => {
-    console.log("Various parameters", pagination, filters, sorter);
-    setFilteredInfo(filters);
-    setSortedInfo(sorter);
-  };
-  const clearFilters = () => {
-    setFilteredInfo({});
-  };
-  const clearAll = () => {
-    setFilteredInfo({});
-    setSortedInfo({});
-  };
-  const setAgeSort = () => {
-    setSortedInfo({
-      order: "descend",
-      columnKey: "age",
-    });
-  };
+ 
   const columns = (showAdminFlag) => {
     let result = [
       {
@@ -329,6 +304,7 @@ const Appointments = () => {
 
     setLoading(false);
   };
+
   function getStatusDesc(code) {
     if (code.toUpperCase() === "NEW") {
       return "訂單成立(未付款)";
@@ -351,6 +327,7 @@ const Appointments = () => {
       return "已完成";
     }
   }
+
   const copyToClipboard = (text) => {
     navigator.clipboard
       .writeText(text)
@@ -415,11 +392,12 @@ const Appointments = () => {
     setConfirmedAppointment(form2);
     setUserCount(result.length);
   };
-  const [currentSelectCounselor, setCurrentSelectCounselor] = useState({});
+  
   const [
     currentSelectCounselorAppointmentTime,
     setcurrentSelectCounselorAppointmentTime,
   ] = useState({});
+
   const [
     currentSelectCounselorAppointments,
     setCurrentSelectCounselorAppointments,
@@ -428,12 +406,11 @@ const Appointments = () => {
   const openModal2 = async (id) => {
     console.log(id);
     const res = await memberService.getGetUserById(id);
-
-    setCurrentSelectMember(res);
     setIsModal2Open(true);
     createMemberDescription(res);
     console.log(res);
   };
+
   const openModal = async (id) => {
     const res = await counselorService.getCounselorInfoById(id);
     console.log(id);
@@ -444,7 +421,7 @@ const Appointments = () => {
     setcurrentSelectCounselorAppointmentTime(appointmentTime);
     setCurrentSelectCounselorAppointments(counselorAppointments);
     console.log(counselorAppointments);
-    setCurrentSelectCounselor(res);
+  
     createDescription(res);
     console.log(id);
 
@@ -794,9 +771,9 @@ const Appointments = () => {
       },
     ]);
   };
+
   const ExportButton = ({ data }) => {
     const handleExport = () => {
-
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.json_to_sheet(data);
       XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
@@ -809,6 +786,7 @@ const Appointments = () => {
 
     return <Button onClick={handleExport}>下載</Button>;
   };
+  
   return (
     <>
       <ExportButton data={userData} />

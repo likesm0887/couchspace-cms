@@ -17,6 +17,7 @@ import {
 } from "antd";
 import { Layout, theme, Descriptions, Badge, Outlet } from "antd";
 import "./counselor.css";
+import moment from "moment";
 import {
   LaptopOutlined,
   NotificationOutlined,
@@ -170,12 +171,20 @@ const Counselor = () => {
       dataIndex: "account",
       key: "account",
     },
-
+    {
+      title: "最後登入日期",
+      dataIndex: "LatestLoginTime",
+      key: "LatestLoginTime",
+      defaultSortOrder: "descend",
+      sorter: (a, b) =>
+        moment(a.latestLoginDate).unix() - moment(b.latestLoginDate).unix(),
+    },
     {
       title: "是否通過認證",
       dataIndex: "isverify",
       key: "isverify",
     },
+    
   ];
 
   const fetchData = async () => {
@@ -192,6 +201,7 @@ const Counselor = () => {
         photo: u.Photo == "" ? img_account : u.Photo,
         account: u.Email,
         isverify: u.IsVerify ? "已認證" : "未認證",
+        LatestLoginTime:u.LatestLoginTime
       };
     });
     setUserData(form);
