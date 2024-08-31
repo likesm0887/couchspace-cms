@@ -127,7 +127,7 @@ export class Counselor {
         this.Accumulative = 0;
         this.ExpertisesInfo = ""; // 專長
         this.Expertises = []; // 專項
-        this.ConsultingFees = []; // 諮商項目
+        this.ConsultingFees = []; // 服務項目
 
         // certificate info
         this.License = new License();
@@ -249,7 +249,7 @@ export class Counselor {
         this.Accumulative = 0;
         this.ExpertisesInfo = ""; // 專長
         this.Expertises = []; // 專項
-        this.ConsultingFees = []; // 諮商項目
+        this.ConsultingFees = []; // 服務項目
 
         // certificate info
         this.License = new License();

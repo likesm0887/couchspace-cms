@@ -13,6 +13,7 @@ const VideoChat = (props) => {
   const [showCamera, setShowCamera] = useState(true);
   const [showMic, setShowMic] = useState(true);
   const [showBlur, setShowBlur] = useState(false);
+  const [mirror, setMirror] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
   let isShowRemoteUser = false;
   let client = ZoomVideo.createClient();
@@ -154,6 +155,11 @@ const VideoChat = (props) => {
       })
     }
   }
+
+  const onClickMirror = async () => {
+    const stream = client.getMediaStream();
+    stream.mirrorVideo(!mirror).then(() => setMirror(!mirror));
+  }
   const parseDateTime = (dateString, timeString) => {
     [dateString,] = dateString.split(" ");
     const [year, month, day] = dateString.split("-");
@@ -229,7 +235,7 @@ const VideoChat = (props) => {
           <div class="col-auto">
             <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
               <p>{num2HourTime(elapsedTime)}</p>
-              <p>諮商時間</p>
+              <p>諮詢時間</p>
             </div>
           </div>
           <div class="col-auto">
@@ -246,6 +252,14 @@ const VideoChat = (props) => {
                 <img style={{ verticalAlign: 'middle' }} src={showMic ? require("../../../img/content/mic_enabled.png") : require("../../../img/content/mic_disabled.png")} alt="myMic" />
               </button>
               <p>麥克風</p>
+            </div>
+          </div>
+          <div class="col-auto">
+            <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
+              <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickMirror}>
+                <img style={{ verticalAlign: 'middle' }} src={require("../../../img/content/mirror.png")} alt="mirror" />
+              </button>
+              <p>鏡像</p>
             </div>
           </div>
           {/* <div class="col-auto">

@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { Appointment } from "../../../../dataContract/appointment"
 import buttonLeft from "../../../img/content/AppointmentDetail/btn_left.svg";
-
+const Width = (window.innerWidth * 0.9) > 900 ? (window.innerWidth * 0.9) : 900;
 function AppointmentDetail() {
     const { state } = useLocation();
     let navigate = useNavigate();
@@ -152,7 +152,7 @@ function AppointmentDetail() {
     }
     return (
         <ThemeProvider theme={theme}>
-            <div style={{ width: "100%", height: "100%", backgroundColor: "#F7F8F8" }}>
+            <div style={{ width: "100%", height: "100%", backgroundColor: "#F7F8F8", overflow: "auto" }}>
                 <div className="">
                     <div className={"button-back"} onClick={() => handleBack()}>
                         <img style={{ height: 15, width: 9, marginRight: 10 }} src={buttonLeft} alt={123}></img>
@@ -160,7 +160,7 @@ function AppointmentDetail() {
                             返回訂單
                         </span>
                     </div>
-                    <div style={{ display: "flex", flexDirection: "row" }}>
+                    <div style={{ display: "flex", flexDirection: "row", width: Width }}>
                         <div style={{ marginLeft: 40, marginTop: 20, width: "50%" }}>
                             <div style={{ display: 'block', width: "100%", backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
                                 <div className="detail-title-row">
