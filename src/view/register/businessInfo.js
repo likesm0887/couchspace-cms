@@ -295,6 +295,7 @@ const BusinessInfo = forwardRef((props, ref) => {
                                 return false;
                             }}
                             ampm={false}
+                            desktopModeMediaQuery="@media (min-width: 0px)"
                         />
                     </div>
                     <div style={{ marginBottom: 10, display: 'flex', justifyItems: 'center', alignItems: 'center' }}>
@@ -315,6 +316,7 @@ const BusinessInfo = forwardRef((props, ref) => {
                                 return false;
                             }}
                             ampm={false}
+                            desktopModeMediaQuery="@media (min-width: 0px)"
                         />
                     </div>
                 </DialogContentText>

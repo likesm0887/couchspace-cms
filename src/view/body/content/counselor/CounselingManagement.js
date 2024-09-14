@@ -337,6 +337,7 @@ const CounselingManagement = () => {
                                 return false;
                             }}
                             ampm={false}
+                            desktopModeMediaQuery="@media (min-width: 0px)"
                         />
                     </div>
                     <div style={{ marginBottom: 10, display: 'flex', justifyItems: 'center', alignItems: 'center' }}>
@@ -357,6 +358,7 @@ const CounselingManagement = () => {
                                 return false;
                             }}
                             ampm={false}
+                            desktopModeMediaQuery="@media (min-width: 0px)"
                         />
                     </div>
                 </DialogContentText>

@@ -254,14 +254,14 @@ const VideoChat = (props) => {
               <p>麥克風</p>
             </div>
           </div>
-          <div class="col-auto">
+          {/* <div class="col-auto">
             <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
               <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickMirror}>
                 <img style={{ verticalAlign: 'middle' }} src={require("../../../img/content/mirror.png")} alt="mirror" />
               </button>
               <p>鏡像</p>
             </div>
-          </div>
+          </div> */}
           {/* <div class="col-auto">
             <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
               <Switch onChange={onClickBlur} checked={showBlur}>
