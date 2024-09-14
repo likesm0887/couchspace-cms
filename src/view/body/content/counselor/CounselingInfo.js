@@ -305,43 +305,51 @@ const CounselingInfo = () => {
                 <DialogContentText id="alert-dialog-description">
                     {consultingFees?.map((item, index) => {
                         return (
-                            <div style={{ display: "block", marginTop: 30 }} key={index}>
-                                <Checkbox checked={item.enabled} onClick={() => {
-                                    var tempItems = consultingFees;
-                                    tempItems[index].enabled = !item.enabled;
-                                    setConsultingFees([...tempItems]);
-                                    setDisabledSaveBtn(false);
-                                }}></Checkbox>
-                                {item.time > 0 ?
-                                    <span>{item.label + item.time + "分鐘"}</span> :
-                                    <span>{item.label}</span>}
-
-                                {item.enabled ?
-                                    <span style={{ marginRight: 80, float: 'right' }}>
-                                        {"NTD "}
-                                        <input
-                                            placeholder="0"
-                                            min={0}
-                                            ref={inputRef}
-                                            onWheel={() => inputRef.current.blur()}
-                                            type="number"
-                                            style={{
-                                                width: 80,
-                                                padding: 5,
-                                                borderStyle: 'solid',
-                                                borderWidth: 1,
-                                                borderColor: 'grey',
-                                                borderRadius: 5,
-                                            }}
-                                            value={item.fee}
-                                            onChange={(text) => {
-                                                var tempItems = consultingFees;
-                                                tempItems[index].fee = Number(text.target.value) <= maximumFee ? Number(text.target.value) : maximumFee;
-                                                setConsultingFees([...tempItems]);
-                                                setDisabledSaveBtn(false);
-                                            }}
-                                        />
-                                    </span> : null}
+                            <div class="container" style={{ display: "block", marginTop: 30 }} key={index}>
+                                <div class="row justify-content-start">
+                                    <div class="col-8">
+                                        <Checkbox checked={item.enabled} onClick={() => {
+                                            var tempItems = consultingFees;
+                                            tempItems[index].enabled = !item.enabled;
+                                            setConsultingFees([...tempItems]);
+                                            setDisabledSaveBtn(false);
+                                        }}></Checkbox>
+                                        {item.time > 0 ?
+                                            <span>{item.label + item.time + "分鐘"}</span> :
+                                            <span>{item.label}</span>}
+                                    </div>
+                                    {item.enabled ?
+                                        <div class="col-4">
+                                            <span>
+                                                {"NTD "}
+                                                <input
+                                                    placeholder="0"
+                                                    min={0}
+                                                    ref={inputRef}
+                                                    onWheel={() => inputRef.current.blur()}
+                                                    type="number"
+                                                    style={{
+                                                        width: 80,
+                                                        padding: 5,
+                                                        borderStyle: 'solid',
+                                                        borderWidth: 1,
+                                                        borderColor: 'grey',
+                                                        borderRadius: 5,
+                                                    }}
+                                                    value={item.fee}
+                                                    onChange={(text) => {
+                                                        var tempItems = consultingFees;
+                                                        tempItems[index].fee = Number(text.target.value) <= maximumFee ? Number(text.target.value) : maximumFee;
+                                                        setConsultingFees([...tempItems]);
+                                                        setDisabledSaveBtn(false);
+                                                    }}
+                                                />
+                                            </span>
+                                        </div>
+                                        :
+                                        null
+                                    }
+                                </div>
                             </div>
                         )
                     })}

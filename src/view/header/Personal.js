@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import { counselorInfo } from "../../dataContract/counselor";
 import { counselorService } from "../../service/ServicePool";
 
-
+const screenWidth = window.innerWidth;
 function Personal() {
     const navigate = useNavigate();
     const [email, setEmail] = useState("healthy@couchspace.com");
@@ -56,14 +56,16 @@ function Personal() {
         setAnchorEl(null);
     };
     return (
-        <div class="container-fluid">
+        <div>
             <div class="row row-cols-auto align-items-center justify-content-end">
-                <div class="col">
-                    <img style={{ width: 80, height: 80, objectFit: 'contain', borderRadius: 1000, overflow: 'hidden' }} src={photo} className="selfie" alt={"selfie"} />
-                </div>
-                <div class="col">
-                    <span className={"personal-name"}>{name}</span>
-                </div>
+                {screenWidth > 500 ?
+                    <div class="col">
+                        <img style={{ width: 80, height: 80, objectFit: 'contain', borderRadius: 1000, overflow: 'hidden' }} src={photo} className="selfie" alt={"selfie"} />
+                    </div> : null}
+                {screenWidth > 500 ?
+                    <div class="col">
+                        <span className={"personal-name"}>{name}</span>
+                    </div> : null}
                 <div class="col">
                     <img onClick={handleClick} src={userInfo} alt={"123"}></img>
                     <Menu

@@ -15,6 +15,7 @@ import {
 import { Appointment } from "../../../../dataContract/appointment"
 import buttonLeft from "../../../img/content/AppointmentDetail/btn_left.svg";
 const Width = (window.innerWidth * 0.9) > 900 ? (window.innerWidth * 0.9) : 900;
+const screenWidth = window.innerWidth;
 function AppointmentDetail() {
     const { state } = useLocation();
     let navigate = useNavigate();
@@ -150,8 +151,8 @@ function AppointmentDetail() {
         }
         return outputText;
     }
-    return (
-        <ThemeProvider theme={theme}>
+    if (screenWidth > 500) {
+        return (
             <div style={{ width: "100%", height: "100%", backgroundColor: "#F7F8F8", overflow: "auto" }}>
                 <div className="">
                     <div className={"button-back"} onClick={() => handleBack()}>
@@ -161,7 +162,7 @@ function AppointmentDetail() {
                         </span>
                     </div>
                     <div style={{ display: "flex", flexDirection: "row", width: Width }}>
-                        <div style={{ marginLeft: 40, marginTop: 20, width: "50%" }}>
+                        <div style={{ paddingLeft: 20, marginTop: 20, width: "50%" }}>
                             <div style={{ display: 'block', width: "100%", backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
                                 <div className="detail-title-row">
                                     <div className="detail-title-col detail-title-left">
@@ -347,14 +348,207 @@ function AppointmentDetail() {
                         </div>
                     </div>
                 </div>
-            </div>
-            <div>
                 {createDialog()}
             </div>
-        </ThemeProvider>
+        );
+    }
+    else {
+        return (
+            <div style={{ height: "100%", backgroundColor: "#F7F8F8" }}>
+                <div className="">
+                    <div className={"button-back"} onClick={() => handleBack()}>
+                        <img style={{ height: 15, width: 9, marginRight: 10 }} src={buttonLeft} alt={123}></img>
+                        <span>
+                            返回訂單
+                        </span>
+                    </div>
+                    <div style={{ paddingLeft: 10, paddingRight: 10, display: "flex", flexDirection: "column" }}>
+                        <div style={{ marginTop: 10, display: 'block', backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
+                            <div className="detail-title-row">
+                                <div className="detail-title-col detail-title-left">
+                                    預約狀態
+                                </div>
+                                <div className="detail-title-col detail-title-right">
+                                    <div style={{ lineHeight: 2, float: "right", alignSelf: 'center', justifySelf: 'center', textAlign: "center", width: 77, color: "#FFFFFF", backgroundColor: "#F1A250", borderRadius: 20 }}>
+                                        {getStatusDesc(appointment.Status)}
+                                    </div>
 
-    )
-        ;
+                                </div>
+                            </div>
+                        </div>
+                        <div style={{ marginTop: 10, display: 'block', backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
+                            <div className="detail-title-row">
+                                <div className="detail-title-col detail-title-left">
+                                    訂單金額
+                                </div>
+                                <div className="detail-title-col detail-title-right">
+                                    <div style={{ fontSize: 16, fontFamily: "PingFang TC", lineHeight: 2, float: "right", alignSelf: 'center', justifySelf: 'center', textAlign: "center", width: 77, color: "#89A2D0", fontWeight: "bold" }}>
+                                        {"NT$" + appointment.Fee}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style={{ marginTop: 10, display: 'block', backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
+                            <div className="detail-title-row">
+                                <div className="detail-title-col detail-title-left">
+                                    預約資訊
+                                </div>
+                                <div className="detail-title-col detail-title-right">
+                                    {"訂單編號:" + appointment.AppointmentID.slice(appointment.AppointmentID.length - 5, appointment.AppointmentID.length).toUpperCase()}
+                                </div>
+                            </div>
+                            <div className="detail-content-row">
+                                <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
+                                    姓名
+                                </div>
+                                <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
+                                    {userName}
+                                </div>
+                            </div>
+                            <div className="detail-content-row">
+                                <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
+                                    電子信箱
+                                </div>
+                                <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
+                                    {userEmail}
+                                </div>
+                            </div>
+                            <div className="detail-content-row">
+                                <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
+                                    預約時間
+                                </div>
+                                <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
+                                    {userReservedTime}
+                                </div>
+                            </div>
+                            <div className="detail-content-row">
+                                <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
+                                    預約服務
+                                </div>
+                                <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
+                                    {userReservedService}
+                                </div>
+                            </div>
+                        </div>
+                        <div style={{ marginTop: 10, display: 'block', backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
+                            <div className="detail-title-row">
+                                <div className="detail-title-col detail-title-left">
+                                    問題簡述
+                                </div>
+                            </div>
+                            <div className="detail-content-row">
+                                <div className="problemStatement">
+                                    {appointment.ProblemStatement.length === 0 ? "未填寫" : appointment.ProblemStatement}
+                                </div>
+                            </div>
+                        </div>
+                        <div style={{ marginTop: 10, display: 'block', backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
+                            <div className="detail-title-row">
+                                <div className="detail-title-col detail-title-left">
+                                    簡式健康量表
+                                </div>
+                            </div>
+                            <div className="detail-content-row">
+                                <div className="detail-content-col detail-content-left">
+                                    1.睡眠困難
+                                </div>
+                                <div className="detail-content-col detail-content-right">
+                                    {getTextByScore(appointment.SymptomRating.SleepDifficulty)}
+                                </div>
+                            </div>
+                            <div className="detail-content-row">
+                                <div className="detail-content-col detail-content-left">
+                                    2.感覺緊張不安
+                                </div>
+                                <div className="detail-content-col detail-content-right">
+                                    {getTextByScore(appointment.SymptomRating.Nervous)}
+                                </div>
+                            </div>
+                            <div className="detail-content-row">
+                                <div className="detail-content-col detail-content-left">
+                                    3.覺得容易苦惱或動怒
+                                </div>
+                                <div className="detail-content-col detail-content-right">
+                                    {getTextByScore(appointment.SymptomRating.Irritated)}
+                                </div>
+                            </div>
+                            <div className="detail-content-row">
+                                <div className="detail-content-col detail-content-left">
+                                    4.感覺憂鬱，情緒低落
+                                </div>
+                                <div className="detail-content-col detail-content-right">
+                                    {getTextByScore(appointment.SymptomRating.MelancholyDepressed)}
+                                </div>
+                            </div>
+                            <div className="detail-content-row">
+                                <div className="detail-content-col detail-content-left">
+                                    5.覺得比不上別人
+                                </div>
+                                <div className="detail-content-col detail-content-right">
+                                    {getTextByScore(appointment.SymptomRating.InferiorFeeling)}
+                                </div>
+                            </div>
+                            <div className="detail-content-row">
+                                <div className="detail-content-col detail-content-left">
+                                    6.有過『自殺』的念頭
+                                </div>
+                                <div className="detail-content-col detail-content-right">
+                                    {getTextByScore(appointment.SymptomRating.Suicidalthoughts)}
+                                </div>
+                            </div>
+                            <div className="detail-content-row">
+                                <div className="detail-content-col detail-content-left">
+                                    <span style={{ fontSize: 16 }}>總分</span>
+                                </div>
+                                <div className="detail-content-col detail-content-right">
+                                    <div style={{ float: 'right', display: 'flex', flexDirection: 'row', alignItems: 'center', textAlign: 'center', justifyContent: 'center' }}>
+                                        <span style={{ color: "#F1A250", fontSize: 16 }}>{totalScore}</span>
+                                        <span style={{ color: "#555654", fontSize: 16 }}>{"/24"}</span>
+                                        <div style={{ marginLeft: 5, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }} onClick={() => showHealthDescriptionDialog(true)}>
+                                            <img style={{ height: 15, width: 15 }} src={healthDescription} alt={"123"}></img>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style={{ marginTop: 10, display: 'block', backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
+                            <div className="detail-title-row">
+                                <div className="detail-title-col detail-title-left">
+                                    緊急聯絡人
+                                </div>
+                            </div>
+                            <div className="detail-content-row">
+                                <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
+                                    姓名
+                                </div>
+                                <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
+                                    {appointment.Emergency.Name}
+                                </div>
+                            </div>
+                            <div className="detail-content-row">
+                                <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
+                                    關係
+                                </div>
+                                <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
+                                    {appointment.Emergency.Relationship}
+                                </div>
+                            </div>
+                            <div className="detail-content-row">
+                                <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
+                                    聯絡電話
+                                </div>
+                                <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
+                                    {appointment.Emergency.Phone}
+                                </div>
+                            </div>
+                            <div className="detail-content-row" style={{ height: 20 }}></div>
+                        </div>
+                    </div>
+                </div>
+                {createDialog()}
+            </div>
+        );
+    }
 }
 
 export default AppointmentDetail
