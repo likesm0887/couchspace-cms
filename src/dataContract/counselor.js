@@ -116,7 +116,8 @@ export class Counselor {
         this.ShortIntroduction = ""; // 簡介
         this.LongIntroduction = ""; // 詳細自我介紹
         this.Phone = ""; // 機構電話
-        this.Email = "";
+        this.Email = ""; // 主要郵件
+        this.Email2 = ""; // 次要郵件
         this.InstitutionTemp = ""; // 機構名稱
 
         // counselor info
@@ -160,6 +161,7 @@ export class Counselor {
         this.LongIntroduction = info.LongIntroduction;
         this.Phone = info.Phone;
         this.Email = info.Email;
+        this.Email2 = info.Email2;
         this.InstitutionTemp = info.InstitutionTemp;
 
         // counselor info
@@ -190,6 +192,7 @@ export class Counselor {
         this.ShortIntroduction = info.ShortIntroduction;
         this.LongIntroduction = info.LongIntroduction;
         this.Email = info.Email;
+        this.Email2 = info.Email2
     }
     set updateCounselorInfo(info: Counselor) {
         this.Languages = info.Languages;
@@ -238,7 +241,8 @@ export class Counselor {
         this.ShortIntroduction = ""; // 簡介
         this.LongIntroduction = ""; // 詳細自我介紹
         this.Phone = ""; // 機構電話
-        this.Email = "";
+        this.Email = ""; // 主要郵件
+        this.Email2 = ""; // 次要郵件
         this.InstitutionTemp = ""; // 機構名稱
 
         // counselor info

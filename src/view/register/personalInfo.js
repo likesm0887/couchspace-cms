@@ -46,7 +46,8 @@ const PersonalInfo = forwardRef((props, ref) => {
     const [lastName, setLastName] = useState(counselorInfo.UserName.Name.LastName);
     const [selectedCity, setSelectedCity] = useState(counselorInfo.Location);
     const [photo, setPhoto] = useState(counselorInfo.Photo);
-    const [email, setEmail] = useState(counselorInfo.Email);
+    const [primaryEmail, setPrimaryEmail] = useState(counselorInfo.Email);
+    const [secondaryEmail, setSecondaryEmail] = useState(counselorInfo.Email2);
     const [gender, setGender] = useState(counselorInfo.Gender);
     const [shortIntro, setShortIntro] = useState(counselorInfo.ShortIntroduction);
     const [longIntro, setLongIntro] = useState(counselorInfo.LongIntroduction);
@@ -55,7 +56,8 @@ const PersonalInfo = forwardRef((props, ref) => {
     const [errorFirstName, setErrorFirstName] = useState("");
     const [errorLastName, setErrorLastName] = useState("");
     const [errorCity, setErrorCity] = useState("");
-    const [errorEmail, setErrorEmail] = useState("");
+    const [errorPrimaryEmail, setErrorPrimaryEmail] = useState("");
+    const [errorSecondaryEmail, setErrorSecondaryEmail] = useState("");
     const [errorGender, setErrorGender] = useState("");
     const [errorPhoto, setErrorPhoto] = useState("");
     const [errorShortIntro, setErrorShortIntro] = useState("");
@@ -78,7 +80,8 @@ const PersonalInfo = forwardRef((props, ref) => {
         setErrorFirstName("");
         setErrorLastName("");
         setErrorCity("");
-        setErrorEmail("");
+        setErrorPrimaryEmail("");
+        setErrorSecondaryEmail("");
         setErrorGender("");
         setErrorPhoto("");
         setErrorShortIntro("");
@@ -100,8 +103,12 @@ const PersonalInfo = forwardRef((props, ref) => {
                 setErrorCity("請選擇居住地區");
                 output = false;
             }
-            if (email === "" || !checkEmail(email)) {
-                setErrorEmail("請輸入有效的電子信箱");
+            if (primaryEmail === "" || !checkEmail(primaryEmail)) {
+                setErrorPrimaryEmail("請輸入有效的電子信箱");
+                output = false;
+            }
+            if (secondaryEmail === "" || !checkEmail(secondaryEmail)) {
+                setErrorSecondaryEmail("請輸入有效的電子信箱");
                 output = false;
             }
             if (gender === "") {
@@ -139,7 +146,8 @@ const PersonalInfo = forwardRef((props, ref) => {
             info.Gender = gender;
             info.ShortIntroduction = shortIntro.trim();
             info.LongIntroduction = longIntro.trim();
-            info.Email = email;
+            info.Email = primaryEmail;
+            info.Email2 = secondaryEmail;
             counselorInfo.updatePersonalInfo = info;
             return output;
         }
@@ -247,16 +255,32 @@ const PersonalInfo = forwardRef((props, ref) => {
                     <TextField
                         required
                         id="email"
-                        name="email"
-                        label="e-mail"
+                        name="主要郵件"
+                        label="主要郵件"
                         fullWidth
                         type={"email"}
                         autoComplete="shipping country"
                         variant="standard"
-                        value={email}
-                        onChange={(text) => setEmail(text.target.value.trim())}
-                        error={errorEmail !== ""}
-                        helperText={errorEmail}
+                        value={primaryEmail}
+                        onChange={(text) => setPrimaryEmail(text.target.value.trim())}
+                        error={errorPrimaryEmail !== ""}
+                        helperText={errorPrimaryEmail}
+                    />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                    <TextField
+                        required
+                        id="email2"
+                        name="次要郵件"
+                        label="次要郵件"
+                        fullWidth
+                        type={"email"}
+                        autoComplete="shipping country"
+                        variant="standard"
+                        value={secondaryEmail}
+                        onChange={(text) => setSecondaryEmail(text.target.value.trim())}
+                        error={errorSecondaryEmail !== ""}
+                        helperText={errorSecondaryEmail}
                     />
                 </Grid>
                 <Grid item xs={12}>
