@@ -46,8 +46,7 @@ const BasicInfo = () => {
     const [lastName, setLastName] = useState(counselorInfo.UserName.Name.LastName);
     const [selectedCity, setSelectedCity] = useState(counselorInfo.Location);
     const [photo, setPhoto] = useState(counselorInfo.Photo);
-    const [primaryEmail, setPrimaryEmail] = useState(counselorInfo.Email);
-    const [secondaryEmail, setSecondaryEmail] = useState(counselorInfo.Email2);
+    const [email, setEmail] = useState(counselorInfo.Email);
     const [gender, setGender] = useState(counselorInfo.Gender);
     const [shortIntro, setShortIntro] = useState(counselorInfo.ShortIntroduction);
     const [longIntro, setLongIntro] = useState(counselorInfo.LongIntroduction);
@@ -56,8 +55,7 @@ const BasicInfo = () => {
     const [errorFirstName, setErrorFirstName] = useState("");
     const [errorLastName, setErrorLastName] = useState("");
     const [errorCity, setErrorCity] = useState("");
-    const [errorPrimaryEmail, setErrorPrimaryEmail] = useState("");
-    const [errorSecondaryEmail, setErrorSecondaryEmail] = useState("");
+    const [errorEmail, setErrorEmail] = useState("");
     const [errorGender, setErrorGender] = useState("");
     const [errorPhoto, setErrorPhoto] = useState("");
     const [errorShortIntro, setErrorShortIntro] = useState("");
@@ -80,8 +78,7 @@ const BasicInfo = () => {
         setErrorFirstName("");
         setErrorLastName("");
         setErrorCity("");
-        setErrorPrimaryEmail("");
-        setErrorSecondaryEmail("");
+        setErrorEmail("");
         setErrorGender("");
         setErrorPhoto("");
         setErrorShortIntro("");
@@ -93,8 +90,7 @@ const BasicInfo = () => {
             setFirstName(counselorInfo.UserName.Name.FirstName);
             setLastName(counselorInfo.UserName.Name.LastName);
             setSelectedCity(counselorInfo.Location);
-            setPrimaryEmail(counselorInfo.Email);
-            setSecondaryEmail(counselorInfo.Email2);
+            setEmail(counselorInfo.Email);
             setGender(counselorInfo.Gender);
             setPhoto(counselorInfo.Photo);
             setBindingPhoto(counselorInfo.Photo);
@@ -117,12 +113,8 @@ const BasicInfo = () => {
             setErrorCity("請選擇居住地區");
             output = false;
         }
-        if (primaryEmail === "" || !checkEmail(primaryEmail)) {
-            setErrorPrimaryEmail("請輸入有效的電子信箱");
-            output = false;
-        }
-        if (secondaryEmail === "" || !checkEmail(secondaryEmail)) {
-            setErrorSecondaryEmail("請輸入有效的電子信箱");
+        if (email === "" || !checkEmail(email)) {
+            setErrorEmail("請輸入有效的電子信箱");
             output = false;
         }
         if (gender === "") {
@@ -166,8 +158,7 @@ const BasicInfo = () => {
             info.Gender = gender;
             info.ShortIntroduction = shortIntro.trim();
             info.LongIntroduction = longIntro.trim();
-            info.Email = primaryEmail;
-            info.Email2 = secondaryEmail;
+            info.Email = email;
             counselorInfo.updatePersonalInfo = info;
             let res = await counselorService.updateCounselorInfo(counselorInfo);
             if (res.success) {
@@ -194,8 +185,7 @@ const BasicInfo = () => {
             lastName !== counselorInfo.UserName.Name.LastName ||
             selectedCity !== counselorInfo.Location ||
             photo !== counselorInfo.Photo ||
-            primaryEmail !== counselorInfo.Email ||
-            secondaryEmail !== counselorInfo.Email2 ||
+            email !== counselorInfo.Email ||
             gender !== counselorInfo.Gender ||
             shortIntro !== counselorInfo.ShortIntroduction ||
             longIntro !== counselorInfo.LongIntroduction) {
@@ -204,7 +194,7 @@ const BasicInfo = () => {
         else {
             setDisabledSaveBtn(true);
         }
-    }, [firstName, lastName, selectedCity, photo, primaryEmail, secondaryEmail, gender, shortIntro, longIntro])
+    }, [firstName, lastName, selectedCity, photo, email, gender, shortIntro, longIntro])
 
     const handleClose = () => {
         setIsOpen(false);
@@ -318,32 +308,16 @@ const BasicInfo = () => {
                     <TextField
                         required
                         id="email"
-                        name="主要郵件"
-                        label="主要郵件"
+                        name="email"
+                        label="e-mail"
                         fullWidth
                         type={"email"}
                         autoComplete="shipping country"
                         variant="standard"
-                        value={primaryEmail}
-                        onChange={(text) => setPrimaryEmail(text.target.value.trim())}
-                        error={errorPrimaryEmail !== ""}
-                        helperText={errorPrimaryEmail}
-                    />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                    <TextField
-                        required
-                        id="email2"
-                        name="次要郵件"
-                        label="次要郵件"
-                        fullWidth
-                        type={"email"}
-                        autoComplete="shipping country"
-                        variant="standard"
-                        value={secondaryEmail}
-                        onChange={(text) => setSecondaryEmail(text.target.value.trim())}
-                        error={errorSecondaryEmail !== ""}
-                        helperText={errorSecondaryEmail}
+                        value={email}
+                        onChange={(text) => setEmail(text.target.value.trim())}
+                        error={errorEmail !== ""}
+                        helperText={errorEmail}
                     />
                 </Grid>
                 <Grid item xs={12}>
