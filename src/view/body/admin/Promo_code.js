@@ -12,6 +12,8 @@ import {
   Spin,
   Form,
   message,
+  Flex,
+  Statistic,
   Row,
   Col,
   Switch,
@@ -19,11 +21,19 @@ import {
   InputNumber,
   Drawer,
 } from "antd";
+import CountUp from "react-countup";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import React, { useState, useEffect } from "react";
 import { counselorService, memberService } from "../../../service/ServicePool";
 import { MemberService } from "../../../service/MemberService";
 import dayjs from "dayjs";
-
+import {
+  LaptopOutlined,
+  NotificationOutlined,
+  UserOutlined,
+  DownloadOutlined,
+} from "@ant-design/icons";
 const PromoCode = () => {
   const { RangePicker } = DatePicker;
 
@@ -130,7 +140,7 @@ const PromoCode = () => {
     console.log(e);
     var jsonData = await memberService.getPromoCode(e.ID);
     console.log(jsonData);
-    setSelectedID(e.ID)
+    setSelectedID(e.ID);
     setInputValue(jsonData.PresentToken);
     form.setFieldValue("ID", jsonData.ID);
     form.setFieldValue("Type", jsonData.Type);
@@ -162,7 +172,7 @@ const PromoCode = () => {
     }
   };
 
-  const getData = async () => {
+  const getData = async (inputSearchTerm = null) => {
     setLoading(true);
     let promoCodes = await memberService.getGetAllPromoCode();
     let counselores = await counselorService.getAllCounselorInfo();
@@ -196,6 +206,15 @@ const PromoCode = () => {
         };
       })
     );
+    if (inputSearchTerm !== null) {
+      console.log(inputSearchTerm)
+      promoCodes = promoCodes.filter((u) => {
+        const tokenMatch =
+          u.Token.includes(inputSearchTerm);
+
+        return tokenMatch;
+      });
+    }
     setPromoCode(promoCodes);
   };
   const getCounselor = (allCounselores, counselorIDs) => {
@@ -240,7 +259,7 @@ const PromoCode = () => {
   const onFinish = async (values) => {
     console.log(values);
     const jsonData = {
-      ID:selectedID,
+      ID: selectedID,
       Group: {
         groupDesc: "",
         groupCode: "",
@@ -259,7 +278,7 @@ const PromoCode = () => {
         ActionCode: values["ActionCode"],
         ActionPresent: values.ActionPresent,
       },
-      Effective: values.Effective
+      Effective: values.Effective,
     };
 
     console.log(jsonData); // 输出 JSON 数据到控制台
@@ -323,8 +342,125 @@ const PromoCode = () => {
     form.setFieldValue("image", "");
     setStatus("new");
   };
+
+  const ExportButton = ({ data }) => {
+    const handleExport = () => {
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+      const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+      saveAs(
+        new Blob([wbout], { type: "application/octet-stream" }),
+        "table-data.xlsx"
+      );
+    };
+
+    return (
+      <Button
+        style={{
+          backgroundColor: "#f5a623", // 橘黃色背景
+          borderColor: "#f5a623", // 邊框顏色
+          color: "#fff", // 白色字體
+          margin: 16,
+          borderRadius: "5px", // 圓角邊框
+          padding: "0px 5px 0px 5px ", // 按鈕內邊距
+        }}
+        icon={<DownloadOutlined />} // 如果你有使用 icon
+        onClick={handleExport}
+      >
+        下載報表
+      </Button>
+    );
+  };
+
+  const handleSearch = () => {
+    const queryParams = {
+      searchTerm,
+    };
+    getData(searchTerm);
+
+    // 在這裡執行查詢操作
+    console.log("查詢參數:", queryParams);
+    // 例如調用查詢函數
+    // queryAppointments(queryParams);
+  };
+
+  const handleClear = () => {
+    setSearchTerm("");
+    setStartDate(null);
+    setEndDate(null);
+  };
+  const [searchTerm, setSearchTerm] = useState("");
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const formatter = (value) => <CountUp end={value} separator="," />;
   return (
     <div>
+      <Flex gap="middle" justify="space-between" baseStyle>
+        <Statistic
+          title="優惠券數量"
+          value={promoCode.length}
+          formatter={formatter}
+        />
+
+        {/* 第二行：查詢和清除按鈕 */}
+        <Flex gap="small" justify="space-between" vertical>
+          <Row>
+            <Col span={16}></Col>
+            <Col span={8}>
+              <ExportButton
+                style={{
+                  width: "100px",
+                  backgroundColor: "#f5a623", // 橘黃色背景
+                  borderColor: "#f5a623", // 邊框顏色
+                  color: "#fff", // 白色字體
+                  borderRadius: "5px", // 圓角邊框
+                  padding: "6px 16px", // 按鈕內邊距
+                  fontWeight: "bold", // 粗體字
+                }}
+                data={promoCode}
+              >
+                下載報表
+              </ExportButton>
+            </Col>
+          </Row>
+          <Flex justify="space-evenly" gap="small">
+            <Flex gap="small" justify="space-evenly">
+              <Input
+                value={searchTerm}
+                placeholder="優惠碼代碼"
+                style={{ width: "150px" }}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+
+              <Button
+                style={{
+                  backgroundColor: "#0085ff", // 藍色背景（查詢按鈕）
+                  borderColor: "#0085ff", // 藍色邊框
+                  color: "#fff", // 白色字體
+                  borderRadius: "5px", // 圓角邊框
+                  padding: "0px 15px", // 按鈕內邊距
+                }}
+                onClick={handleSearch}
+              >
+                查詢
+              </Button>
+              <Button
+                style={{
+                  backgroundColor: "#ffffff", // 白色背景（清除按鈕）
+                  borderColor: "#0085ff", // 藍色邊框
+                  color: "#0085ff", // 藍色字體
+                  borderRadius: "5px", // 圓角邊框
+                  padding: "0px 20px", // 按鈕內邊距
+                }}
+                onClick={handleClear}
+              >
+                清除
+              </Button>
+            </Flex>
+          </Flex>
+        </Flex>
+      </Flex>
       <FloatButton
         shape="circle"
         type="primary"
@@ -336,7 +472,11 @@ const PromoCode = () => {
         icon={<PlusCircleOutlined />}
       />
       <Spin size="large" spinning={loading}>
-        <Table columns={columns} dataSource={promoCode} />
+        <Table
+          columns={columns}
+          style={{ marginTop: 10 }}
+          dataSource={promoCode}
+        />
       </Spin>
       <Modal
         title="QR Code"
