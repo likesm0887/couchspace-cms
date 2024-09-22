@@ -11,10 +11,15 @@ import {
   List,
   Form,
   Card,
+  Col,
   message,
   Tooltip,
   Calendar,
+  Grid,
+  Row,
+  DatePicker,
   Select,
+  Flex,
   Space,
   Input,
 } from "antd";
@@ -28,6 +33,7 @@ import {
   LaptopOutlined,
   NotificationOutlined,
   UserOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 
 import {
@@ -36,6 +42,7 @@ import {
   counselorService,
 } from "../../../service/ServicePool";
 import CountUp from "react-countup";
+import { Label, Margin } from "@mui/icons-material";
 const DrawerForm = ({ id, visible, onClose, record, callback }) => {
   // Define state for the form fields
   const [form] = Form.useForm();
@@ -128,7 +135,7 @@ const Appointments = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
- 
+
   const columns = (showAdminFlag) => {
     let result = [
       {
@@ -289,7 +296,6 @@ const Appointments = () => {
     return result.filter((col) => col.dataIndex !== "CounselorID");
   };
 
-  
   const handleChangeStatus = async (value, key) => {
     setLoading(true);
     appointmentService
@@ -339,12 +345,12 @@ const Appointments = () => {
       });
   };
 
-  const fetchData = async () => {
+  const fetchData = async (inputSearchTerm = null) => {
     const result = await appointmentService.getAllAppointmentForAdmin();
 
     console.log(result);
 
-    const form = result
+    var form = result
       ?.filter((s) => s.Status !== "CONFIRMED" && s.Status !== "ROOMCREATED")
       .map((u) => {
         return {
@@ -354,8 +360,8 @@ const Appointments = () => {
           UserName: u.UserName,
           CounselorID: u.CounselorID,
           CounselorName: u.CounselorName,
-          PromoCodeID:u.PromoCodeID,
-          DiscountFee:u.Service.Fee-u.DiscountFee,
+          PromoCodeID: u.PromoCodeID,
+          DiscountFee: u.Service.Fee - u.DiscountFee,
           DateTime: u.Time.Date + " " + u.Time.StartTime,
           Fee: u.Service.Fee,
           Type: u.Service.Type.Label,
@@ -367,7 +373,7 @@ const Appointments = () => {
         };
       });
 
-    const form2 = result
+    var form2 = result
       ?.filter((s) => s.Status == "CONFIRMED" || s.Status == "ROOMCREATED")
       .map((u) => {
         return {
@@ -380,7 +386,7 @@ const Appointments = () => {
           DateTime: u.Time.Date + " " + u.Time.StartTime,
           Fee: u.Service.Fee,
           PromoCodeID: u.PromoCodeID,
-          DiscountFee:u.Service.Fee-u.DiscountFee,
+          DiscountFee: u.Service.Fee - u.DiscountFee,
           Type: u.Service.Type.Label,
           CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
             .format("YYYY-MM-DD HH:mm:SS")
@@ -388,11 +394,72 @@ const Appointments = () => {
           Status: getStatusDesc(u.Status),
         };
       });
+    var end = null;
+    var start = null;
+    const dateTime = moment(form[99].DateTime, "YYYY-MM-DD HH:mm");
+    if (startDate !== null) {
+       start = moment(
+        startDate.format("YYYY-MM-DD HH:mm"),
+        "YYYY-MM-DD HH:mm"
+      );
+    }
+    if (endDate !== null) {
+      end = moment(endDate.format("YYYY-MM-DD HH:mm"), "YYYY-MM-DD HH:mm"); // 設置晚一點的結束日期
+    }
+    // 設置早一點的起始日期
+
+    // const isInRange =
+    //   dateTime.isSameOrAfter(start) && dateTime.isSameOrBefore(end);
+    // console.log("Is in range:", isInRange);
+
+    if (inputSearchTerm !== null) {
+      form = form.filter((u) => {
+        const appointmentIdMatch =
+          typeof u.AppointmentID === "string" &&
+          u.AppointmentID.slice(-5).includes(inputSearchTerm);
+        const userIdMatch = u.UserID.slice(-5).includes(inputSearchTerm);
+        const userNameMatch = u.UserName?.includes(inputSearchTerm);
+        const counselorNameMatch = u.CounselorName?.includes(inputSearchTerm);
+        const dateInRange =
+          (moment(u.DateTime, "YYYY-MM-DD HH:mm").isSameOrAfter(start) &&
+            moment(u.DateTime, "YYYY-MM-DD HH:mm").isSameOrBefore(end)) ||
+          (startDate === null && endDate === null);
+
+        return (
+          (appointmentIdMatch ||
+            userIdMatch ||
+            userNameMatch ||
+            counselorNameMatch) &&
+          dateInRange
+        );
+      });
+
+      form2 = form2.filter((u) => {
+        const appointmentIdMatch =
+          typeof u.AppointmentID === "string" &&
+          u.AppointmentID.slice(-5).includes(inputSearchTerm);
+        const userIdMatch = u.UserID.slice(-5).includes(inputSearchTerm);
+        const userNameMatch = u.UserName?.includes(inputSearchTerm);
+        const counselorNameMatch = u.CounselorName?.includes(inputSearchTerm);
+        const dateInRange =
+          (moment(u.DateTime, "YYYY-MM-DD HH:mm").isSameOrAfter(start) &&
+            moment(u.DateTime, "YYYY-MM-DD HH:mm").isSameOrBefore(end)) ||
+          (startDate === null && endDate === null);
+
+        return (
+          (appointmentIdMatch ||
+            userIdMatch ||
+            userNameMatch ||
+            counselorNameMatch) &&
+          dateInRange
+        );
+      });
+    }
     setUserData(form);
     setConfirmedAppointment(form2);
     setUserCount(result.length);
   };
-  
+
   const [
     currentSelectCounselorAppointmentTime,
     setcurrentSelectCounselorAppointmentTime,
@@ -421,7 +488,7 @@ const Appointments = () => {
     setcurrentSelectCounselorAppointmentTime(appointmentTime);
     setCurrentSelectCounselorAppointments(counselorAppointments);
     console.log(counselorAppointments);
-  
+
     createDescription(res);
     console.log(id);
 
@@ -784,13 +851,130 @@ const Appointments = () => {
       );
     };
 
-    return <Button onClick={handleExport}>下載</Button>;
+    return (
+      <Button
+        style={{
+          backgroundColor: "#f5a623", // 橘黃色背景
+          borderColor: "#f5a623", // 邊框顏色
+          color: "#fff", // 白色字體
+          margin: 16,
+          borderRadius: "5px", // 圓角邊框
+          padding: "0px 5px 0px 5px ", // 按鈕內邊距
+        }}
+        icon={<DownloadOutlined />} // 如果你有使用 icon
+        onClick={handleExport}
+      >
+        下載報表
+      </Button>
+    );
   };
-  
+
+  const handleSearch = () => {
+    const queryParams = {
+      searchTerm,
+      startDate,
+      endDate,
+    };
+    console.log(searchTerm);
+    fetchData(searchTerm);
+
+    // 在這裡執行查詢操作
+    console.log("查詢參數:", queryParams);
+    // 例如調用查詢函數
+    // queryAppointments(queryParams);
+  };
+
+  const handleClear = () => {
+    setSearchTerm("");
+    setStartDate(null);
+    setEndDate(null);
+  };
+  const [searchTerm, setSearchTerm] = useState("");
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   return (
     <>
-      <ExportButton data={userData} />
-      <Statistic title="預約數量" value={userCount} formatter={formatter} />
+      <Flex gap="middle" justify="space-between" baseStyle>
+        <Statistic title="預約數量" value={userCount} formatter={formatter} />
+
+        {/* 第二行：查詢和清除按鈕 */}
+        <Flex gap="small" justify="space-between" vertical>
+          <Row>
+            <Col span={18}></Col>
+            <Col span={6}>
+              <ExportButton
+                style={{
+                  width: "100px",
+                  backgroundColor: "#f5a623", // 橘黃色背景
+                  borderColor: "#f5a623", // 邊框顏色
+                  color: "#fff", // 白色字體
+                  borderRadius: "5px", // 圓角邊框
+                  padding: "6px 16px", // 按鈕內邊距
+                  fontWeight: "bold", // 粗體字
+                }}
+                data={userData}
+              >
+                下載報表
+              </ExportButton>
+            </Col>
+          </Row>
+          <Flex justify="space-evenly" gap="small">
+            <Flex gap="small" justify="space-evenly" vertical>
+              <Row>
+                <Col span={5}></Col>
+                <Col span={19}>
+                  <Input
+                    value={searchTerm}
+                    placeholder="輸入訂單編號/案主ID/案主姓名/諮商師姓名"
+                    style={{ width: "350px" }}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </Col>
+              </Row>
+              <Flex gap="middle" justify="space-evenly" baseStyle>
+                <DatePicker
+                  placeholder="預約時間"
+                  style={{ width: "120px" }}
+                  value={startDate}
+                  onChange={(date) => setStartDate(date)}
+                />
+                -
+                <DatePicker
+                  placeholder="預約時間"
+                  style={{ width: "120px" }}
+                  value={endDate}
+                  onChange={(date) => setEndDate(date)}
+                />
+                <Button
+                  style={{
+                    backgroundColor: "#0085ff", // 藍色背景（查詢按鈕）
+                    borderColor: "#0085ff", // 藍色邊框
+                    color: "#fff", // 白色字體
+                    borderRadius: "5px", // 圓角邊框
+                    padding: "0px 15px", // 按鈕內邊距
+                  }}
+                  onClick={handleSearch}
+                >
+                  查詢
+                </Button>
+                <Button
+                  style={{
+                    backgroundColor: "#ffffff", // 白色背景（清除按鈕）
+                    borderColor: "#0085ff", // 藍色邊框
+                    color: "#0085ff", // 藍色字體
+                    borderRadius: "5px", // 圓角邊框
+                    padding: "0px 20px", // 按鈕內邊距
+                  }}
+                  onClick={handleClear}
+                >
+                  清除
+                </Button>
+              </Flex>
+            </Flex>
+          </Flex>
+        </Flex>
+      </Flex>
+
       <Statistic
         title="即將要開始的諮商"
         value={confirmedAppointment?.length}
