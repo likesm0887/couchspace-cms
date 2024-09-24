@@ -140,6 +140,24 @@ function Consultation() {
             return "已完成"
         }
     }
+    function getStatusBackgroundColor(code) {
+        let outputColor = "#C9C9C9";
+        switch (code.toUpperCase()) {
+            case 'ROOMCREATED':
+                outputColor = "#F1A250";
+                break;
+            case 'CANCELLED':
+                outputColor = "#C9C9C9";
+                break;
+            case 'COMPLETED':
+                outputColor = "#8C8C8C";
+                break;
+            default:
+                break;
+        }
+
+        return outputColor;
+    }
     function createListItem() {
         return currentTableData.map(allAppointment => {
             if (screenWidth > 500) {
@@ -194,18 +212,11 @@ function Consultation() {
                             <div className="content-col-phone text-wrap" style={{ textAlign: "left" }}>
                                 {allAppointment.AppointmentID.slice(allAppointment.AppointmentID.length - 5, allAppointment.AppointmentID.length).toUpperCase()}
                             </div>
-                            {allAppointment.Status.toUpperCase() === "ROOMCREATED" ?
-                                <div className="content-col-phone">
-                                    <span style={{ width: 77, backgroundColor: "#F1A250", color: "#FFFFFF", borderRadius: 20, display: "inline-block" }}>
-                                        {getStatusDesc(allAppointment.Status)}
-                                    </span>
-                                </div> :
-                                <div className="content-col-phone">
-                                    <span style={{ width: 77, backgroundColor: "#8C8C8C", color: "#FFFFFF", borderRadius: 20, display: "inline-block" }}>
-                                        {getStatusDesc(allAppointment.Status)}
-                                    </span>
-                                </div>
-                            }
+                            <div className="content-col-phone">
+                                <span style={{ width: 77, backgroundColor: getStatusBackgroundColor(allAppointment.Status), color: "#FFFFFF", borderRadius: 20, display: "inline-block" }}>
+                                    {getStatusDesc(allAppointment.Status)}
+                                </span>
+                            </div>
                         </div>
                         <div className="content-row-phone" style={{ borderColor: "#FFFFFF", height: 20 }}></div>
                         <div className="content-row-phone" style={{ borderColor: "#FFFFFF" }}>
@@ -215,19 +226,25 @@ function Consultation() {
                             <div className="content-col-phone" style={{ textAlign: "left", textWrap: "nowrap" }}>
                                 {allAppointment.Time.Date.replaceAll("-", "/") + " " + allAppointment.Time.StartTime}
                             </div>
-                            <div className="content-col-phone" style={{ paddingTop: 105 }}>
-                                <button style={{ height: 86, width: 89, backgroundColor: "#89A2D0", color: "#FFFFFF", borderRadius: 10, display: "inline-block", borderColor: "transparent", marginBottom: 3 }} onClick={() => clickItem(allAppointment)}>
-                                    <span style={{ verticalAlign: 'center' }}>預約資訊</span>
-                                </button>
-                                {allAppointment.Status.toUpperCase() === "ROOMCREATED" ?
-                                    <button style={{ height: 86, width: 89, borderRadius: 10, backgroundColor: "#89A2D0", color: "#FFFFFF", borderColor: "transparent" }} onClick={() => start(allAppointment.AppointmentID)} >
-                                        <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
-                                    </button>
-                                    :
-                                    <button style={{ height: 86, width: 89, borderRadius: 10, backgroundColor: "#C9C9C9", color: "#FFFFFF", borderColor: "transparent" }}>
-                                        <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
-                                    </button>
-                                }
+                            <div className="content-col-phone" style={{ paddingTop: 108 }}>
+                                <div class="container-fluid p-0" style={{ height: 180, width: "100%" }}>
+                                    <div style={{ flex: 1 }}>
+                                        <button style={{ height: 88, width: 89, backgroundColor: "#89A2D0", color: "#FFFFFF", borderRadius: 10, display: "inline-block", borderColor: "transparent", marginBottom: 3, float: "right" }} onClick={() => clickItem(allAppointment)}>
+                                            <span style={{ verticalAlign: 'center' }}>預約資訊</span>
+                                        </button>
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        {allAppointment.Status.toUpperCase() === "ROOMCREATED" ?
+                                            <button style={{ height: 88, width: 89, borderRadius: 10, backgroundColor: "#89A2D0", color: "#FFFFFF", borderColor: "transparent", float: "right" }} onClick={() => start(allAppointment.AppointmentID)} >
+                                                <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
+                                            </button>
+                                            :
+                                            <button style={{ height: 88, width: 89, borderRadius: 10, backgroundColor: "#C9C9C9", color: "#FFFFFF", borderColor: "transparent", float: "right" }}>
+                                                <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div className="content-row-phone" style={{ borderColor: "#FFFFFF" }}>
@@ -250,7 +267,7 @@ function Consultation() {
                             <div className="content-col-phone">
                             </div>
                         </div>
-                        <div className="content-row-phone" style={{ borderColor: "#FFFFFF", borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }}>
+                        <div className="content-row-phone" style={{ borderColor: "#FFFFFF" }}>
                             <div className="content-col-phone text-wrap" style={{ textAlign: "left", marginLeft: 10 }}>
                                 預約項目
                             </div>
@@ -260,7 +277,7 @@ function Consultation() {
                             <div className="content-col-phone">
                             </div>
                         </div>
-                        <div className="content-row-phone" style={{ borderColor: "#FFFFFF", height: 20 }}></div>
+                        <div className="content-row-phone" style={{ borderColor: "#FFFFFF", height: 20, borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }}></div>
                     </div>
                 )
             }
