@@ -24,23 +24,30 @@ const VideoChat = (props) => {
       const tempAppointment = await appointmentService.getAppointment(props.appointmentID);
       const token = await appointmentService.getAppointmentRoomToken(props.appointmentID, "zoom");
       console.log("roomToken", token);
+
+      // start join session
+      await client.init('en-US', 'Global', { patchJsMedia: true, stayAwake: true, enforceVirtualBackground: true, enforceMultipleVideos: true });
+      await client.join(tempAppointment.RoomID, token, tempAppointment.UserName, "");
+      stream = client.getMediaStream();
+
+      // subscribe events
       client.on('user-added', handleUserAdd);
       client.on('user-removed', handleUserRemoved);
       client.on('user-updated', handleUserUpdated);
 
-      await client.init('en-US', 'Global', { patchJsMedia: true });
-      await client.join(tempAppointment.RoomID, token, tempAppointment.UserName, "");
-      stream = client.getMediaStream();
-      stream.startVideo().then(() => {
-        stream.renderVideo(document.querySelector('#my-self-view'), client.getCurrentUserInfo().userId, "100%", "100%", 0, 3, 2)
-      })
+      // start video streaming & audio
+      stream.startVideo();
       stream.startAudio();
+
       console.log("stream", stream);
       console.log("client", client);
 
+      // calculate elapsed time
       startDateTime = tempAppointment.Time.Date;
       startTime = tempAppointment.Time.StartTime;
       updateCountDown();
+
+      // attach all users (local + remote)
       client.getAllUser().forEach((user) => {
         attachOrDetachRemoteUser(user);
       })
@@ -56,8 +63,10 @@ const VideoChat = (props) => {
       if (payload[0]) {
         payload[0].bVideoOn = true;
       }
-      attachOrDetachRemoteUser(payload[0]);
     }
+    client.getAllUser().forEach((user) => {
+      attachOrDetachRemoteUser(user);
+    })
   }
   const handleUserRemoved = (payload) => {
     console.log("handleUserRemoved", payload);
@@ -67,6 +76,9 @@ const VideoChat = (props) => {
       }
       attachOrDetachRemoteUser(payload[0]);
     }
+    client.getAllUser().forEach((user) => {
+      attachOrDetachRemoteUser(user);
+    })
   }
   const handleUserUpdated = (payload) => {
     console.log("handleUserUpdated", payload);
@@ -74,26 +86,23 @@ const VideoChat = (props) => {
       attachOrDetachRemoteUser(payload[0]);
     }
   }
-  const attachOrDetachRemoteUser = (user) => {
-    if ((user === null) || (user === undefined) || (client.getCurrentUserInfo() === null) || (user.userId === client.getCurrentUserInfo().userId)) return;
 
-    if (user.bVideoOn && isShowRemoteUser === false) {
+  const attachOrDetachRemoteUser = (user) => {
+    if ((user === null) || (user === undefined) || (client.getCurrentUserInfo() === null)) return;
+
+    if (user.bVideoOn) {
       const stream = client.getMediaStream();
-      isShowRemoteUser = true;
       stream.attachVideo(user.userId, 3).then((userVideo) => {
         console.log("userVideo", userVideo);
         document.querySelector('video-player-container').appendChild(userVideo);
-        document.querySelectorAll('video-player').forEach((element) => element.setAttribute("id", user.userId));
       });
     }
-    else if (user.bVideoOn === false && isShowRemoteUser === true) {
+    else if (user.bVideoOn === false) {
       const stream = client.getMediaStream();
-      isShowRemoteUser = false;
       stream.detachVideo(user.userId);
-      let removedElement = document.getElementById(user.userId);
-      while (removedElement) {
+      let removedElement = document.querySelector('[node-id="0"]');
+      if (removedElement) {
         document.querySelector('video-player-container').removeChild(removedElement);
-        removedElement = document.getElementById(user.userId);
       }
     }
   }
@@ -224,11 +233,8 @@ const VideoChat = (props) => {
         </div> : null}
       <div class="container" style={{ width: "100%", height: "100%" }}>
         <div class="room">
-          <div class="remote-participant">
+          <div class="participant">
             <video-player-container></video-player-container>
-          </div>
-          <div class="order-first local-participant">
-            <video id="my-self-view" style={{ height: "100%", width: "100%" }}></video>
           </div>
         </div>
         <div class="row justify-content-center align-items-center" style={{ marginTop: 5 }}>
@@ -262,13 +268,13 @@ const VideoChat = (props) => {
               <p>鏡像</p>
             </div>
           </div> */}
-          {/* <div class="col-auto">
+          <div class="col-auto">
             <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
               <Switch onChange={onClickBlur} checked={showBlur}>
               </Switch>
               <p>模糊背景</p>
             </div>
-          </div> */}
+          </div>
           <div class="col-auto">
             <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
               <button onClick={() => onClickExit()}>離開房間</button>
