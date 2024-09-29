@@ -14,6 +14,7 @@
     <script
             src="https://unpkg.com/react-bootstrap@next/dist/react-bootstrap.min.js"
             crossorigin></script>
+    <script src="./coi-serviceworker.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta
@@ -41,6 +42,13 @@
   <body id="bootstrap-overrides">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    <!-- <h1>coi-serviceworker</h1>
+
+    <script>
+        const el = document.createElement("div")
+        el.innerHTML = `Cross origin isolated: ${window.crossOriginIsolated ? "✅" : "❌"}`
+        document.body.append(el);
+    </script> -->
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
