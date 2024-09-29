@@ -16,7 +16,7 @@ import "./Register.css";
 import { showToast, toastType } from '../../common/method';
 
 function getSteps() {
-    return ['填寫個人資料', '填寫諮商資訊', '相關諮商證照', '諮商時段設定', '完成'];
+    return ['填寫個人資料', '填寫資訊', '相關專業證照', '時段設定', '完成'];
 }
 
 
@@ -117,11 +117,11 @@ export function Register() {
             // console.log("Update Counselor Info", res1);
             // console.log("Update AppointmentTime", res2);
             if (!res1.success) {
-                showToast(toastType.error, "建立諮商師資料失敗");
+                showToast(toastType.error, "建立資料失敗");
                 return;
             }
             if (!res2.success) {
-                showToast(toastType.error, "建立諮商時段失敗");
+                showToast(toastType.error, "建立時段失敗");
                 return;
             }
             console.log("register finish");
