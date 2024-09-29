@@ -58,7 +58,7 @@ function Sidebar() {
                 <Link to="consultation">
                     <li onClick={() => selectSlide(SelectedTab.Consultation)}>
                         <img src={getImage(SelectedTab.Consultation)} alt={"123"}></img>
-                        <span style={{ marginLeft: 10, color: currentSelected === SelectedTab.Consultation ? "#88A1D2" : "#f7f8f8" }}>諮商</span>
+                        <span style={{ marginLeft: 10, color: currentSelected === SelectedTab.Consultation ? "#88A1D2" : "#f7f8f8" }}>諮詢</span>
                     </li>
                 </Link>
             </div>
