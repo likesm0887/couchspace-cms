@@ -97,7 +97,7 @@ export class AppointmentTime {
 }
 export class License {
     constructor() {
-        this.LicenseNumber = ""; // 諮商編號
+        this.LicenseNumber = ""; // 證照編號
         this.LicenseIssuing = "";  // 發證單位
         this.LicenseTitle = "";
     }

@@ -23,8 +23,6 @@ const CounselingInfo = () => {
     const [disableSaveBtn, setDisabledSaveBtn] = useState(true);
     const maximumFee = 10000;
     const counselingItems = [
-        // { enabled: false, label: "個別諮商", fee: 0, time: 50, value: "IND_COUNSELING" },
-        // { enabled: false, label: "諮商90分鐘", fee: 0, time: 90, value: "IND_COUNSELING" }, // 0607: currently not support 90 min counseling
         { enabled: false, label: "線上初談", fee: 0, time: 10, value: "FIRST" },
         { enabled: false, label: "線上諮詢", fee: 0, time: 50, value: "IND_CONSULTATION" },
         { enabled: false, label: "實體諮商", fee: 0, time: 50, value: "IN_PERSON" },
@@ -79,9 +77,9 @@ const CounselingInfo = () => {
     const [phone, setPhone] = useState(counselorInfo.Phone); // 機構電話
     const [address, setAddress] = useState(counselorInfo.Address); // 機構地址
     const [institution, setInstitution] = useState(counselorInfo.InstitutionTemp); // 機構名稱
-    const [expertisesInfo, setExpertisesInfo] = useState(counselorInfo.ExpertisesInfo); // 諮商師的專長(自行輸入)
-    const [expertises, setExpertises] = useState([]); // 諮商師的專項
-    const [consultingFees, setConsultingFees] = useState(counselingItems); // 服務項目: 初談、諮商60min、諮商90min
+    const [expertisesInfo, setExpertisesInfo] = useState(counselorInfo.ExpertisesInfo); // 心理師的專長(自行輸入)
+    const [expertises, setExpertises] = useState([]); // 心理師的專項
+    const [consultingFees, setConsultingFees] = useState(counselingItems); // 服務項目
 
     const [errorLanguages, setErrorLanguages] = useState("");
     const [errorEducation, setErrorEducation] = useState("");
@@ -175,7 +173,7 @@ const CounselingInfo = () => {
             output = false;
         }
         if (seniority.trim() === "") {
-            setErrorSeniority("請輸入諮商經歷");
+            setErrorSeniority("請輸入經歷");
             output = false;
         }
         if (position === "") {
@@ -401,7 +399,7 @@ const CounselingInfo = () => {
                         fullWidth
                         autoComplete="family-name"
                         variant="standard"
-                        placeholder="couchspace診所 諮商師"
+                        placeholder="couchspace診所 心理師"
                         value={seniority}
                         onChange={(text) => {
                             if (checkLines(text.target.value, '\n', 5)) {
@@ -424,7 +422,7 @@ const CounselingInfo = () => {
                         fullWidth
                         autoComplete="family-name"
                         variant="standard"
-                        placeholder="諮商心理師"
+                        placeholder="心理師"
                         value={position}
                         onChange={(text) => setPosition(text.target.value.trim())}
                         error={errorPosition !== ""}

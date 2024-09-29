@@ -64,7 +64,7 @@ const CertificateInfo = forwardRef((props, ref) => {
     return (
         <div className={"ConsultationInfo"}>
             <Typography style={{ marginTop: 10, fontSize: 20 }} gutterBottom>
-                {"相關諮商證照"}
+                {"相關專業證照"}
             </Typography>
 
             <Grid container spacing={3}>
