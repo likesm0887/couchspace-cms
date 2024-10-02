@@ -213,7 +213,9 @@ function Consultation() {
                                 {allAppointment.AppointmentID.slice(allAppointment.AppointmentID.length - 5, allAppointment.AppointmentID.length).toUpperCase()}
                             </div>
                             <div className="content-col-phone">
-                                <span style={{ width: 77, backgroundColor: getStatusBackgroundColor(allAppointment.Status), color: "#FFFFFF", borderRadius: 20, display: "inline-block" }}>
+                            </div>
+                            <div className="content-col-phone">
+                                <span style={{ width: 77, float: "right", marginRight: 6, backgroundColor: getStatusBackgroundColor(allAppointment.Status), color: "#FFFFFF", borderRadius: 20, display: "inline-block" }}>
                                     {getStatusDesc(allAppointment.Status)}
                                 </span>
                             </div>
@@ -225,6 +227,8 @@ function Consultation() {
                             </div>
                             <div className="content-col-phone" style={{ textAlign: "left", textWrap: "nowrap" }}>
                                 {allAppointment.Time.Date.replaceAll("-", "/") + " " + allAppointment.Time.StartTime}
+                            </div>
+                            <div className="content-col-phone">
                             </div>
                             <div className="content-col-phone" style={{ paddingTop: 108 }}>
                                 <div class="container-fluid p-0" style={{ height: 180, width: "100%" }}>
@@ -256,6 +260,8 @@ function Consultation() {
                             </div>
                             <div className="content-col-phone">
                             </div>
+                            <div className="content-col-phone">
+                            </div>
                         </div>
                         <div className="content-row-phone" style={{ borderColor: "#FFFFFF" }}>
                             <div className="content-col-phone text-wrap" style={{ textAlign: "left", marginLeft: 10 }}>
@@ -266,6 +272,8 @@ function Consultation() {
                             </div>
                             <div className="content-col-phone">
                             </div>
+                            <div className="content-col-phone">
+                            </div>
                         </div>
                         <div className="content-row-phone" style={{ borderColor: "#FFFFFF" }}>
                             <div className="content-col-phone text-wrap" style={{ textAlign: "left", marginLeft: 10 }}>
@@ -273,6 +281,8 @@ function Consultation() {
                             </div>
                             <div className="content-col-phone text-wrap" style={{ textAlign: "left" }}>
                                 {allAppointment.Service.Type.Label}
+                            </div>
+                            <div className="content-col-phone">
                             </div>
                             <div className="content-col-phone">
                             </div>
