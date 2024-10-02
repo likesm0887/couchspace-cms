@@ -15,9 +15,10 @@ const VideoChat = (props) => {
   const [showBlur, setShowBlur] = useState(false);
   const [mirror, setMirror] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
-  let isShowRemoteUser = false;
+
   let client = ZoomVideo.createClient();
   let stream;
+  const [participants, setParticipants] = useState(client.getAllUser());
   const handleJoin = async () => {
     setLoading(true);
     try {
@@ -27,7 +28,7 @@ const VideoChat = (props) => {
 
       // start join session
       await client.init('en-US', 'Global', { patchJsMedia: true, stayAwake: true, enforceVirtualBackground: true, enforceMultipleVideos: true });
-      await client.join(tempAppointment.RoomID, token, tempAppointment.UserName, "");
+      await client.join(tempAppointment.RoomID, token, tempAppointment.CounselorName, "");
       stream = client.getMediaStream();
 
       // subscribe events
@@ -36,12 +37,12 @@ const VideoChat = (props) => {
       client.on('user-updated', handleUserUpdated);
 
       // start video streaming & audio
-      stream.startVideo();
+      stream.startVideo({ virtualBackground: { imageUrl: "./original.jpg" } });
       stream.startAudio();
 
       console.log("stream", stream);
       console.log("client", client);
-
+      console.log("session info", client.getSessionInfo());
       // calculate elapsed time
       startDateTime = tempAppointment.Time.Date;
       startTime = tempAppointment.Time.StartTime;
@@ -49,7 +50,7 @@ const VideoChat = (props) => {
 
       // attach all users (local + remote)
       client.getAllUser().forEach((user) => {
-        attachOrDetachRemoteUser(user);
+        stream.attachVideo(user.userId);
       })
     } catch (err) {
       console.log("err", err);
@@ -59,26 +60,11 @@ const VideoChat = (props) => {
   }
   const handleUserAdd = (payload) => {
     console.log("handleUserAdd", payload);
-    if (payload) {
-      if (payload[0]) {
-        payload[0].bVideoOn = true;
-      }
-    }
-    client.getAllUser().forEach((user) => {
-      attachOrDetachRemoteUser(user);
-    })
+    attachOrDetachRemoteUser(payload[0]);
   }
   const handleUserRemoved = (payload) => {
     console.log("handleUserRemoved", payload);
-    if (payload) {
-      if (payload[0]) {
-        payload[0].bVideoOn = false;
-      }
-      attachOrDetachRemoteUser(payload[0]);
-    }
-    client.getAllUser().forEach((user) => {
-      attachOrDetachRemoteUser(user);
-    })
+    attachOrDetachRemoteUser(payload[0]);
   }
   const handleUserUpdated = (payload) => {
     console.log("handleUserUpdated", payload);
@@ -88,22 +74,19 @@ const VideoChat = (props) => {
   }
 
   const attachOrDetachRemoteUser = (user) => {
+    console.log("user", user);
     if ((user === null) || (user === undefined) || (client.getCurrentUserInfo() === null)) return;
-
+    console.log("all users", client.getAllUser());
+    setParticipants(client.getAllUser());
     if (user.bVideoOn) {
       const stream = client.getMediaStream();
       stream.attachVideo(user.userId, 3).then((userVideo) => {
         console.log("userVideo", userVideo);
-        document.querySelector('video-player-container').appendChild(userVideo);
       });
     }
     else if (user.bVideoOn === false) {
       const stream = client.getMediaStream();
       stream.detachVideo(user.userId);
-      let removedElement = document.querySelector('[node-id="0"]');
-      if (removedElement) {
-        document.querySelector('video-player-container').removeChild(removedElement);
-      }
     }
   }
   const handleLeave = () => {
@@ -234,7 +217,19 @@ const VideoChat = (props) => {
       <div class="container" style={{ width: "100%", height: "100%" }}>
         <div class="room">
           <div class="participant">
-            <video-player-container></video-player-container>
+            <video-player-container>
+              {participants.map((user) => {
+                if (user.bVideoOn) {
+                  return (
+                    <video-player class="video-player" node-id={user.userId}></video-player>
+                  )
+                }
+                else {
+                  return null;
+                }
+              })
+              }
+            </video-player-container>
           </div>
         </div>
         <div class="row justify-content-center align-items-center" style={{ marginTop: 5 }}>
