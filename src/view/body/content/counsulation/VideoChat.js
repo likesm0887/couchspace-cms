@@ -37,7 +37,7 @@ const VideoChat = (props) => {
       client.on('user-updated', handleUserUpdated);
 
       // start video streaming & audio
-      stream.startVideo();
+      stream.startVideo({ virtualBackground: { imageUrl: "https://media.istockphoto.com/id/1322104312/photo/freedom-chains-that-transform-into-birds-charge-concept.webp?a=1&b=1&s=612x612&w=0&k=20&c=ppUQ4yMvcMkVFKL9yPh1n3w5iqFW5Gh59YL-6DjqQXg=" } });
       stream.startAudio();
 
       console.log("stream", stream);
