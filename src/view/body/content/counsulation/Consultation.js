@@ -209,10 +209,8 @@ function Consultation() {
                             <div className="content-col-phone text-wrap" style={{ textAlign: "left", marginLeft: 10 }}>
                                 訂單編號
                             </div>
-                            <div className="content-col-phone text-wrap" style={{ textAlign: "left" }}>
+                            <div className="content-col-phone text-wrap" style={{ flex: 2, textAlign: "left" }}>
                                 {allAppointment.AppointmentID.slice(allAppointment.AppointmentID.length - 5, allAppointment.AppointmentID.length).toUpperCase()}
-                            </div>
-                            <div className="content-col-phone">
                             </div>
                             <div className="content-col-phone">
                                 <span style={{ width: 77, float: "right", marginRight: 6, backgroundColor: getStatusBackgroundColor(allAppointment.Status), color: "#FFFFFF", borderRadius: 20, display: "inline-block" }}>
@@ -225,10 +223,8 @@ function Consultation() {
                             <div className="content-col-phone text-wrap" style={{ textAlign: "left", marginLeft: 10 }}>
                                 預約時間
                             </div>
-                            <div className="content-col-phone" style={{ textAlign: "left", textWrap: "nowrap" }}>
+                            <div className="content-col-phone" style={{ flex: 2, textAlign: "left", textWrap: "nowrap", overflow: "visible" }}>
                                 {allAppointment.Time.Date.replaceAll("-", "/") + " " + allAppointment.Time.StartTime}
-                            </div>
-                            <div className="content-col-phone">
                             </div>
                             <div className="content-col-phone" style={{ paddingTop: 108 }}>
                                 <div class="container-fluid p-0" style={{ height: 180, width: "100%" }}>
@@ -255,10 +251,8 @@ function Consultation() {
                             <div className="content-col-phone text-wrap" style={{ textAlign: "left", marginLeft: 10 }}>
                                 預約人
                             </div>
-                            <div className="content-col-phone text-wrap" style={{ textAlign: "left" }}>
+                            <div className="content-col-phone text-wrap" style={{ flex: 2, textAlign: "left" }}>
                                 {allAppointment.UserName}
-                            </div>
-                            <div className="content-col-phone">
                             </div>
                             <div className="content-col-phone">
                             </div>
@@ -267,10 +261,8 @@ function Consultation() {
                             <div className="content-col-phone text-wrap" style={{ textAlign: "left", marginLeft: 10 }}>
                                 預約時數
                             </div>
-                            <div className="content-col-phone text-wrap" style={{ textAlign: "left" }}>
+                            <div className="content-col-phone text-wrap" style={{ flex: 2, textAlign: "left" }}>
                                 {num2Time(allAppointment.Time.Total)}
-                            </div>
-                            <div className="content-col-phone">
                             </div>
                             <div className="content-col-phone">
                             </div>
@@ -279,10 +271,8 @@ function Consultation() {
                             <div className="content-col-phone text-wrap" style={{ textAlign: "left", marginLeft: 10 }}>
                                 預約項目
                             </div>
-                            <div className="content-col-phone text-wrap" style={{ textAlign: "left" }}>
+                            <div className="content-col-phone text-wrap" style={{ flex: 2, textAlign: "left" }}>
                                 {allAppointment.Service.Type.Label}
-                            </div>
-                            <div className="content-col-phone">
                             </div>
                             <div className="content-col-phone">
                             </div>
