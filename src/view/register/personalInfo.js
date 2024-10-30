@@ -268,7 +268,7 @@ const PersonalInfo = forwardRef((props, ref) => {
                                 <IconButton color="primary" aria-label="upload picture" component="span">
                                     <PhotoCamera />
                                 </IconButton>
-                                <img style={{ height: 200, width: 200, borderRadius: "50%" }} src={bindingPhoto} alt=""></img>
+                                <img crossOrigin="anonymous" style={{ height: 200, width: 200, borderRadius: "50%" }} src={bindingPhoto} alt=""></img>
                             </label>
                         </div>
                         <FormHelperText error={errorPhoto !== ""}>{errorPhoto}</FormHelperText>
