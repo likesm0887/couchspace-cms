@@ -434,4 +434,23 @@ export class MeditationService {
         return res;
       });
   }
+
+  getMusicRecordExcel() {
+    console.log("HIHIH")
+    if (this.token === undefined) {
+      return;
+    }
+    const api = this.base_url + "/api/v1/trigger/printAll";
+    console.log(api)
+    const requestOptions = {
+      method: "Get",
+      headers: {
+        Authorization: this.token,
+        
+      },
+    };
+
+    return fetch(api, requestOptions)
+  }
+
 }

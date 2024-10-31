@@ -86,7 +86,7 @@ function Teacher() {
       defaultSortOrder: "descend",
       sorter: (a, b) =>
         moment(a.createDate).unix() - moment(b.createDate).unix(),
-    },
+    }
   ];
 
   const tableProps = {
