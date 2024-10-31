@@ -18,7 +18,7 @@ import {
   Alert,
   Drawer,
 } from "antd";
-import { SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined } from "@ant-design/icons";
 import { Button, Modal } from "antd";
 import {
   PlusCircleOutlined,
@@ -55,18 +55,25 @@ function Music() {
   const toggle = (checked) => {
     setLoading(checked);
   };
-  const [searchText, setSearchText] = useState('');
-  const [searchedColumn, setSearchedColumn] = useState('');
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
 
-  const getColumnSearchProps = dataIndex => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }) => (
       <div style={{ padding: 8 }}>
         <Input
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
           onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{ width: 188, marginBottom: 8, display: 'block' }}
+          style={{ width: 188, marginBottom: 8, display: "block" }}
         />
         <Space>
           <Button
@@ -78,15 +85,26 @@ function Music() {
           >
             Search
           </Button>
-          <Button onClick={() => handleReset(clearFilters)} size="small" style={{ width: 90 }}>
+          <Button
+            onClick={() => handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
             Reset
           </Button>
         </Space>
       </div>
     ),
-    filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+    ),
     onFilter: (value, record) =>
-      record[dataIndex] ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()) : '',
+      record[dataIndex]
+        ? record[dataIndex]
+            .toString()
+            .toLowerCase()
+            .includes(value.toLowerCase())
+        : "",
   });
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
@@ -95,9 +113,9 @@ function Music() {
     setSearchedColumn(dataIndex);
   };
 
-  const handleReset = clearFilters => {
+  const handleReset = (clearFilters) => {
     clearFilters();
-    setSearchText('');
+    setSearchText("");
   };
   const columns = [
     {
@@ -134,8 +152,7 @@ function Music() {
       title: "名稱",
       dataIndex: "name",
       key: "name",
-      ...getColumnSearchProps('name'),
-    
+      ...getColumnSearchProps("name"),
     },
     {
       title: "系列",
@@ -333,8 +350,50 @@ function Music() {
   const tableProps = {
     loading,
   };
+  const handleDownload = async () => {
+    try {
+      // 使用 fetch 下載檔案
+      const response = (await meditationService.getMusicRecordExcel());
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      // 取得 blob 格式的檔案
+      const blob = await response.blob();
+      
+      // 建立一個 URL 來讓檔案可供下載
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+
+      // 設置下載的檔案名稱
+      a.download = 'report.xlsx';
+      document.body.appendChild(a);
+      a.click();
+
+      // 清除 DOM 的暫時連結
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('File download failed:', error);
+    }
+  };
+
   return (
     <div>
+      <Button
+        style={{
+          width: "100px",
+          backgroundColor: "#f5a623", // 橘黃色背景
+          borderColor: "#f5a623", // 邊框顏色
+          color: "#fff", // 白色字體
+          borderRadius: "5px", // 圓角邊框
+          padding: "6px 16px", // 按鈕內邊距
+          fontWeight: "bold", // 粗體字
+        }}
+        onClick={handleDownload}
+       
+      >
+        下載報表
+      </Button>
       <Modal
         title="收聽趨勢圖"
         centered
@@ -533,7 +592,6 @@ function Music() {
         {...tableProps}
         onChange={onChange}
         columns={columns}
-       
         dataSource={data}
         pagination={{ pageSize: 7 }}
       ></Table>
