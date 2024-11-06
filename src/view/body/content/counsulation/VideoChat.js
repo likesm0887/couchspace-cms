@@ -31,6 +31,7 @@ const VideoChat = (props) => {
   const [activeSpeakerId, setActiveSpeakerId] = useState("");
   let client = ZoomVideo.createClient();
   let stream;
+  let supportHD;
   const [participants, setParticipants] = useState(client.getAllUser());
   const handleJoin = async () => {
     setLoading(true);
@@ -49,9 +50,10 @@ const VideoChat = (props) => {
       client.on('user-removed', handleUserRemoved);
       client.on('user-updated', handleUserUpdated);
       client.on('active-speaker', handleActiveSpeaker);
-
+      supportHD = await stream.isSupportHDVideo();
+      console.log("supportHD", supportHD);
       // start video streaming & audio
-      await stream.startVideo({ virtualBackground: { imageUrl: bgImgUrl } });
+      await stream.startVideo({ fullHd: true, virtualBackground: { imageUrl: bgImgUrl } });
       await stream.startAudio();
 
       console.log("stream", stream);
@@ -131,7 +133,7 @@ const VideoChat = (props) => {
       })
     }
     else {
-      stream.startVideo({ virtualBackground: { imageUrl: bgImgUrl } }).then(() => {
+      stream.startVideo({ hd: supportHD, fullHd: supportHD, virtualBackground: { imageUrl: bgImgUrl } }).then(() => {
         // stream.attachVideo(client.getCurrentUserInfo().userId, 3, document.querySelector('#my-self-view'));
         setShowCamera(true);
       })
@@ -163,13 +165,13 @@ const VideoChat = (props) => {
 
     if (showBlur) {
       bgImgUrl = "";
-      stream.startVideo({ virtualBackground: { imageUrl: bgImgUrl } }).then(() => {
+      stream.startVideo({ hd: supportHD, fullHd: supportHD, virtualBackground: { imageUrl: bgImgUrl } }).then(() => {
         setShowBlur(false);
       })
     }
     else {
       bgImgUrl = "blur";
-      stream.startVideo({ virtualBackground: { imageUrl: bgImgUrl } }).then(() => {
+      stream.startVideo({ hd: supportHD, fullHd: supportHD, virtualBackground: { imageUrl: bgImgUrl } }).then(() => {
         setShowBlur(true);
       })
     }
@@ -186,13 +188,13 @@ const VideoChat = (props) => {
 
     if (showBG) {
       bgImgUrl = "";
-      stream.startVideo({ virtualBackground: { imageUrl: bgImgUrl } }).then(() => {
+      stream.startVideo({ hd: supportHD, fullHd: supportHD, virtualBackground: { imageUrl: bgImgUrl } }).then(() => {
         setShowBG(false);
       })
     }
     else {
       bgImgUrl = "https://couchspace.blob.core.windows.net/dev/profile/20241002-98bc6a7a-5e17-4e55-b980-305bef5de2d5.jpg";
-      stream.startVideo({ virtualBackground: { imageUrl: bgImgUrl } }).then(() => {
+      stream.startVideo({ hd: supportHD, fullHd: supportHD, virtualBackground: { imageUrl: bgImgUrl } }).then(() => {
         setShowBG(true);
       })
     }
