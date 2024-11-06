@@ -27,8 +27,7 @@
   vertical-align: bottom;
   height: 428px;
   position: absolute;
-  top: 30.86%;
-  bottom: 40.11%;
+  top: 35%;
   border-radius: 100% 100% 30px 30px;
   background: #ffffff;
 }
@@ -41,9 +40,7 @@ input:focus {
   vertical-align: bottom;
   height: 428px;
   position: absolute;
-  top: 28.86%;
-  left: 0.5%;
-  bottom: 40.11%;
+  top: 40%;
   border-radius: 100% 100% 35px 35px;
   background: #88a1d2;
 }

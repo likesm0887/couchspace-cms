@@ -149,7 +149,7 @@ const BasicInfo = () => {
                 let result = await counselorService.upload(photo);
                 info.updatePhoto = result.Photo;
             }
-            else{
+            else {
                 info.updatePhoto = counselorInfo.Photo;
             }
             info.UserName.Name.FirstName = firstName;
@@ -214,11 +214,13 @@ const BasicInfo = () => {
                 <DialogContentText id="alert-dialog-description">
                     <Cropper
                         src={tempPhoto}
-                        style={{ height: 400, width: 400 }}
+                        style={{ maxHeight: 400, maxWidth: 400, aspectRatio: 1 }}
                         initialAspectRatio={1}
                         cropBoxResizable={false}
                         minCropBoxHeight={200}
                         minCropBoxWidth={200}
+                        scalable={false}
+                        rotatable={false}
                         guides={false}
                         checkOrientation={false}
                         onInitialized={(instance) => {
@@ -327,7 +329,7 @@ const BasicInfo = () => {
                                 <IconButton color="primary" aria-label="upload picture" component="span">
                                     <PhotoCamera />
                                 </IconButton>
-                                <img style={{ borderRadius: "50%" }} src={bindingPhoto} alt=""></img>
+                                <img crossOrigin="anonymous" style={{ height: 200, width: 200, borderRadius: "50%" }} src={bindingPhoto} alt=""></img>
                             </label>
                         </div>
                         <FormHelperText error={errorPhoto !== ""}>{errorPhoto}</FormHelperText>

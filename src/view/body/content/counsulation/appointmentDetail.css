@@ -140,20 +140,15 @@
 }
 
 .finishButton {
-  margin-right: 5%;
-  width: 154px;
-  height: 45px;
-  border-radius: 35px;
+  width: 111px;
+  height: 33px;
+  border-radius: 20px;
   border: none;
+  background: #9a9c9a;
   font-family: "PingFang TC";
   font-style: normal;
   font-weight: 500;
-  font-size: 20px;
-  line-height: 28px;
-  background: #9a9c9a;
-  padding-top: 5px;
-  /* identical to box height */
-
+  font-size: 14px;
   color: #f7f8f8;
 }
 .finishButton:hover {
@@ -170,7 +165,6 @@
   font-style: normal;
   font-weight: 500;
   font-size: 14px;
-  /* identical to box height */
   color: #ffffff;
 }
 
@@ -186,9 +180,9 @@
   display: flex;
   align-items: center;
   justify-items: center;
-  width: 30%;
+  width: 40;
   background-color: #f7f8f8;
-  padding-left: 40px;
+  padding-left: 20px;
   padding-top: 20px;
 }
 

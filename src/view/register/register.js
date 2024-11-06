@@ -153,57 +153,55 @@ export function Register() {
                     <div className="spinner"></div>
                     <div style={{ font: 'caption', fontSize: 40, color: 'white' }}>{"資料創建中..."}</div>
                 </div> : null}
-            <div style={{
-                height: '100%',
-                width: '60%',
-                marginLeft: '20%',
-                marginTop: '2%',
-                marginBottom: '2%',
-            }}>
-                <Stepper activeStep={activeStep}>
-                    {steps.map((label, index) => {
-                        const stepProps = {};
-                        const labelProps = {};
+            <div class="container-fluid" style={{ overflowY: "scroll" }}>
+                <div class="row justify-content-center" style={{ marginTop: 15 }}>
+                    <div class="col-sm-12 col-lg-6 col-xxl-6">
+                        <Stepper activeStep={activeStep}>
+                            {steps.map((label, index) => {
+                                const stepProps = {};
+                                const labelProps = {};
 
-                        if (isStepSkipped(index)) {
-                            stepProps.completed = false;
-                        }
-                        return (
-                            <Step key={label} {...stepProps}>
-                                <StepLabel {...labelProps}>{label}</StepLabel>
-                            </Step>
-                        );
-                    })}
-                </Stepper>
-                <div>
-                    {activeStep === (steps.length - 1) ? (
+                                if (isStepSkipped(index)) {
+                                    stepProps.completed = false;
+                                }
+                                return (
+                                    <Step key={label} {...stepProps}>
+                                        <StepLabel {...labelProps}>{label}</StepLabel>
+                                    </Step>
+                                );
+                            })}
+                        </Stepper>
                         <div>
-                            <Typography>
-                                填寫已完成，待審核完畢，會再與您聯絡
-                            </Typography>
-                            <Button onClick={handleReset} variant="contained" color='primary'>
-                                完成
-                            </Button>
-                        </div>
-                    ) : (
-                        <div>
-                            <Typography>{getStepContent(activeStep)}</Typography>
-                            <div>
-                                <Button onClick={handleBack}>
-                                    {activeStep === 0 ? '返回' : '上一步'}
-                                </Button>
+                            {activeStep === (steps.length - 1) ? (
+                                <div>
+                                    <Typography>
+                                        填寫已完成，待審核完畢，會再與您聯絡
+                                    </Typography>
+                                    <Button onClick={handleReset} variant="contained" color='primary'>
+                                        完成
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div>
+                                    <Typography>{getStepContent(activeStep)}</Typography>
+                                    <div>
+                                        <Button onClick={handleBack}>
+                                            {activeStep === 0 ? '返回' : '上一步'}
+                                        </Button>
 
 
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={handleNext}
-                                >
-                                    {activeStep === steps.length - 1 ? '完成' : '下一步'}
-                                </Button>
-                            </div>
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={handleNext}
+                                        >
+                                            {activeStep === steps.length - 1 ? '完成' : '下一步'}
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
                 </div>
             </div>
         </div>
