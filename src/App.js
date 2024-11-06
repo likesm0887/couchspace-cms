@@ -56,6 +56,7 @@ function App() {
         <Route path="couchspace-cms/register" element={<Register />} />
 
         <Route path="couchspace-cms/" element={<Login />} />
+        <Route path="couchspace-cms/home/consultation/counseling/:id" element={<Counseling />} />
         <Route path="couchspace-cms/home" element={<Home />}>
           <Route>
             <Route index element={<Consultation />} />
@@ -65,10 +66,6 @@ function App() {
                 <Route
                   path="consultation/:id"
                   element={<AppointmentDetail />}
-                />
-                <Route
-                  path="consultation/counseling/:id"
-                  element={<Counseling />}
                 />
               </Route>
             </Route>
