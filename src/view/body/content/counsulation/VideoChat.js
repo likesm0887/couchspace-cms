@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./VideoChat.css";
 import { appointmentService } from "../../../../service/ServicePool";
 import { useNavigate } from "react-router-dom";
-import ZoomVideo from '@zoom/videosdk'
+import ZoomVideo, { VideoQuality } from '@zoom/videosdk'
 import { Switch } from "@mui/material";
 import img_camera_on from "../../../img/content/btn_camera_turn_on.svg";
 import img_camera_off from "../../../img/content/btn_camera_turn_off.svg";
@@ -69,7 +69,7 @@ const VideoChat = (props) => {
 
       // attach all users (local + remote)
       client.getAllUser().forEach((user) => {
-        stream.attachVideo(user.userId);
+        stream.attachVideo(user.userId, VideoQuality.Video_1080P);
       })
     } catch (err) {
       console.log("err", err);
@@ -107,7 +107,7 @@ const VideoChat = (props) => {
     setParticipants(client.getAllUser());
     if (user.bVideoOn) {
       const stream = client.getMediaStream();
-      stream.attachVideo(user.userId, 3).then((userVideo) => {
+      stream.attachVideo(user.userId, VideoQuality.Video_1080P).then((userVideo) => {
         console.log("userVideo", userVideo);
       });
     }
