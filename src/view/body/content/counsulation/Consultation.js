@@ -193,7 +193,7 @@ function Consultation() {
                                         <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
                                     </button>
                                     :
-                                    <button className={"startButton-disabled startButton-disabled_hover"}>
+                                    <button className={"startButton-enabled startButton-enabled_hover"} onClick={() => start(allAppointment.AppointmentID)} >
                                         <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
                                     </button>
                                 }
@@ -239,7 +239,7 @@ function Consultation() {
                                                 <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
                                             </button>
                                             :
-                                            <button style={{ height: 88, width: 89, borderRadius: 10, backgroundColor: "#C9C9C9", color: "#FFFFFF", borderColor: "transparent", float: "right" }}>
+                                            <button style={{ height: 88, width: 89, borderRadius: 10, backgroundColor: "#89A2D0", color: "#FFFFFF", borderColor: "transparent", float: "right" }} onClick={() => start(allAppointment.AppointmentID)} >
                                                 <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
                                             </button>
                                         }
