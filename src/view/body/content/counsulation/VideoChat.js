@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./VideoChat.css";
 import { appointmentService } from "../../../../service/ServicePool";
 import { useNavigate } from "react-router-dom";
-import ZoomVideo from '@zoom/videosdk'
+import ZoomVideo, { VideoQuality } from '@zoom/videosdk'
 import { Switch } from "@mui/material";
 import img_camera_on from "../../../img/content/btn_camera_turn_on.svg";
 import img_camera_off from "../../../img/content/btn_camera_turn_off.svg";
@@ -69,7 +69,7 @@ const VideoChat = (props) => {
 
       // attach all users (local + remote)
       client.getAllUser().forEach((user) => {
-        stream.attachVideo(user.userId);
+        stream.attachVideo(user.userId, VideoQuality.Video_1080P);
       })
     } catch (err) {
       console.log("err", err);
@@ -107,7 +107,7 @@ const VideoChat = (props) => {
     setParticipants(client.getAllUser());
     if (user.bVideoOn) {
       const stream = client.getMediaStream();
-      stream.attachVideo(user.userId, 3).then((userVideo) => {
+      stream.attachVideo(user.userId, VideoQuality.Video_1080P).then((userVideo) => {
         console.log("userVideo", userVideo);
       });
     }
@@ -422,7 +422,7 @@ const VideoChat = (props) => {
             {/* {renderTestUsers()} */}
           </div>
           <div class="row justify-content-center align-items-center" style={{ height: "15%" }}>
-            <div class="col-auto">
+            <div class="col-auto p-0" style={{ marginRight: 29 }}>
               <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
                 <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickMic}>
                   <img style={{ verticalAlign: 'middle', height: 60, width: 60 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
@@ -430,7 +430,7 @@ const VideoChat = (props) => {
                 <div style={{ color: "#D8D8D8" }}>{showMic ? "麥克風已開啟" : "麥克風已關閉"}</div>
               </div>
             </div>
-            <div class="col-auto">
+            <div class="col-auto p-0" style={{ marginRight: 41 }}>
               <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
                 <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickCamera}>
                   <img style={{ verticalAlign: 'middle', height: 60, width: 60 }} src={showCamera ? img_camera_on : img_camera_off} alt="Camera" />
@@ -438,7 +438,7 @@ const VideoChat = (props) => {
                 <div style={{ color: "#D8D8D8" }}>{showCamera ? "鏡頭已開啟" : "鏡頭已關閉"}</div>
               </div>
             </div>
-            {/* <div class="col-auto">
+            {/* <div class="col-auto p-0">
             <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
               <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickMirror}>
                 <img style={{ verticalAlign: 'middle' }} src={require("../../../img/content/mirror.png")} alt="mirror" />
@@ -446,7 +446,7 @@ const VideoChat = (props) => {
               <div>鏡像</div>
             </div>
           </div> */}
-            <div class="col-auto">
+            <div class="col-auto p-0" style={{ marginRight: 92 }}>
               <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
                 <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickBlur}>
                   <img style={{ verticalAlign: 'middle', height: 60, width: 60 }} src={showBlur ? img_blur_on : img_blur_off} alt="Blur" />
@@ -462,13 +462,7 @@ const VideoChat = (props) => {
                 <div style={{ color: "#D8D8D8" }}>{"更換背景"}</div>
               </div>
             </div> */}
-            <div class="col-auto">
-            </div>
-            <div class="col-auto">
-            </div>
-            <div class="col-auto">
-            </div>
-            <div class="col-auto">
+            <div class="col-auto p-0">
               <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
                 <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickExit}>
                   <img style={{ verticalAlign: 'middle', height: 60, width: 60 }} src={img_leave} alt="Leave" />
