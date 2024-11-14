@@ -6,7 +6,7 @@ name: Build and deploy container app to Azure Web App - couchspace-portal-test
 on:
   push:
     branches:
-      - test
+      - feature/20241115_Video
   workflow_dispatch:
 
 jobs:
