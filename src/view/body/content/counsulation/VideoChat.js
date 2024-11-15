@@ -15,6 +15,7 @@ import img_bg_photo_on from "../../../img/content/btn_bg_photo_on.svg";
 import img_bg_photo_off from "../../../img/content/btn_bg_photo_off.svg";
 import img_time from "../../../img/content/ic_time.svg";
 import img_screen_off from "../../../img/content/ic_screen_camera_turn_off.svg";
+import { showToast, toastType } from "../../../../common/method";
 let startDateTime = null;
 let startTime = null;
 let bgImgUrl = "";
@@ -32,6 +33,7 @@ const VideoChat = (props) => {
   let client = ZoomVideo.createClient();
   let stream;
   let supportHD;
+  let errorMsg = "";
   const [participants, setParticipants] = useState(client.getAllUser());
   const handleJoin = async () => {
     setLoading(true);
@@ -41,9 +43,28 @@ const VideoChat = (props) => {
       console.log("roomToken", token);
 
       // start join session
-      await client.init('en-US', 'Global', { patchJsMedia: true, stayAwake: true, enforceVirtualBackground: true, enforceMultipleVideos: true });
-      await client.join(tempAppointment.RoomID, token, tempAppointment.CounselorName, "");
-      stream = client.getMediaStream();
+      if (ZoomVideo.checkSystemRequirements().video && ZoomVideo.checkSystemRequirements().audio) {
+        await client.init('en-US', 'Global', { patchJsMedia: true, stayAwake: true, enforceVirtualBackground: true, enforceMultipleVideos: true }).then(async () => {
+          await client.join(tempAppointment.RoomID, token, tempAppointment.CounselorName, "").then(() => {
+            stream = client.getMediaStream();
+          }).catch((error) => {
+            console.warn(error);
+            errorMsg = "目前瀏覽器不支援視訊功能，請更換其他瀏覽器以確保順暢使用。";
+            throw new Error(errorMsg);
+          })
+        }).catch((error) => {
+          console.warn(error);
+          errorMsg = "目前瀏覽器不支援視訊功能，請更換其他瀏覽器以確保順暢使用。";
+          throw new Error(errorMsg);
+        })
+      }
+      else {
+        errorMsg = "目前瀏覽器不支援視訊功能，請更換其他瀏覽器以確保順暢使用。";
+        throw new Error(errorMsg);
+      }
+
+
+
 
       // subscribe events
       client.on('user-added', handleUserAdd);
@@ -72,7 +93,15 @@ const VideoChat = (props) => {
         stream.attachVideo(user.userId, VideoQuality.Video_1080P);
       })
     } catch (err) {
-      console.log("err", err);
+      console.warn("err", err);
+      console.warn("errorMsg", errorMsg);
+      if (errorMsg) {
+        showToast(toastType.error, errorMsg);
+      }
+      else {
+        showToast(toastType.error, "請授權存取鏡頭與麥克風，以提供完整功能的體驗。");
+      }
+
       handleLeave();
     }
     setLoading(false);
