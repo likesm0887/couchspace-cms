@@ -30,6 +30,7 @@ const VideoChat = (props) => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [testUsers, setTestUsers] = useState(0);
   const [activeSpeakerId, setActiveSpeakerId] = useState("");
+  const [isSupportVirtualBG, setIsSupportVirtualBG] = useState(false);
   let client = ZoomVideo.createClient();
   let stream;
   let supportHD;
@@ -44,9 +45,12 @@ const VideoChat = (props) => {
 
       // start join session
       if (ZoomVideo.checkSystemRequirements().video && ZoomVideo.checkSystemRequirements().audio) {
-        await client.init('en-US', 'Global', { patchJsMedia: true, stayAwake: true, enforceVirtualBackground: true, enforceMultipleVideos: true }).then(async () => {
+        await client.init('en-US', 'Global', { patchJsMedia: true, stayAwake: true }).then(async () => {
           await client.join(tempAppointment.RoomID, token, tempAppointment.CounselorName, "").then(() => {
             stream = client.getMediaStream();
+            var isVirtualBG = stream.isSupportVirtualBackground();
+            console.log("isVirtualBG", isVirtualBG);
+            setIsSupportVirtualBG(isVirtualBG);
           }).catch((error) => {
             console.warn(error);
             errorMsg = "目前瀏覽器不支援視訊功能，請更換其他瀏覽器以確保順暢使用。";
@@ -59,7 +63,7 @@ const VideoChat = (props) => {
         })
       }
       else {
-        errorMsg = "目前瀏覽器不支援視訊功能，請更換其他瀏覽器以確保順暢使用。";
+        errorMsg = "請授權存取鏡頭與麥克風，以提供完整功能的體驗。";
         throw new Error(errorMsg);
       }
 
@@ -74,7 +78,7 @@ const VideoChat = (props) => {
       supportHD = await stream.isSupportHDVideo();
       console.log("supportHD", supportHD);
       // start video streaming & audio
-      await stream.startVideo({ fullHd: true, virtualBackground: { imageUrl: bgImgUrl } });
+      await stream.startVideo({ hd: supportHD, fullHd: supportHD });
       await stream.startAudio();
 
       console.log("stream", stream);
@@ -99,7 +103,7 @@ const VideoChat = (props) => {
         showToast(toastType.error, errorMsg);
       }
       else {
-        showToast(toastType.error, "請授權存取鏡頭與麥克風，以提供完整功能的體驗。");
+        showToast(toastType.error, "目前瀏覽器不支援視訊功能，請更換其他瀏覽器以確保順暢使用。");
       }
 
       handleLeave();
@@ -162,10 +166,19 @@ const VideoChat = (props) => {
       })
     }
     else {
-      stream.startVideo({ hd: supportHD, fullHd: supportHD, virtualBackground: { imageUrl: bgImgUrl } }).then(() => {
-        // stream.attachVideo(client.getCurrentUserInfo().userId, 3, document.querySelector('#my-self-view'));
-        setShowCamera(true);
-      })
+      if (bgImgUrl) {
+        stream.startVideo({ hd: supportHD, fullHd: supportHD, virtualBackground: bgImgUrl }).then(() => {
+          // stream.attachVideo(client.getCurrentUserInfo().userId, 3, document.querySelector('#my-self-view'));
+          setShowCamera(true);
+        })
+      }
+      else {
+        stream.startVideo({ hd: supportHD, fullHd: supportHD }).then(() => {
+          // stream.attachVideo(client.getCurrentUserInfo().userId, 3, document.querySelector('#my-self-view'));
+          setShowCamera(true);
+        })
+      }
+
     }
   }
   const onClickMic = async () => {
@@ -475,22 +488,24 @@ const VideoChat = (props) => {
               <div>鏡像</div>
             </div>
           </div> */}
-            <div class="col-auto p-0" style={{ marginRight: 92 }}>
-              <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
-                <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickBlur}>
-                  <img style={{ verticalAlign: 'middle', height: 60, width: 60 }} src={showBlur ? img_blur_on : img_blur_off} alt="Blur" />
-                </button>
-                <div style={{ color: "#D8D8D8" }}>{"背景模糊"}</div>
-              </div>
-            </div>
-            {/* <div class="col-auto">
-              <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
-                <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickChangeBG}>
-                  <img style={{ verticalAlign: 'middle', height: 60, width: 60 }} src={showBG ? img_bg_photo_on : img_bg_photo_off} alt="Blur" />
-                </button>
-                <div style={{ color: "#D8D8D8" }}>{"更換背景"}</div>
-              </div>
-            </div> */}
+            {isSupportVirtualBG ?
+              <div class="col-auto p-0" style={{ marginRight: 92 }}>
+                <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
+                  <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickBlur}>
+                    <img style={{ verticalAlign: 'middle', height: 60, width: 60 }} src={showBlur ? img_blur_on : img_blur_off} alt="Blur" />
+                  </button>
+                  <div style={{ color: "#D8D8D8" }}>{"背景模糊"}</div>
+                </div>
+              </div> : null}
+            {/* {isSupportVirtualBG ?
+              <div class="col-auto">
+                <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
+                  <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickChangeBG}>
+                    <img style={{ verticalAlign: 'middle', height: 60, width: 60 }} src={showBG ? img_bg_photo_on : img_bg_photo_off} alt="Blur" />
+                  </button>
+                  <div style={{ color: "#D8D8D8" }}>{"更換背景"}</div>
+                </div>
+              </div> : null} */}
             <div class="col-auto p-0">
               <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
                 <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickExit}>
