@@ -11,7 +11,7 @@ const Width = (window.innerWidth * 0.8) > 1200 ? (window.innerWidth * 0.8) : 120
 const screenWidth = window.innerWidth;
 function Consultation() {
     let navigate = useNavigate();
-    let pageSize = 8;
+    let pageSize = parseInt(window.innerHeight / 100);
     const [open, setOpen] = useState(false);
 
     const [allAppointments, setAllAppointments] = useState([]);
