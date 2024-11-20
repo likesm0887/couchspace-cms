@@ -146,7 +146,7 @@ function Music() {
       title: "圖片",
       dataIndex: "image",
       key: "image",
-      render: (image) => <Image src={image} width="70px" preview={false} />,
+      render: (image) => <Image crossOrigin="anonymous"  crossOrigin="anonymous"  src={image} width="70px" preview={false} />,
     },
     {
       title: "名稱",
@@ -491,7 +491,7 @@ function Music() {
             <Input disabled placeholder="屬性" size="big" />
           </Space>
           <p></p>
-          <Image width="100px" src={form.getFieldValue("image")}></Image>
+          <Image crossOrigin="anonymous"  crossOrigin="anonymous"  width="100px" src={form.getFieldValue("image")}></Image>
           <Form.Item name="image">
             <Input
               allowClear={true}
