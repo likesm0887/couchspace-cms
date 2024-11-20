@@ -97,7 +97,7 @@ const UserPage = () => {
       dataIndex: "photo",
       key: "photo",
       render: (url) => (
-        <img src={(url = url == null ? "" : url)} style={{ width: "100px" }} />
+        <img crossOrigin="anonymous" src={(url = url == null ? "" : url)} style={{ width: "100px" }} />
       ),
     },
     {

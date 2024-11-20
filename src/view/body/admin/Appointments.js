@@ -639,7 +639,7 @@ const Appointments = () => {
         key: "3",
         label: "照片",
         span: 2,
-        children: <Image src={member.Photo} height={150}></Image>,
+        children: <Image crossOrigin="anonymous"  src={member.Photo} height={150}></Image>,
       },
       {
         key: "1",
@@ -673,7 +673,7 @@ const Appointments = () => {
         label: "照片",
         span: 2,
         children: (
-          <Image src={currentSelectCounselor.Photo} height={150}></Image>
+          <Image crossOrigin="anonymous"  src={currentSelectCounselor.Photo} height={150}></Image>
         ),
       },
       {

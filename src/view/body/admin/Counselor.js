@@ -143,7 +143,7 @@ const Counselor = () => {
       dataIndex: "photo",
       key: "photo",
       render: (url) => (
-        <img src={url} style={{ width: "80px", height: "100px" }} />
+        <img crossOrigin="anonymous" src={url} style={{ width: "80px", height: "100px" }} />
       ),
     },
     {
@@ -351,7 +351,7 @@ const Counselor = () => {
         label: "照片",
         span: 2,
         children: (
-          <Image src={currentSelectCounselor.Photo} height={150}></Image>
+          <Image crossOrigin="anonymous"  src={currentSelectCounselor.Photo} height={150}></Image>
         ),
       },
       {
