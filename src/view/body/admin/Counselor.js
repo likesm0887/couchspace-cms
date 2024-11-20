@@ -351,7 +351,7 @@ const Counselor = () => {
         label: "照片",
         span: 2,
         children: (
-          <Image crossOrigin="anonymous"  crossOrigin="anonymous"  src={currentSelectCounselor.Photo} height={150}></Image>
+          <Image crossOrigin="anonymous"  src={currentSelectCounselor.Photo} height={150}></Image>
         ),
       },
       {
