@@ -286,7 +286,7 @@ const CounselorBanners= () => {
         <Spin size="large" spinning={loading}>
           <Form form={form}>
             <p></p>
-            <Image crossOrigin="anonymous"  crossOrigin="anonymous"  width="100px" src={previewBannerImage}></Image>
+            <Image crossOrigin="anonymous"   width="100px" src={previewBannerImage}></Image>
             <Form.Item name="image" label="圖片">
               <Input
                 allowClear={true}
