@@ -90,7 +90,7 @@ const CounselorBanners= () => {
     {
       title: "Banner圖片",
       dataIndex: "imageUrl",
-      render: (image) => <Image src={image} width="70px" preview={false} />,
+      render: (image) => <Image crossOrigin="anonymous"    src={image} width="70px" preview={false} />,
     },
     {
       title: "連結諮商師",
@@ -286,7 +286,7 @@ const CounselorBanners= () => {
         <Spin size="large" spinning={loading}>
           <Form form={form}>
             <p></p>
-            <Image width="100px" src={previewBannerImage}></Image>
+            <Image crossOrigin="anonymous"  crossOrigin="anonymous"  width="100px" src={previewBannerImage}></Image>
             <Form.Item name="image" label="圖片">
               <Input
                 allowClear={true}
