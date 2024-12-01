@@ -12,7 +12,6 @@ const screenWidth = window.innerWidth;
 function Consultation() {
     let navigate = useNavigate();
     let pageSize = parseInt(window.innerHeight / 100);
-    const [open, setOpen] = useState(false);
 
     const [allAppointments, setAllAppointments] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -115,7 +114,6 @@ function Consultation() {
     }
     const start = (ID) => {
         console.log(ID)
-        setOpen(!open);
         navigate("/couchspace-cms/home/consultation/counseling/" + ID, { replace: false, state: { appointmentID: ID } });
     }
     function getStatusDesc(code) {
@@ -371,9 +369,6 @@ function Consultation() {
         }
         return items;
     }
-    const handleClose = () => {
-        setOpen(false);
-    };
     return (
         <div style={{ width: "100%", height: "100%", backgroundColor: "#F7F8F8", display: "block" }}>
             <div style={{ marginBottom: 10 }}>
