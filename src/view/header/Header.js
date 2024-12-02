@@ -47,9 +47,7 @@ function Header() {
                 <div class="container-fluid" style={{ marginTop: 10, marginBottom: 10 }}>
                     <div class="row align-items-center">
                         <div class="col-8 col-sm-6">
-                            <a href={currentHtml}>
-                                <img style={{ objectFit: 'contain' }} src={logo} className="logo" alt="logo" />
-                            </a>
+                            <img style={{ objectFit: 'contain' }} src={logo} className="logo" alt="logo" />
                         </div>
                         <div class="col-4 col-sm-6">
                             <Personal></Personal>

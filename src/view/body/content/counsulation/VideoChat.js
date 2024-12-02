@@ -3,7 +3,6 @@ import "./VideoChat.css";
 import { appointmentService } from "../../../../service/ServicePool";
 import { useNavigate } from "react-router-dom";
 import ZoomVideo, { VideoQuality } from '@zoom/videosdk'
-import { Switch } from "@mui/material";
 import img_camera_on from "../../../img/content/btn_camera_turn_on.svg";
 import img_camera_off from "../../../img/content/btn_camera_turn_off.svg";
 import img_mic_on from "../../../img/content/btn_mic_turn_on.svg";
@@ -16,6 +15,13 @@ import img_bg_photo_off from "../../../img/content/btn_bg_photo_off.svg";
 import img_time from "../../../img/content/ic_time.svg";
 import img_screen_off from "../../../img/content/ic_screen_camera_turn_off.svg";
 import { showToast, toastType } from "../../../../common/method";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "@mui/material";
 let startDateTime = null;
 let startTime = null;
 let bgImgUrl = "";
@@ -31,6 +37,7 @@ const VideoChat = (props) => {
   const [testUsers, setTestUsers] = useState(0);
   const [activeSpeakerId, setActiveSpeakerId] = useState("");
   const [isSupportVirtualBG, setIsSupportVirtualBG] = useState(false);
+  const [open, setOpen] = useState(false);
   let client = ZoomVideo.createClient();
   let stream;
   let supportHD;
@@ -67,9 +74,6 @@ const VideoChat = (props) => {
         throw new Error(errorMsg);
       }
 
-
-
-
       // subscribe events
       client.on('user-added', handleUserAdd);
       client.on('user-removed', handleUserRemoved);
@@ -99,14 +103,7 @@ const VideoChat = (props) => {
     } catch (err) {
       console.warn("err", err);
       console.warn("errorMsg", errorMsg);
-      if (errorMsg) {
-        showToast(toastType.error, errorMsg);
-      }
-      else {
-        showToast(toastType.error, "目前瀏覽器不支援視訊功能，請更換其他瀏覽器以確保順暢使用。");
-      }
-
-      handleLeave();
+      showVideoErrorDialog();
     }
     setLoading(false);
   }
@@ -359,6 +356,47 @@ const VideoChat = (props) => {
       })
     )
   }
+  const VideoErrorDialog = () => {
+    return <Dialog
+      open={open}
+      fullWidth={true}
+      onClose={handleClose}
+      value={"sm"}>
+      <DialogTitle style={{ fontSize: 24, fontWeight: "bold", textAlign: "center" }} id="alert-dialog-title">{"目前無法連線"}</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          <div style={{ fontSize: 16, fontWeight: "bold", textAlign: "center" }}>
+            <div style={{ marginBottom: 20 }}>
+              <p style={{ color: "#000000", margin: 0 }}>{"請確認授權\n"}</p>
+              <span style={{ color: "#565656" }}>{"請確保您的裝置已授權開啟麥克風和鏡頭。"}</span>
+            </div>
+            <div style={{ marginBottom: 20 }}>
+              <p style={{ color: "#000000", margin: 0 }}>{"請嘗試其他瀏覽器\n"}</p>
+              <span style={{ color: "#565656" }}>{"若仍無法正常連線，建議嘗試更換瀏覽器。"}</span>
+            </div>
+            <div>
+              <p style={{ color: "#000000", margin: 0 }}>{"重新啟動設備\n"}</p>
+              <span style={{ color: "#565656" }}>{"若連線問題仍未解決，請嘗試重新開機您的裝置後再次連線。"}</span>
+            </div>
+          </div>
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <div className={"button-content"}>
+          <button className={"acceptButton"} onClick={handleClose} color="primary">
+            關閉
+          </button>
+        </div>
+      </DialogActions>
+    </Dialog>
+  }
+  const showVideoErrorDialog = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+    handleLeave();
+  }
   useEffect(() => {
     client.off('user-added', handleUserAdd);
     client.off('user-removed', handleUserRemoved);
@@ -379,7 +417,15 @@ const VideoChat = (props) => {
       {loading ?
         <div className="video-loader-container">
           <div className="spinner"></div>
-          <div style={{ font: 'caption', fontSize: 40, color: 'black' }}>{"連接視訊中..."}</div>
+          <div style={{ font: 'caption', fontSize: 24, color: '#000000', fontWeight: "bold", marginTop: 46 }}>
+            {"連線中，請稍候片刻"}
+          </div>
+          <div style={{ font: 'caption', fontSize: 16, color: '#565656', marginTop: 27 }}>
+            {"為確保順利連線，請確認您的裝置已授權開啟麥克風和鏡頭"}
+          </div>
+          <div style={{ font: 'caption', fontSize: 16, color: '#565656' }}>
+            {"如無法順利開啟，請嘗試更換瀏覽器或重啟裝置。"}
+          </div>
         </div> :
         <div class="container" style={{ width: "100%", height: "100%" }}>
           <div class="row" style={{ width: "100%", height: "10%" }}>
@@ -394,7 +440,7 @@ const VideoChat = (props) => {
             {participants.map((user) => { // Counselor Video
               if (user.bVideoOn && user.userId === client.getCurrentUserInfo().userId) {
                 return (
-                  <video-player-container style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
+                  <video-player-container key={user.useId} style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
                     <div style={{ width: "100%" }}>
                       <div class="screen-mic">
                         <img style={{ height: 24, width: 24 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
@@ -406,7 +452,7 @@ const VideoChat = (props) => {
               }
               else if (!user.bVideoOn && user.userId === client.getCurrentUserInfo().userId) {
                 return (
-                  <div class="empty-screen-container" style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} >
+                  <div key={user.useId} class="empty-screen-container" style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} >
                     <div style={{ width: "100%" }}>
                       <div class="screen-mic">
                         <img style={{ height: 24, width: 24 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
@@ -429,7 +475,7 @@ const VideoChat = (props) => {
             {participants.map((user) => { // Users Video
               if (user.bVideoOn && user.userId !== client.getCurrentUserInfo().userId) {
                 return (
-                  <video-player-container style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
+                  <video-player-container key={user.useId} style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
                     <div style={{ width: "100%" }}>
                       <div class="screen-mic">
                         <img style={{ height: 24, width: 24 }} src={user.muted ? img_mic_off : img_mic_on} alt="Mic" />
@@ -441,7 +487,7 @@ const VideoChat = (props) => {
               }
               else if (!user.bVideoOn && user.userId !== client.getCurrentUserInfo().userId) {
                 return (
-                  <div class="empty-screen-container" style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
+                  <div key={user.useId} class="empty-screen-container" style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
                     <div style={{ width: "100%" }}>
                       <div class="screen-mic">
                         <img style={{ height: 24, width: 24 }} src={user.muted ? img_mic_off : img_mic_on} alt="Mic" />
@@ -537,6 +583,7 @@ const VideoChat = (props) => {
             </div> */}
           </div>
         </div>}
+      {VideoErrorDialog()}
     </div>
   )
 };
