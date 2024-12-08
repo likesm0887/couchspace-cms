@@ -18,8 +18,10 @@ import { Counselor, counselorInfo, Expertise } from '../../../../dataContract/co
 import { useEffect, useRef } from "react";
 import { counselorService } from "../../../../service/ServicePool";
 import { checkLines, showToast, toastType, calTextLength } from "../../../../common/method";
+import { useNavigate } from "react-router-dom";
 
 const CounselingInfo = () => {
+    let navigate = useNavigate();
     const [disableSaveBtn, setDisabledSaveBtn] = useState(true);
     const maximumFee = 10000;
     const counselingItems = [
@@ -159,6 +161,9 @@ const CounselingInfo = () => {
             setExpertisesInfo(counselorInfo?.ExpertisesInfo);
             setConsultingFees(tempConsultingFees);
         })
+    }
+    const handleBack = () => {
+        navigate("/couchspace-cms/home", { replace: true });
     }
     const handleSave = async () => {
         ClearAllError();
@@ -365,6 +370,14 @@ const CounselingInfo = () => {
             <Typography style={{ marginTop: 10, fontSize: 20 }} gutterBottom>
                 服務管理
             </Typography>
+            <Button
+                variant="contained"
+                color="success"
+                onClick={handleBack}
+                style={{ float: 'right', marginLeft: 10 }}
+            >
+                {'返回'}
+            </Button>
             <Button
                 variant="contained"
                 color="primary"

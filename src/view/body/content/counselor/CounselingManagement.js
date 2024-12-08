@@ -15,8 +15,10 @@ import {
 } from "@ant-design/icons";
 import { counselorService } from "../../../../service/ServicePool";
 import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 const CounselingManagement = () => {
+    let navigate = useNavigate();
     const [disableSaveBtn, setDisabledSaveBtn] = useState(true);
     const currentDate = new Date();
     const maxDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 3, currentDate.getDate());
@@ -85,6 +87,9 @@ const CounselingManagement = () => {
     useEffect(() => {
         initialBusinessInfo();
     }, [])
+    const handleBack = () => {
+        navigate("/couchspace-cms/home", { replace: true });
+    }
     const handleSave = async () => {
         var output = true;
         // whether output is true or false => update info to counselor model
@@ -428,6 +433,14 @@ const CounselingManagement = () => {
             <Typography style={{ marginTop: 10, fontSize: 20 }} gutterBottom>
                 時段管理
             </Typography>
+            <Button
+                variant="contained"
+                color="success"
+                onClick={handleBack}
+                style={{ float: 'right', marginLeft: 10 }}
+            >
+                {'返回'}
+            </Button>
             <Button
                 variant="contained"
                 color="primary"
