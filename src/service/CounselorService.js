@@ -1,13 +1,36 @@
 import cookie from 'react-cookies'
 import { appointmentService } from './ServicePool';
 import { ForgetPassword, ResetPassword } from '../dataContract/counselor';
+import { jwtDecode } from "jwt-decode";
 export class CounselorService {
-
     constructor(base_url) {
         this.base_url = base_url;
         this.token = cookie.load("token_counselor");
         this.adminToken = cookie.load("token");
         console.log("token_counselor cookie:" + this.token);
+    }
+
+    checkCounselorTokenExpired() {
+        console.log("checkCounselorTokenExpired");
+        this.token = cookie.load("token_counselor");
+        if (this.token === undefined || this.token === "") {
+            return true;
+        }
+        console.log("counselor token:", this.token);
+        let decodedPayload = jwtDecode(this.token);
+        console.log("decodedPayload", decodedPayload);
+        const { exp } = decodedPayload;
+        
+        const currentTime = Math.floor(Date.now() / 1000);
+        console.log("current time", currentTime)
+
+        if (exp && currentTime >= exp) {
+            console.log('Token has expired. Perform logout action.');
+            return true;
+        } else {
+            console.log('Token is still valid.');
+            return false;
+        }
     }
     register(account, password) {
         const api = this.base_url + "/api/v1/counselors/register"
