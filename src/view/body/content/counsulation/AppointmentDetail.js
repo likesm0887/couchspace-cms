@@ -96,6 +96,10 @@ function AppointmentDetail() {
     const finish = () => {
         navigate("/couchspace-cms/home/consultation", { replace: true });
     }
+    const start = (ID) => {
+        console.log(ID)
+        navigate("/couchspace-cms/home/consultation/counseling/" + ID, { replace: false, state: { appointmentID: ID } });
+    }
     function num2Time(number) {
         var minute = parseInt(number / 60)
             .toString()
@@ -172,12 +176,27 @@ function AppointmentDetail() {
     if (screenWidth > 500) {
         return (
             <div style={{ width: "100%", height: "100%", backgroundColor: "#F7F8F8", overflow: "auto" }}>
-                <div className="">
-                    <div className={"button-back"} onClick={() => handleBack()}>
-                        <img style={{ height: 15, width: 9, marginRight: 10 }} src={buttonLeft} alt={123}></img>
-                        <span>
-                            返回訂單
-                        </span>
+                <div>
+                    <div style={{ display: "flex", flexDirection: "row", width: Width }}>
+                        <div className={"button-back"} style={{ width: "50%" }} onClick={() => handleBack()}>
+                            <img style={{ height: 15, width: 9, marginRight: 10 }} src={buttonLeft} alt={123}></img>
+                            <span>
+                                返回訂單
+                            </span>
+                        </div>
+                        <div style={{ paddingTop: 20, marginLeft: 20, width: "40%" }}>
+                            <div style={{ float: "right" }}>
+                                {appointment.Status.toUpperCase() === "ROOMCREATED" ?
+                                    <button className={"startButton-enabled startButton-enabled_hover"} onClick={() => start(appointment.AppointmentID)} >
+                                        <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
+                                    </button>
+                                    :
+                                    <button className={"startButton-disabled startButton-disabled_hover"}>
+                                        <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
+                                    </button>
+                                }
+                            </div>
+                        </div>
                     </div>
                     <div style={{ display: "flex", flexDirection: "row", width: Width }}>
                         <div style={{ paddingLeft: 20, marginTop: 20, width: "50%" }}>
@@ -373,11 +392,26 @@ function AppointmentDetail() {
     else {
         return (
             <div>
-                <div className={"button-back"} onClick={() => handleBack()}>
-                    <img style={{ height: 15, width: 9, marginRight: 10 }} src={buttonLeft} alt={123}></img>
-                    <span>
-                        返回訂單
-                    </span>
+                <div style={{ display: "flex", flexDirection: "row" }}>
+                    <div className={"button-back"} style={{ width: "50%" }} onClick={() => handleBack()}>
+                        <img style={{ height: 15, width: 9, marginRight: 10 }} src={buttonLeft} alt={123}></img>
+                        <span>
+                            返回訂單
+                        </span>
+                    </div>
+                    <div style={{ paddingTop: 20, paddingRight: 10, width: "50%" }}>
+                        <div style={{ float: "right" }}>
+                            {appointment.Status.toUpperCase() === "ROOMCREATED" ?
+                                <button className={"startButton-enabled startButton-enabled_hover"} onClick={() => start(appointment.AppointmentID)} >
+                                    <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
+                                </button>
+                                :
+                                <button className={"startButton-disabled startButton-disabled_hover"}>
+                                    <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
+                                </button>
+                            }
+                        </div>
+                    </div>
                 </div>
                 <div style={{ paddingLeft: 10, paddingRight: 10, display: "flex", flexDirection: "column", backgroundColor: "#F7F8F8" }}>
                     <div style={{ marginTop: 10, display: 'block', backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
