@@ -7,7 +7,7 @@
   justify-self: center;
   align-content: center;
   justify-content: center;
-  height: 800px;
+  height: 850px;
   bottom: 10%;
   background-color: #f7f8f8;
   border-radius: 30px;
@@ -27,7 +27,7 @@
   vertical-align: bottom;
   height: 428px;
   position: absolute;
-  top: 35%;
+  top: 400px;
   border-radius: 100% 100% 30px 30px;
   background: #ffffff;
 }
@@ -40,7 +40,7 @@ input:focus {
   vertical-align: bottom;
   height: 428px;
   position: absolute;
-  top: 40%;
+  top: 430px;
   border-radius: 100% 100% 35px 35px;
   background: #88a1d2;
 }
