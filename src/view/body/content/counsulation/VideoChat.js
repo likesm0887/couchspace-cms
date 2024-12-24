@@ -22,6 +22,7 @@ import {
   DialogContentText,
   DialogTitle,
 } from "@mui/material";
+import Draggable from 'react-draggable';
 let startDateTime = null;
 let startTime = null;
 let bgImgUrl = "";
@@ -38,6 +39,8 @@ const VideoChat = (props) => {
   const [activeSpeakerId, setActiveSpeakerId] = useState("");
   const [isSupportVirtualBG, setIsSupportVirtualBG] = useState(false);
   const [open, setOpen] = useState(false);
+  const screenWidth = window.innerWidth;
+  let counterPadding = screenWidth - 150;
   let client = ZoomVideo.createClient();
   let stream;
   let supportHD;
@@ -286,48 +289,98 @@ const VideoChat = (props) => {
     handleLeave();
   }
   const getWidthByParticipants = () => {
-    let length = participants.length + testUsers;
-    let output = "45%";
-    switch (length) {
-      case 0:
-      case 1:
-      case 2:
-      case 4:
-        output = "45%";
-        break;
+    let length = participants.length + testUsers - 1; // minus Counselor
+    let output = "100%";
+    if (screenWidth > 500) {
+      switch (length) {
+        case 0:
+        case 1:
+          output = "100%";
+          break;
 
-      case 3:
-      case 5:
-      case 6:
-        output = "30%";
-        break;
+        case 2:
+        case 4:
+          output = "45%";
+          break;
 
-      default:
-        output = "45%";
-        break;
+        case 3:
+        case 5:
+        case 6:
+          output = "32%";
+          break;
+
+        default:
+          output = "45%";
+          break;
+      }
+    }
+    else {
+      switch (length) {
+        case 0:
+        case 1:
+          output = "100%";
+          break;
+
+        case 2:
+        case 4:
+          output = "45%";
+          break;
+
+        case 3:
+        case 5:
+        case 6:
+          output = "32%";
+          break;
+
+        default:
+          output = "45%";
+          break;
+      }
     }
     return output;
   }
   const getMaxHeightWidthByParticipants = () => {
-    let length = participants.length + testUsers;
+    let length = participants.length + testUsers - 1; // minus Counselor
     let output = "100%";
-    switch (length) {
-      case 0:
-      case 1:
-      case 2:
-      case 3:
-        output = "100%";
-        break;
+    if (screenWidth > 500) {
+      switch (length) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+          output = "100%";
+          break;
 
-      case 4:
-      case 5:
-      case 6:
-        output = "50%";
-        break;
+        case 4:
+        case 5:
+        case 6:
+          output = "50%";
+          break;
 
-      default:
-        output = "50%";
-        break;
+        default:
+          output = "50%";
+          break;
+      }
+    }
+    else {
+      switch (length) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+          output = "90%";
+          break;
+
+        case 4:
+        case 5:
+        case 6:
+          output = "45%";
+          break;
+
+        default:
+          output = "45%";
+          break;
+      }
     }
     return output;
   }
@@ -428,105 +481,190 @@ const VideoChat = (props) => {
           </div>
         </div> :
         <div class="container" style={{ width: "100%", height: "100%" }}>
-          <div class="row" style={{ width: "100%", height: "10%" }}>
+          <div class="row" style={{ width: "100%", height: "5%" }}>
             <div class="col">
-              <div style={{ marginTop: 15, marginLeft: "90%", textAlign: "center", width: 120, backgroundColor: "#FFFFFF", borderRadius: 4 }}>
+              <div style={{ marginTop: 15, marginLeft: counterPadding, textAlign: "center", width: 120, backgroundColor: "#FFFFFF", borderRadius: 4 }}>
                 <img style={{ verticalAlign: 'middle', width: 24 }} src={img_time} alt="time" />
                 <span style={{ verticalAlign: 'middle', marginRight: 5 }}>{num2HourTime(elapsedTime)}</span>
               </div>
             </div>
           </div>
-          <div class="room">
-            {participants.map((user) => { // Counselor Video
-              if (user.bVideoOn && user.userId === client.getCurrentUserInfo().userId) {
-                return (
-                  <video-player-container key={user.useId} style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
-                    <div style={{ width: "100%" }}>
-                      <div class="screen-mic">
-                        <img style={{ height: 24, width: 24 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
+          {screenWidth > 500 ?
+            <div class="room">
+              {participants.map((user) => { // Counselor Video
+                if (user.bVideoOn && user.userId === client.getCurrentUserInfo().userId) {
+                  return (
+                    <Draggable className='dragdiv' key={user.useId} >
+                      <video-player-container style={{ zIndex: "999", position: "absolute", right: 40, bottom: 132, height: 245, width: 183, borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
+                        <div style={{ width: "100%" }}>
+                          <div class="screen-mic">
+                            <img style={{ height: 24, width: 24 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
+                          </div>
+                        </div>
+                        <video-player class="video-player" node-id={user.userId}></video-player>
+                      </video-player-container>
+                    </Draggable>
+                  )
+                }
+                else if (!user.bVideoOn && user.userId === client.getCurrentUserInfo().userId) {
+                  return (
+                    <Draggable className='dragdiv' key={user.useId} >
+                      <div class="empty-screen-container" style={{ zIndex: "999", position: "absolute", right: 40, bottom: 132, height: 245, width: 183, borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} >
+                        <div style={{ width: "100%" }}>
+                          <div class="screen-mic">
+                            <img style={{ height: 24, width: 24 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
+                          </div>
+                        </div>
+                        <div class="empty-screen justify-content-center align-items-center">
+                          <div style={{ textAlign: 'center' }}>
+                            <img style={{ height: 50, width: 50 }} src={img_screen_off} alt="Camera"></img>
+                            <div style={{ fontSize: 16, color: "#D8D8D8" }}> 已關閉鏡頭</div>
+                          </div>
+                        </div>
+                      </div>
+                    </Draggable>
+                  )
+                }
+                else {
+                  return null;
+                }
+              })
+              }
+              {participants.map((user) => { // Users Video
+                if (user.bVideoOn && user.userId !== client.getCurrentUserInfo().userId) {
+                  return (
+                    <video-player-container key={user.useId} style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
+                      <div style={{ width: "100%" }}>
+                        <div class="screen-mic">
+                          <img style={{ height: 24, width: 24 }} src={user.muted ? img_mic_off : img_mic_on} alt="Mic" />
+                        </div>
+                      </div>
+                      <video-player class="video-player" node-id={user.userId}></video-player>
+                    </video-player-container>
+                  )
+                }
+                else if (!user.bVideoOn && user.userId !== client.getCurrentUserInfo().userId) {
+                  return (
+                    <div key={user.useId} class="empty-screen-container" style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
+                      <div style={{ width: "100%" }}>
+                        <div class="screen-mic">
+                          <img style={{ height: 24, width: 24 }} src={user.muted ? img_mic_off : img_mic_on} alt="Mic" />
+                        </div>
+                      </div>
+                      <div class="empty-screen justify-content-center align-items-center">
+                        <div style={{ textAlign: 'center' }}>
+                          <img style={{ height: 50, width: 50 }} src={img_screen_off} alt="Camera"></img>
+                          <div style={{ fontSize: 16, color: "#D8D8D8" }}> 對方已關閉鏡頭</div>
+                        </div>
                       </div>
                     </div>
-                    <video-player class="video-player" node-id={user.userId}></video-player>
-                  </video-player-container>
-                )
+                  )
+                }
+                else {
+                  return null;
+                }
+              })
               }
-              else if (!user.bVideoOn && user.userId === client.getCurrentUserInfo().userId) {
-                return (
-                  <div key={user.useId} class="empty-screen-container" style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} >
-                    <div style={{ width: "100%" }}>
-                      <div class="screen-mic">
-                        <img style={{ height: 24, width: 24 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
-                      </div>
-                    </div>
-                    <div class="empty-screen justify-content-center align-items-center">
-                      <div style={{ textAlign: 'center' }}>
-                        <img style={{ height: 50, width: 50 }} src={img_screen_off} alt="Camera"></img>
-                        <div style={{ fontSize: 16, color: "#D8D8D8" }}> 已關閉鏡頭</div>
-                      </div>
-                    </div>
-                  </div>
-                )
-              }
-              else {
-                return null;
-              }
-            })
-            }
-            {participants.map((user) => { // Users Video
-              if (user.bVideoOn && user.userId !== client.getCurrentUserInfo().userId) {
-                return (
-                  <video-player-container key={user.useId} style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
-                    <div style={{ width: "100%" }}>
-                      <div class="screen-mic">
-                        <img style={{ height: 24, width: 24 }} src={user.muted ? img_mic_off : img_mic_on} alt="Mic" />
-                      </div>
-                    </div>
-                    <video-player class="video-player" node-id={user.userId}></video-player>
-                  </video-player-container>
-                )
-              }
-              else if (!user.bVideoOn && user.userId !== client.getCurrentUserInfo().userId) {
-                return (
-                  <div key={user.useId} class="empty-screen-container" style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
-                    <div style={{ width: "100%" }}>
-                      <div class="screen-mic">
-                        <img style={{ height: 24, width: 24 }} src={user.muted ? img_mic_off : img_mic_on} alt="Mic" />
-                      </div>
-                    </div>
-                    <div class="empty-screen justify-content-center align-items-center">
-                      <div style={{ textAlign: 'center' }}>
-                        <img style={{ height: 50, width: 50 }} src={img_screen_off} alt="Camera"></img>
-                        <div style={{ fontSize: 16, color: "#D8D8D8" }}> 對方已關閉鏡頭</div>
-                      </div>
-                    </div>
-                  </div>
-                )
-              }
-              else {
-                return null;
-              }
-            })
-            }
-            {/* {renderTestUsers()} */}
-          </div>
-          <div class="row justify-content-center align-items-center" style={{ height: "15%" }}>
-            <div class="col-auto p-0" style={{ marginRight: 29 }}>
-              <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
-                <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickMic}>
-                  <img style={{ verticalAlign: 'middle', height: 60, width: 60 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
-                </button>
-                <div style={{ color: "#D8D8D8" }}>{showMic ? "麥克風已開啟" : "麥克風已關閉"}</div>
-              </div>
+              {renderTestUsers()}
             </div>
-            <div class="col-auto p-0" style={{ marginRight: 41 }}>
-              <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
-                <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickCamera}>
-                  <img style={{ verticalAlign: 'middle', height: 60, width: 60 }} src={showCamera ? img_camera_on : img_camera_off} alt="Camera" />
-                </button>
-                <div style={{ color: "#D8D8D8" }}>{showCamera ? "鏡頭已開啟" : "鏡頭已關閉"}</div>
-              </div>
+            : // Phone View
+            <div class="room">
+              {participants.map((user) => { // Counselor Video
+                if (user.bVideoOn && user.userId === client.getCurrentUserInfo().userId) {
+                  return (
+                    <Draggable className='dragdiv' key={user.useId} >
+                      <video-player-container style={{ zIndex: "999", position: "absolute", right: 18, bottom: 137, height: 150, width: 112, borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
+                        <div style={{ width: "100%" }}>
+                          <div class="screen-mic">
+                            <img style={{ height: 24, width: 24 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
+                          </div>
+                        </div>
+                        <video-player class="video-player" node-id={user.userId}></video-player>
+                      </video-player-container>
+                    </Draggable>
+                  )
+                }
+                else if (!user.bVideoOn && user.userId === client.getCurrentUserInfo().userId) {
+                  return (
+                    <Draggable className='dragdiv' key={user.useId} >
+                      <div class="empty-screen-container" style={{ zIndex: "999", position: "absolute", right: 18, bottom: 137, height: 150, width: 112, borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} >
+                        <div style={{ width: "100%" }}>
+                          <div class="screen-mic">
+                            <img style={{ height: 24, width: 24 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
+                          </div>
+                        </div>
+                        <div class="empty-screen justify-content-center align-items-center">
+                          <div style={{ textAlign: 'center' }}>
+                            <img style={{ height: 50, width: 50 }} src={img_screen_off} alt="Camera"></img>
+                            <div style={{ fontSize: 16, color: "#D8D8D8" }}> 已關閉鏡頭</div>
+                          </div>
+                        </div>
+                      </div>
+                    </Draggable>
+                  )
+                }
+                else {
+                  return null;
+                }
+              })
+              }
+              {participants.map((user) => { // Users Video
+                if (user.bVideoOn && user.userId !== client.getCurrentUserInfo().userId) {
+                  return (
+                    <video-player-container key={user.useId} style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
+                      <div style={{ width: "100%" }}>
+                        <div class="screen-mic">
+                          <img style={{ height: 24, width: 24 }} src={user.muted ? img_mic_off : img_mic_on} alt="Mic" />
+                        </div>
+                      </div>
+                      <video-player class="video-player" node-id={user.userId}></video-player>
+                    </video-player-container>
+                  )
+                }
+                else if (!user.bVideoOn && user.userId !== client.getCurrentUserInfo().userId) {
+                  return (
+                    <div key={user.useId} class="empty-screen-container" style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
+                      <div style={{ width: "100%" }}>
+                        <div class="screen-mic">
+                          <img style={{ height: 24, width: 24 }} src={user.muted ? img_mic_off : img_mic_on} alt="Mic" />
+                        </div>
+                      </div>
+                      <div class="empty-screen justify-content-center align-items-center">
+                        <div style={{ textAlign: 'center' }}>
+                          <img style={{ height: 50, width: 50 }} src={img_screen_off} alt="Camera"></img>
+                          <div style={{ fontSize: 16, color: "#D8D8D8" }}> 對方已關閉鏡頭</div>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                }
+                else {
+                  return null;
+                }
+              })
+              }
+              {renderTestUsers()}
             </div>
-            {/* <div class="col-auto p-0">
+          }
+          {screenWidth > 500 ?
+            <div class="row justify-content-center align-items-center" style={{ height: "15%" }}>
+              <div class="col-auto p-0" style={{ marginRight: 29 }}>
+                <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
+                  <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickMic}>
+                    <img style={{ verticalAlign: 'middle', height: 60, width: 60 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
+                  </button>
+                  <div style={{ color: "#D8D8D8" }}>{showMic ? "麥克風已開啟" : "麥克風已關閉"}</div>
+                </div>
+              </div>
+              <div class="col-auto p-0" style={{ marginRight: 41 }}>
+                <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
+                  <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickCamera}>
+                    <img style={{ verticalAlign: 'middle', height: 60, width: 60 }} src={showCamera ? img_camera_on : img_camera_off} alt="Camera" />
+                  </button>
+                  <div style={{ color: "#D8D8D8" }}>{showCamera ? "鏡頭已開啟" : "鏡頭已關閉"}</div>
+                </div>
+              </div>
+              {/* <div class="col-auto p-0">
             <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
               <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickMirror}>
                 <img style={{ verticalAlign: 'middle' }} src={require("../../../img/content/mirror.png")} alt="mirror" />
@@ -534,16 +672,16 @@ const VideoChat = (props) => {
               <div>鏡像</div>
             </div>
           </div> */}
-            {isSupportVirtualBG ?
-              <div class="col-auto p-0" style={{ marginRight: 92 }}>
-                <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
-                  <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickBlur}>
-                    <img style={{ verticalAlign: 'middle', height: 60, width: 60 }} src={showBlur ? img_blur_on : img_blur_off} alt="Blur" />
-                  </button>
-                  <div style={{ color: "#D8D8D8" }}>{"背景模糊"}</div>
-                </div>
-              </div> : null}
-            {/* {isSupportVirtualBG ?
+              {isSupportVirtualBG ?
+                <div class="col-auto p-0" style={{ marginRight: 92 }}>
+                  <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
+                    <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickBlur}>
+                      <img style={{ verticalAlign: 'middle', height: 60, width: 60 }} src={showBlur ? img_blur_on : img_blur_off} alt="Blur" />
+                    </button>
+                    <div style={{ color: "#D8D8D8" }}>{"背景模糊"}</div>
+                  </div>
+                </div> : null}
+              {/* {isSupportVirtualBG ?
               <div class="col-auto">
                 <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
                   <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickChangeBG}>
@@ -552,36 +690,111 @@ const VideoChat = (props) => {
                   <div style={{ color: "#D8D8D8" }}>{"更換背景"}</div>
                 </div>
               </div> : null} */}
-            <div class="col-auto p-0">
-              <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
-                <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickExit}>
-                  <img style={{ verticalAlign: 'middle', height: 60, width: 60 }} src={img_leave} alt="Leave" />
-                </button>
-                <div style={{ color: "#D8D8D8" }}>{"離開房間"}</div>
+              <div class="col-auto p-0">
+                <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
+                  <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickExit}>
+                    <img style={{ verticalAlign: 'middle', height: 60, width: 60 }} src={img_leave} alt="Leave" />
+                  </button>
+                  <div style={{ color: "#D8D8D8" }}>{"離開房間"}</div>
+                </div>
               </div>
+              {/* <div class="col-auto">
+                <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
+                  <label style={{ color: "white", fontSize: 18 }}>
+                    Test Users:
+                    <input name="TestUsers" type="number"
+                      value={testUsers}
+                      onChange={(e) => {
+                        if (parseInt(e?.target?.value) > 5) {
+                          setTestUsers(5);
+                        }
+                        else if (parseInt(e?.target?.value) >= 0 && parseInt(e?.target?.value) <= 5) {
+                          setTestUsers(parseInt(e.target.value));
+                        }
+                        else {
+                          setTestUsers(0);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+              </div> */}
             </div>
-            {/* <div class="col-auto">
-              <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
-                <label style={{ color: "white", fontSize: 18 }}>
-                  Test Users:
-                  <input name="TestUsers" type="number"
-                    value={testUsers}
-                    onChange={(e) => {
-                      if (parseInt(e?.target?.value) > 5) {
-                        setTestUsers(5);
-                      }
-                      else if (parseInt(e?.target?.value) >= 0 && parseInt(e?.target?.value) <= 5) {
-                        setTestUsers(parseInt(e.target.value));
-                      }
-                      else {
-                        setTestUsers(0);
-                      }
-                    }}
-                  />
-                </label>
+            :
+            <div class="row justify-content-center align-items-center" style={{ height: "15%" }}>
+              <div class="col-auto p-0" style={{ marginRight: 30 }}>
+                <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
+                  <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickMic}>
+                    <img style={{ verticalAlign: 'middle', height: 40, width: 40 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
+                  </button>
+                  <div style={{ color: "#D8D8D8", fontSize: 10 }}>{showMic ? "麥克風已開啟" : "麥克風已關閉"}</div>
+                </div>
               </div>
-            </div> */}
-          </div>
+              <div class="col-auto p-0" style={{ marginRight: 30 }}>
+                <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
+                  <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickCamera}>
+                    <img style={{ verticalAlign: 'middle', height: 40, width: 40 }} src={showCamera ? img_camera_on : img_camera_off} alt="Camera" />
+                  </button>
+                  <div style={{ color: "#D8D8D8", fontSize: 10 }}>{showCamera ? "鏡頭已開啟" : "鏡頭已關閉"}</div>
+                </div>
+              </div>
+              {/* <div class="col-auto p-0">
+            <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
+              <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickMirror}>
+                <img style={{ verticalAlign: 'middle' }} src={require("../../../img/content/mirror.png")} alt="mirror" />
+              </button>
+              <div>鏡像</div>
+            </div>
+          </div> */}
+              {isSupportVirtualBG ?
+                <div class="col-auto p-0" style={{ marginRight: 30 }}>
+                  <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
+                    <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickBlur}>
+                      <img style={{ verticalAlign: 'middle', height: 40, width: 40 }} src={showBlur ? img_blur_on : img_blur_off} alt="Blur" />
+                    </button>
+                    <div style={{ color: "#D8D8D8", fontSize: 10 }}>{"背景模糊"}</div>
+                  </div>
+                </div> : null}
+              {/* {isSupportVirtualBG ?
+              <div class="col-auto">
+                <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
+                  <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickChangeBG}>
+                    <img style={{ verticalAlign: 'middle', height: 40, width: 40 }} src={showBG ? img_bg_photo_on : img_bg_photo_off} alt="Blur" />
+                  </button>
+                  <div style={{ color: "#D8D8D8" }}>{"更換背景"}</div>
+                </div>
+              </div> : null} */}
+              <div class="col-auto p-0">
+                <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
+                  <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickExit}>
+                    <img style={{ verticalAlign: 'middle', height: 40, width: 40 }} src={img_leave} alt="Leave" />
+                  </button>
+                  <div style={{ color: "#D8D8D8", fontSize: 10 }}>{"離開房間"}</div>
+                </div>
+              </div>
+              {/* <div class="col-auto">
+                <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
+                  <label style={{ color: "white", fontSize: 18 }}>
+                    Test Users:
+                    <input name="TestUsers" type="number"
+                      value={testUsers}
+                      onChange={(e) => {
+                        if (parseInt(e?.target?.value) > 5) {
+                          setTestUsers(5);
+                        }
+                        else if (parseInt(e?.target?.value) >= 0 && parseInt(e?.target?.value) <= 5) {
+                          setTestUsers(parseInt(e.target.value));
+                        }
+                        else {
+                          setTestUsers(0);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+              </div> */}
+            </div>
+          }
         </div>}
       {VideoErrorDialog()}
     </div>
