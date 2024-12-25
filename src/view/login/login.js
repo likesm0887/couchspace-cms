@@ -268,14 +268,14 @@ function Login() {
         }
     }
     return (
-        <div class="container-fluid" style={{ backgroundColor: "#f7f8f8" }}>
+        <div class="container-fluid" style={{ height: window.innerHeight, backgroundColor: "#f7f8f8" }}>
             {screenWidth > 500 ?
                 <div className={"content"} >
                     <img className={"login-logo"} src={img_logo} alt="123" />
                     {renderScreen(selectedTab)}
                     <div className={"circle"}></div>
                     <div className={"circle2"}></div>
-                    <div style={{ alignSelf: "center", justifyItems: "center", textAlign: "center", position: "absolute", bottom: 10, color: "#a3a2a3", fontSize: 14 }}>
+                    <div style={{ alignSelf: "center", justifyItems: "center", textAlign: "center", position: "absolute", top: 900, color: "#a3a2a3", fontSize: 14 }}>
                         <div>
                             Copyright © 2023 Couchspace All rights reserved
                         </div>
@@ -286,16 +286,14 @@ function Login() {
                     <div class="row">
                         <img style={{ height: 100, width: "100%", marginTop: 100 }} src={img_logo} alt="123" />
                     </div>
-                    <div class="row">
-                        <div style={{ height: 500, width: "100%", position: "absolute", marginTop: 50, borderTopLeftRadius: "100%", borderTopRightRadius: "100%", borderBottomLeftRadius: 30, borderBottomRightRadius: 30, backgroundColor: "#FFFFFF" }} ></div>
+                    <div class="row" style={{ width: "95%" }}>>
+                        <div style={{ height: 400, position: "absolute", width: "90%", marginTop: 50, borderTopLeftRadius: "100%", borderTopRightRadius: "100%", borderBottomLeftRadius: 30, borderBottomRightRadius: 30, backgroundColor: "#FFFFFF" }} ></div>
+                        <div style={{ height: 450, position: "absolute", width: "90%", marginTop: 100, borderTopLeftRadius: "100%", borderTopRightRadius: "100%", borderBottomLeftRadius: 35, borderBottomRightRadius: 35, backgroundColor: "#88a1d2" }}></div>
                     </div>
-                    <div class="row">
-                        <div style={{ height: 400, width: "100%", position: "absolute", marginTop: 100, borderTopLeftRadius: "100%", borderTopRightRadius: "100%", borderBottomLeftRadius: 35, borderBottomRightRadius: 35, backgroundColor: "#88a1d2" }}></div>
-                    </div>
-                    <div class="row" style={{ marginTop: "20%", height: "100%" }}>
+                    <div class="row" style={{ marginTop: "20%" }}>
                         {renderScreen(selectedTab)}
                     </div>
-                    <div class="row" style={{ alignSelf: "center", justifyItems: "center", textAlign: "center", position: "absolute", bottom: 10, color: "#a3a2a3", fontSize: 14 }}>
+                    <div class="row" style={{ width: "100%", alignSelf: "center", justifyItems: "center", textAlign: "center", position: "absolute", top: 800, color: "#a3a2a3", fontSize: 14 }}>
                         <div>
                             Copyright © 2023 Couchspace All rights reserved
                         </div>
