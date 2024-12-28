@@ -39,8 +39,12 @@ const VideoChat = (props) => {
   const [activeSpeakerId, setActiveSpeakerId] = useState("");
   const [isSupportVirtualBG, setIsSupportVirtualBG] = useState(false);
   const [open, setOpen] = useState(false);
+  const screenHeight = window.innerHeight;
   const screenWidth = window.innerWidth;
-  let counterPadding = screenWidth - 150;
+  const counterHeight = 60;
+  const counterPadding = screenWidth - 150;
+  const footerHeight = 100;
+  const videoHeight = screenHeight - counterHeight - footerHeight - 20;
   let client = ZoomVideo.createClient();
   let stream;
   let supportHD;
@@ -481,27 +485,25 @@ const VideoChat = (props) => {
           </div>
         </div> :
         <div class="container" style={{ width: "100%", height: "100%" }}>
-          <div class="row" style={{ width: "100%", height: "5%" }}>
-            <div class="col">
-              <div style={{ marginTop: 15, marginLeft: counterPadding, textAlign: "center", width: 120, backgroundColor: "#FFFFFF", borderRadius: 4 }}>
-                <img style={{ verticalAlign: 'middle', width: 24 }} src={img_time} alt="time" />
-                <span style={{ verticalAlign: 'middle', marginRight: 5 }}>{num2HourTime(elapsedTime)}</span>
-              </div>
+          <div class="col" style={{ height: counterHeight }}>
+            <div style={{ margin: 5, marginLeft: counterPadding, textAlign: "center", width: 120, backgroundColor: "#FFFFFF", borderRadius: 4 }}>
+              <img style={{ verticalAlign: 'middle', width: 24 }} src={img_time} alt="time" />
+              <span style={{ verticalAlign: 'middle', marginRight: 5 }}>{num2HourTime(elapsedTime)}</span>
             </div>
           </div>
           {screenWidth > 500 ?
-            <div class="room">
+            <div class="room" style={{ height: videoHeight }}>
               {participants.map((user) => { // Counselor Video
                 if (user.bVideoOn && user.userId === client.getCurrentUserInfo().userId) {
                   return (
                     <Draggable className='dragdiv' key={user.useId} >
-                      <video-player-container style={{ zIndex: "999", position: "absolute", right: 40, bottom: 132, height: 245, width: 183, borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
+                      <video-player-container style={{ zIndex: "999", position: "absolute", right: 40, bottom: 132, height: 183, width: 245 }}>
                         <div style={{ width: "100%" }}>
                           <div class="screen-mic">
                             <img style={{ height: 24, width: 24 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
                           </div>
                         </div>
-                        <video-player class="video-player" node-id={user.userId}></video-player>
+                        <video-player class="video-player" style={{ borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} node-id={user.userId}></video-player>
                       </video-player-container>
                     </Draggable>
                   )
@@ -509,13 +511,13 @@ const VideoChat = (props) => {
                 else if (!user.bVideoOn && user.userId === client.getCurrentUserInfo().userId) {
                   return (
                     <Draggable className='dragdiv' key={user.useId} >
-                      <div class="empty-screen-container" style={{ zIndex: "999", position: "absolute", right: 40, bottom: 132, height: 245, width: 183, borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} >
+                      <div class="empty-screen-container" style={{ zIndex: "999", position: "absolute", right: 40, bottom: 132, height: 183, width: 245 }} >
                         <div style={{ width: "100%" }}>
                           <div class="screen-mic">
                             <img style={{ height: 24, width: 24 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
                           </div>
                         </div>
-                        <div class="empty-screen justify-content-center align-items-center">
+                        <div class="empty-screen justify-content-center align-items-center" style={{ borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
                           <div style={{ textAlign: 'center' }}>
                             <img style={{ height: 50, width: 50 }} src={img_screen_off} alt="Camera"></img>
                             <div style={{ fontSize: 16, color: "#D8D8D8" }}> 已關閉鏡頭</div>
@@ -533,25 +535,25 @@ const VideoChat = (props) => {
               {participants.map((user) => { // Users Video
                 if (user.bVideoOn && user.userId !== client.getCurrentUserInfo().userId) {
                   return (
-                    <video-player-container key={user.useId} style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
+                    <video-player-container key={user.useId} style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants() }}>
                       <div style={{ width: "100%" }}>
                         <div class="screen-mic">
                           <img style={{ height: 24, width: 24 }} src={user.muted ? img_mic_off : img_mic_on} alt="Mic" />
                         </div>
                       </div>
-                      <video-player class="video-player" node-id={user.userId}></video-player>
+                      <video-player class="video-player" style={{ borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} node-id={user.userId}></video-player>
                     </video-player-container>
                   )
                 }
                 else if (!user.bVideoOn && user.userId !== client.getCurrentUserInfo().userId) {
                   return (
-                    <div key={user.useId} class="empty-screen-container" style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
+                    <div key={user.useId} class="empty-screen-container" style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants() }}>
                       <div style={{ width: "100%" }}>
                         <div class="screen-mic">
                           <img style={{ height: 24, width: 24 }} src={user.muted ? img_mic_off : img_mic_on} alt="Mic" />
                         </div>
                       </div>
-                      <div class="empty-screen justify-content-center align-items-center">
+                      <div class="empty-screen justify-content-center align-items-center" style={{ borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
                         <div style={{ textAlign: 'center' }}>
                           <img style={{ height: 50, width: 50 }} src={img_screen_off} alt="Camera"></img>
                           <div style={{ fontSize: 16, color: "#D8D8D8" }}> 對方已關閉鏡頭</div>
@@ -568,18 +570,18 @@ const VideoChat = (props) => {
               {renderTestUsers()}
             </div>
             : // Phone View
-            <div class="room">
+            <div class="room" style={{ height: videoHeight }}>
               {participants.map((user) => { // Counselor Video
                 if (user.bVideoOn && user.userId === client.getCurrentUserInfo().userId) {
                   return (
                     <Draggable className='dragdiv' key={user.useId} >
-                      <video-player-container style={{ zIndex: "999", position: "absolute", right: 18, bottom: 137, height: 150, width: 112, borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
+                      <video-player-container style={{ zIndex: "999", position: "absolute", right: 18, bottom: 137, height: 150, width: 112 }}>
                         <div style={{ width: "100%" }}>
                           <div class="screen-mic">
                             <img style={{ height: 24, width: 24 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
                           </div>
                         </div>
-                        <video-player class="video-player" node-id={user.userId}></video-player>
+                        <video-player class="video-player" style={{ borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} node-id={user.userId}></video-player>
                       </video-player-container>
                     </Draggable>
                   )
@@ -587,13 +589,13 @@ const VideoChat = (props) => {
                 else if (!user.bVideoOn && user.userId === client.getCurrentUserInfo().userId) {
                   return (
                     <Draggable className='dragdiv' key={user.useId} >
-                      <div class="empty-screen-container" style={{ zIndex: "999", position: "absolute", right: 18, bottom: 137, height: 150, width: 112, borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} >
+                      <div class="empty-screen-container" style={{ zIndex: "999", position: "absolute", right: 18, bottom: 137, height: 150, width: 112 }} >
                         <div style={{ width: "100%" }}>
                           <div class="screen-mic">
                             <img style={{ height: 24, width: 24 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
                           </div>
                         </div>
-                        <div class="empty-screen justify-content-center align-items-center">
+                        <div class="empty-screen justify-content-center align-items-center" style={{ borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
                           <div style={{ textAlign: 'center' }}>
                             <img style={{ height: 50, width: 50 }} src={img_screen_off} alt="Camera"></img>
                             <div style={{ fontSize: 16, color: "#D8D8D8" }}> 已關閉鏡頭</div>
@@ -611,25 +613,25 @@ const VideoChat = (props) => {
               {participants.map((user) => { // Users Video
                 if (user.bVideoOn && user.userId !== client.getCurrentUserInfo().userId) {
                   return (
-                    <video-player-container key={user.useId} style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
+                    <video-player-container key={user.useId} style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants() }}>
                       <div style={{ width: "100%" }}>
                         <div class="screen-mic">
                           <img style={{ height: 24, width: 24 }} src={user.muted ? img_mic_off : img_mic_on} alt="Mic" />
                         </div>
                       </div>
-                      <video-player class="video-player" node-id={user.userId}></video-player>
+                      <video-player class="video-player" style={{ borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} node-id={user.userId}></video-player>
                     </video-player-container>
                   )
                 }
                 else if (!user.bVideoOn && user.userId !== client.getCurrentUserInfo().userId) {
                   return (
-                    <div key={user.useId} class="empty-screen-container" style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
+                    <div key={user.useId} class="empty-screen-container" style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants() }}>
                       <div style={{ width: "100%" }}>
                         <div class="screen-mic">
                           <img style={{ height: 24, width: 24 }} src={user.muted ? img_mic_off : img_mic_on} alt="Mic" />
                         </div>
                       </div>
-                      <div class="empty-screen justify-content-center align-items-center">
+                      <div class="empty-screen justify-content-center align-items-center" style={{ borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }}>
                         <div style={{ textAlign: 'center' }}>
                           <img style={{ height: 50, width: 50 }} src={img_screen_off} alt="Camera"></img>
                           <div style={{ fontSize: 16, color: "#D8D8D8" }}> 對方已關閉鏡頭</div>
@@ -647,7 +649,7 @@ const VideoChat = (props) => {
             </div>
           }
           {screenWidth > 500 ?
-            <div class="row justify-content-center align-items-center" style={{ height: "15%" }}>
+            <div class="row justify-content-center align-items-center" style={{ height: footerHeight }}>
               <div class="col-auto p-0" style={{ marginRight: 29 }}>
                 <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
                   <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickMic}>
@@ -721,7 +723,7 @@ const VideoChat = (props) => {
               </div> */}
             </div>
             :
-            <div class="row justify-content-center align-items-center" style={{ height: "15%" }}>
+            <div class="row justify-content-center align-items-center" style={{ height: footerHeight }}>
               <div class="col-auto p-0" style={{ marginRight: 30 }}>
                 <div style={{ textAlign: 'center', alignSelf: 'center', justifySelf: 'center' }}>
                   <button style={{ borderColor: 'transparent', backgroundColor: 'transparent' }} onClick={onClickMic}>
