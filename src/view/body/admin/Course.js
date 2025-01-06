@@ -58,7 +58,7 @@ function Course() {
       title: "圖片",
       dataIndex: "image",
       key: "image",
-      render: (image) => <Image crossOrigin="anonymous"  crossOrigin="anonymous"  src={image} width="70px" />,
+      render: (image) => <Image crossOrigin="anonymous"   src={image} width="70px" />,
     },
     {
       title: "名稱",
@@ -453,7 +453,7 @@ function Course() {
               />
             </Space>
           </Form.Item>
-          <Image crossOrigin="anonymous"  crossOrigin="anonymous"  width="100px" src={form.getFieldValue("image")}></Image>
+          <Image crossOrigin="anonymous"   width="100px" src={form.getFieldValue("image")}></Image>
           <Form.Item name="image">
             <Input
               allowClear={true}
