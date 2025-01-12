@@ -45,6 +45,7 @@ function Music() {
   const [messageApi, contextHolder] = message.useMessage();
   const [shortImage, setShortImage] = useState("");
   const [shortMusic, setShortMusic] = useState("");
+  const [duration, setDuration] = useState(0);
 
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
@@ -120,12 +121,7 @@ function Music() {
       title: "啟用",
       dataIndex: "isDelete",
       key: "isDelete",
-      render: (_, { isDelete }) => (
-        <>
-          {isDelete=='Y'?"未啟用":"啟用中"}
-        </>
-      ),
-      
+      render: (_, { isDelete }) => <>{isDelete == "Y" ? "未啟用" : "啟用中"}</>,
     },
     {
       title: "名稱",
@@ -181,7 +177,7 @@ function Music() {
       path: item.Path,
       views: item.TotalView,
       createDate: item.CreateDate,
-      isDelete:item.IsDelete,
+      isDelete: item.IsDelete,
     }));
     setData(result);
     setLoading(false);
@@ -206,6 +202,9 @@ function Music() {
     setShortImage(record.image);
     setShortMusic(record.path);
     setSelectMusic(record.key);
+    console.log(record.key)
+    handleAudioDuration(record.path);
+    
     form.setFieldsValue({
       key: record.key,
       musicId: record.MusicID,
@@ -213,7 +212,7 @@ function Music() {
       image: record.image,
       path: record.path,
       free: record.free,
-      isDelete:record.isDelete==='N'||record.isDelete===''
+      isDelete: record.isDelete === "N" || record.isDelete === "",
     });
     setModalOpen(true);
   };
@@ -231,7 +230,7 @@ function Music() {
         Free: form.getFieldValue("free") == "Free",
         Image: form.getFieldValue("image"),
         Time: form.getFieldValue("size"),
-        IsDelete:form.getFieldValue("isDelete")?"N":"Y"
+        IsDelete: form.getFieldValue("isDelete") ? "N" : "Y",
       });
     } else {
       await meditationService.updateMusic({
@@ -244,7 +243,7 @@ function Music() {
         Free: form.getFieldValue("free") == "Free",
         Image: form.getFieldValue("image"),
         Time: form.getFieldValue("size"),
-        IsDelete:form.getFieldValue("isDelete")?"N":"Y"
+        IsDelete: form.getFieldValue("isDelete") ? "N" : "Y",
       });
     }
     setModalOpen(false);
@@ -254,7 +253,24 @@ function Music() {
   useEffect(() => {
     fetchData();
   }, []);
+  const handleAudioDuration = (url) => {
+    const audio = new Audio(url);
+    audio.addEventListener("loadedmetadata", () => {
+      setDuration(audio.duration); // 格式化時長
+    });
+  };
 
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setShortMusic(value);
+    handleAudioDuration(value);
+  };
+
+  const getDuration = () => {
+    const minutes = Math.floor(duration / 60);
+    const seconds = Math.floor(duration % 60);
+    return `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+  };
   return (
     <div>
       <Button onClick={handleDownload}>下載報表</Button>
@@ -267,6 +283,7 @@ function Music() {
           setCurrentModel("New");
           form.resetFields();
           setModalOpen(true);
+          setDuration("")
         }}
       />
 
@@ -306,12 +323,13 @@ function Music() {
             />
           )}
           <Form.Item name="path" label="音樂 URL" rules={[{ required: true }]}>
-            <Input
-              placeholder="輸入音樂 URL"
-              onChange={(e) => setShortMusic(e.target.value)}
-            />
+            <Input placeholder="輸入音樂 URL" onChange={handleInputChange} />
           </Form.Item>
-
+          {duration && (
+            <div style={{ marginTop: "10px", color: "#666" }}>
+              <label>音樂時長：{getDuration()}</label>
+            </div>
+          )}
           <ReactAudioPlayer
             src={shortMusic}
             controls
@@ -328,7 +346,7 @@ function Music() {
             />
           </Form.Item>
           <Form.Item name="isDelete" label="啟用" rules={[{ required: true }]}>
-            <Switch defaultChecked  />
+            <Switch />
           </Form.Item>
           <Button type="primary" htmlType="submit">
             提交
