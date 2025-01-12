@@ -229,7 +229,7 @@ function Music() {
         Type: "Course",
         Free: form.getFieldValue("free") == "Free",
         Image: form.getFieldValue("image"),
-        Time: form.getFieldValue("size"),
+        Time: Math.floor(duration),
         IsDelete: form.getFieldValue("isDelete") ? "N" : "Y",
       });
     } else {
@@ -242,7 +242,7 @@ function Music() {
         Type: "Course",
         Free: form.getFieldValue("free") == "Free",
         Image: form.getFieldValue("image"),
-        Time: form.getFieldValue("size"),
+        Time: Math.floor(duration),
         IsDelete: form.getFieldValue("isDelete") ? "N" : "Y",
       });
     }
