@@ -92,6 +92,7 @@ const VideoChat = (props) => {
       await stream.startVideo({ hd: supportHD, fullHd: supportHD });
       await stream.startAudio();
 
+      stream.mirrorVideo(true);
       console.log("stream", stream);
       console.log("client", client);
       console.log("session info", client.getSessionInfo());
