@@ -59,7 +59,7 @@ const VideoChat = (props) => {
 
       // start join session
       if (ZoomVideo.checkSystemRequirements().video && ZoomVideo.checkSystemRequirements().audio) {
-        await client.init('en-US', 'Global', { patchJsMedia: true, stayAwake: true }).then(async () => {
+        await client.init('en-US', 'Global', { patchJsMedia: true, stayAwake: true, enforceMultipleVideos:true }).then(async () => {
           await client.join(tempAppointment.RoomID, token, tempAppointment.CounselorName, "").then(() => {
             stream = client.getMediaStream();
             var isVirtualBG = stream.isSupportVirtualBackground();
