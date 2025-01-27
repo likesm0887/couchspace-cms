@@ -36,36 +36,36 @@
 
 video-player-container {
   width: 100%;
-  height: auto;
-  align-content: center;
+  height: 100%;
+  display: flex;
   background-color: black;
-  max-height: 100%;
-  aspect-ratio: 16/9;
   border-radius: 20px;
-  border-width: 4px;
-  border-style: solid;
   margin: 5px;
 }
 
 .video-player {
-  width: auto;
+  width: 100%;
   height: 100%;
   aspect-ratio: 16/9;
-  display: flex;
-  padding: 10px;
-  margin: 0px auto;
-}
-
-.empty-screen-container {
-  width: 100%;
-  height: auto;
-  align-content: center;
-  background-color: black;
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
   max-height: 100%;
   aspect-ratio: 16/9;
   border-radius: 20px;
   border-width: 4px;
   border-style: solid;
+  background-color: transparent;
+}
+
+.empty-screen-container {
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  border-radius: 20px;
   margin: 5px;
   display: block;
   position: relative;
@@ -76,7 +76,12 @@ video-player-container {
   height: 100%;
   aspect-ratio: 16/9;
   display: flex;
-  padding: 10px;
+  background-color: black;
+  max-height: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 20px;
+  border-width: 4px;
+  border-style: solid;
 }
 
 .participant {
@@ -89,19 +94,19 @@ video-player-container {
 .room {
   justify-content: center;
   align-content: center;
-  height: 75%;
+  height: 80%;
   display: flex;
   flex: 1;
   flex-wrap: wrap;
-  padding: 20px;
+  padding: 5px;
   max-width: 2000px;
   margin: 0px auto;
 }
 .screen-mic {
-  margin-top: 5px;
+  margin-top: 10px;
   z-index: 999;
   position: absolute;
-  right: 20px;
+  right: 10px;
 }
 .count-down {
   width: 100%;
@@ -115,6 +120,15 @@ video-player-container {
   justify-content: center;
   align-items: center;
 }
+.dragdiv {
+  padding: 8rem;
+  color: blueviolet;
+  cursor: grabbing;
+  font-size: medium;
+  font-weight: 600;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+}
+
 @media screen and (max-width: 992px) {
   video-player {
     width: 100%;

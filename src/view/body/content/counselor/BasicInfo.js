@@ -11,8 +11,10 @@ import { useEffect } from "react";
 import { counselorService } from "../../../../service/ServicePool";
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
+import { useNavigate } from "react-router-dom";
 
 const BasicInfo = () => {
+    let navigate = useNavigate();
     const [disableSaveBtn, setDisabledSaveBtn] = useState(true);
     const cities = ["基隆市", "台北市", "新北市", "桃園縣", "新竹市", "新竹縣", "苗栗縣", "台中市", "彰化縣", "南投縣", "雲林縣", "嘉義市", "嘉義縣", "台南市", "高雄市", "屏東縣", "台東縣", "花蓮縣", "宜蘭縣", "澎湖縣", "金門縣", "連江縣", "海外"];
 
@@ -97,6 +99,9 @@ const BasicInfo = () => {
             setShortIntro(counselorInfo.ShortIntroduction);
             setLongIntro(counselorInfo.LongIntroduction);
         })
+    }
+    const handleBack = () => {
+        navigate("/couchspace-cms/home", { replace: true });
     }
     const handleSave = async () => {
         ClearAllError();
@@ -242,6 +247,14 @@ const BasicInfo = () => {
             <Typography style={{ marginTop: 10, fontSize: 20 }} gutterBottom>
                 基本資料
             </Typography>
+            <Button
+                variant="contained"
+                color="success"
+                onClick={handleBack}
+                style={{ float: 'right', marginLeft: 10 }}
+            >
+                {'返回'}
+            </Button>
             <Button
                 variant="contained"
                 color="primary"

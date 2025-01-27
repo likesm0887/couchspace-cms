@@ -38,7 +38,7 @@ function Header() {
     const theme = useTheme();
     const handleDrawerOpen = () => { setOpen(true) }
     const handleDrawerClose = () => { setOpen(false) }
-    const drawerNames = ["諮詢", "冥想", "文章", "管理", "設定"]
+    const drawerNames = ["諮詢"]
     const drawerIconUrls = [consultation, meditation, article, manager, setting];
     const redirectUrls = ["consultation", "repair", "repair", "repair", "repair"];
     return (
@@ -47,7 +47,9 @@ function Header() {
                 <div class="container-fluid" style={{ marginTop: 10, marginBottom: 10 }}>
                     <div class="row align-items-center">
                         <div class="col-8 col-sm-6">
-                            <img style={{ objectFit: 'contain' }} src={logo} className="logo" alt="logo" />
+                            <Link to={redirectUrls[0]} style={{ textDecoration: 'none' }}>
+                                <img style={{ objectFit: 'contain' }} src={logo} className="logo" alt="logo" />
+                            </Link>
                         </div>
                         <div class="col-4 col-sm-6">
                             <Personal></Personal>
@@ -70,9 +72,9 @@ function Header() {
                             </IconButton>
                         </div>
                         <div class="col-8 p-0">
-                            <a href={currentHtml}>
+                            <Link to={redirectUrls[0]} style={{ textDecoration: 'none' }}>
                                 <img style={{ objectFit: 'contain' }} src={logo} className="logo" alt="logo" />
-                            </a>
+                            </Link>
                         </div>
                         <div class="col-2">
                             <Personal></Personal>
