@@ -92,11 +92,12 @@ export function Register() {
     const finishRegister = async () => {
         try {
             let appointmentTime = new AppointmentTime();
+            let result;
             appointmentTime.BusinessTimes = counselorInfo.BusinessTimes;
             appointmentTime.OverrideTimes = counselorInfo.OverrideTimes;
 
             // step1: Register
-            var result = await counselorService.register(account, password);
+            result = await counselorService.register(account, password);
             if (result.status !== 200) {
                 showToast(toastType.error, "註冊失敗");
                 return;
@@ -107,6 +108,10 @@ export function Register() {
             // console.log("Login", result);
             // step3: Upload Photo
             result = await counselorService.upload(counselorInfo.Photo);
+            if (!result.success) {
+                showToast(toastType.error, "建立資料失敗" + result.error_code);
+                return;
+            }
             // console.log("Upload Photo", result);
             counselorInfo.updatePhoto = result.Photo;
             counselorInfo.updateAppointmentID = result.AppointmentTimeID;
@@ -117,13 +122,14 @@ export function Register() {
             // console.log("Update Counselor Info", res1);
             // console.log("Update AppointmentTime", res2);
             if (!res1.success) {
-                showToast(toastType.error, "建立資料失敗");
+                showToast(toastType.error, "建立資料失敗" + res1.error_code);
                 return;
             }
             if (!res2.success) {
-                showToast(toastType.error, "建立時段失敗");
+                showToast(toastType.error, "建立時段失敗" + res2.error_code);
                 return;
             }
+            await verifyData(counselorInfo, appointmentTime);
             console.log("register finish");
         }
         catch (err) {
@@ -145,7 +151,26 @@ export function Register() {
                 return;
         }
     }
-
+    async function verifyData(counselorInfo, appointmentTime) {
+        let retryCnt = 3;
+        let tempInfo = null;
+        let result;
+        while (retryCnt) {
+            tempInfo = await counselorService.getCounselorInfo();
+            console.log("verify data", tempInfo);
+            if (tempInfo.Email !== "") {
+                break;
+            }
+            result = await counselorService.upload(counselorInfo.Photo);
+            if (result.success) {
+                counselorInfo.updatePhoto = result.Photo;
+                counselorInfo.updateAppointmentID = result.AppointmentTimeID;
+            }
+            await counselorService.updateCounselorInfo(counselorInfo);
+            await counselorService.setAppointmentTime(appointmentTime);
+            retryCnt--;
+        }
+    }
     return (
         <div>
             {loading ?
