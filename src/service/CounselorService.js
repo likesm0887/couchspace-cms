@@ -315,6 +315,7 @@ export class CounselorService {
         return fetch(api, requestOptions)
             .then((res) => res.json())
             .then((res) => {
+                console.log("upload res", res);
                 return res;
             });
     }
