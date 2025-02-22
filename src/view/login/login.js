@@ -98,7 +98,14 @@ function Login() {
         }
         else {
             counselorInfo.clearAll = null;
-            navigate("register", { replace: false, state: { email: account, password: password } });
+            let result = await counselorService.register(account, password);
+            if (result.status !== 200) {
+                showToast(toastType.error, "註冊失敗");
+            }
+            else {
+                showToast(toastType.success, "註冊成功，請登入並填寫基本資料");
+                setSelectedTab(tabType.login);
+            }
         }
 
     }
