@@ -29,7 +29,10 @@ import {
   Drawer,
 } from "antd";
 import React, { useState, useEffect } from "react";
-import { meditationService } from "../../../service/ServicePool";
+import {
+  counselorService,
+  meditationService,
+} from "../../../service/ServicePool";
 
 const Row = ({ children, ...props }) => {
   const {
@@ -90,14 +93,50 @@ const Banner = () => {
     {
       title: "Banner圖片",
       dataIndex: "imageUrl",
-      render: (image) => <Image crossOrigin="anonymous"  crossOrigin="anonymous"  src={image} width="70px" preview={false} />,
+      render: (image) => (
+        <Image
+          crossOrigin="anonymous"
+          src={image}
+          width="70px"
+          preview={false}
+        />
+      ),
     },
     {
       title: "連結系列",
       dataIndex: "linkSourceID",
+      render: (text, record) => {
+        console.log(record)
+        if (record.type === "EXTERNAL_LINK") {
+          return (
+            <a
+              href={record.linkSourceID}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+            
+              {record.linkSourceID}
+            </a>
+          );
+        }
+        return text;
+      },
     },
     {
-      title: "Seq",
+      title: "連結類型",
+      dataIndex: "type",
+      render: (text) => {
+        const typeMap = {
+          EXTERNAL_LINK: "外部連結",
+          SINGLE_AUDIO: "單首音檔",
+          SERIES: "系列專輯",
+          CONSULTANT_PAGE: "諮詢師介紹頁",
+        };
+        return typeMap[text] || text;
+      },
+    },
+    {
+      title: "順序",
       dataIndex: "seq",
     },
     {
@@ -119,14 +158,19 @@ const Banner = () => {
   const [dataSource, setDataSource] = useState([]);
   const [previewBannerImage, setPreviewBannerImage] = useState([]);
   const [allCourses, setAllCourses] = useState([]);
+  const [allCounselor, setAllCounselor] = useState([]);
+  const [allMusics, setAllMusics] = useState([]);
   const [selectCourse, setSelectCourse] = useState([]);
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [oriCommonData, setOriCommonData] = useState([]);
+
+  const [selectedType, setSelectedType] = useState(null);
   useEffect(() => {
     getData();
   }, []);
+
   const onBannerDelete = async (e) => {
     let select = oriCommonData.NewBanners.findIndex(
       (o) => o.Seq === e.seq && o.ImageUrl === e.imageUrl
@@ -134,50 +178,99 @@ const Banner = () => {
     console.log(select);
     oriCommonData.NewBanners.splice(select, 1);
     for (let index = 0; index < oriCommonData.NewBanners.length; index++) {
-        oriCommonData.NewBanners[index].Seq=index+1
+      oriCommonData.NewBanners[index].Seq = index + 1;
     }
-    setLoading2(true)
+    setLoading2(true);
     await meditationService.updateCommonData(oriCommonData);
     getData();
-    setLoading2(false)
+    setLoading2(false);
   };
+
+  const getSourceName = async (bannerItem) => {
+    if (bannerItem.Type === "SERIES") {
+      // 查詢單筆課程資料（假設 batchQueryCourses 回傳陣列）
+      const courses = await meditationService.batchQueryCourses({
+        ids: [bannerItem.LinkSourceID],
+      });
+      return courses?.[0]?.CourseName || "";
+    }
+
+    if (bannerItem.Type === "SINGLE_AUDIO") {
+      // 查詢單筆音檔資料
+      const musicList = await meditationService.batchQueryMusic({
+        ids: [bannerItem.LinkSourceID],
+      });
+      return musicList?.[0]?.Title || "";
+    }
+
+    if (bannerItem.Type === "CONSULTANT_PAGE") {
+      // 取得諮詢師資料
+      const counselor = await counselorService.getCounselorInfoById(
+        bannerItem.LinkSourceID
+      );
+      console.log(counselor);
+      return (
+        counselor?.UserName?.Name.LastName +
+          counselor?.UserName?.Name.FirstName || ""
+      );
+    }
+
+    if (bannerItem.Type === "EXTERNAL_LINK") {
+      return bannerItem.LinkSourceID;
+    }
+
+    return "";
+  };
+
   const getData = async () => {
-    let commonData = await meditationService.getCommonData();
+    const commonData = await meditationService.getCommonData();
     setOriCommonData(commonData);
     console.log(commonData.NewBanners.map((b) => b.LinkSourceID));
-    let courses = await meditationService.batchQueryCourses({
-      ids: commonData.NewBanners.map((b) => b.LinkSourceID),
-    });
 
-    let banner = commonData.NewBanners.map((e) => {
-      let course = courses?.find((c) => c.CourseID === e.LinkSourceID);
-      return {
-        key: e.Seq,
-        imageUrl: e.ImageUrl,
-        linkSourceID: course?.CourseName,
-        seq: e.Seq,
-      };
-    });
-    const allCourses = await meditationService.getAllCourse();
-    console.log(allCourses)
-    setAllCourses(
-      allCourses.map((c) => {
+    // 使用 Promise.all 等待所有非同步取得結果
+    const banner = await Promise.all(
+      commonData.NewBanners.map(async (e) => {
         return {
-          label: c.CourseName,
-          value: c.CourseID,
+          key: e.Seq,
+          imageUrl: e.ImageUrl,
+          // 注意：await 取得每個 banner 的 linkSourceID
+          linkSourceID: await getSourceName(e),
+          type: e.Type,
+          seq: e.Seq,
         };
       })
+    );
+
+    const allCourses = await meditationService.getAllCourse();
+    const allMusics = await meditationService.getAllMusic();
+    const allCounselor = await counselorService.getAllCounselorInfo();
+    console.log(allCourses);
+    setAllMusics(
+      allMusics.map((c) => ({
+        label: c.Title,
+        value: c.MusicID,
+      }))
+    );
+    setAllCourses(
+      allCourses.map((c) => ({
+        label: c.CourseName,
+        value: c.CourseID,
+      }))
+    );
+    setAllCounselor(
+      allCounselor.map((c) => ({
+        label: c?.UserName?.Name.LastName + c?.UserName?.Name.FirstName,
+        value: c.ID,
+      }))
     );
     console.log(
-      allCourses.map((c) => {
-        return {
-          label: c.CourseName,
-          value: c.CourseID,
-        };
-      })
+      allCourses.map((c) => ({
+        label: c.CourseName,
+        value: c.CourseID,
+      }))
     );
 
-    console.log(oriCommonData);
+    console.log(commonData);
     setDataSource(banner);
   };
 
@@ -200,6 +293,7 @@ const Banner = () => {
           console.log(select);
           toChangeCommonData.push({
             Seq: index + 1,
+            Type: select.Type,
             ImageUrl: select.ImageUrl,
             LinkSourceID: select.LinkSourceID,
           });
@@ -210,7 +304,7 @@ const Banner = () => {
       });
       setLoading2(true);
       await meditationService.updateCommonData(oriCommonData);
-      
+
       console.log(oriCommonData);
       getData();
       setLoading2(false);
@@ -218,15 +312,21 @@ const Banner = () => {
   };
 
   const onFinish = async () => {
-    console.log(form.getFieldValue("image"));
-    console.log(selectCourse);
-    if (form.getFieldValue("image") === "" || selectCourse === undefined) {
+    const image = form.getFieldValue("image");
+    const linkSourceID = form.getFieldValue("LinkSourceID");
+
+    console.log("image:", image);
+    console.log("linkSourceID:", linkSourceID);
+
+    if (!image || !linkSourceID) {
       return;
     }
+
     oriCommonData.NewBanners.push({
       Seq: oriCommonData.NewBanners.length + 1,
-      ImageUrl: form.getFieldValue("image"),
-      LinkSourceID: selectCourse,
+      Type: selectedType,
+      ImageUrl: image,
+      LinkSourceID: linkSourceID, // 確保 ID 存入
     });
 
     console.log(oriCommonData);
@@ -236,9 +336,13 @@ const Banner = () => {
     getData();
     setLoading(false);
   };
-  const handleChange = (value) => {
-    console.log(`selected ${value}`);
-  };
+  const typeOptions = [
+    { label: "外部連結", value: "EXTERNAL_LINK" },
+    { label: "單首音檔", value: "SINGLE_AUDIO" },
+    { label: "系列專輯", value: "SERIES" },
+    { label: "諮詢師介紹頁", value: "CONSULTANT_PAGE" },
+  ];
+
   return (
     <div>
       <FloatButton
@@ -248,6 +352,7 @@ const Banner = () => {
         onClick={() => {
           setModal1Open(true);
           setSelectCourse(null);
+          form.setFieldsValue({ LinkSourceID: undefined });
           form.setFieldValue("image", "");
           setPreviewBannerImage("");
         }}
@@ -275,13 +380,10 @@ const Banner = () => {
         </DndContext>
       </Spin>
       <Drawer
-        title={"新增"}
-        style={{
-          top: 20,
-        }}
-        destroyOnClose={true}
+        title="新增"
+        style={{ top: 20 }}
+        destroyOnClose
         open={modal1Open}
-        //onOk={() => onFinish()}
         onClose={() => setModal1Open(false)}
         width={360}
         cancelText="取消"
@@ -291,38 +393,97 @@ const Banner = () => {
         <Spin size="large" spinning={loading}>
           <Form form={form}>
             <p></p>
-            <Image crossOrigin="anonymous"  crossOrigin="anonymous"  width="100px" src={previewBannerImage}></Image>
+            <Image
+              crossOrigin="anonymous"
+              width="100px"
+              src={previewBannerImage}
+            />
             <Form.Item name="image" label="圖片">
               <Input
-                allowClear={true}
+                allowClear
                 placeholder="圖片"
                 size="big"
-                onChange={(e) => {
-                  console.log(e.target.value);
-                  setPreviewBannerImage(e.target.value);
+                onChange={(e) => setPreviewBannerImage(e.target.value)}
+              />
+            </Form.Item>
+            <p></p>
+
+            {/* 類型選擇 */}
+            <Form.Item name="type" label="類型">
+              <Select
+                showSearch
+                placeholder="選擇類型"
+                options={typeOptions}
+                filterOption={(input, option) =>
+                  option?.label?.toLowerCase().includes(input.toLowerCase())
+                }
+                onChange={(value) => {
+                  setSelectedType(value);
+                  form.setFieldsValue({ LinkSourceID: undefined }); // 清空之前的選擇
                 }}
               />
             </Form.Item>
             <p></p>
 
-            <Form.Item name="LinkSourceID" label="轉跳系列">
-              <Space>
+            {/* 根據選擇的類型顯示對應的輸入欄位 */}
+            {selectedType === "EXTERNAL_LINK" && (
+              <Form.Item name="LinkSourceID" label="外部連結">
+                <Input
+                  placeholder="請輸入連結"
+                  onChange={(e) =>
+                    form.setFieldsValue({ LinkSourceID: e.target.value })
+                  }
+                />
+              </Form.Item>
+            )}
+            {selectedType === "SINGLE_AUDIO" && (
+              <Form.Item name="LinkSourceID" label="單首音檔">
                 <Select
-                  onChange={(e)=>setSelectCourse(e)}
+                  showSearch
+                  placeholder="選擇單首音檔"
+                  options={allMusics}
+                  filterOption={(input, option) =>
+                    option?.label?.toLowerCase().includes(input.toLowerCase())
+                  }
+                  onChange={(value) =>
+                    form.setFieldsValue({ LinkSourceID: value })
+                  } // 存入 ID
+                />
+              </Form.Item>
+            )}
+            {selectedType === "CONSULTANT_PAGE" && (
+              <Form.Item name="LinkSourceID" label="諮商師">
+                <Select
+                  showSearch
+                  placeholder="選擇諮商師"
+                  options={allCounselor}
+                  filterOption={(input, option) =>
+                    option?.label?.toLowerCase().includes(input.toLowerCase())
+                  }
+                  onChange={(value) =>
+                    form.setFieldsValue({ LinkSourceID: value })
+                  } // 存入 ID
+                />
+              </Form.Item>
+            )}
+            {selectedType === "SERIES" && (
+              <Form.Item name="LinkSourceID" label="轉跳系列">
+                <Select
+                  showSearch
                   placeholder="選擇轉跳系列"
                   options={allCourses}
+                  filterOption={(input, option) =>
+                    option?.label?.toLowerCase().includes(input.toLowerCase())
+                  }
+                  onChange={(value) =>
+                    form.setFieldsValue({ LinkSourceID: value })
+                  } // 存入 ID
                 />
-              </Space>
-            </Form.Item>
-            <p></p>
+              </Form.Item>
+            )}
           </Form>
         </Spin>
-        <div
-          style={{
-            position: "absolute",
-            bottom: "5%",
-          }}
-        >
+        <div style={{ position: "absolute", bottom: "5%" }}>
           <Space>
             <Button onClick={onFinish} type="primary">
               確認
