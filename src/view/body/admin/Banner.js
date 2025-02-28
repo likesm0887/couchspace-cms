@@ -91,6 +91,10 @@ const Banner = () => {
       key: "sort",
     },
     {
+      title: "順序",
+      dataIndex: "seq",
+    },
+    {
       title: "Banner圖片",
       dataIndex: "imageUrl",
       render: (image) => (
@@ -103,7 +107,20 @@ const Banner = () => {
       ),
     },
     {
-      title: "連結系列",
+      title: "連結類型",
+      dataIndex: "type",
+      render: (text) => {
+        const typeMap = {
+          EXTERNAL_LINK: "外部連結",
+          SINGLE_AUDIO: "單首音檔",
+          SERIES: "系列專輯",
+          CONSULTANT_PAGE: "諮詢師介紹頁",
+        };
+        return typeMap[text] || text;
+      },
+    },
+    {
+      title: "連結內容",
       dataIndex: "linkSourceID",
       render: (text, record) => {
         console.log(record)
@@ -122,23 +139,8 @@ const Banner = () => {
         return text;
       },
     },
-    {
-      title: "連結類型",
-      dataIndex: "type",
-      render: (text) => {
-        const typeMap = {
-          EXTERNAL_LINK: "外部連結",
-          SINGLE_AUDIO: "單首音檔",
-          SERIES: "系列專輯",
-          CONSULTANT_PAGE: "諮詢師介紹頁",
-        };
-        return typeMap[text] || text;
-      },
-    },
-    {
-      title: "順序",
-      dataIndex: "seq",
-    },
+   
+    
     {
       title: "刪除",
       dataIndex: "editBtn",
