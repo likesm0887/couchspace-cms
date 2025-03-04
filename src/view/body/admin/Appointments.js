@@ -809,7 +809,7 @@ const Appointments = () => {
       {
         key: "19",
         label: "性別",
-        children: currentSelectCounselor?.Gender == "MALE" ? "男" : "女",
+        children: currentSelectCounselor?.Gender,
       },
 
       {
