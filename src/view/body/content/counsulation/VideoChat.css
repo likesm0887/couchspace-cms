@@ -130,9 +130,9 @@ video-player-container {
 }
 
 @media screen and (max-width: 992px) {
-  video-player {
-    width: 100%;
-    height: auto;
+  .video-player {
+    width: 95%;
+    height: 95%;
     flex: 0 0 100%;
     aspect-ratio: 16/9;
   }

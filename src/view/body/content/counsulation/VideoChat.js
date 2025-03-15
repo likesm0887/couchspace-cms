@@ -59,7 +59,7 @@ const VideoChat = (props) => {
 
       // start join session
       if (ZoomVideo.checkSystemRequirements().video && ZoomVideo.checkSystemRequirements().audio) {
-        await client.init('en-US', 'Global', { patchJsMedia: true, stayAwake: true, enforceMultipleVideos:true }).then(async () => {
+        await client.init('en-US', 'Global', { patchJsMedia: true, stayAwake: true, enforceMultipleVideos: true }).then(async () => {
           await client.join(tempAppointment.RoomID, token, tempAppointment.CounselorName, "").then(() => {
             stream = client.getMediaStream();
             var isVirtualBG = stream.isSupportVirtualBackground();
@@ -89,8 +89,8 @@ const VideoChat = (props) => {
       supportHD = await stream.isSupportHDVideo();
       console.log("supportHD", supportHD);
       // start video streaming & audio
-      await stream.startVideo({ hd: supportHD, fullHd: supportHD });
-      await stream.startAudio();
+      stream.startVideo({ hd: supportHD, fullHd: supportHD });
+      stream.startAudio();
 
       stream.mirrorVideo(true);
       console.log("stream", stream);
@@ -504,7 +504,7 @@ const VideoChat = (props) => {
                             <img style={{ height: 24, width: 24 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
                           </div>
                         </div>
-                        <video-player class="video-player" style={{ borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} node-id={user.userId}></video-player>
+                        <video-player class="video-player align-items-center" style={{ borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} node-id={user.userId}></video-player>
                       </video-player-container>
                     </Draggable>
                   )
@@ -542,7 +542,7 @@ const VideoChat = (props) => {
                           <img style={{ height: 24, width: 24 }} src={user.muted ? img_mic_off : img_mic_on} alt="Mic" />
                         </div>
                       </div>
-                      <video-player class="video-player" style={{ borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} node-id={user.userId}></video-player>
+                      <video-player class="video-player align-items-center" style={{ borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} node-id={user.userId}></video-player>
                     </video-player-container>
                   )
                 }
@@ -582,7 +582,7 @@ const VideoChat = (props) => {
                             <img style={{ height: 24, width: 24 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
                           </div>
                         </div>
-                        <video-player class="video-player" style={{ borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} node-id={user.userId}></video-player>
+                        <video-player class="video-player align-items-center" style={{ borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} node-id={user.userId}></video-player>
                       </video-player-container>
                     </Draggable>
                   )
@@ -620,7 +620,7 @@ const VideoChat = (props) => {
                           <img style={{ height: 24, width: 24 }} src={user.muted ? img_mic_off : img_mic_on} alt="Mic" />
                         </div>
                       </div>
-                      <video-player class="video-player" style={{ borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} node-id={user.userId}></video-player>
+                      <video-player class="video-player align-items-center" style={{ borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} node-id={user.userId}></video-player>
                     </video-player-container>
                   )
                 }
