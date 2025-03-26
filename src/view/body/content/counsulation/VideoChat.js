@@ -495,7 +495,7 @@ const VideoChat = (props) => {
           {screenWidth > 500 ?
             <div class="room" style={{ height: videoHeight }}>
               {participants.map((user) => { // Counselor Video
-                if (user.bVideoOn && user.userId === client.getCurrentUserInfo().userId) {
+                if (showCamera && user.userId === client.getCurrentUserInfo().userId) {
                   return (
                     <Draggable className='dragdiv' key={user.useId} >
                       <video-player-container style={{ zIndex: "999", position: "absolute", right: 40, bottom: 132, height: 183, width: 245 }}>
@@ -509,7 +509,7 @@ const VideoChat = (props) => {
                     </Draggable>
                   )
                 }
-                else if (!user.bVideoOn && user.userId === client.getCurrentUserInfo().userId) {
+                else if (!showCamera && user.userId === client.getCurrentUserInfo().userId) {
                   return (
                     <Draggable className='dragdiv' key={user.useId} >
                       <div class="empty-screen-container" style={{ zIndex: "999", position: "absolute", right: 40, bottom: 132, height: 183, width: 245 }} >
@@ -573,7 +573,7 @@ const VideoChat = (props) => {
             : // Phone View
             <div class="room" style={{ height: videoHeight }}>
               {participants.map((user) => { // Counselor Video
-                if (user.bVideoOn && user.userId === client.getCurrentUserInfo().userId) {
+                if (showCamera && user.userId === client.getCurrentUserInfo().userId) {
                   return (
                     <Draggable className='dragdiv' key={user.useId} >
                       <video-player-container style={{ zIndex: "999", position: "absolute", right: 18, bottom: 137, height: 150, width: 112 }}>
@@ -587,7 +587,7 @@ const VideoChat = (props) => {
                     </Draggable>
                   )
                 }
-                else if (!user.bVideoOn && user.userId === client.getCurrentUserInfo().userId) {
+                else if (!showCamera && user.userId === client.getCurrentUserInfo().userId) {
                   return (
                     <Draggable className='dragdiv' key={user.useId} >
                       <div class="empty-screen-container" style={{ zIndex: "999", position: "absolute", right: 18, bottom: 137, height: 150, width: 112 }} >
