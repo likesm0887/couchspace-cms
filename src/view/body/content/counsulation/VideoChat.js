@@ -45,6 +45,8 @@ const VideoChat = (props) => {
   const counterPadding = screenWidth - 150;
   const footerHeight = 100;
   const videoHeight = screenHeight - counterHeight - footerHeight - 20;
+  const IsSafari = /^((?!chrome|android).)*safari/i.test(window.navigator.userAgent);
+  console.log("IsSafari", IsSafari);
   let client = ZoomVideo.createClient();
   let stream;
   let supportHD;
@@ -90,7 +92,7 @@ const VideoChat = (props) => {
       console.log("supportHD", supportHD);
       // start video streaming & audio
       stream.startVideo({ hd: supportHD, fullHd: supportHD });
-      stream.startAudio();
+      stream.startAudio({ autoStartAudioInSafari: IsSafari });
 
       stream.mirrorVideo(true);
       console.log("stream", stream);
