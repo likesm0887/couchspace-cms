@@ -1,6 +1,6 @@
 
 # Fetching the latest node image on alpine linux
-FROM node:18-alpine as build-stage
+FROM node:20-alpine as build-stage
 
 # Declaring env
 ENV NODE_ENV development
