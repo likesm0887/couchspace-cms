@@ -191,7 +191,7 @@ function Consultation() {
                                         <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
                                     </button>
                                     :
-                                    <button className={"startButton-disabled startButton-disabled_hover"}>
+                                    <button className={"startButton-enabled startButton-enabled_hover"} onClick={() => start(allAppointment.AppointmentID)} >
                                         <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
                                     </button>
                                 }
