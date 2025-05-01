@@ -26,6 +26,8 @@ import Draggable from 'react-draggable';
 let startDateTime = null;
 let startTime = null;
 let bgImgUrl = "";
+const IsSafari = /^((?!chrome|android).)*safari/i.test(window.navigator.userAgent);
+console.log("IsSafari", IsSafari);
 const VideoChat = (props) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -86,13 +88,14 @@ const VideoChat = (props) => {
       client.on('user-removed', handleUserRemoved);
       client.on('user-updated', handleUserUpdated);
       client.on('active-speaker', handleActiveSpeaker);
+      client.on('auto-play-audio-failed', handleAutoPlayAudioFailed);
       supportHD = await stream.isSupportHDVideo();
       console.log("supportHD", supportHD);
       // start video streaming & audio
-      stream.startVideo({ hd: supportHD, fullHd: supportHD });
-      stream.startAudio();
+      await stream.startVideo({ hd: supportHD, fullHd: supportHD });
+      await stream.startAudio({ autoStartAudioInSafari: IsSafari })
 
-      stream.mirrorVideo(true);
+      await stream.mirrorVideo(true);
       console.log("stream", stream);
       console.log("client", client);
       console.log("session info", client.getSessionInfo());
@@ -137,6 +140,9 @@ const VideoChat = (props) => {
         setActiveSpeakerId("");
       }, 1000);
     }
+  }
+  const handleAutoPlayAudioFailed = () => {
+    console.log("handleAutoPlayAudioFailed")
   }
   const attachOrDetachRemoteUser = (user) => {
     console.log("user", user);
@@ -408,11 +414,16 @@ const VideoChat = (props) => {
         </div>
       )
     }
-    return (
-      output.map((user, index) => {
-        return user;
-      })
-    )
+    if (testUsers > 0) {
+      return (
+        output.map((user, index) => {
+          return user;
+        })
+      )
+    }
+    else {
+      return null;
+    }
   }
   const VideoErrorDialog = () => {
     return <Dialog
@@ -495,12 +506,12 @@ const VideoChat = (props) => {
           {screenWidth > 500 ?
             <div class="room" style={{ height: videoHeight }}>
               {participants.map((user) => { // Counselor Video
-                if (user.bVideoOn && user.userId === client.getCurrentUserInfo().userId) {
+                if (showCamera && user.userId === client.getCurrentUserInfo().userId) {
                   return (
-                    <Draggable className='dragdiv' key={user.useId} >
-                      <video-player-container style={{ zIndex: "999", position: "absolute", right: 40, bottom: 132, height: 183, width: 245 }}>
+                    <Draggable>
+                      <video-player-container key={user.useId} className='dragdiv' style={{ zIndex: "999", position: "absolute", right: 40, bottom: 132, height: 183, width: 245 }}>
                         <div style={{ width: "100%" }}>
-                          <div class="screen-mic">
+                          <div className="screen-mic">
                             <img style={{ height: 24, width: 24 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
                           </div>
                         </div>
@@ -509,12 +520,12 @@ const VideoChat = (props) => {
                     </Draggable>
                   )
                 }
-                else if (!user.bVideoOn && user.userId === client.getCurrentUserInfo().userId) {
+                else if (!showCamera && user.userId === client.getCurrentUserInfo().userId) {
                   return (
-                    <Draggable className='dragdiv' key={user.useId} >
-                      <div class="empty-screen-container" style={{ zIndex: "999", position: "absolute", right: 40, bottom: 132, height: 183, width: 245 }} >
+                    <Draggable>
+                      <div key={user.useId} className='dragdiv' class="empty-screen-container" style={{ zIndex: "999", position: "absolute", right: 40, bottom: 132, height: 183, width: 245 }} >
                         <div style={{ width: "100%" }}>
-                          <div class="screen-mic">
+                          <div className="screen-mic">
                             <img style={{ height: 24, width: 24 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
                           </div>
                         </div>
@@ -538,7 +549,7 @@ const VideoChat = (props) => {
                   return (
                     <video-player-container key={user.useId} style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants() }}>
                       <div style={{ width: "100%" }}>
-                        <div class="screen-mic">
+                        <div className="screen-mic">
                           <img style={{ height: 24, width: 24 }} src={user.muted ? img_mic_off : img_mic_on} alt="Mic" />
                         </div>
                       </div>
@@ -550,7 +561,7 @@ const VideoChat = (props) => {
                   return (
                     <div key={user.useId} class="empty-screen-container" style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants() }}>
                       <div style={{ width: "100%" }}>
-                        <div class="screen-mic">
+                        <div className="screen-mic">
                           <img style={{ height: 24, width: 24 }} src={user.muted ? img_mic_off : img_mic_on} alt="Mic" />
                         </div>
                       </div>
@@ -573,12 +584,12 @@ const VideoChat = (props) => {
             : // Phone View
             <div class="room" style={{ height: videoHeight }}>
               {participants.map((user) => { // Counselor Video
-                if (user.bVideoOn && user.userId === client.getCurrentUserInfo().userId) {
+                if (showCamera && user.userId === client.getCurrentUserInfo().userId) {
                   return (
-                    <Draggable className='dragdiv' key={user.useId} >
-                      <video-player-container style={{ zIndex: "999", position: "absolute", right: 18, bottom: 137, height: 150, width: 112 }}>
+                    <Draggable>
+                      <video-player-container key={user.useId} className='dragdiv' style={{ zIndex: "999", position: "absolute", right: 18, bottom: 137, height: 150, width: 112 }}>
                         <div style={{ width: "100%" }}>
-                          <div class="screen-mic">
+                          <div className="screen-mic">
                             <img style={{ height: 24, width: 24 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
                           </div>
                         </div>
@@ -587,12 +598,12 @@ const VideoChat = (props) => {
                     </Draggable>
                   )
                 }
-                else if (!user.bVideoOn && user.userId === client.getCurrentUserInfo().userId) {
+                else if (!showCamera && user.userId === client.getCurrentUserInfo().userId) {
                   return (
-                    <Draggable className='dragdiv' key={user.useId} >
-                      <div class="empty-screen-container" style={{ zIndex: "999", position: "absolute", right: 18, bottom: 137, height: 150, width: 112 }} >
+                    <Draggable>
+                      <div key={user.useId} className='dragdiv' class="empty-screen-container" style={{ zIndex: "999", position: "absolute", right: 18, bottom: 137, height: 150, width: 112 }} >
                         <div style={{ width: "100%" }}>
-                          <div class="screen-mic">
+                          <div className="screen-mic">
                             <img style={{ height: 24, width: 24 }} src={showMic ? img_mic_on : img_mic_off} alt="Mic" />
                           </div>
                         </div>
