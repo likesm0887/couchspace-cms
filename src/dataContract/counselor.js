@@ -142,6 +142,7 @@ export class Counselor {
 
         // override times
         this.OverrideTimes = [];
+        this.SubRole = "";
     }
 
 
@@ -179,6 +180,7 @@ export class Counselor {
         this.Tags = info.Tags;
         this.InstitutionID = info.InstitutionID;
         this.AppointmentTimeID = info.AppointmentTimeID;
+        this.SubRole = info.SubRole;
     }
 
     set updatePersonalInfo(info: Counselor) {
@@ -264,6 +266,7 @@ export class Counselor {
 
         // override times
         this.OverrideTimes = [];
+        this.SubRole = "";
     }
     set updatePhoto(imageUrl) {
         this.Photo = imageUrl;

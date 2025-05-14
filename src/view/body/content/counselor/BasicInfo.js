@@ -27,6 +27,7 @@ const BasicInfo = () => {
         }
     }
     const [isOpen, setIsOpen] = useState(false);
+    const [openError, setOpenError] = useState(false);
     const [tempPhoto, setTempPhoto] = useState(null);
     const [bindingPhoto, setBindingPhoto] = useState(counselorInfo.Photo);
     const getCropData = async () => {
@@ -70,7 +71,7 @@ const BasicInfo = () => {
         return true;
     }
     function DropdownCity() {
-        return (<DropdownButton id="dropdown-basic-button" size="sm" title={selectedCity}>
+        return (<DropdownButton id="dropdown-basic-button" size="sm" title={selectedCity.length > 0 ? selectedCity : "請選擇"}>
             {cities.map((city, index) => {
                 return (<Dropdown.Item style={{ fontSize: 14 }} key={index} onClick={() => setSelectedCity(city)}>{city}</Dropdown.Item>)
             })}
@@ -178,7 +179,8 @@ const BasicInfo = () => {
 
         }
         else {
-            showToast(toastType.error, "儲存失敗");
+            // showToast(toastType.error, "儲存失敗");
+            setOpenError(true);
             setDisabledSaveBtn(false);
         }
     }
@@ -241,30 +243,69 @@ const BasicInfo = () => {
             </DialogActions>
         </Dialog>
     }
-
+    const ErrorDialog = () => {
+        return <Dialog
+            open={openError}
+            fullWidth={true}
+            onClose={handleCloseError}
+            value={"sm"}>
+            <DialogTitle style={{ fontSize: 24, fontWeight: "bold", textAlign: "center" }} id="alert-dialog-title">{"資料未完成"}</DialogTitle>
+            <DialogContent>
+                <DialogContentText>
+                    <div style={{ fontSize: 16, fontWeight: "bold", textAlign: "center" }}>
+                        <div style={{ marginBottom: 20 }}>
+                            <p style={{ color: "#000000", margin: 0 }}>{"您已勾選身份類別，但尚未填寫對應欄位資料，"}</p>
+                            <p style={{ color: "#000000", margin: 0 }}>{"請確認資料是否完整。"}</p>
+                        </div>
+                    </div>
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <div className={"button-content"}>
+                    <button className={"acceptButton"} onClick={handleCloseError} color="primary">
+                        確認
+                    </button>
+                </div>
+            </DialogActions>
+        </Dialog>
+    }
+    const handleCloseError = () => {
+        setOpenError(false);
+    }
     return (
         <div className={"BasicInfo"} style={{ height: '100%', overflowY: 'scroll' }}>
-            <Typography style={{ marginTop: 10, fontSize: 20 }} gutterBottom>
-                基本資料
-            </Typography>
-            <Button
-                variant="contained"
-                color="success"
-                onClick={handleBack}
-                style={{ float: 'right', marginLeft: 10 }}
-            >
-                {'返回'}
-            </Button>
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSave}
-                style={{ float: 'right' }}
-                disabled={disableSaveBtn}
-            >
-                {'儲存'}
-            </Button>
-            <Grid container spacing={3}>
+            <div style={{ paddingTop: 10, flex: 1, flexDirection: "row", display: "flex", position: "sticky", top: 0, zIndex: 999, background: "#F7F8F8" }}>
+                <div style={{ flex: 1 }}>
+                    <Typography style={{ fontSize: 24, fontFamily: "PingFang TC", fontWeight: "600", color: "#212629" }} gutterBottom>
+                        基本資料
+                    </Typography>
+                </div>
+                <div style={{ width: 86 }}>
+                    <Button
+                        variant="outlined"
+                        onClick={handleBack}
+                        style={{ backgroundColor: "#D9D9D9", borderColor: "transparent", color: "#555654" }}
+                    >
+                        {'返回'}
+                    </Button>
+                </div>
+                <div style={{ width: 86 }}>
+                    <Button
+                        variant="contained"
+                        color="success"
+                        onClick={handleSave}
+                        disabled={disableSaveBtn}
+                    >
+                        {'儲存'}
+                    </Button>
+                </div>
+            </div>
+            <div style={{ marginTop: 10 }}>
+                <Typography style={{ lineHeight: 3, paddingLeft: 29, fontSize: 20, fontFamily: "PingFang TC", fontWeight: "600", color: "#212629", backgroundColor: "#ECF0F1", borderRadius: 6 }} gutterBottom>
+                    基本資料設定
+                </Typography>
+            </div>
+            <Grid style={{ fontFamily: "PingFang TC", fontSize: 16, fontWeight: "600", color: "#707070" }} container spacing={3}>
                 <Grid item xs={12} sm={6}>
                     <TextField
                         required
@@ -297,7 +338,7 @@ const BasicInfo = () => {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <div>
-                        <span style={{ color: errorCity === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"地區 *"}</span>
+                        <span style={{ color: errorCity === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"所在地區 *"}</span>
                         {DropdownCity()}
                         <FormHelperText error={errorCity !== ""}>{errorCity}</FormHelperText>
                     </div>
@@ -335,7 +376,7 @@ const BasicInfo = () => {
                 </Grid>
                 <Grid item xs={12}>
                     <div>
-                        <span style={{ color: errorPhoto === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"上傳一張你的照片 *"}</span>
+                        <span style={{ color: errorPhoto === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"上傳您想要顯示的照片 *"}</span>
                         <div>
                             <input accept="image/*" onChange={(e) => upload(e)} id="icon-button-file" type="file" />
                             <label htmlFor="icon-button-file">
@@ -386,6 +427,7 @@ const BasicInfo = () => {
                 </Grid>
             </Grid>
             {createDialog()}
+            {ErrorDialog()}
         </div>
 
     );

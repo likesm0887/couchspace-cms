@@ -24,10 +24,14 @@ const CounselingInfo = () => {
     let navigate = useNavigate();
     const [disableSaveBtn, setDisabledSaveBtn] = useState(true);
     const maximumFee = 10000;
-    const counselingItems = [
+    const counselingItems = counselorInfo.SubRole !== "HeartCoach" ? [
         { enabled: false, label: "線上初談", fee: 0, time: 10, value: "FIRST" },
         { enabled: false, label: "線上諮詢", fee: 0, time: 50, value: "IND_CONSULTATION" },
         { enabled: false, label: "實體諮商", fee: 0, time: 50, value: "IN_PERSON" },
+    ] : [
+        { enabled: false, label: "線上體驗", fee: 0, time: 10, value: "FIRST" },
+        { enabled: false, label: "線上體驗", fee: 0, time: 50, value: "IND_CONSULTATION" },
+        { enabled: false, label: "實體體驗", fee: 0, time: 50, value: "IN_PERSON" },
     ]
     const languagesItems = [
         { enabled: false, label: "中文", value: "zh" },
@@ -35,7 +39,7 @@ const CounselingInfo = () => {
         { enabled: false, label: "台語", value: "naive" },
         { enabled: false, label: "粵語", value: "yue" },
     ]
-    const expertiseList = [
+    const expertiseList = counselorInfo.SubRole !== "HeartCoach" ? [
         { value: "0", label: "負面情緒", },
         { value: "1", label: "創傷修復", },
         { value: "2", label: "情緒管理", },
@@ -48,21 +52,15 @@ const CounselingInfo = () => {
         { value: "9", label: "習慣培養", },
         { value: "10", label: "表達與溝通", },
         { value: "11", label: "正向與正念", },
+    ] : [
+        { value: "0", label: "職涯發展", },
+        { value: "1", label: "探索生命", },
+        { value: "2", label: "冥想引導", },
+        { value: "3", label: "正念瑜伽", },
+        { value: "4", label: "催眠引導", },
+        { value: "5", label: "身心療癒", },
     ];
-    // const tagList = [
-    //     { value: "0", label: "負面情緒", },
-    //     { value: "1", label: "創傷修復", },
-    //     { value: "2", label: "情緒管理", },
-    //     { value: "3", label: "人際關係", },
-    //     { value: "4", label: "親密關係", },
-    //     { value: "5", label: "家庭衝突", },
-    //     { value: "6", label: "性別議題", },
-    //     { value: "7", label: "自我成長", },
-    //     { value: "8", label: "職涯發展", },
-    //     { value: "9", label: "習慣培養", },
-    //     { value: "10", label: "表達與溝通", },
-    //     { value: "11", label: "正向與正念", },
-    // ];
+    let licenses = [{ license: "", disabled: false }];
 
     /// dialog
     const [isOpen, setIsOpen] = useState(false);
@@ -76,6 +74,7 @@ const CounselingInfo = () => {
     const [licenseNumber, setLicenseNumber] = useState(counselorInfo.License.LicenseNumber); // 證照編號
     const [licenseIssuing, setLicenseIssuing] = useState(counselorInfo.License.LicenseIssuing); // 發證單位
     const [licenseTitle, setLicenseTitle] = useState(counselorInfo.License.LicenseTitle); // 證照名稱
+    const [licenseLists, setLicenseLists] = useState([]); // 相關證照
     const [phone, setPhone] = useState(counselorInfo.Phone); // 機構電話
     const [address, setAddress] = useState(counselorInfo.Address); // 機構地址
     const [institution, setInstitution] = useState(counselorInfo.InstitutionTemp); // 機構名稱
@@ -189,18 +188,21 @@ const CounselingInfo = () => {
             setErrorAccumulative("請輸入從業時間");
             output = false;
         }
-        if (licenseNumber === "") {
-            setErrorLicenseNumber("請輸入證照編號");
-            output = false;
+        if (counselorInfo.SubRole !== "HeartCoach") {
+            if (licenseNumber === "") {
+                setErrorLicenseNumber("請輸入證照編號");
+                output = false;
+            }
+            if (licenseIssuing === "") {
+                setErrorLicenseIssuing("請輸入發證單位");
+                output = false;
+            }
+            if (licenseTitle === "") {
+                setErrorLicenseTitle("請輸入證照名稱");
+                output = false;
+            }
         }
-        if (licenseIssuing === "") {
-            setErrorLicenseIssuing("請輸入發證單位");
-            output = false;
-        }
-        if (licenseTitle === "") {
-            setErrorLicenseTitle("請輸入證照名稱");
-            output = false;
-        }
+
         if (expertisesInfo.trim() === "") {
             setErrorExpertisesInfo("請輸入專長");
             output = false;
@@ -288,6 +290,11 @@ const CounselingInfo = () => {
             setDisabledSaveBtn(true);
         }
     }, [education, seniority, position, accumulative, licenseNumber, licenseIssuing, licenseTitle, phone, address, institution, expertisesInfo])
+    const handleAddLicense = () => {
+        let licenses = licenseLists;
+        licenses.push({ license: "", disabled: "" })
+        setLicenseLists([...licenses]);
+    }
     const onClickSetting = () => {
         setIsOpen(true);
     }
@@ -367,27 +374,38 @@ const CounselingInfo = () => {
     }
     return (
         <div className={"CounselingInfo"} style={{ height: '100%', overflowY: 'scroll' }}>
-            <Typography style={{ marginTop: 10, fontSize: 20 }} gutterBottom>
-                服務管理
-            </Typography>
-            <Button
-                variant="contained"
-                color="success"
-                onClick={handleBack}
-                style={{ float: 'right', marginLeft: 10 }}
-            >
-                {'返回'}
-            </Button>
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSave}
-                style={{ float: 'right' }}
-                disabled={disableSaveBtn}
-            >
-                {'儲存'}
-            </Button>
-            <Grid container spacing={3}>
+            <div style={{ paddingTop: 10, flex: 1, flexDirection: "row", display: "flex", position: "sticky", top: 0, zIndex: 999, background: "#F7F8F8" }}>
+                <div style={{ flex: 1 }}>
+                    <Typography style={{ fontSize: 24, fontFamily: "PingFang TC", fontWeight: "600", color: "#212629" }} gutterBottom>
+                        服務管理
+                    </Typography>
+                </div>
+                <div style={{ width: 86 }}>
+                    <Button
+                        variant="outlined"
+                        onClick={handleBack}
+                        style={{ backgroundColor: "#D9D9D9", borderColor: "transparent", color: "#555654" }}
+                    >
+                        {'返回'}
+                    </Button>
+                </div>
+                <div style={{ width: 86 }}>
+                    <Button
+                        variant="contained"
+                        color="success"
+                        onClick={handleSave}
+                        disabled={disableSaveBtn}
+                    >
+                        {'儲存'}
+                    </Button>
+                </div>
+            </div>
+            <div style={{ marginTop: 10 }}>
+                <Typography style={{ lineHeight: 3, paddingLeft: 29, fontSize: 20, fontFamily: "PingFang TC", fontWeight: "600", color: "#212629", backgroundColor: "#ECF0F1", borderRadius: 6 }} gutterBottom>
+                    專業認證
+                </Typography>
+            </div>
+            <Grid style={{ fontFamily: "PingFang TC", fontSize: 16, fontWeight: "600", color: "#707070" }} container spacing={3}>
                 <Grid item xs={12} sm={6}>
                     <TextField
                         required
@@ -486,95 +504,160 @@ const CounselingInfo = () => {
                         <FormHelperText error={errorLanguages !== ""}>{errorLanguages}</FormHelperText>
                     </div>
                 </Grid>
+                {counselorInfo.SubRole !== "HeartCoach" ?
+                    <>
+                        <Grid item xs={12}>
+                            <TextField
+                                required
+                                id="licenseNumber"
+                                name="licenseNumber"
+                                label="證照號碼"
+                                fullWidth
+                                autoComplete="family-name"
+                                variant="standard"
+                                placeholder=""
+                                value={licenseNumber}
+                                onChange={(text) => setLicenseNumber(text.target.value.trim())}
+                                error={errorLicenseNumber !== ""}
+                                helperText={errorLicenseNumber}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                required
+                                id="licenseIssuing"
+                                name="licenseIssuing"
+                                label="發證單位"
+                                fullWidth
+                                autoComplete="family-name"
+                                variant="standard"
+                                placeholder=""
+                                value={licenseIssuing}
+                                onChange={(text) => setLicenseIssuing(text.target.value.trim())}
+                                error={errorLicenseIssuing !== ""}
+                                helperText={errorLicenseIssuing}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                required
+                                id="licenseTitle"
+                                name="licenseTitle"
+                                label="證照名稱"
+                                fullWidth
+                                autoComplete="family-name"
+                                variant="standard"
+                                placeholder=""
+                                value={licenseTitle}
+                                onChange={(text) => setLicenseTitle(text.target.value.trim())}
+                                error={errorLicenseTitle !== ""}
+                                helperText={errorLicenseTitle}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                id="institution"
+                                name="institution"
+                                label="機構名稱"
+                                fullWidth
+                                variant="standard"
+                                value={institution}
+                                onChange={(text) => setInstitution(text.target.value)}
+                                error={errorInstitution !== ""}
+                                helperText={errorInstitution}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                id="phone"
+                                name="phone"
+                                label="機構電話"
+                                fullWidth
+                                variant="standard"
+                                value={phone}
+                                onChange={(text) => setPhone(text.target.value)}
+                                error={errorPhone !== ""}
+                                helperText={errorPhone}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                id="address1"
+                                name="address1"
+                                label="機構地址"
+                                fullWidth
+                                autoComplete="shipping address-line1"
+                                variant="standard"
+                                value={address}
+                                onChange={(text) => setAddress(text.target.value)}
+                                error={errorAddress !== ""}
+                                helperText={errorAddress}
+                            />
+                        </Grid>
+                    </> : <>
 
-                <Grid item xs={12}>
-                    <TextField
-                        required
-                        id="licenseNumber"
-                        name="licenseNumber"
-                        label="證照號碼"
-                        fullWidth
-                        autoComplete="family-name"
-                        variant="standard"
-                        placeholder=""
-                        value={licenseNumber}
-                        onChange={(text) => setLicenseNumber(text.target.value.trim())}
-                        error={errorLicenseNumber !== ""}
-                        helperText={errorLicenseNumber}
-                    />
-                </Grid>
-                <Grid item xs={12}>
-                    <TextField
-                        required
-                        id="licenseIssuing"
-                        name="licenseIssuing"
-                        label="發證單位"
-                        fullWidth
-                        autoComplete="family-name"
-                        variant="standard"
-                        placeholder=""
-                        value={licenseIssuing}
-                        onChange={(text) => setLicenseIssuing(text.target.value.trim())}
-                        error={errorLicenseIssuing !== ""}
-                        helperText={errorLicenseIssuing}
-                    />
-                </Grid>
-                <Grid item xs={12}>
-                    <TextField
-                        required
-                        id="licenseTitle"
-                        name="licenseTitle"
-                        label="證照名稱"
-                        fullWidth
-                        autoComplete="family-name"
-                        variant="standard"
-                        placeholder=""
-                        value={licenseTitle}
-                        onChange={(text) => setLicenseTitle(text.target.value.trim())}
-                        error={errorLicenseTitle !== ""}
-                        helperText={errorLicenseTitle}
-                    />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                    <TextField
-                        id="institution"
-                        name="institution"
-                        label="機構名稱"
-                        fullWidth
-                        variant="standard"
-                        value={institution}
-                        onChange={(text) => setInstitution(text.target.value)}
-                        error={errorInstitution !== ""}
-                        helperText={errorInstitution}
-                    />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                    <TextField
-                        id="phone"
-                        name="phone"
-                        label="機構電話"
-                        fullWidth
-                        variant="standard"
-                        value={phone}
-                        onChange={(text) => setPhone(text.target.value)}
-                        error={errorPhone !== ""}
-                        helperText={errorPhone}
-                    />
-                </Grid>
-                <Grid item xs={12}>
-                    <TextField
-                        id="address1"
-                        name="address1"
-                        label="機構地址"
-                        fullWidth
-                        autoComplete="shipping address-line1"
-                        variant="standard"
-                        value={address}
-                        onChange={(text) => setAddress(text.target.value)}
-                        error={errorAddress !== ""}
-                        helperText={errorAddress}
-                    />
-                </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                id="licenseTitle"
+                                name="licenseTitle"
+                                label="相關證照"
+                                fullWidth
+                                autoComplete="family-name"
+                                variant="standard"
+                                placeholder=""
+                                value={licenseTitle}
+                                onChange={(text) => setLicenseTitle(text.target.value.trim())}
+                                error={errorLicenseTitle !== ""}
+                                helperText={errorLicenseTitle}
+                            />
+                        </Grid>
+                        {/* 
+                            <Grid item xs={12}>
+                                <Typography>相關證照</Typography>
+                            </Grid>
+                            {licenseLists?.map((item, index) => {
+                            return (
+                                <>
+                                    <Grid key={index} item xs={5}>
+                                        <TextField
+                                            style={{ flex: 10 }}
+                                            required
+                                            id="licenseList"
+                                            name="licenseList"
+                                            fullWidth
+                                            autoComplete="family-name"
+                                            variant="standard"
+                                            placeholder=""
+                                            value={item.license}
+                                            onChange={(text) => item.license = text}
+                                            error={errorLicenseTitle !== ""}
+                                            helperText={errorLicenseTitle}
+                                        ></TextField>
+
+                                    </Grid>
+                                    <Grid key={index} item xs={1}>
+                                        <Checkbox checked={item.disabled} onClick={() => {
+                                            var tempItems = licenseLists;
+                                            tempItems[index].disabled = !item.disabled;
+                                            setLicenseLists([...tempItems]);
+                                            setDisabledSaveBtn(false);
+                                        }}>
+                                        </Checkbox>
+                                    </Grid>
+                                    <Grid key={index} item xs={6}></Grid>
+                                </>
+                            )
+                        })}
+                        <Grid item xs={12}>
+                            <Button
+                                variant="outlined"
+                                onClick={handleAddLicense}
+                                style={{ width: "50%", backgroundColor: "#D9D9D9", borderColor: "transparent", color: "#555654" }}
+                            >
+                                新增證照
+                            </Button>
+                        </Grid> */}
+                    </>}
                 <Grid item xs={12}>
                     <div>
                         <span style={{ color: errorExpertisesInfo === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"專長 *"}</span>
@@ -643,20 +726,52 @@ const CounselingInfo = () => {
                 <Grid item xs={12} sm={6}>
                     <div>
                         <span style={{ color: errorConsultingFees === "" ? 'rgba(0, 0, 0, 0.6)' : '#d32f2f' }}>{"服務項目"}</span>
-                        <div>
+                        <div style={{ fontFamily: "PingFang TC", fontSize: 16, fontWeight: "600", color: "#707070" }}>
                             {consultingFees?.map((item, index) => {
                                 return (
-                                    item.enabled ?
-                                        <div key={index}>
-                                            {item.time > 0 ?
-                                                <span>{item.label + item.time + "分鐘\t\t\t " + new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(item.fee)}</span> :
-                                                <span>{item.label + "\t\t\t " + new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'NTD', minimumFractionDigits: 0 }).format(item.fee)}</span>
-                                            }
-                                        </div>
-                                        : null)
-                            })}
+                                    <div class="container" style={{ display: "block" }} key={index}>
+                                        <div class="row justify-content-start">
+                                            <div class="col">
+                                                <Checkbox checked={item.enabled} onClick={() => {
+                                                    var tempItems = consultingFees;
+                                                    tempItems[index].enabled = !item.enabled;
+                                                    setConsultingFees([...tempItems]);
+                                                    setDisabledSaveBtn(false);
+                                                }}></Checkbox>
+                                                {item.time > 0 ?
+                                                    <span>{item.label + item.time + "分鐘"}</span> :
+                                                    <span>{item.label}</span>}
 
-                            <button type={"button"} className={"btn btn-primary"} onClick={() => onClickSetting()}>{"設定"}</button>
+                                                <span style={{ marginLeft: 20 }}>
+                                                    {"NTD "}
+                                                    <input
+                                                        placeholder="0"
+                                                        min={0}
+                                                        ref={inputRef}
+                                                        onWheel={() => inputRef.current.blur()}
+                                                        type="number"
+                                                        style={{
+                                                            width: 80,
+                                                            padding: 5,
+                                                            borderStyle: 'solid',
+                                                            borderWidth: 1,
+                                                            borderColor: 'grey',
+                                                            borderRadius: 5,
+                                                        }}
+                                                        value={item.fee}
+                                                        onChange={(text) => {
+                                                            var tempItems = consultingFees;
+                                                            tempItems[index].fee = Number(text.target.value) <= maximumFee ? Number(text.target.value) : maximumFee;
+                                                            setConsultingFees([...tempItems]);
+                                                            setDisabledSaveBtn(false);
+                                                        }}
+                                                    />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            })}
                         </div>
                         <FormHelperText error={errorConsultingFees !== ""}>{errorConsultingFees}</FormHelperText>
                     </div>

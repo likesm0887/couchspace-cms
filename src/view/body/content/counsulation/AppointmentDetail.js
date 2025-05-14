@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { Appointment } from "../../../../dataContract/appointment"
 import buttonLeft from "../../../img/content/AppointmentDetail/btn_left.svg";
+import { counselorInfo } from "../../../../dataContract/counselor";
 const Width = (window.innerWidth * 0.9) > 900 ? (window.innerWidth * 0.9) : 900;
 const screenWidth = window.innerWidth;
 function AppointmentDetail() {
@@ -188,11 +189,11 @@ function AppointmentDetail() {
                             <div style={{ float: "right" }}>
                                 {appointment.Status.toUpperCase() === "ROOMCREATED" ?
                                     <button className={"startButton-enabled startButton-enabled_hover"} onClick={() => start(appointment.AppointmentID)} >
-                                        <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
+                                        <span style={{ verticalAlign: 'center' }}>進入房間</span>
                                     </button>
                                     :
                                     <button className={"startButton-disabled startButton-disabled_hover"}>
-                                        <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
+                                        <span style={{ verticalAlign: 'center' }}>進入房間</span>
                                     </button>
                                 }
                             </div>
@@ -254,37 +255,38 @@ function AppointmentDetail() {
                                     </div>
                                 </div>
                             </div>
-                            <div style={{ marginTop: 20, display: 'block', width: "100%", backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
-                                <div className="detail-title-row">
-                                    <div className="detail-title-col detail-title-left">
-                                        緊急聯絡人
+                            {counselorInfo.SubRole !== "HeartCoach" ?
+                                <div style={{ marginTop: 20, display: 'block', width: "100%", backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
+                                    <div className="detail-title-row">
+                                        <div className="detail-title-col detail-title-left">
+                                            緊急聯絡人
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
-                                        姓名
+                                    <div className="detail-content-row">
+                                        <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
+                                            姓名
+                                        </div>
+                                        <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
+                                            {appointment.Emergency.Name}
+                                        </div>
                                     </div>
-                                    <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
-                                        {appointment.Emergency.Name}
+                                    <div className="detail-content-row">
+                                        <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
+                                            關係
+                                        </div>
+                                        <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
+                                            {appointment.Emergency.Relationship}
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
-                                        關係
+                                    <div className="detail-content-row">
+                                        <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
+                                            聯絡電話
+                                        </div>
+                                        <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
+                                            {appointment.Emergency.Phone}
+                                        </div>
                                     </div>
-                                    <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
-                                        {appointment.Emergency.Relationship}
-                                    </div>
-                                </div>
-                                <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
-                                        聯絡電話
-                                    </div>
-                                    <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
-                                        {appointment.Emergency.Phone}
-                                    </div>
-                                </div>
-                            </div>
+                                </div> : null}
                         </div>
                         <div style={{ marginLeft: 20, marginTop: 20, width: "40%" }}>
                             <div style={{ display: 'block', width: "100%", backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
@@ -300,76 +302,78 @@ function AppointmentDetail() {
                                     </div>
                                 </div>
                             </div>
-                            <div style={{ marginTop: 20, display: 'block', width: "100%", backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
-                                <div className="detail-title-row">
-                                    <div className="detail-title-col detail-title-left">
-                                        簡式健康量表
+                            {counselorInfo.SubRole !== "HeartCoach" ?
+                                <div style={{ marginTop: 20, display: 'block', width: "100%", backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
+                                    <div className="detail-title-row">
+                                        <div className="detail-title-col detail-title-left">
+                                            簡式健康量表
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left">
-                                        1.睡眠困難
+                                    <div className="detail-content-row">
+                                        <div className="detail-content-col detail-content-left">
+                                            1.睡眠困難
+                                        </div>
+                                        <div className="detail-content-col detail-content-right">
+                                            {getTextByScore(appointment.SymptomRating.SleepDifficulty)}
+                                        </div>
                                     </div>
-                                    <div className="detail-content-col detail-content-right">
-                                        {getTextByScore(appointment.SymptomRating.SleepDifficulty)}
+                                    <div className="detail-content-row">
+                                        <div className="detail-content-col detail-content-left">
+                                            2.感覺緊張不安
+                                        </div>
+                                        <div className="detail-content-col detail-content-right">
+                                            {getTextByScore(appointment.SymptomRating.Nervous)}
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left">
-                                        2.感覺緊張不安
+                                    <div className="detail-content-row">
+                                        <div className="detail-content-col detail-content-left">
+                                            3.覺得容易苦惱或動怒
+                                        </div>
+                                        <div className="detail-content-col detail-content-right">
+                                            {getTextByScore(appointment.SymptomRating.Irritated)}
+                                        </div>
                                     </div>
-                                    <div className="detail-content-col detail-content-right">
-                                        {getTextByScore(appointment.SymptomRating.Nervous)}
+                                    <div className="detail-content-row">
+                                        <div className="detail-content-col detail-content-left">
+                                            4.感覺憂鬱，情緒低落
+                                        </div>
+                                        <div className="detail-content-col detail-content-right">
+                                            {getTextByScore(appointment.SymptomRating.MelancholyDepressed)}
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left">
-                                        3.覺得容易苦惱或動怒
+                                    <div className="detail-content-row">
+                                        <div className="detail-content-col detail-content-left">
+                                            5.覺得比不上別人
+                                        </div>
+                                        <div className="detail-content-col detail-content-right">
+                                            {getTextByScore(appointment.SymptomRating.InferiorFeeling)}
+                                        </div>
                                     </div>
-                                    <div className="detail-content-col detail-content-right">
-                                        {getTextByScore(appointment.SymptomRating.Irritated)}
+                                    <div className="detail-content-row">
+                                        <div className="detail-content-col detail-content-left">
+                                            6.有過『自殺』的念頭
+                                        </div>
+                                        <div className="detail-content-col detail-content-right">
+                                            {getTextByScore(appointment.SymptomRating.Suicidalthoughts)}
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left">
-                                        4.感覺憂鬱，情緒低落
-                                    </div>
-                                    <div className="detail-content-col detail-content-right">
-                                        {getTextByScore(appointment.SymptomRating.MelancholyDepressed)}
-                                    </div>
-                                </div>
-                                <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left">
-                                        5.覺得比不上別人
-                                    </div>
-                                    <div className="detail-content-col detail-content-right">
-                                        {getTextByScore(appointment.SymptomRating.InferiorFeeling)}
-                                    </div>
-                                </div>
-                                <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left">
-                                        6.有過『自殺』的念頭
-                                    </div>
-                                    <div className="detail-content-col detail-content-right">
-                                        {getTextByScore(appointment.SymptomRating.Suicidalthoughts)}
-                                    </div>
-                                </div>
-                                <div className="detail-content-row">
-                                    <div className="detail-content-col detail-content-left">
-                                        <span style={{ fontSize: 16 }}>總分</span>
-                                    </div>
-                                    <div className="detail-content-col detail-content-right">
-                                        <div style={{ float: 'right', display: 'flex', flexDirection: 'row', alignItems: 'center', textAlign: 'center', justifyContent: 'center' }}>
-                                            <span style={{ color: "#F1A250", fontSize: 16 }}>{totalScore}</span>
-                                            <span style={{ color: "#555654", fontSize: 16 }}>{"/24"}</span>
-                                            <div style={{ marginLeft: 5, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }} onClick={() => showHealthDescriptionDialog(true)}>
-                                                <img style={{ height: 15, width: 15 }} src={healthDescription} alt={"123"}></img>
+                                    <div className="detail-content-row">
+                                        <div className="detail-content-col detail-content-left">
+                                            <span style={{ fontSize: 16 }}>總分</span>
+                                        </div>
+                                        <div className="detail-content-col detail-content-right">
+                                            <div style={{ float: 'right', display: 'flex', flexDirection: 'row', alignItems: 'center', textAlign: 'center', justifyContent: 'center' }}>
+                                                <span style={{ color: "#F1A250", fontSize: 16 }}>{totalScore}</span>
+                                                <span style={{ color: "#555654", fontSize: 16 }}>{"/24"}</span>
+                                                <div style={{ marginLeft: 5, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }} onClick={() => showHealthDescriptionDialog(true)}>
+                                                    <img style={{ height: 15, width: 15 }} src={healthDescription} alt={"123"}></img>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                            </div>
+                                </div>
+                                : null}
                             <div style={{ marginTop: 20, display: 'block', width: "100%", backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
                                 <div className="detail-title-row">
                                     <div className="detail-title-col detail-title-left">
@@ -403,11 +407,11 @@ function AppointmentDetail() {
                         <div style={{ float: "right" }}>
                             {appointment.Status.toUpperCase() === "ROOMCREATED" ?
                                 <button className={"startButton-enabled startButton-enabled_hover"} onClick={() => start(appointment.AppointmentID)} >
-                                    <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
+                                    <span style={{ verticalAlign: 'center' }}>進入房間</span>
                                 </button>
                                 :
                                 <button className={"startButton-disabled startButton-disabled_hover"}>
-                                    <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
+                                    <span style={{ verticalAlign: 'center' }}>進入房間</span>
                                 </button>
                             }
                         </div>
@@ -493,107 +497,111 @@ function AppointmentDetail() {
                             </div>
                         </div>
                     </div>
-                    <div style={{ marginTop: 10, display: 'block', backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
-                        <div className="detail-title-row">
-                            <div className="detail-title-col detail-title-left">
-                                簡式健康量表
-                            </div>
-                        </div>
-                        <div className="detail-content-row">
-                            <div className="detail-content-col detail-content-left">
-                                1.睡眠困難
-                            </div>
-                            <div className="detail-content-col detail-content-right">
-                                {getTextByScore(appointment.SymptomRating.SleepDifficulty)}
-                            </div>
-                        </div>
-                        <div className="detail-content-row">
-                            <div className="detail-content-col detail-content-left">
-                                2.感覺緊張不安
-                            </div>
-                            <div className="detail-content-col detail-content-right">
-                                {getTextByScore(appointment.SymptomRating.Nervous)}
-                            </div>
-                        </div>
-                        <div className="detail-content-row">
-                            <div className="detail-content-col detail-content-left">
-                                3.覺得容易苦惱或動怒
-                            </div>
-                            <div className="detail-content-col detail-content-right">
-                                {getTextByScore(appointment.SymptomRating.Irritated)}
-                            </div>
-                        </div>
-                        <div className="detail-content-row">
-                            <div className="detail-content-col detail-content-left">
-                                4.感覺憂鬱，情緒低落
-                            </div>
-                            <div className="detail-content-col detail-content-right">
-                                {getTextByScore(appointment.SymptomRating.MelancholyDepressed)}
-                            </div>
-                        </div>
-                        <div className="detail-content-row">
-                            <div className="detail-content-col detail-content-left">
-                                5.覺得比不上別人
-                            </div>
-                            <div className="detail-content-col detail-content-right">
-                                {getTextByScore(appointment.SymptomRating.InferiorFeeling)}
-                            </div>
-                        </div>
-                        <div className="detail-content-row">
-                            <div className="detail-content-col detail-content-left">
-                                6.有過『自殺』的念頭
-                            </div>
-                            <div className="detail-content-col detail-content-right">
-                                {getTextByScore(appointment.SymptomRating.Suicidalthoughts)}
-                            </div>
-                        </div>
-                        <div className="detail-content-row">
-                            <div className="detail-content-col detail-content-left">
-                                <span style={{ fontSize: 16 }}>總分</span>
-                            </div>
-                            <div className="detail-content-col detail-content-right">
-                                <div style={{ float: 'right', display: 'flex', flexDirection: 'row', alignItems: 'center', textAlign: 'center', justifyContent: 'center' }}>
-                                    <span style={{ color: "#F1A250", fontSize: 16 }}>{totalScore}</span>
-                                    <span style={{ color: "#555654", fontSize: 16 }}>{"/24"}</span>
-                                    <div style={{ marginLeft: 5, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }} onClick={() => showHealthDescriptionDialog(true)}>
-                                        <img style={{ height: 15, width: 15 }} src={healthDescription} alt={"123"}></img>
+                    {counselorInfo.SubRole !== "HeartCoach" ?
+                        <>
+                            <div style={{ marginTop: 10, display: 'block', backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
+                                <div className="detail-title-row">
+                                    <div className="detail-title-col detail-title-left">
+                                        簡式健康量表
+                                    </div>
+                                </div>
+                                <div className="detail-content-row">
+                                    <div className="detail-content-col detail-content-left">
+                                        1.睡眠困難
+                                    </div>
+                                    <div className="detail-content-col detail-content-right">
+                                        {getTextByScore(appointment.SymptomRating.SleepDifficulty)}
+                                    </div>
+                                </div>
+                                <div className="detail-content-row">
+                                    <div className="detail-content-col detail-content-left">
+                                        2.感覺緊張不安
+                                    </div>
+                                    <div className="detail-content-col detail-content-right">
+                                        {getTextByScore(appointment.SymptomRating.Nervous)}
+                                    </div>
+                                </div>
+                                <div className="detail-content-row">
+                                    <div className="detail-content-col detail-content-left">
+                                        3.覺得容易苦惱或動怒
+                                    </div>
+                                    <div className="detail-content-col detail-content-right">
+                                        {getTextByScore(appointment.SymptomRating.Irritated)}
+                                    </div>
+                                </div>
+                                <div className="detail-content-row">
+                                    <div className="detail-content-col detail-content-left">
+                                        4.感覺憂鬱，情緒低落
+                                    </div>
+                                    <div className="detail-content-col detail-content-right">
+                                        {getTextByScore(appointment.SymptomRating.MelancholyDepressed)}
+                                    </div>
+                                </div>
+                                <div className="detail-content-row">
+                                    <div className="detail-content-col detail-content-left">
+                                        5.覺得比不上別人
+                                    </div>
+                                    <div className="detail-content-col detail-content-right">
+                                        {getTextByScore(appointment.SymptomRating.InferiorFeeling)}
+                                    </div>
+                                </div>
+                                <div className="detail-content-row">
+                                    <div className="detail-content-col detail-content-left">
+                                        6.有過『自殺』的念頭
+                                    </div>
+                                    <div className="detail-content-col detail-content-right">
+                                        {getTextByScore(appointment.SymptomRating.Suicidalthoughts)}
+                                    </div>
+                                </div>
+                                <div className="detail-content-row">
+                                    <div className="detail-content-col detail-content-left">
+                                        <span style={{ fontSize: 16 }}>總分</span>
+                                    </div>
+                                    <div className="detail-content-col detail-content-right">
+                                        <div style={{ float: 'right', display: 'flex', flexDirection: 'row', alignItems: 'center', textAlign: 'center', justifyContent: 'center' }}>
+                                            <span style={{ color: "#F1A250", fontSize: 16 }}>{totalScore}</span>
+                                            <span style={{ color: "#555654", fontSize: 16 }}>{"/24"}</span>
+                                            <div style={{ marginLeft: 5, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }} onClick={() => showHealthDescriptionDialog(true)}>
+                                                <img style={{ height: 15, width: 15 }} src={healthDescription} alt={"123"}></img>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div style={{ marginTop: 10, display: 'block', backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
-                        <div className="detail-title-row">
-                            <div className="detail-title-col detail-title-left">
-                                緊急聯絡人
+                            <div style={{ marginTop: 10, display: 'block', backgroundColor: "#FFFFFF", borderRadius: 10, overflow: "hidden", perspective: 1 }}>
+                                <div className="detail-title-row">
+                                    <div className="detail-title-col detail-title-left">
+                                        緊急聯絡人
+                                    </div>
+                                </div>
+                                <div className="detail-content-row">
+                                    <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
+                                        姓名
+                                    </div>
+                                    <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
+                                        {appointment.Emergency.Name}
+                                    </div>
+                                </div>
+                                <div className="detail-content-row">
+                                    <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
+                                        關係
+                                    </div>
+                                    <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
+                                        {appointment.Emergency.Relationship}
+                                    </div>
+                                </div>
+                                <div className="detail-content-row">
+                                    <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
+                                        聯絡電話
+                                    </div>
+                                    <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
+                                        {appointment.Emergency.Phone}
+                                    </div>
+                                </div>
+                                <div className="detail-content-row" style={{ height: 20 }}></div>
                             </div>
-                        </div>
-                        <div className="detail-content-row">
-                            <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
-                                姓名
-                            </div>
-                            <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
-                                {appointment.Emergency.Name}
-                            </div>
-                        </div>
-                        <div className="detail-content-row">
-                            <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
-                                關係
-                            </div>
-                            <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
-                                {appointment.Emergency.Relationship}
-                            </div>
-                        </div>
-                        <div className="detail-content-row">
-                            <div className="detail-content-col detail-content-left" style={{ flex: 3 }}>
-                                聯絡電話
-                            </div>
-                            <div className="detail-content-col detail-content-left" style={{ flex: 7 }}>
-                                {appointment.Emergency.Phone}
-                            </div>
-                        </div>
-                        <div className="detail-content-row" style={{ height: 20 }}></div>
-                    </div>
+                        </>
+                        : null}
                 </div>
                 {createDialog()}
             </div>

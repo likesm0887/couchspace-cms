@@ -42,7 +42,7 @@ function Header() {
     const drawerIconUrls = [consultation, meditation, article, manager, setting];
     const redirectUrls = ["consultation", "repair", "repair", "repair", "repair"];
     return (
-        <header style={{ paddingRight: 0, override: "hidden" }}>
+        <header class="header" style={{ height: 100, paddingRight: 0, override: "hidden", backgroundColor:"#FFFFFF" }}>
             {screenWidth > 500 ?
                 <div class="container-fluid" style={{ marginTop: 10, marginBottom: 10 }}>
                     <div class="row align-items-center">
@@ -58,7 +58,7 @@ function Header() {
                 </div>
                 :
                 <div class="container-fluid" style={{ marginTop: 10, marginBottom: 10 }}>
-                    <div class="row align-items-center">
+                    <div class="row align-items-center header">
                         <div class="col-2">
                             <IconButton
                                 color="inherit"
