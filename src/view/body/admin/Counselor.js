@@ -29,7 +29,7 @@ import {
   counselorService,
 } from "../../../service/ServicePool";
 import CountUp from "react-countup";
-import img_account from "../../img/login/account.svg";
+import img_account from "../../img/login/ic_identity.svg";
 import { fontFamily } from "@mui/system";
 import { isNil } from "@ant-design/pro-components";
 const DrawerForm = ({ id, visible, onClose, record, callback }) => {

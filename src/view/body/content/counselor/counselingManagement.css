@@ -1,33 +1,133 @@
 .CounselingManagement {
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    width: 100%;
-    border-width: 1px;
-    padding-left: 24px;
-    padding-right: 24px;
-    box-sizing: border-box;
-    margin-right: auto;
-    display: block;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  border-width: 1px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+  margin-right: auto;
+  display: block;
 }
 
 .CounselingManagement-Input {
-    margin-top: 200px;
-}
-
-.CounselingManagement img[src=""] {
-    display: none;
-}
-
-.CounselingManagement img {
-    margin-left: 50px;
-    max-width: 300px;
-    width: auto;
-    height: auto;
+  margin-top: 200px;
 }
 
 #the-count {
   float: right;
   padding: 0.1rem 0 0 0;
   font-size: 0.875rem;
+}
+
+.text_delete {
+  width: 86px;
+  height: 22px;
+  font-family: PingFang TC;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 100%;
+  letter-spacing: -0.32px;
+  vertical-align: middle;
+  color: #212629;
+  margin-left: 8px;
+}
+
+.btn_delete {
+  width: 127px;
+  height: 30px;
+  gap: 4px;
+  border-radius: 5px;
+  padding-top: 3px;
+  padding-right: 5px;
+  padding-bottom: 3px;
+  padding-left: 8px;
+  border-width: 1px;
+  background: #e3f2fd;
+  border: 1px solid #abd7fa;
+  margin-left: 16px;
+}
+
+.img_delete {
+  vertical-align: middle;
+  margin-top: 3px;
+  margin-bottom: 6px;
+  margin-left: 4px;
+  margin-right: 5px;
+}
+
+.img_delete:hover {
+  cursor: pointer;
+}
+
+.btn_addTime {
+  width: 86px;
+  height: 30px;
+  border-radius: 5px;
+  border-width: 1px;
+  background: #efefef;
+  border: 1px solid #828282;
+  margin-left: 16px;
+}
+.text_addTime {
+  width: 64px;
+  height: 22px;
+  top: 4px;
+  left: 11px;
+  font-family: PingFang TC;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 100%;
+  letter-spacing: -0.32px;
+  vertical-align: middle;
+  color: #707070;
+}
+
+.overrideTime {
+  width: 894px;
+  height: 48px;
+  gap: 16px;
+  border-radius: 10px;
+  padding-top: 9px;
+  padding-right: 24px;
+  padding-bottom: 9px;
+  padding-left: 24px;
+  background: #f6f6f6;
+}
+
+.daytime_overrideTime {
+  width: 87px;
+  height: 22px;
+  font-family: PingFang TC;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 100%;
+  letter-spacing: -0.32px;
+  vertical-align: middle;
+  color: #212629;
+}
+
+.time_overrideTime {
+  width: 99px;
+  height: 30px;
+  gap: 4px;
+  border-radius: 5px;
+  padding-top: 3px;
+  padding-right: 5px;
+  padding-bottom: 3px;
+  padding-left: 8px;
+  border-width: 1px;
+  background: #e3f2fd;
+  border: 1px solid #abd7fa;
+  font-family: PingFang TC;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 100%;
+  letter-spacing: -0.32px;
+  vertical-align: middle;
+  color: #212629;
+  margin-left: 16px;
+  text-align: center;
+  align-self: center;
 }
