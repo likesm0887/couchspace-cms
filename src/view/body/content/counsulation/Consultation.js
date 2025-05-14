@@ -188,11 +188,11 @@ function Consultation() {
                             <div className="content-col">
                                 {allAppointment.Status.toUpperCase() === "ROOMCREATED" ?
                                     <button className={"startButton-enabled startButton-enabled_hover"} onClick={() => start(allAppointment.AppointmentID)} >
-                                        <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
+                                        <span style={{ verticalAlign: 'center' }}>進入房間</span>
                                     </button>
                                     :
                                     <button className={"startButton-disabled startButton-disabled_hover"}>
-                                        <span style={{ verticalAlign: 'center' }}>開始諮詢</span>
+                                        <span style={{ verticalAlign: 'center' }}>進入房間</span>
                                     </button>
                                 }
                             </div>

@@ -32,12 +32,12 @@ export class CounselorService {
             return false;
         }
     }
-    register(account, password) {
+    register(account, password, identity) {
         const api = this.base_url + "/api/v1/counselors/register"
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ Email: account, Password: password }),
+            body: JSON.stringify({ Email: account, Password: password, SubRole: identity }),
         };
 
         return fetch(api, requestOptions);

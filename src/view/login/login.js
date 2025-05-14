@@ -1,14 +1,23 @@
 import "../login/login.css";
 import img_logo from "../img/login/login.svg";
-import img_account from "../img/login/account.svg";
-import img_password from "../img/login/password.svg";
-import img_email from "../img/login/email.svg";
+import img_account from "../img/login/ic_identity.svg";
+import img_password from "../img/login/ic_key.svg";
+import img_email from "../img/login/ic_mail.svg";
+import img_dropdown from "../img/login/caret.svg";
+import img_background from "../img/login/login_background.svg";
 import { counselorService } from "../../service/ServicePool";
 import { showToast, toastType, checkPassword, checkEmail } from "../../common/method";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import { counselorInfo } from "../../dataContract/counselor";
 import { ForgetPassword, ResetPassword } from "../../dataContract/counselor";
+import {
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+} from "@mui/material";
 const tabType = Object.freeze({
     "login": "login",
     "register": "register",
@@ -17,6 +26,7 @@ const tabType = Object.freeze({
 const screenWidth = window.innerWidth;
 function Login() {
     const navigate = useNavigate();
+    const [identity, setIdentity] = useState("");
     const [account, setAccount] = useState("");
     const [password, setPassword] = useState("");
     const [confirmedPassword, setConfirmedPassword] = useState("");
@@ -24,6 +34,9 @@ function Login() {
     const [email, setEmail] = useState("");
     const [timeLeft, setTimeLeft] = useState(0);
     const [verifyCode, setVerifyCode] = useState("");
+    const [open, setOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [noticeMessage, setNoticeMessage] = useState("");
 
     useEffect(() => {
 
@@ -87,27 +100,39 @@ function Login() {
     }
     const onClickRegister = async () => {
         // console.log(account);
+        var errMsg = "";
+        var noticeMsg = "";
+        if (identity === "") {
+            errMsg = "請選擇身份";
+
+        }
         if (!checkPassword(password)) {
-            showToast(toastType.error, "密碼需包含英數且至少8個字元");
+            errMsg = "密碼需包含英數且至少8個字元";
         }
         else if (password !== confirmedPassword) {
-            showToast(toastType.error, "密碼與確認密碼不一致");
+            errMsg = "密碼與確認密碼不一致";
         }
         else if (("true" === await checkAccountExist())) {
-            showToast(toastType.error, "此帳號已註冊過");
+            errMsg = "該信箱已註冊。";
+            noticeMsg = "不同身份需使用不同帳號，請更換信箱後再試一次。";
         }
         else {
             counselorInfo.clearAll = null;
-            let result = await counselorService.register(account, password);
+            let result = await counselorService.register(account, password, identity);
             if (result.status !== 200) {
-                showToast(toastType.error, "註冊失敗");
+                errMsg = "註冊異常，請聯繫客服人員。";
             }
             else {
                 showToast(toastType.success, "註冊成功，請登入並填寫基本資料");
                 setSelectedTab(tabType.login);
             }
         }
-
+        if (errMsg) {
+            // showToast(toastType.error, errMsg);
+            setNoticeMessage(noticeMsg);
+            setErrorMessage(errMsg);
+            setOpen(true);
+        }
     }
     const onClickSignup = () => {
         setSelectedTab(tabType.register);
@@ -176,16 +201,19 @@ function Login() {
     }
     const renderLogin = () => {
         return (
-            <div className={"R-row"}>
-                <div className={"C-col"}>
-                    <img className="account-icon" src={img_account} alt="123"></img>
-                    <input className={"input-account"} placeholder="帳號" type={"text"} onChange={(text) => setAccount(text.target.value.trim())} value={account}></input>
+            <div className={"R-row"} style={{ paddingTop: 585.7 }}>
+                <div className={"C-col"} style={{ marginBottom: 0 }}>
+                    <img className="account-icon" src={img_email} alt="123"></img>
+                    <input className={"input-account"} placeholder="信箱" type={"text"} onChange={(text) => setAccount(text.target.value.trim())} value={account}></input>
                 </div>
-                <div className={"C-col"}>
+                <div className={"C-col"} style={{ marginBottom: 29, marginTop: 10 }}>
+                    <span style={{ fontSize: 16, zIndex: 998 }}>{"※ 每個身份需使用對應帳號登入，系統會自動導向該身份後台。"}</span>
+                </div>
+                <div className={"C-col"} style={{ marginBottom: 11 }}>
                     <img className="password-icon" src={img_password} alt="123"></img>
                     <input className={"input-password"} placeholder="密碼" type={"password"} onChange={(text) => setPassword(text.target.value.trim())} value={password}></input>
                 </div>
-                <div className={"C-col"}>
+                <div className={"C-col"} style={{ marginBottom: 71.86 }}>
                     <span className={"forget-text"} onClick={() => onClickForget()}>
                         忘記密碼?
                     </span>
@@ -202,18 +230,29 @@ function Login() {
     }
     const renderRegister = () => {
         return (
-            <div className={"R-row"}>
+            <div className={"R-row"} style={{ paddingTop: 429.7 }}>
+                <div className={"C-col"} style={{ marginBottom: 0 }}>
+                    <img className="identity-icon" src={img_account} alt="123"></img>
+                    <select class={identity === "" ? "select-option" : "input-identity"} placeholder="請選擇身份" onChange={(text) => setIdentity(text.target.value.trim())} value={identity}>
+                        <option value="" selected="selected" hidden="hidden">請選擇身份</option>
+                        <option value="Psychologist">心理師</option>
+                        <option value="HeartCoach">心教練</option>
+                    </select>
+                </div>
+                <div className={"C-col"} style={{ marginBottom: 29, marginTop: 12 }}>
+                    <span style={{ fontSize: 16, zIndex: 998 }}>{"※ 如需註冊雙重身份，每個身份需使用不同信箱註冊"}</span>
+                </div>
                 <div className={"C-col"}>
-                    <img className="account-icon" src={img_account} alt="123"></img>
-                    <input className={"input-account"} placeholder="帳號" type={"text"} onChange={(text) => setAccount(text.target.value.trim())} value={account}></input>
+                    <img className="account-icon" src={img_email} alt="123"></img>
+                    <input className={"input-account"} placeholder="請輸入註冊信箱" type={"text"} onChange={(text) => setAccount(text.target.value.trim())} value={account}></input>
                 </div>
                 <div className={"C-col"}>
                     <img className="password-icon" src={img_password} alt="123"></img>
-                    <input className={"input-password"} placeholder="密碼" type={"password"} onChange={(text) => setPassword(text.target.value.trim())} value={password}></input>
+                    <input className={"input-password"} placeholder="請輸入密碼" type={"password"} onChange={(text) => setPassword(text.target.value.trim())} value={password}></input>
                 </div>
-                <div className={"C-col"}>
+                <div className={"C-col"} style={{ marginBottom: 86 }}>
                     <img className="password-icon" src={img_password} alt="123"></img>
-                    <input className={"input-password"} placeholder="確認密碼" type={"password"} onChange={(text) => setConfirmedPassword(text.target.value.trim())} value={confirmedPassword}></input>
+                    <input className={"input-password"} placeholder="再次輸入密碼" type={"password"} onChange={(text) => setConfirmedPassword(text.target.value.trim())} value={confirmedPassword}></input>
                 </div>
                 <div className={"C-col"}>
                     <span className={"back-text"} onClick={() => onClickBack()}>
@@ -223,14 +262,14 @@ function Login() {
                         <button className={"login"} onClick={() => onClickRegister()}>註冊</button>
                     </span>
                 </div>
-            </div>);
+            </div >);
     }
     const renderForget = () => {
         return (
-            <div className={"R-row"}>
+            <div className={"R-row"} style={{ paddingTop: 429.7 }}>
                 <div className={"C-col"}>
                     <img className="account-icon" src={img_account} alt="123"></img>
-                    <input className={"input-account"} placeholder="帳號" type={"text"} onChange={(text) => setAccount(text.target.value.trim())} value={account}></input>
+                    <input className={"input-account"} placeholder="信箱" type={"text"} onChange={(text) => setAccount(text.target.value.trim())} value={account}></input>
                 </div>
                 <div className={"C-col"}>
                     <img className="email-icon" src={img_email} alt="123"></img>
@@ -274,19 +313,47 @@ function Login() {
                 return renderLogin();
         }
     }
+    const ErrorDialog = () => {
+        return <Dialog
+            open={open}
+            fullWidth={true}
+            onClose={handleClose}
+            value={"sm"}>
+            <DialogTitle style={{ fontSize: 24, fontWeight: "bold", textAlign: "center" }} id="alert-dialog-title">{"註冊失敗"}</DialogTitle>
+            <DialogContent>
+                <DialogContentText>
+                    <div style={{ fontSize: 16, fontWeight: "bold", textAlign: "center" }}>
+                        <div style={{ marginBottom: 20 }}>
+                            <p style={{ color: "#000000", margin: 0 }}>{errorMessage}</p>
+                            <p style={{ color: "#000000", margin: 0 }}>{noticeMessage}</p>
+                        </div>
+                    </div>
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <div className={"button-content"}>
+                    <button className={"acceptButton"} onClick={handleClose} color="primary">
+                        確認
+                    </button>
+                </div>
+            </DialogActions>
+        </Dialog>
+    }
+    const handleClose = () => {
+        setErrorMessage("");
+        setOpen(false);
+    }
     return (
         <div class="container-fluid" style={{ height: window.innerHeight, backgroundColor: "#f7f8f8" }}>
             {screenWidth > 500 ?
                 <div className={"content"} >
-                    <img className={"login-logo"} src={img_logo} alt="123" />
+                    <img className={"login-background"} src={img_background} alt={"background"}></img>
                     {renderScreen(selectedTab)}
-                    <div className={"circle"}></div>
-                    <div className={"circle2"}></div>
-                    <div style={{ alignSelf: "center", justifyItems: "center", textAlign: "center", position: "absolute", top: 900, color: "#a3a2a3", fontSize: 14 }}>
+                    {/* <div style={{ alignSelf: "center", justifyItems: "center", textAlign: "center", position: "absolute", top: 900, color: "#a3a2a3", fontSize: 14 }}>
                         <div>
                             Copyright © 2023 Couchspace All rights reserved
                         </div>
-                    </div>
+                    </div> */}
                 </div>
                 :
                 <div class="col-sm-12 h-100 align-items-center" style={{ justifyItems: "center" }}>
@@ -300,15 +367,17 @@ function Login() {
                     <div class="row" style={{ marginTop: "20%" }}>
                         {renderScreen(selectedTab)}
                     </div>
-                    <div class="row" style={{ width: "100%", alignSelf: "center", justifyItems: "center", textAlign: "center", position: "absolute", top: 800, color: "#a3a2a3", fontSize: 14 }}>
+                    {/* <div class="row" style={{ width: "100%", alignSelf: "center", justifyItems: "center", textAlign: "center", position: "absolute", top: 800, color: "#a3a2a3", fontSize: 14 }}>
                         <div>
                             Copyright © 2023 Couchspace All rights reserved
                         </div>
-                    </div>
-
+                    </div> */}
                 </div>
             }
+            {ErrorDialog()}
         </div>
     )
 }
+
+
 export default Login;

@@ -1,26 +1,24 @@
 .content {
-  display: flex;
-  flex-direction: column;
-  margin: auto;
-  width: 506px;
-  align-self: center;
-  justify-self: center;
-  align-content: center;
-  justify-content: center;
-  height: 850px;
-  bottom: 10%;
-  background-color: #f7f8f8;
-  border-radius: 30px;
-  box-shadow: 5px 5px 5px 0px rgba(0, 0, 0, 0.2);
+  height: 100%;
+  width: 100%;
+  justify-items: center;
 }
 .login-logo {
-  width: 300px;
-  height: 100px;
-  top: 10%;
+  width: 349px;
+  height: 127px;
+  top: 131.66px;
   position: absolute;
   align-self: center;
   justify-self: center;
   z-index: 999;
+}
+.login-background {
+  width: 100%;
+  height: 1024px;
+  align-self: center;
+  justify-self: center;
+  position: absolute;
+  z-index: 1;
 }
 .circle {
   width: 506px;
@@ -44,11 +42,11 @@ input:focus {
   border-radius: 100% 100% 35px 35px;
   background: #88a1d2;
 }
-.input-account {
+.input-identity {
+  appearance: none;
   border: none;
-  background: #f4f4f4;
-  width: 350px;
-  height: 52px;
+  width: 409px;
+  height: 58px;
   border-radius: 30px;
   border: 0px;
   text-align: left;
@@ -57,12 +55,56 @@ input:focus {
   white-space: nowrap;
   padding-left: 70px;
   text-overflow: ellipsis;
+  background: url("../img/login/caret.svg") no-repeat right;
+  background-position: 350px;
+  background-color: #f4f4f4;
+  z-index: 997;
+}
+.select-option {
+  appearance: none;
+  border: none;
+  width: 409px;
+  height: 58px;
+  border-radius: 30px;
+  border: 0px;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-left: 70px;
+  text-overflow: ellipsis;
+  background: url("../img/login/caret.svg") no-repeat right;
+  background-position: 350px;
+  background-color: #f4f4f4;
+  z-index: 997;
+  color: #c7c7c7;
+  font-family: "Nunito";
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  align-self: center;
+  position: relative;
+  text-align: left;
+}
+.input-account {
+  border: none;
+  background: #f4f4f4;
+  width: 409px;
+  height: 58px;
+  border-radius: 30px;
+  border: 0px;
+  text-align: left;
+  font-size: 20px;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-left: 70px;
+  text-overflow: ellipsis;
+  z-index: 997;
 }
 .input-password {
   border: none;
   background: #f4f4f4;
-  width: 350px;
-  height: 52px;
+  width: 409px;
+  height: 58px;
   border-radius: 30px;
   border: 0px;
   text-align: left;
@@ -71,12 +113,13 @@ input:focus {
   white-space: nowrap;
   padding-left: 70px;
   text-overflow: ellipsis;
+  z-index: 997;
 }
 .input-email {
   border: none;
   background: #f4f4f4;
-  width: 350px;
-  height: 52px;
+  width: 409px;
+  height: 58px;
   border-radius: 30px;
   border: 0px;
   text-align: left;
@@ -85,6 +128,7 @@ input:focus {
   white-space: nowrap;
   padding-left: 70px;
   text-overflow: ellipsis;
+  z-index: 997;
 }
 .login {
   border-radius: 30px;
@@ -93,17 +137,17 @@ input:focus {
   height: 50px;
   color: #595757;
   background-color: #f7f8f8;
-  font-family: "GenYoGothic TW";
+  font-family: "PingFang TC";
   font-style: normal;
-  font-size: 25px;
+  font-size: 24px;
   line-height: 20px;
-  font-weight: bold;
+  font-weight: 500;
   cursor: pointer;
 }
 
 .login-wrap {
   z-index: 999;
-  filter: drop-shadow(-1px 2px 3px rgba(50, 50, 0, 0.5));
+  filter: drop-shadow(2.48px 2.48px 1.24px 0px rgba(0, 0, 0, 0.161));
 }
 
 .send {
@@ -127,15 +171,30 @@ input:focus {
 }
 ::placeholder {
   color: #c7c7c7;
-  font-size: 15px;
   font-family: "Nunito";
-  font-style: normal;
   font-weight: 700;
-  line-height: 19px;
+  font-size: 22px;
+  line-height: 100%;
+  letter-spacing: 0%;
   align-self: center;
   position: relative;
   text-align: left;
   /* identical to box height */
+}
+.dropdown-icon {
+  z-index: 998;
+  width: 35px;
+  height: 35px;
+  vertical-align: middle;
+  position: absolute;
+  margin-left: 260px;
+}
+.identity-icon {
+  z-index: 998;
+  width: 35px;
+  height: 35px;
+  vertical-align: middle;
+  margin-right: -60px;
 }
 .account-icon {
   z-index: 998;
@@ -165,8 +224,8 @@ input:focus {
   align-items: center;
   justify-items: center;
   z-index: 999;
-  margin-top: 75%;
   width: 100%;
+  height: 100%;
 }
 .C-col {
   flex: 1;
@@ -175,7 +234,7 @@ input:focus {
   align-items: center;
   justify-items: center;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 .copyRight {
   position: absolute;
@@ -193,32 +252,30 @@ input:focus {
 .register {
   margin-left: -20px;
   width: 150px;
-  font-family: "GenYoGothic TW";
+  font-family: "PingFang TC";
   font-style: normal;
-  font-size: 25px;
+  font-size: 24px;
   line-height: 20px;
   /* identical to box height */
-  font-weight: bold;
 
   color: #f7f8f8;
 }
 .register-text {
   margin-left: -40px;
   width: 150px;
-  font-family: "GenYoGothic TW";
+  font-family: "PingFang TC";
   font-style: normal;
   font-size: 25px;
   line-height: 20px;
   text-align: center;
-  font-weight: bold;
   cursor: pointer;
-  filter: drop-shadow(-1px 2px 3px rgba(50, 50, 0, 0.5));
   color: #f7f8f8;
   margin-right: 20px;
+  z-index: 998;
 }
 
 .forget-text {
-  font-family: "GenYoGothic TW";
+  font-family: "PingFang TC";
   font-style: normal;
   font-weight: 400;
   font-size: 20px;
@@ -227,20 +284,20 @@ input:focus {
   color: #f7f8f8;
   margin-left: 230px;
   cursor: pointer;
+  z-index: 998;
 }
 
 .back-text {
   margin-left: -40px;
   width: 150px;
-  font-family: "GenYoGothic TW";
+  font-family: "PingFang TC";
   font-style: normal;
-  font-size: 25px;
+  font-size: 24px;
   line-height: 20px;
   text-align: center;
   /* identical to box height */
-  font-weight: bold;
   cursor: pointer;
-  filter: drop-shadow(-1px 2px 3px rgba(50, 50, 0, 0.5));
   color: #f7f8f8;
   margin-right: 20px;
+  z-index: 998;
 }

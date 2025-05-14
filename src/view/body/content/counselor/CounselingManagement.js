@@ -4,6 +4,7 @@ import Typography from "@mui/material/Typography";
 import { useState, useEffect } from "react";
 import plus from "../../../img/register/plus.svg";
 import trash from "../../../img/register/trash.svg";
+import btn_delete from "../../../img/register/delete.svg";
 import { counselorInfo, WeekType, BusinessTime, Period, OverrideTime, AppointmentTime } from "../../../../dataContract/counselor";
 import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
@@ -28,13 +29,13 @@ const CounselingManagement = () => {
     const [unavailable, setUnavailable] = useState(false);
     // 定義多個營業時間
     let businessHours = [
-        { enabled: false, day: WeekType.Sunday, periods: [] },
-        { enabled: false, day: WeekType.Monday, periods: [] },
-        { enabled: false, day: WeekType.Tuesday, periods: [] },
-        { enabled: false, day: WeekType.Wednesday, periods: [] },
-        { enabled: false, day: WeekType.Thursday, periods: [] },
-        { enabled: false, day: WeekType.Friday, periods: [] },
-        { enabled: false, day: WeekType.Saturday, periods: [] },
+        { enabled: false, name: "週一", day: WeekType.Monday, periods: [] },
+        { enabled: false, name: "週二", day: WeekType.Tuesday, periods: [] },
+        { enabled: false, name: "週三", day: WeekType.Wednesday, periods: [] },
+        { enabled: false, name: "週四", day: WeekType.Thursday, periods: [] },
+        { enabled: false, name: "週五", day: WeekType.Friday, periods: [] },
+        { enabled: false, name: "週六", day: WeekType.Saturday, periods: [] },
+        { enabled: false, name: "週日", day: WeekType.Sunday, periods: [] },
     ];
     /// dialog
     const [isOpen, setIsOpen] = useState(false);
@@ -430,92 +431,118 @@ const CounselingManagement = () => {
     }
     return (
         <div className={"CounselingManagement"} style={{ height: '100%', overflowY: 'scroll' }}>
-            <Typography style={{ marginTop: 10, fontSize: 20 }} gutterBottom>
-                時段管理
-            </Typography>
-            <Button
-                variant="contained"
-                color="success"
-                onClick={handleBack}
-                style={{ float: 'right', marginLeft: 10 }}
-            >
-                {'返回'}
-            </Button>
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSave}
-                style={{ float: 'right' }}
-                disabled={disableSaveBtn}
-            >
-                {'儲存'}
-            </Button>
-            <Grid container spacing={3}>
+            <div style={{ paddingTop: 10, flex: 1, flexDirection: "row", display: "flex", position: "sticky", top: 0, zIndex: 999, background: "#F7F8F8" }}>
+                <div style={{ flex: 1 }}>
+                    <Typography style={{ fontSize: 24, fontFamily: "PingFang TC", fontWeight: "600", color: "#212629" }} gutterBottom>
+                        時段管理
+                    </Typography>
+                </div>
+                <div style={{ width: 86 }}>
+                    <Button
+                        variant="outlined"
+                        onClick={handleBack}
+                        style={{ backgroundColor: "#D9D9D9", borderColor: "transparent", color: "#555654" }}
+                    >
+                        {'返回'}
+                    </Button>
+                </div>
+                <div style={{ width: 86 }}>
+                    <Button
+                        variant="contained"
+                        color="success"
+                        onClick={handleSave}
+                        disabled={disableSaveBtn}
+                    >
+                        {'儲存'}
+                    </Button>
+                </div>
+            </div>
+            <div style={{ marginTop: 10 }}>
+                <Typography style={{ lineHeight: 3, paddingLeft: 29, fontSize: 20, fontFamily: "PingFang TC", fontWeight: "600", color: "#212629", backgroundColor: "#ECF0F1", borderRadius: 6 }} gutterBottom>
+                    時段選擇
+                </Typography>
+            </div>
+            <div style={{ flex: 1, flexDirection: 'row', display: 'inline-block', paddingLeft: 29, marginTop: 30 }}>
+                <Typography style={{ fontFamily: "PingFang TC", fontSize: 16, fontWeight: "400", color: "#212629" }} gutterBottom>
+                    {"每日可預約時段"}
+                </Typography>
+                <Typography style={{ fontFamily: "PingFang TC", fontSize: 16, fontWeight: "400", color: "#707070" }}>
+                    {"設定每日預設可預約的時間範圍；若某些日期無法開放，可至下方「指定日期設定」，系統將以指定內容為主。"}
+                </Typography>
+            </div>
+            <Grid style={{ fontFamily: "PingFang TC", fontSize: 16, fontWeight: "400", color: "#212629", marginTop: 16 }} container spacing={3}>
                 <Grid item xs={12}>
-                    <div>
+                    <div style={{ width: 1360, height: 438, backgroundColor: "#FFFFFF", borderRadius: 10, marginLeft: 23, alignItems: "center", justifyItems: "centers" }}>
+                        <div style={{ height: 15 }}></div>
                         {consultHours.map((consultHour, index) => (
-                            <li style={{ marginBottom: 30, display: 'block', width: "90%" }} key={index}>
+                            <li style={{ height: 48, width: 1258, marginLeft: 20, marginTop: 10, display: 'block', backgroundColor: "#F6F6F6", paddingLeft: 20, borderRadius: 10 }} key={index}>
                                 {/* <Checkbox checked={consultHour.enabled} onClick={() => {
                                     handleChecked(index);
                                 }}></Checkbox> */}
                                 <span>
-                                    <strong>{consultHour.day}</strong>
+                                    <strong style={{ lineHeight: 3 }}>{consultHour.name}</strong>
+                                    <Button class="btn_addTime" onClick={() => handleAddPeriod(index)}>
+                                        <span class="text_addTime">{'新增時段'}</span>
+                                    </Button>
                                     {consultHour.periods.map((period, period_index) => {
-                                        return (<span key={period_index}> {(period.startTime + " - " + period.endTime)}
-                                            <Tooltip title="刪除" placement="top" arrow={true}>
-                                                <img style={{ marginLeft: 3, marginRight: 10, height: 15, width: 15, verticalAlign: 'middle' }} src={trash} alt="" onClick={() => handleDelete(index, period_index)} />
-                                            </Tooltip>
-                                        </span>)
+                                        return (
+                                            <span class="btn_delete" disabled={true} key={period_index}>
+                                                <span class="text_delete">{(period.startTime + "-" + period.endTime)}</span>
+                                                <img class="img_delete" src={btn_delete} alt="" onClick={() => handleDelete(index, period_index)}></img>
+                                            </span>
+                                        )
                                     })}
-                                    <img style={{ marginLeft: 30, float: 'right', height: 25, width: 25, verticalAlign: 'middle' }} src={plus} alt="" onClick={() => handleAddPeriod(index)}></img>
+
                                 </span>
                             </li>
                         ))}
                     </div>
                 </Grid>
             </Grid>
-            <div style={{ flex: 1, flexDirection: 'row', display: 'inline-block' }}>
-                <Typography variant="h6" gutterBottom>
-                    {"填寫時段(Daily Hours)"}
-                    <Tooltip title="會根據您指定的日期與時段，覆蓋掉原本的Weekly Hour的時段。" placement="top" enterDelay={0} leaveDelay={200} arrow={true}>
-                        <InfoCircleOutlined style={{ marginLeft: 10, verticalAlign: 0 }}></InfoCircleOutlined>
-                    </Tooltip>
+            <div style={{ flex: 1, flexDirection: 'row', display: 'inline-block', paddingLeft: 29, marginTop: 30 }}>
+                <Typography style={{ fontFamily: "PingFang TC", fontSize: 16, fontWeight: "400", color: "#212629" }} gutterBottom>
+                    {"指定可預約日期時段"}
+                </Typography>
+                <Typography style={{ fontFamily: "PingFang TC", fontSize: 16, fontWeight: "400", color: "#707070" }}>
+                    {"指定的日期與時段會覆蓋原本每日的開放時段。"}
                 </Typography>
             </div>
-            <Grid container spacing={3}>
-                <Grid item xs={12}>
-                    <Calender calendarType="gregory" maxDate={maxDate} minDate={currentDate} locale="en" onClickDay={(value) => onClickDay(value)}></Calender>
-                </Grid>
-                <Grid item xs={12}>
-                    {overrideTimes.map((overrideTime, index) => {
-                        console.log("overrideTime", overrideTime);
-                        return (
-                            <div style={{ marginBottom: 10 }} key={index}>
-                                <div>
-                                    <span>{overrideTime.DayTime}</span>
-                                    <Tooltip title="刪除" placement="top" arrow={true}>
-                                        <img style={{ marginLeft: 3, marginRight: 10, height: 15, width: 15, verticalAlign: 'middle' }} src={trash} alt="" onClick={() => onClickDeleteDailyHour(index)} />
-                                    </Tooltip>
+            <Grid style={{ fontFamily: "PingFang TC", fontSize: 16, fontWeight: "400", color: "#212629", marginTop: 16 }} container spacing={3}>
+                <div style={{ display: "flex", width: 1360, height: 438, backgroundColor: "#FFFFFF", borderRadius: 10, marginLeft: 47, flexDirection: "row" }}>
+                    <Grid style={{ marginTop: 37, marginLeft: 28 }} item xs={12} sm={4}>
+                        <Calender style={{ width: 340 }} calendarType="gregory" maxDate={maxDate} minDate={currentDate} locale="en" onClickDay={(value) => onClickDay(value)}></Calender>
+                    </Grid>
+                    <Grid style={{ marginTop: 37, marginLeft: 24 }} item xs={12}>
+                        <Typography style={{ fontFamily: "PingFang TC", fontSize: 16, fontWeight: "400", color: "#212629" }} gutterBottom>
+                            {"時段列表"}
+                        </Typography>
+                        {overrideTimes.map((overrideTime, index) => {
+                            console.log("overrideTime", overrideTime);
+                            return (
+                                <div style={{ marginBottom: 10 }} key={index}>
+                                    <div class="overrideTime">
+                                        <span class="daytime_overrideTime">{overrideTime.DayTime}</span>
+                                        {overrideTime.Unavailable ?
+                                            <span class="time_overrideTime">
+                                                {"無可預約時段"}
+                                            </span>
+                                            :
+                                            <span>
+                                                {overrideTime.Periods.map((period, period_index) => {
+                                                    return (
+                                                        <span class="time_overrideTime" key={period_index}> {(period.StartTime + "-" + period.EndTime)}</span>
+                                                    )
+                                                })}
+                                            </span>
+                                        }
+                                        <img class="img_delete" style={{ float: "right" }} src={btn_delete} alt="" onClick={() => onClickDeleteDailyHour(index)}></img>
+                                    </div>
+
                                 </div>
-                                {overrideTime.Unavailable ?
-                                    <div>
-                                        {"無可預約時段"}
-                                    </div>
-                                    :
-                                    <div>
-                                        {overrideTime.Periods.map((period, period_index) => {
-                                            return (
-                                                <span key={period_index}> {(period.StartTime + " - " + period.EndTime)}
-                                                    {period_index === overrideTime.Periods.length - 1 ? null : <span>{" / "}</span>}
-                                                </span>
-                                            )
-                                        })}
-                                    </div>
-                                }
-                            </div>
-                        )
-                    })}
-                </Grid>
+                            )
+                        })}
+                    </Grid>
+                </div>
             </Grid>
             <div style={{ height: 30 }}></div>
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={'zh-cn'} >

@@ -58,3 +58,7 @@
 .list-style {
   list-style: none;
 }
+.header {
+  position: sticky;
+  top: 0;
+}
