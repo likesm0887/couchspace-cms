@@ -1,5 +1,5 @@
 import "../login/login.css";
-import img_logo from "../img/login/login.svg";
+import img_logo from "../img/login/logo.svg";
 import img_account from "../img/login/ic_identity.svg";
 import img_password from "../img/login/ic_key.svg";
 import img_email from "../img/login/ic_mail.svg";
@@ -201,26 +201,26 @@ function Login() {
     }
     const renderLogin = () => {
         return (
-            <div className={"R-row"} style={{ paddingTop: 585.7 }}>
+            <div className={"R-row"} style={{ paddingTop: 200 }}>
                 <div className={"C-col"} style={{ marginBottom: 0 }}>
                     <img className="account-icon" src={img_email} alt="123"></img>
                     <input className={"input-account"} placeholder="信箱" type={"text"} onChange={(text) => setAccount(text.target.value.trim())} value={account}></input>
                 </div>
                 <div className={"C-col"} style={{ marginBottom: 29, marginTop: 10 }}>
-                    <span style={{ fontSize: 16, zIndex: 998 }}>{"※ 每個身份需使用對應帳號登入，系統會自動導向該身份後台。"}</span>
+                    <span style={{ fontSize: 16, zIndex: 998, color: " #353535" }}>{"※ 每個身份需使用對應帳號登入，系統會自動導向該身份後台。"}</span>
                 </div>
-                <div className={"C-col"} style={{ marginBottom: 11 }}>
+                <div className={"C-col"} style={{ marginBottom: 12 }}>
                     <img className="password-icon" src={img_password} alt="123"></img>
                     <input className={"input-password"} placeholder="密碼" type={"password"} onChange={(text) => setPassword(text.target.value.trim())} value={password}></input>
                 </div>
-                <div className={"C-col"} style={{ marginBottom: 71.86 }}>
-                    <span className={"forget-text"} onClick={() => onClickForget()}>
+                <div className={"C-col"} style={{ marginBottom: 33 }}>
+                    <span className={"forget-text"} style={{ color: " #353535" }} onClick={() => onClickForget()}>
                         忘記密碼?
                     </span>
                 </div>
                 <div className={"C-col"}>
-                    <span className={"register-text"} onClick={() => onClickSignup()}>
-                        申請帳號
+                    <span>
+                        <button className={"register-text"} onClick={() => onClickSignup()}>申請帳號</button>
                     </span>
                     <span className={"login-wrap"}>
                         <button className={"login"} onClick={() => onClickLogin()}>登入</button>
@@ -230,7 +230,7 @@ function Login() {
     }
     const renderRegister = () => {
         return (
-            <div className={"R-row"} style={{ paddingTop: 429.7 }}>
+            <div className={"R-row"} style={{ paddingTop: 62 }}>
                 <div className={"C-col"} style={{ marginBottom: 0 }}>
                     <img className="identity-icon" src={img_account} alt="123"></img>
                     <select class={identity === "" ? "select-option" : "input-identity"} placeholder="請選擇身份" onChange={(text) => setIdentity(text.target.value.trim())} value={identity}>
@@ -255,8 +255,8 @@ function Login() {
                     <input className={"input-password"} placeholder="再次輸入密碼" type={"password"} onChange={(text) => setConfirmedPassword(text.target.value.trim())} value={confirmedPassword}></input>
                 </div>
                 <div className={"C-col"}>
-                    <span className={"back-text"} onClick={() => onClickBack()}>
-                        返回
+                    <span>
+                        <button className={"back-text"} onClick={() => onClickBack()}>返回</button>
                     </span>
                     <span className={"login-wrap"}>
                         <button className={"login"} onClick={() => onClickRegister()}>註冊</button>
@@ -266,7 +266,7 @@ function Login() {
     }
     const renderForget = () => {
         return (
-            <div className={"R-row"} style={{ paddingTop: 429.7 }}>
+            <div className={"R-row"} style={{ paddingTop: 200 }}>
                 <div className={"C-col"}>
                     <img className="account-icon" src={img_account} alt="123"></img>
                     <input className={"input-account"} placeholder="信箱" type={"text"} onChange={(text) => setAccount(text.target.value.trim())} value={account}></input>
@@ -290,8 +290,8 @@ function Login() {
                         <input className={"input-password"} placeholder="新密碼" type={"password"} onChange={(text) => setPassword(text.target.value.trim())} value={password}></input>
                     </div>
                     <div className={"C-col"}>
-                        <span className={"back-text"} onClick={() => onClickBack()}>
-                            返回
+                        <span>
+                            <button className={"back-text"} onClick={() => onClickBack()}>返回</button>
                         </span>
                         <span className={"login-wrap"}>
                             <button className={"login"} onClick={() => onClickResetPassword()}>重設密碼</button>
@@ -344,10 +344,13 @@ function Login() {
         setOpen(false);
     }
     return (
-        <div class="container-fluid" style={{ height: window.innerHeight, backgroundColor: "#f7f8f8" }}>
+        <div class="container-fluid" style={{ height: 1024, backgroundColor: "#f7f8f8" }}>
             {screenWidth > 500 ?
                 <div className={"content"} >
-                    <img className={"login-background"} src={img_background} alt={"background"}></img>
+                    <div class="row" >
+                        <img style={{ height: 29, width: "100%", marginTop: 87 }} src={img_logo} alt="123" />
+                        <p class="login-title ">專業人士後台</p>
+                    </div>
                     {renderScreen(selectedTab)}
                     {/* <div style={{ alignSelf: "center", justifyItems: "center", textAlign: "center", position: "absolute", top: 900, color: "#a3a2a3", fontSize: 14 }}>
                         <div>
@@ -359,10 +362,6 @@ function Login() {
                 <div class="col-sm-12 h-100 align-items-center" style={{ justifyItems: "center" }}>
                     <div class="row">
                         <img style={{ height: 100, width: "100%", marginTop: 100 }} src={img_logo} alt="123" />
-                    </div>
-                    <div class="row" style={{ width: "95%" }}>>
-                        <div style={{ height: 400, position: "absolute", width: "90%", marginTop: 50, borderTopLeftRadius: "100%", borderTopRightRadius: "100%", borderBottomLeftRadius: 30, borderBottomRightRadius: 30, backgroundColor: "#FFFFFF" }} ></div>
-                        <div style={{ height: 450, position: "absolute", width: "90%", marginTop: 100, borderTopLeftRadius: "100%", borderTopRightRadius: "100%", borderBottomLeftRadius: 35, borderBottomRightRadius: 35, backgroundColor: "#88a1d2" }}></div>
                     </div>
                     <div class="row" style={{ marginTop: "20%" }}>
                         {renderScreen(selectedTab)}
