@@ -64,7 +64,7 @@ function Personal() {
             <div class="row row-cols-auto align-items-center justify-content-end">
                 {screenWidth > 500 ?
                     <div class="col">
-                        <img crossOrigin="anonymous" style={{ width: 80, height: 80, objectFit: 'contain', borderRadius: 1000, overflow: 'hidden' }} src={photo} className="selfie" alt={"selfie"} />
+                        <img crossOrigin="anonymous" style={{ width: 50, height: 50, objectFit: 'contain', borderRadius: 1000, overflow: 'hidden' }} src={photo} className="selfie" alt={"selfie"} />
                     </div> : null}
                 {screenWidth > 500 ?
                     <div class="col">
@@ -72,7 +72,7 @@ function Personal() {
                             <span className={"personal-name"}>{name}</span>
                         </div>
                         <div class="row">
-                            <img crossOrigin="anonymous" style={{ objectFit: 'contain'}} src={subRole !== "HeartCoach" ? psychologyIcon : heartCoachIcon} alt={"tag"}></img>
+                            <img crossOrigin="anonymous" style={{ objectFit: 'contain' }} src={subRole !== "HeartCoach" ? psychologyIcon : heartCoachIcon} alt={"tag"}></img>
                         </div>
                     </div> : null}
                 <div class="col">
