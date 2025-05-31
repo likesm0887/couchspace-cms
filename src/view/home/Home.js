@@ -16,7 +16,7 @@ function Home() {
         }
     }, [])
     return (
-        <div style={{ height: window.innerHeight }}>
+        <div style={{ height: window.innerHeight, overflow: "hidden" }}>
             <Header></Header>
             <Body></Body>
         </div>

@@ -40,3 +40,13 @@
   box-shadow: 0 0 0 1px #39f;
   outline: 0;
 }
+.subTitle {
+  height: 60px;
+  padding-left: 29px;
+  font-size: 24px;
+  font-family: "PingFang TC";
+  font-weight: "600";
+  color: "#212629";
+  background-color: "#ECF0F1";
+  line-height: 24px;
+}

@@ -1,6 +1,8 @@
 import selfie from "../img/header/photo.png";
 import bell from "../img/header/bell.png";
 import userInfo from "../img/header/btn_member_information.svg";
+import psychologyIcon from "../img/login/ic_psychologist.svg";
+import heartCoachIcon from "../img/login/ic_coach.svg";
 import * as React from 'react';
 import "./Personal.css"
 import { useNavigate } from "react-router-dom";
@@ -16,12 +18,14 @@ function Personal() {
     const [name, setName] = useState("");
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [photo, setPhoto] = useState("");
+    const [subRole, setSubRole] = useState("");
     useEffect(() => {
         counselorService.getCounselorInfo().then((info) => {
             counselorInfo.setCounselorInfo = info;
             setEmail(counselorInfo.Email === "" ? "healthy@couchspace.com" : counselorInfo.Email);
             setName(counselorInfo.UserName.Name.LastName + counselorInfo.UserName.Name.FirstName);
             setPhoto(counselorInfo.Photo === "" ? selfie : counselorInfo.Photo);
+            setSubRole(counselorInfo.SubRole === "" ? "Psychologist" : counselorInfo.SubRole);
         })
         counselorService.getAppointmentTime().then((business) => {
             counselorInfo.updateBusinessTimes = business.BusinessTimes;
@@ -64,7 +68,12 @@ function Personal() {
                     </div> : null}
                 {screenWidth > 500 ?
                     <div class="col">
-                        <span className={"personal-name"}>{name}</span>
+                        <div class="row">
+                            <span className={"personal-name"}>{name}</span>
+                        </div>
+                        <div class="row">
+                            <img crossOrigin="anonymous" style={{ objectFit: 'contain'}} src={subRole !== "HeartCoach" ? psychologyIcon : heartCoachIcon} alt={"tag"}></img>
+                        </div>
                     </div> : null}
                 <div class="col">
                     <img onClick={handleClick} src={userInfo} alt={"123"}></img>

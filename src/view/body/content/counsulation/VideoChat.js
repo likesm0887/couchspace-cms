@@ -32,7 +32,7 @@ const VideoChat = (props) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [showCamera, setShowCamera] = useState(true);
-  const [showMic, setShowMic] = useState(true);
+  const [showMic, setShowMic] = useState(false);
   const [showBlur, setShowBlur] = useState(false);
   const [showBG, setShowBG] = useState(false);
   const [mirror, setMirror] = useState(false);
@@ -93,15 +93,20 @@ const VideoChat = (props) => {
       console.log("supportHD", supportHD);
       // start video streaming & audio
       await stream.startVideo({ hd: supportHD, fullHd: supportHD });
-      await stream.startAudio({ autoStartAudioInSafari: IsSafari })
 
       await stream.mirrorVideo(true);
       console.log("stream", stream);
       console.log("client", client);
       console.log("session info", client.getSessionInfo());
-      stream.unmuteAudio(client.getCurrentUserInfo().userId).then(() => {
-        setShowMic(true);
-      });
+      if (!IsSafari) {
+        await stream.startAudio()
+        stream.unmuteAudio(client.getCurrentUserInfo().userId).then(() => {
+          setShowMic(true);
+        });
+      }
+      else {
+        stream.startAudio({ autoStartAudioInSafari: IsSafari })
+      }
       // calculate elapsed time
       startDateTime = tempAppointment.Time.Date;
       startTime = tempAppointment.Time.StartTime;
@@ -158,6 +163,9 @@ const VideoChat = (props) => {
     else if (user.bVideoOn === false) {
       const stream = client.getMediaStream();
       stream.detachVideo(user.userId);
+    }
+    else if (user.audio && client.getCurrentUserInfo().userId === user.userId) {
+      setShowMic(true);
     }
   }
   const handleLeave = () => {
