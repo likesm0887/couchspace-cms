@@ -29,7 +29,10 @@ import {
   Drawer,
 } from "antd";
 import React, { useState, useEffect } from "react";
-import { counselorService, meditationService } from "../../../service/ServicePool";
+import {
+  counselorService,
+  meditationService,
+} from "../../../service/ServicePool";
 
 const Row = ({ children, ...props }) => {
   const {
@@ -82,7 +85,7 @@ const Row = ({ children, ...props }) => {
   );
 };
 
-const CounselorBanners= () => {
+const CounselorBanners = () => {
   const columns = [
     {
       key: "sort",
@@ -90,7 +93,14 @@ const CounselorBanners= () => {
     {
       title: "Banner圖片",
       dataIndex: "imageUrl",
-      render: (image) => <Image crossOrigin="anonymous"    src={image} width="70px" preview={false} />,
+      render: (image) => (
+        <Image
+          crossOrigin="anonymous"
+          src={image}
+          width="70px"
+          preview={false}
+        />
+      ),
     },
     {
       title: "連結諮商師",
@@ -133,41 +143,47 @@ const CounselorBanners= () => {
     );
     console.log(select);
     oriCommonData.CounselorBanners?.splice(select, 1);
-    for (let index = 0; index < oriCommonData.CounselorBanners?.length; index++) {
-        oriCommonData.CounselorBanners[index].Seq=index+1
+    for (
+      let index = 0;
+      index < oriCommonData.CounselorBanners?.length;
+      index++
+    ) {
+      oriCommonData.CounselorBanners[index].Seq = index + 1;
     }
-    setLoading2(true)
+    setLoading2(true);
     await meditationService.updateCommonData(oriCommonData);
     getData();
-    setLoading2(false)
+    setLoading2(false);
   };
   const getData = async () => {
     let commonData = await meditationService.getCommonData();
     setOriCommonData(commonData);
     console.log(commonData?.CounselorBanners?.map((b) => b.LinkSourceID));
     let counselors = await counselorService.getAllCounselorInfo();
-    console.log(counselors)
+    console.log(counselors);
     let banner = commonData.CounselorBanners?.map((e) => {
       let counselor = counselors?.find((c) => c.ID === e.LinkSourceID);
       return {
         key: e.Seq,
         imageUrl: e.ImageUrl,
-        linkSourceID: counselor?.UserName?.Name?.LastName + counselor?.UserName?.Name?.FirstName,
+        linkSourceID:
+          counselor?.UserName?.Name?.LastName +
+          counselor?.UserName?.Name?.FirstName,
         seq: e.Seq,
       };
     });
     const allCounselors = await counselorService.getAllCounselorInfo(true);
 
     setAllCourses(
-        allCounselors.map((c) => {
+      allCounselors.map((c) => {
         return {
-            label: c.UserName?.Name?.FirstName + c.UserName?.Name.LastName,
-            value: c.ID,
+          label: c.UserName?.Name?.FirstName + c.UserName?.Name.LastName,
+          value: c.ID,
         };
       })
     );
     console.log(
-        allCounselors.map((c) => {
+      allCounselors.map((c) => {
         return {
           label: c.UserName?.Name?.FirstName + c.UserName?.Name.LastName,
           value: c.ID,
@@ -203,12 +219,12 @@ const CounselorBanners= () => {
           });
           console.log(toChangeCommonData);
         }
-        oriCommonData.CounselorBanners = toChangeCommonData
+        oriCommonData.CounselorBanners = toChangeCommonData;
         return result;
       });
       setLoading2(true);
       await meditationService.updateCommonData(oriCommonData);
-      
+
       console.log(oriCommonData);
       getData();
       setLoading2(false);
@@ -286,7 +302,11 @@ const CounselorBanners= () => {
         <Spin size="large" spinning={loading}>
           <Form form={form}>
             <p></p>
-            <Image crossOrigin="anonymous"  crossOrigin="anonymous"  width="100px" src={previewBannerImage}></Image>
+            <Image
+              crossOrigin="anonymous"
+              width="100px"
+              src={previewBannerImage}
+            ></Image>
             <Form.Item name="image" label="圖片">
               <Input
                 allowClear={true}

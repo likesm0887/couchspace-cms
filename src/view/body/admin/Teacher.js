@@ -53,7 +53,9 @@ function Teacher() {
       title: "圖片",
       dataIndex: "image",
       key: "image",
-      render: (image) => <Image crossOrigin="anonymous"  crossOrigin="anonymous"  src={image} width="70px" />,
+      render: (image) => (
+        <Image crossOrigin="anonymous" src={image} width="70px" />
+      ),
     },
     {
       title: "姓名",
@@ -86,7 +88,7 @@ function Teacher() {
       defaultSortOrder: "descend",
       sorter: (a, b) =>
         moment(a.createDate).unix() - moment(b.createDate).unix(),
-    }
+    },
   ];
 
   const tableProps = {
@@ -123,8 +125,8 @@ function Teacher() {
     setIsDrawerOpen(true);
   };
   const onChange = () => {};
-  const onFinish =  (e) => {
-    console.log(e)
+  const onFinish = (e) => {
+    console.log(e);
     if (currentModel == "Edit") {
       setLoading(true);
       meditationService
@@ -153,7 +155,7 @@ function Teacher() {
         });
     }
     if (currentModel == "New") {
-        meditationService
+      meditationService
         .createTeacher({
           Name: form.getFieldValue("name"),
           Title: form.getFieldValue("title"),
@@ -175,18 +177,18 @@ function Teacher() {
             type: "fail",
             content: "Oops 出現一點小錯誤",
           });
-        });   
+        });
     }
   };
   const onNew = () => {
-    setCurrentModel("New")
-        form.resetFields();
-     
+    setCurrentModel("New");
+    form.resetFields();
+
     setIsDrawerOpen(true);
   };
 
   const onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo);
+    console.log("Failed:", errorInfo);
   };
   return (
     <div>
@@ -217,8 +219,11 @@ function Teacher() {
       >
         <Form form={form} onSubmit={onFinish}>
           <Space>
-            <Form.Item name="name" label="名稱" rules={[{ required: true, message: '請輸入名稱!' }]}>
-                
+            <Form.Item
+              name="name"
+              label="名稱"
+              rules={[{ required: true, message: "請輸入名稱!" }]}
+            >
               <Input required allowClear={true} placeholder="標題" size="big" />
             </Form.Item>
           </Space>
@@ -234,7 +239,11 @@ function Teacher() {
             </Space>
           </Form.Item>
           <p></p>
-          <Image crossOrigin="anonymous"  crossOrigin="anonymous"  width="100px" src={form.getFieldValue("image")}></Image>
+          <Image
+            crossOrigin="anonymous"
+            width="100px"
+            src={form.getFieldValue("image")}
+          ></Image>
           <Form.Item name="image" label="圖片">
             <Input allowClear={true} placeholder="圖片" size="big" />
           </Form.Item>
