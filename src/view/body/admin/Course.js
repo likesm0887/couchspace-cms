@@ -9,17 +9,29 @@ import {
   Dropdown,
   Tag,
   Form,
+  Tooltip,
   Rate,
   List,
   Button,
   Avatar,
   FloatButton,
-  Layout,
+  Modal,
   Menu,
   Spin,
   Alert,
   Drawer,
 } from "antd";
+import { CopyOutlined } from "@ant-design/icons";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { DndContext } from "@dnd-kit/core";
+import { MenuOutlined } from "@ant-design/icons";
+import { CSS } from "@dnd-kit/utilities";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import {
   PlusCircleOutlined,
   EditOutlined,
@@ -29,15 +41,67 @@ import { meditationService } from "../../../service/ServicePool";
 import ReactAudioPlayer from "react-audio-player";
 import moment from "moment";
 const { TextArea } = Input;
+const Row = ({ children, ...props }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: props["data-row-key"],
+  });
+  const style = {
+    ...props.style,
+    transform: CSS.Transform.toString(
+      transform && {
+        ...transform,
+        scaleY: 1,
+      }
+    ),
+    transition,
+    ...(isDragging
+      ? {
+          position: "relative",
+          zIndex: 9999,
+        }
+      : {}),
+  };
+  return (
+    <tr {...props} ref={setNodeRef} style={style} {...attributes}>
+      {React.Children.map(children, (child) => {
+        if (child.key === "sort") {
+          return React.cloneElement(child, {
+            children: (
+              <MenuOutlined
+                ref={setActivatorNodeRef}
+                style={{
+                  touchAction: "none",
+                  cursor: "move",
+                }}
+                {...listeners}
+              />
+            ),
+          });
+        }
+        return child;
+      })}
+    </tr>
+  );
+};
 function Course() {
   const [data, setData] = useState([]);
   const [modal1Open, setModal1Open] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   const [course, setCourse] = useState(false);
   const [allOption, setAllOption] = useState([]);
+  const [allMusics, setAllMusics] = useState([]);
   const [allTeacherOption, setAllTeacherOption] = useState([]);
   const options = [];
   const [currentModel, setCurrentModel] = useState("New");
+  const [sortModalOpen, setSortModalOpen] = useState(false);
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const columns = [
@@ -58,7 +122,35 @@ function Course() {
       title: "圖片",
       dataIndex: "image",
       key: "image",
-      render: (image) => <Image crossOrigin="anonymous"   src={image} width="70px" />,
+      render: (image) => (
+        <Image crossOrigin="anonymous" src={image} width="70px" />
+      ),
+    },
+    {
+      title: "Index",
+      dataIndex: "Index",
+      key: "Index",
+    },
+    {
+      title: "系列ID",
+      dataIndex: "CourseID",
+      key: "CourseID",
+      render: (text, record) => (
+        <div>
+          <Tooltip title={text}>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <a style={{ color: "#1677FF", marginRight: 8 }}>
+                {text?.slice(-5)}
+              </a>
+              <Button
+                type="link"
+                icon={<CopyOutlined />}
+                onClick={() => copyToClipboard(record.CourseID)}
+              />
+            </div>
+          </Tooltip>
+        </div>
+      ),
     },
     {
       title: "名稱",
@@ -125,6 +217,16 @@ function Course() {
         moment(a.createDate).unix() - moment(b.createDate).unix(),
     },
   ];
+  const copyToClipboard = (text) => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        message.success("Copied to clipboard!");
+      })
+      .catch((err) => {
+        message.error("Failed to copy!");
+      });
+  };
   const onChangeMusic = (values) => {
     console.log(values);
     form.setFieldsValue({ musics: values });
@@ -132,8 +234,10 @@ function Course() {
   const openEdit = (e) => {
     console.log(e);
     setCurrentModel("Edit");
+
     setCourse({
       key: e.key,
+      courseId: e.courseId,
       courseName: e.courseName,
       image: e.image,
       series: ["nice", "developer"],
@@ -143,12 +247,13 @@ function Course() {
       child: e.musics,
       display: e.display,
       teacherID: e.teacherId,
+      Index: e.Index,
     });
-
+    getDefaultMusic();
     form.setFieldValue("name", e.courseName);
     form.setFieldValue("image", e.image);
     form.setFieldValue("description", e.description);
-    console.log(e);
+    form.setFieldValue("Index", e.Index);
     form.setFieldValue("teacherId", e.teacherId);
     console.log(course);
     setModal1Open(true);
@@ -163,11 +268,13 @@ function Course() {
     const res = await meditationService.getAllCourse();
     const allMusics = await meditationService.getAllMusic();
     createOptions(allMusics);
-
+    setAllMusics(allMusics);
     const result = [];
     for (let i = 0; i < res.length; i++) {
       //const musics = allMusics.filter(e=>res[i]?.MusicIDs?.includes(e));
-      const musics = allMusics.filter((elementB) => res[i]?.MusicIDs?.some((elementA) => elementA.id === elementB.id));
+      const musics = allMusics.filter((elementB) =>
+        res[i]?.MusicIDs?.some((elementA) => elementA.id === elementB.id)
+      );
       //const musics = await fetchMusic(res[i].MusicIDs);
       res[i].Musics = [];
 
@@ -175,24 +282,27 @@ function Course() {
         res[i].Musics.push(...musics);
       }
       console.log(res[i].TeacherID);
-      var teacher =null
+      var teacher = null;
       if (res[i].TeacherID != "") {
         console.log(res[i].TeacherID);
-         teacher = await meditationService.getTeacherById(res[i].TeacherID);
+        teacher = await meditationService.getTeacherById(res[i].TeacherID);
         console.log(teacher.Name);
         console.log(res[i]);
       }
 
       result.push({
+        CourseID: res[i].CourseID,
         key: res[i].CourseID,
+        Seq: res[i].Seq,
+        Index: res[i].Index,
         courseName: res[i].CourseName,
         image: res[i].Image,
         series: ["nice", "developer"],
         tags: res[i]?.Tags,
         description: res[i].Description,
         musicIDs: res[i].MusicIDs,
-        teacherName: teacher===null?"":teacher.Name,
-        teacherId: teacher===null?"":teacher.TeacherId,
+        teacherName: teacher === null ? "" : teacher.Name,
+        teacherId: teacher === null ? "" : teacher.TeacherId,
         child: res[i].Musics,
         display: res[i].Display,
         createDate: res[i].CreateDate,
@@ -209,8 +319,10 @@ function Course() {
     setCurrentModel("New");
     setCourse({});
     form.setFieldValue("image", "");
+    form.setFieldValue("index", "");
     form.setFieldValue("name", "");
     form.setFieldValue("description", "");
+    form.setFieldValue("Index", 0);
     setModal1Open(true);
   };
   const onFinish = () => {
@@ -220,6 +332,7 @@ function Course() {
         .createCourse({
           CourseName: form.getFieldValue("name"),
           Image: form.getFieldValue("image"),
+          Index: Number(form.getFieldValue("Index")),
           Description: form.getFieldValue("description"),
           Display: form.getFieldValue("display"),
           TeacherID: form.getFieldValue("teacherId"),
@@ -266,6 +379,7 @@ function Course() {
           Image: form.getFieldValue("image"),
           Display: form.getFieldValue("display"),
           TeacherID: form.getFieldValue("teacherId"),
+          Index: Number(form.getFieldValue("Index")),
           Description: form.getFieldValue("description"),
           Tags: ["幫助睡眠", "正念", "紓解壓力"],
         })
@@ -291,14 +405,6 @@ function Course() {
           });
         });
     }
-  };
-
-  const fetchMusic = async (ids) => {
-    const idstring = ids?.map((id) => id.MusicID);
-
-    const musics = await meditationService.batchQueryMusic({ ids: idstring });
-
-    return musics;
   };
 
   const createOptions = (musics) => {
@@ -332,6 +438,30 @@ function Course() {
     //    return allOption.map(e => { data.child.some(a => a._id = e.value) })
   };
 
+  const getDefaultMusic = (e) => {
+    if (currentModel == "New") {
+      return [];
+    }
+    const result = [];
+
+    if (course.musicIDs == null) {
+      return [];
+    }
+    for (let index = 0; index < course.musicIDs.length; index++) {
+      for (let index2 = 0; index2 < allMusics.length; index2++) {
+        if (result.includes(allMusics[index2].MusicID)) {
+          continue;
+        }
+        if (allMusics[index2].MusicID === course.musicIDs[index].MusicID) {
+          result.push(allMusics[index2]);
+        }
+      }
+    }
+
+    console.log(result);
+    return result;
+    //    return allOption.map(e => { data.child.some(a => a._id = e.value) })
+  };
   const getDefaultDisplay = (e) => {
     if (course.display == 0) {
       return {
@@ -352,13 +482,13 @@ function Course() {
       };
     }
   };
-  const getDefaultTeacher=()=>{
-    const a=  allTeacherOption.find(t=>t.value===course.teacherID)
-    console.log(allTeacherOption)
-    console.log(course.teacherID)
-    console.log(a)
+  const getDefaultTeacher = () => {
+    const a = allTeacherOption.find((t) => t.value === course.teacherID);
+    console.log(allTeacherOption);
+    console.log(course.teacherID);
+    console.log(a);
     return a;
- }
+  };
   const tableProps = {
     loading,
   };
@@ -379,10 +509,14 @@ function Course() {
     setAllTeacherOption(options);
     return options;
   };
- 
+  const saveSortedMusics = () => {
+    console.log("Sorted Musics:", course);
+    setSortModalOpen(false);
+    message.success("順序已更新");
+  };
+
   return (
     <div>
-      <>{contextHolder}</>
       <FloatButton
         shape="circle"
         type="primary"
@@ -391,7 +525,7 @@ function Course() {
         tooltip={<div>Add Music</div>}
         icon={<PlusCircleOutlined />}
       />
-
+      <>{contextHolder}</>
       <Drawer
         title={currentModel == "Edit" ? "編輯" : "新增"}
         style={{
@@ -453,7 +587,11 @@ function Course() {
               />
             </Space>
           </Form.Item>
-          <Image crossOrigin="anonymous"   width="100px" src={form.getFieldValue("image")}></Image>
+          <Image
+            crossOrigin="anonymous"
+            width="100px"
+            src={form.getFieldValue("image")}
+          ></Image>
           <Form.Item name="image">
             <Input
               allowClear={true}
@@ -492,6 +630,11 @@ function Course() {
               />
             </Space>
           </Form.Item>
+          <Space>
+            <Form.Item name="Index" label="Index">
+              <Input required allowClear={true} placeholder="Index" />
+            </Form.Item>
+          </Space>
           <p></p>
           <Form.Item name="musics" label="音樂">
             <Space>
@@ -516,6 +659,7 @@ function Course() {
 
             <p></p>
           </Form.Item>
+
           <>
             <Form.Item name="description">
               <TextArea rows={3} placeholder="介紹" maxLength={50} />
