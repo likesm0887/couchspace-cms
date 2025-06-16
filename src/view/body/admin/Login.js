@@ -18,7 +18,7 @@ import { message, Space, Tabs } from "antd";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../../../../src/logo.png";
-import { registerService } from "../../../service/ServicePool";
+import { service } from "../../../service/ServicePool";
 const iconStyles = {
   marginInlineStart: "16px",
   color: "rgba(0, 0, 0, 0.2)",
@@ -34,7 +34,7 @@ export default () => {
     const { username, password } = values;
     console.log("username:" + username);
     console.log("password:" + password);
-    registerService
+    service
       .login2(username, password)
       .then((res) => res.json())
       .then((result) => {
