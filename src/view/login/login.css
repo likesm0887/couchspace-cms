@@ -20,27 +20,9 @@
   position: absolute;
   z-index: 1;
 }
-.circle {
-  width: 506px;
-  vertical-align: bottom;
-  height: 428px;
-  position: absolute;
-  top: 400px;
-  border-radius: 100% 100% 30px 30px;
-  background: #ffffff;
-}
 textarea:focus,
 input:focus {
   outline: none;
-}
-.circle2 {
-  width: 506px;
-  vertical-align: bottom;
-  height: 428px;
-  position: absolute;
-  top: 430px;
-  border-radius: 100% 100% 35px 35px;
-  background: #88a1d2;
 }
 .input-identity {
   appearance: none;
@@ -57,7 +39,7 @@ input:focus {
   text-overflow: ellipsis;
   background: url("../img/login/caret.svg") no-repeat right;
   background-position: 350px;
-  background-color: #EBEBEB;
+  background-color: #ebebeb;
   z-index: 997;
 }
 .select-option {
@@ -73,7 +55,7 @@ input:focus {
   text-overflow: ellipsis;
   background: url("../img/login/caret.svg") no-repeat right;
   background-position: 350px;
-  background-color: #EBEBEB;
+  background-color: #ebebeb;
   z-index: 997;
   color: #c7c7c7;
   font-family: "Nunito";
@@ -87,7 +69,7 @@ input:focus {
 }
 .input-account {
   border: none;
-  background: #EBEBEB;
+  background: #ebebeb;
   width: 409px;
   height: 58px;
   border-radius: 30px;
@@ -102,7 +84,7 @@ input:focus {
 }
 .input-password {
   border: none;
-  background: #EBEBEB;
+  background: #ebebeb;
   width: 409px;
   height: 58px;
   border-radius: 30px;
@@ -117,7 +99,7 @@ input:focus {
 }
 .input-email {
   border: none;
-  background: #EBEBEB;
+  background: #ebebeb;
   width: 409px;
   height: 58px;
   border-radius: 30px;
@@ -135,8 +117,8 @@ input:focus {
   border: 0px;
   width: 200px;
   height: 50px;
-  color: #FFFFFF;
-  background-color:var(--Color-Blue-Blue-200, #8AA3D4);
+  color: #ffffff;
+  background-color: var(--Color-Blue-Blue-200, #8aa3d4);
   font-family: "PingFang TC";
   font-style: normal;
   font-size: 24px;
@@ -148,7 +130,6 @@ input:focus {
 .login-wrap {
   z-index: 999;
   filter: drop-shadow(2.48px 2.48px 1.24px 0px rgba(0, 0, 0, 0.161));
-
 }
 
 .send {
@@ -181,14 +162,6 @@ input:focus {
   position: relative;
   text-align: left;
   /* identical to box height */
-}
-.dropdown-icon {
-  z-index: 998;
-  width: 35px;
-  height: 35px;
-  vertical-align: middle;
-  position: absolute;
-  margin-left: 260px;
 }
 .identity-icon {
   z-index: 998;
@@ -263,7 +236,7 @@ input:focus {
 }
 .register-text {
   border-radius: 30px;
-  border: 2px solid var(--Color-Gary-Gray-300, #9B9B9B);
+  border: 2px solid var(--Color-Gary-Gray-300, #9b9b9b);
   width: 200px;
   height: 50px;
   color: #353535;
@@ -275,7 +248,6 @@ input:focus {
   font-weight: 500;
   cursor: pointer;
   margin-right: 29px;
-
 }
 
 .forget-text {
@@ -293,7 +265,7 @@ input:focus {
 
 .back-text {
   border-radius: 30px;
-  border: 2px solid var(--Color-Gary-Gray-300, #9B9B9B);
+  border: 2px solid var(--Color-Gary-Gray-300, #9b9b9b);
   width: 200px;
   height: 50px;
   color: #353535;
@@ -316,4 +288,302 @@ input:focus {
   width: "100%";
   height: 34px;
   margin-top: 15px;
+}
+
+@media screen and (max-width: 500px) {
+  .content {
+    height: 100%;
+    width: 100%;
+    justify-items: center;
+  }
+  .login-logo {
+    width: 349px;
+    height: 127px;
+    top: 131.66px;
+    position: absolute;
+    align-self: center;
+    justify-self: center;
+    z-index: 999;
+  }
+  .login-background {
+    width: 100%;
+    height: 1024px;
+    align-self: center;
+    justify-self: center;
+    position: absolute;
+    z-index: 1;
+  }
+  textarea:focus,
+  input:focus {
+    outline: none;
+  }
+  .input-identity {
+    appearance: none;
+    border: none;
+    width: 300px;
+    height: 58px;
+    border-radius: 30px;
+    border: 0px;
+    text-align: left;
+    font-size: 20px;
+    overflow: hidden;
+    white-space: nowrap;
+    padding-left: 70px;
+    text-overflow: ellipsis;
+    background: url("../img/login/caret.svg") no-repeat right;
+    background-position: 250px;
+    background-color: #ebebeb;
+    z-index: 997;
+  }
+  .select-option {
+    appearance: none;
+    border: none;
+    width: 300px;
+    height: 58px;
+    border-radius: 30px;
+    border: 0px;
+    overflow: hidden;
+    white-space: nowrap;
+    padding-left: 70px;
+    text-overflow: ellipsis;
+    background: url("../img/login/caret.svg") no-repeat right;
+    background-position: 250px;
+    background-color: #ebebeb;
+    z-index: 997;
+    color: #c7c7c7;
+    font-family: "Nunito";
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    align-self: center;
+    position: relative;
+    text-align: left;
+  }
+  .input-account {
+    border: none;
+    background: #ebebeb;
+    width: 300px;
+    height: 58px;
+    border-radius: 30px;
+    border: 0px;
+    text-align: left;
+    font-size: 20px;
+    overflow: hidden;
+    white-space: nowrap;
+    padding-left: 70px;
+    text-overflow: ellipsis;
+    z-index: 997;
+  }
+  .input-password {
+    border: none;
+    background: #ebebeb;
+    width: 300px;
+    height: 58px;
+    border-radius: 30px;
+    border: 0px;
+    text-align: left;
+    font-size: 20px;
+    overflow: hidden;
+    white-space: nowrap;
+    padding-left: 70px;
+    text-overflow: ellipsis;
+    z-index: 997;
+  }
+  .input-email {
+    border: none;
+    background: #ebebeb;
+    width: 300px;
+    height: 58px;
+    border-radius: 30px;
+    border: 0px;
+    text-align: left;
+    font-size: 20px;
+    overflow: hidden;
+    white-space: nowrap;
+    padding-left: 70px;
+    text-overflow: ellipsis;
+    z-index: 997;
+  }
+  .login {
+    border-radius: 30px;
+    border: 0px;
+    width: 135.5px;
+    height: 58px;
+    color: #ffffff;
+    background-color: var(--Color-Blue-Blue-200, #8aa3d4);
+    font-family: "PingFang TC";
+    font-style: normal;
+    font-size: 24px;
+    line-height: 20px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .login-wrap {
+    z-index: 999;
+    filter: drop-shadow(2.48px 2.48px 1.24px 0px rgba(0, 0, 0, 0.161));
+  }
+
+  .send {
+    border-radius: 30px;
+    border: 0px;
+    width: 250px;
+    height: 40px;
+    color: #595757;
+    background-color: #f7f8f8;
+    font-family: "GenYoGothic TW";
+    font-style: normal;
+    font-size: 18px;
+    line-height: 20px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .send-wrap {
+    z-index: 999;
+    filter: drop-shadow(-1px 2px 3px rgba(50, 50, 0, 0.5));
+  }
+  ::placeholder {
+    color: #c7c7c7;
+    font-family: "Nunito";
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    align-self: center;
+    position: relative;
+    text-align: left;
+    /* identical to box height */
+  }
+  .identity-icon {
+    position: absolute;
+    z-index: 998;
+    width: 35px;
+    height: 35px;
+    vertical-align: middle;
+    left: 18%;
+  }
+  .account-icon {
+    position: absolute;
+    z-index: 998;
+    width: 35px;
+    height: 35px;
+    vertical-align: middle;
+    left: 18%;
+  }
+  .password-icon {
+    position: absolute;
+    z-index: 998;
+    width: 35px;
+    height: 35px;
+    vertical-align: middle;
+    left: 18%;
+  }
+  .email-icon {
+    position: absolute;
+    z-index: 998;
+    width: 35px;
+    height: 35px;
+    align-self: center;
+    left: 18%;
+  }
+  .R-row {
+    flex: 1;
+    flex-direction: column;
+    display: "block";
+    align-items: center;
+    justify-items: center;
+    z-index: 999;
+    width: 100%;
+    height: 100%;
+  }
+  .C-col {
+    flex: 1;
+    flex-direction: row;
+    display: flex;
+    align-items: center;
+    justify-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+  }
+  .copyRight {
+    position: absolute;
+    left: 17%;
+    right: 50%;
+    top: 107.1%;
+    bottom: 0.5%;
+    width: 500px;
+    color: #a3a2a3;
+    font-size: 14px;
+  }
+  * {
+    font-family: "PingFang TC";
+  }
+  .register {
+    margin-left: -20px;
+    width: 150px;
+    font-family: "PingFang TC";
+    font-style: normal;
+    font-size: 24px;
+    line-height: 20px;
+    /* identical to box height */
+
+    color: #f7f8f8;
+  }
+  .register-text {
+    border-radius: 30px;
+    border: 2px solid var(--Color-Gary-Gray-300, #9b9b9b);
+    width: 135.5px;
+    height: 58px;
+    color: #353535;
+    background-color: transparent;
+    font-family: "PingFang TC";
+    font-style: normal;
+    font-size: 24px;
+    line-height: 20px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-right: 29px;
+  }
+
+  .forget-text {
+    font-family: "PingFang TC";
+    font-style: normal;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 15px;
+    text-align: "right";
+    color: #f7f8f8;
+    margin-left: 200px;
+    cursor: pointer;
+    z-index: 998;
+  }
+
+  .back-text {
+    border-radius: 30px;
+    border: 2px solid var(--Color-Gary-Gray-300, #9b9b9b);
+    width: 135.5px;
+    height: 58px;
+    color: #353535;
+    background-color: transparent;
+    font-family: "PingFang TC";
+    font-style: normal;
+    font-size: 24px;
+    line-height: 20px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-right: 29px;
+  }
+  .login-title {
+    font-family: "PingFang TC";
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    text-align: center;
+    width: "100%";
+    height: 34px;
+    margin-top: 15px;
+  }
 }
