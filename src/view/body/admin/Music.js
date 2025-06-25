@@ -174,6 +174,7 @@ function Music() {
       image: item.Image,
       series: item.Series,
       free: item.Free ? "Free" : "Premium",
+      time: item.Time,
       path: item.Path,
       views: item.TotalView,
       createDate: item.CreateDate,
@@ -202,14 +203,15 @@ function Music() {
     setShortImage(record.image);
     setShortMusic(record.path);
     setSelectMusic(record.key);
-    console.log(record.key)
+    console.log(record.key);
     handleAudioDuration(record.path);
-    
+
     form.setFieldsValue({
       key: record.key,
       musicId: record.MusicID,
       name: record.name,
       image: record.image,
+      time: record.time,
       path: record.path,
       free: record.free,
       isDelete: record.isDelete === "N" || record.isDelete === "",
@@ -283,7 +285,7 @@ function Music() {
           setCurrentModel("New");
           form.resetFields();
           setModalOpen(true);
-          setDuration("")
+          setDuration("");
         }}
       />
 
@@ -322,6 +324,14 @@ function Music() {
               }}
             />
           )}
+          <Form.Item name="time" label="音樂時長" rules={[{ required: true }]}>
+            <Input
+              placeholder="音樂時長"
+              onChange={(r) => {
+                setDuration(r.target.value);
+              }}
+            />
+          </Form.Item>
           <Form.Item name="path" label="音樂 URL" rules={[{ required: true }]}>
             <Input placeholder="輸入音樂 URL" onChange={handleInputChange} />
           </Form.Item>

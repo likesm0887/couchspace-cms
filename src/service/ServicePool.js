@@ -20,7 +20,7 @@ store.subscribe((state) => {
     //baseUrl=store.getState()
 })
 
-const service = new RegisterService(baseUrl);
+export const service = new RegisterService(baseUrl);
 
 export const appointmentService = new AppointmentService(baseUrl);
 

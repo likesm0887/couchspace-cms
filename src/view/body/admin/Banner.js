@@ -123,7 +123,7 @@ const Banner = () => {
       title: "連結內容",
       dataIndex: "linkSourceID",
       render: (text, record) => {
-        console.log(record)
+        console.log(record);
         if (record.type === "EXTERNAL_LINK") {
           return (
             <a
@@ -131,7 +131,6 @@ const Banner = () => {
               target="_blank"
               rel="noopener noreferrer"
             >
-            
               {record.linkSourceID}
             </a>
           );
@@ -139,8 +138,7 @@ const Banner = () => {
         return text;
       },
     },
-   
-    
+
     {
       title: "刪除",
       dataIndex: "editBtn",

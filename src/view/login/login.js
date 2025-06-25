@@ -201,13 +201,13 @@ function Login() {
     }
     const renderLogin = () => {
         return (
-            <div className={"R-row"} style={{ paddingTop: 200 }}>
+            <div className={"R-row"} style={{ paddingTop: screenWidth > 500 ? 200 : 55 }}>
                 <div className={"C-col"} style={{ marginBottom: 0 }}>
                     <img className="account-icon" src={img_email} alt="123"></img>
                     <input className={"input-account"} placeholder="信箱" type={"text"} onChange={(text) => setAccount(text.target.value.trim())} value={account}></input>
                 </div>
-                <div className={"C-col"} style={{ marginBottom: 29, marginTop: 10 }}>
-                    <span style={{ fontSize: 16, zIndex: 998, color: " #353535" }}>{"※ 每個身份需使用對應帳號登入，系統會自動導向該身份後台。"}</span>
+                <div className={"C-col"} style={{ marginBottom: 29, marginTop: 10, width: screenWidth > 500 ? 500 : 300 }}>
+                    <span style={{ fontSize: 16, zIndex: 998, color: " #353535", textAlign: "center" }}>{"※ 每個身份需使用對應帳號登入，系統會自動導向該身份後台。"}</span>
                 </div>
                 <div className={"C-col"} style={{ marginBottom: 12 }}>
                     <img className="password-icon" src={img_password} alt="123"></img>
@@ -230,7 +230,7 @@ function Login() {
     }
     const renderRegister = () => {
         return (
-            <div className={"R-row"} style={{ paddingTop: 62 }}>
+            <div className={"R-row"} style={{ paddingTop: 55 }}>
                 <div className={"C-col"} style={{ marginBottom: 0 }}>
                     <img className="identity-icon" src={img_account} alt="123"></img>
                     <select class={identity === "" ? "select-option" : "input-identity"} placeholder="請選擇身份" onChange={(text) => setIdentity(text.target.value.trim())} value={identity}>
@@ -239,8 +239,8 @@ function Login() {
                         <option value="HeartCoach">心教練</option>
                     </select>
                 </div>
-                <div className={"C-col"} style={{ marginBottom: 29, marginTop: 12 }}>
-                    <span style={{ fontSize: 16, zIndex: 998 }}>{"※ 如需註冊雙重身份，每個身份需使用不同信箱註冊"}</span>
+                <div className={"C-col"} style={{ marginBottom: 29, marginTop: 12, width: screenWidth > 500 ? 500 : 300 }}>
+                    <span style={{ fontSize: 16, zIndex: 998, textAlign: "center" }}>{"※ 如需註冊雙重身份，每個身份需使用不同信箱註冊"}</span>
                 </div>
                 <div className={"C-col"}>
                     <img className="account-icon" src={img_email} alt="123"></img>
@@ -262,11 +262,11 @@ function Login() {
                         <button className={"login"} onClick={() => onClickRegister()}>註冊</button>
                     </span>
                 </div>
-            </div >);
+            </div>);
     }
     const renderForget = () => {
         return (
-            <div className={"R-row"} style={{ paddingTop: 200 }}>
+            <div className={"R-row"} style={{ paddingTop: screenWidth > 500 ? 200 : 55 }}>
                 <div className={"C-col"}>
                     <img className="account-icon" src={img_account} alt="123"></img>
                     <input className={"input-account"} placeholder="信箱" type={"text"} onChange={(text) => setAccount(text.target.value.trim())} value={account}></input>
@@ -344,12 +344,16 @@ function Login() {
         setOpen(false);
     }
     return (
-        <div class="container-fluid" style={{ height: 1024, backgroundColor: "#f7f8f8" }}>
+        <div class="container-fluid" style={{ height: 1024, backgroundColor: "#f7f8f8", paddingLeft: 0 }}>
             {screenWidth > 500 ?
                 <div className={"content"} >
                     <div class="row" >
                         <img style={{ height: 29, width: "100%", marginTop: 87 }} src={img_logo} alt="123" />
-                        <p class="login-title ">專業人士後台</p>
+                    </div>
+                    <div>
+                        <p class="login-title">
+                            專業人士後台
+                        </p>
                     </div>
                     {renderScreen(selectedTab)}
                     {/* <div style={{ alignSelf: "center", justifyItems: "center", textAlign: "center", position: "absolute", top: 900, color: "#a3a2a3", fontSize: 14 }}>
@@ -361,11 +365,14 @@ function Login() {
                 :
                 <div class="col-sm-12 h-100 align-items-center" style={{ justifyItems: "center" }}>
                     <div class="row">
-                        <img style={{ height: 100, width: "100%", marginTop: 100 }} src={img_logo} alt="123" />
+                        <img style={{ height: 29, width: 240, marginTop: 47 }} src={img_logo} alt="123" />
                     </div>
-                    <div class="row" style={{ marginTop: "20%" }}>
-                        {renderScreen(selectedTab)}
+                    <div>
+                        <p class="login-title">
+                            專業人士後台
+                        </p>
                     </div>
+                    {renderScreen(selectedTab)}
                     {/* <div class="row" style={{ width: "100%", alignSelf: "center", justifyItems: "center", textAlign: "center", position: "absolute", top: 800, color: "#a3a2a3", fontSize: 14 }}>
                         <div>
                             Copyright © 2023 Couchspace All rights reserved
