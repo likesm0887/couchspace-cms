@@ -206,7 +206,7 @@ function Login() {
                     <img className="account-icon" src={img_email} alt="123"></img>
                     <input className={"input-account"} placeholder="信箱" type={"text"} onChange={(text) => setAccount(text.target.value.trim())} value={account}></input>
                 </div>
-                <div className={"C-col"} style={{ marginBottom: 29, marginTop: 10, width: screenWidth > 500 ? 500 : 300 }}>
+                <div className={"C-col"} style={{ marginBottom: 29, marginTop: 10 }}>
                     <span style={{ fontSize: 16, zIndex: 998, color: " #353535", textAlign: "center" }}>{"※ 每個身份需使用對應帳號登入，系統會自動導向該身份後台。"}</span>
                 </div>
                 <div className={"C-col"} style={{ marginBottom: 12 }}>
@@ -239,7 +239,7 @@ function Login() {
                         <option value="HeartCoach">心教練</option>
                     </select>
                 </div>
-                <div className={"C-col"} style={{ marginBottom: 29, marginTop: 12, width: screenWidth > 500 ? 500 : 300 }}>
+                <div className={"C-col"} style={{ marginBottom: 29, marginTop: 12 }}>
                     <span style={{ fontSize: 16, zIndex: 998, textAlign: "center" }}>{"※ 如需註冊雙重身份，每個身份需使用不同信箱註冊"}</span>
                 </div>
                 <div className={"C-col"}>
