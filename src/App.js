@@ -31,6 +31,7 @@ import Banner from "./view/body/admin/Banner";
 import CounselorBanner from "./view/body/admin/CounselorBanner";
 import Appointments from "./view/body/admin/Appointments";
 import PromoCode from "./view/body/admin/Promo_code";
+import DeepLinkRedirector from "./view/deeplink/DeepLinkRedirector.js";
 function App() {
   // registerServiceWorker()
   // Notification()
@@ -79,6 +80,12 @@ function App() {
             />
           </Route>
         </Route>
+        <Route
+          path="/deeplink/player/:deeplinkUrl"
+          element={
+            <DeepLinkRedirector />
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
