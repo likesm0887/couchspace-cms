@@ -22,6 +22,17 @@ export class RegisterService {
                 cookie.save('token', this.token.AccessToken);
             });
     }
+
+    login2(username, password) {
+        const api = this.base_url + "/api/login"
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: username, password: password })
+        };
+
+        return fetch(api, requestOptions);
+    }
 }
 
 export default RegisterService

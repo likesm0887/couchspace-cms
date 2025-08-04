@@ -15,10 +15,11 @@ import {
 } from "@ant-design/pro-components";
 import cookie from "react-cookies";
 import { message, Space, Tabs } from "antd";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../../../../src/logo.png";
 import { service } from "../../../service/ServicePool";
+import { useAuth } from "../../../features/auth/useAuth.ts";
 const iconStyles = {
   marginInlineStart: "16px",
   color: "rgba(0, 0, 0, 0.2)",
@@ -29,31 +30,44 @@ const iconStyles = {
 
 export default () => {
   const navigate = useNavigate();
+  const { login, isAuthenticated, loading } = useAuth();
   const [loginType, setLoginType] = useState("account");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && !loading) {
+      navigate("/admin", { replace: true });
+    }
+  }, [isAuthenticated, loading, navigate]);
+
+  // Show loading while checking authentication
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   const onFinish = async (values) => {
     const { username, password } = values;
-    console.log("username:" + username);
-    console.log("password:" + password);
-    service
-      .login2(username, password)
-      .then((res) => res.json())
-      .then((result) => {
-        console.log(result);
-        if (result.token?.AccessToken) {
-          message.success("登入成功!");
-          console.log(result);
-          cookie.save("token", result.token.AccessToken);
-          navigate("/admin", { replace: true });
-        } else {
-          message.error("登入失敗!");
-        }
-      });
+    setIsLoading(true);
+    
+    try {
+      await login({ username, password });
+      message.success("登入成功!");
+      navigate("/admin", { replace: true });
+    } catch (error) {
+      message.error(error.message || "登入失敗!");
+    } finally {
+      setIsLoading(false);
+    }
   };
   return (
     <ProConfigProvider hashed={false}>
       <div style={{ backgroundColor: "white" }}>
         <LoginForm
-          submitter={{ searchConfig: { submitText: "Login" } }}
+          submitter={{ 
+            searchConfig: { submitText: "Login" },
+            submitButtonProps: { loading: isLoading }
+          }}
           logo={logo}
           title="Couchspace"
           subTitle="Couchspace管理平台"
