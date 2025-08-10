@@ -2,6 +2,7 @@ import cookie from 'react-cookies'
 import { appointmentService } from './ServicePool';
 import { ForgetPassword, ResetPassword } from '../dataContract/counselor';
 import { jwtDecode } from "jwt-decode";
+import { counselorAuthentication } from '../utility/ProtectedRoute';
 export class CounselorService {
     constructor(base_url) {
         this.base_url = base_url;
@@ -20,7 +21,7 @@ export class CounselorService {
         let decodedPayload = jwtDecode(this.token);
         console.log("decodedPayload", decodedPayload);
         const { exp } = decodedPayload;
-        
+
         const currentTime = Math.floor(Date.now() / 1000);
         console.log("current time", currentTime)
 
@@ -54,12 +55,14 @@ export class CounselorService {
             .then(res => res.json())
             .then((result) => {
                 this.token = result.token.AccessToken;
-                appointmentService.setToken(result.token.AccessToken)
+                appointmentService.setToken(result.token.AccessToken);
+                counselorAuthentication.updateAuthentication(true);
                 cookie.save('token_counselor', result.token.AccessToken);
                 return result;
             });
     }
     logout() {
+        counselorAuthentication.updateAuthentication(false);
         cookie.remove('token_counselor');
     }
     /**

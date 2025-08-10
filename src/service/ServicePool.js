@@ -10,9 +10,10 @@ import { Provider } from "react-redux"
 import { ConsoleSqlOutlined } from "@ant-design/icons";
 import reducers from "./redux/reducers/reducers.js";
 import store from "./redux/store/store.js"
+import { adminAuthentication, counselorAuthentication } from "../utility/ProtectedRoute.js";
 //let baseUrl =  cookie.load("url")?"https://couchspace-test.azurewebsites.net":cookie.load("url");
- //const baseUrl = "https://couchspace-prod.azurewebsites.net"
- const baseUrl = "https://couchspace-test.azurewebsites.net"
+//const baseUrl = "https://couchspace-prod.azurewebsites.net"
+const baseUrl = "https://couchspace-test.azurewebsites.net"
 //const baseUrl = "https://couchspace-test.azurewebsites.net"
 //const baseUrl = "http://localhost:9000"
 store.subscribe((state) => {
@@ -31,7 +32,9 @@ export const meditationService = new MeditationService(baseUrl);
 export const memberService = new MemberService(baseUrl);
 
 export const boot = () => {
-    service.login("admin@gmail.com", "admin");
+    // service.login("admin@gmail.com", "admin");
+    adminAuthentication.updateAuthentication(cookie.load("token") == null ? false : true);
+    counselorAuthentication.updateAuthentication(cookie.load("token_counselor") == null ? false : true);
 }
 
 
