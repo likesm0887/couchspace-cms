@@ -161,10 +161,10 @@ function Music() {
     },
     {
       title: "老師",
-      dataIndex: "teacherId",
-      key: "teacherId",
-      render: (teacherId) => {
-        const teacher = teachers.find(t => t.value === teacherId);
+      dataIndex: "teacherID",
+      key: "teacherID",
+      render: (teacherID) => {
+        const teacher = teachers.find((t) => t.value === teacherID);
         return teacher ? teacher.label : "未指定";
       },
     },
@@ -189,7 +189,7 @@ function Music() {
       views: item.TotalView,
       createDate: item.CreateDate,
       isDelete: item.IsDelete,
-      teacherId: item.TeacherId, // Add teacher ID to the music data
+      teacherID: item.TeacherID, // Add teacher ID to the music data
     }));
     setData(result);
     setLoading(false);
@@ -239,7 +239,7 @@ function Music() {
       path: record.path,
       free: record.free,
       isDelete: record.isDelete === "N" || record.isDelete === "",
-      teacherId: record.teacherId, // Include teacher ID in edit form
+      teacherID: record.teacherID, // Include teacher ID in edit form
     });
     setModalOpen(true);
   };
@@ -258,7 +258,7 @@ function Music() {
         Image: form.getFieldValue("image"),
         Time: Math.floor(duration),
         IsDelete: form.getFieldValue("isDelete") ? "N" : "Y",
-        TeacherId: form.getFieldValue("teacherId"), // Include teacher ID
+        TeacherID: form.getFieldValue("teacherID"), // Include teacher ID
       });
     } else {
       await meditationService.updateMusic({
@@ -272,7 +272,7 @@ function Music() {
         Image: form.getFieldValue("image"),
         Time: Math.floor(duration),
         IsDelete: form.getFieldValue("isDelete") ? "N" : "Y",
-        TeacherId: form.getFieldValue("teacherId"), // Include teacher ID
+        TeacherID: form.getFieldValue("teacherID"), // Include teacher ID
       });
     }
     setModalOpen(false);
@@ -383,12 +383,8 @@ function Music() {
               ]}
             />
           </Form.Item>
-          <Form.Item name="teacherId" label="老師" rules={[{ required: true }]}>
-            <Select
-              placeholder="選擇老師"
-              options={teachers}
-              allowClear
-            />
+          <Form.Item name="teacherID" label="老師" rules={[{ required: true }]}>
+            <Select placeholder="選擇老師" options={teachers} allowClear />
           </Form.Item>
           <Form.Item name="isDelete" label="啟用" rules={[{ required: true }]}>
             <Switch />
