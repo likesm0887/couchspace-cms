@@ -46,6 +46,7 @@ function Music() {
   const [shortImage, setShortImage] = useState("");
   const [shortMusic, setShortMusic] = useState("");
   const [duration, setDuration] = useState(0);
+  const [teachers, setTeachers] = useState([]);
 
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
@@ -159,6 +160,15 @@ function Music() {
       render: (path) => <ReactAudioPlayer src={path} controls />,
     },
     {
+      title: "老師",
+      dataIndex: "teacherId",
+      key: "teacherId",
+      render: (teacherId) => {
+        const teacher = teachers.find(t => t.value === teacherId);
+        return teacher ? teacher.label : "未指定";
+      },
+    },
+    {
       title: "新增日期",
       dataIndex: "createDate",
       key: "createDate",
@@ -179,9 +189,23 @@ function Music() {
       views: item.TotalView,
       createDate: item.CreateDate,
       isDelete: item.IsDelete,
+      teacherId: item.TeacherId, // Add teacher ID to the music data
     }));
     setData(result);
     setLoading(false);
+  };
+
+  const fetchTeachers = async () => {
+    try {
+      const res = await meditationService.getAllTeacher();
+      const teacherOptions = res.map((teacher) => ({
+        label: teacher.Name,
+        value: teacher.TeacherId,
+      }));
+      setTeachers(teacherOptions);
+    } catch (error) {
+      console.error("Failed to fetch teachers:", error);
+    }
   };
 
   const handleDownload = async () => {
@@ -215,6 +239,7 @@ function Music() {
       path: record.path,
       free: record.free,
       isDelete: record.isDelete === "N" || record.isDelete === "",
+      teacherId: record.teacherId, // Include teacher ID in edit form
     });
     setModalOpen(true);
   };
@@ -233,6 +258,7 @@ function Music() {
         Image: form.getFieldValue("image"),
         Time: Math.floor(duration),
         IsDelete: form.getFieldValue("isDelete") ? "N" : "Y",
+        TeacherId: form.getFieldValue("teacherId"), // Include teacher ID
       });
     } else {
       await meditationService.updateMusic({
@@ -246,6 +272,7 @@ function Music() {
         Image: form.getFieldValue("image"),
         Time: Math.floor(duration),
         IsDelete: form.getFieldValue("isDelete") ? "N" : "Y",
+        TeacherId: form.getFieldValue("teacherId"), // Include teacher ID
       });
     }
     setModalOpen(false);
@@ -254,6 +281,7 @@ function Music() {
 
   useEffect(() => {
     fetchData();
+    fetchTeachers();
   }, []);
   const handleAudioDuration = (url) => {
     const audio = new Audio(url);
@@ -353,6 +381,13 @@ function Music() {
                 { label: "Free", value: "Free" },
                 { label: "Premium", value: "Premium" },
               ]}
+            />
+          </Form.Item>
+          <Form.Item name="teacherId" label="老師" rules={[{ required: true }]}>
+            <Select
+              placeholder="選擇老師"
+              options={teachers}
+              allowClear
             />
           </Form.Item>
           <Form.Item name="isDelete" label="啟用" rules={[{ required: true }]}>
