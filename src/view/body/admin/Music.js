@@ -157,7 +157,7 @@ function Music() {
       title: "音檔",
       dataIndex: "path",
       key: "path",
-      render: (path) => <ReactAudioPlayer src={path} controls />,
+      render: (path) => <ReactAudioPlayer src={path} controls crossOrigin="anonymous" />,
     },
     {
       title: "老師",
@@ -285,6 +285,7 @@ function Music() {
   }, []);
   const handleAudioDuration = (url) => {
     const audio = new Audio(url);
+    audio.crossOrigin = "anonymous";
     audio.addEventListener("loadedmetadata", () => {
       setDuration(audio.duration); // 格式化時長
     });
@@ -372,6 +373,7 @@ function Music() {
             src={shortMusic}
             controls
             width="100px"
+            crossOrigin="anonymous"
             onAbort={true}
             onCanPlay={true}
           />
