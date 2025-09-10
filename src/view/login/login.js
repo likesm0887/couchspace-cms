@@ -40,6 +40,7 @@ function Login() {
     const [open, setOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [noticeMessage, setNoticeMessage] = useState("");
+    const [rememberPassword, setRememberPassword] = useState(false);
 
     useEffect(() => {
 
@@ -219,6 +220,17 @@ function Login() {
                     <span className={"forget-text"} style={{ color: " #353535" }} onClick={() => onClickForget()}>
                         忘記密碼?
                     </span>
+                </div>
+                <div className={"C-col"} style={{ marginBottom: 20, justifyContent: "flex-start", paddingLeft: screenWidth > 500 ? 0 : "18%" }}>
+                    <label style={{ display: "flex", alignItems: "center", cursor: "pointer", fontSize: 18, color: "#353535" }}>
+                        <input 
+                            type="checkbox" 
+                            checked={rememberPassword} 
+                            onChange={(e) => setRememberPassword(e.target.checked)}
+                            style={{ marginRight: 8, transform: "scale(1.2)" }}
+                        />
+                        記住密碼
+                    </label>
                 </div>
                 <div className={"C-col"}>
                     <span>
