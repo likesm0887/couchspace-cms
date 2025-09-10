@@ -63,3 +63,45 @@ export function calTextLength(text: String) {
   return (chineseCharsCount * 2 + nonChineseCharsCount);
 
 }
+
+// Utility functions for saving and retrieving login credentials
+export const saveLoginCredentials = (account, password) => {
+  try {
+    const credentials = {
+      account: account,
+      password: password,
+      timestamp: new Date().getTime()
+    };
+    localStorage.setItem('rememberedLoginCredentials', JSON.stringify(credentials));
+  } catch (error) {
+    console.error('Error saving login credentials:', error);
+  }
+};
+
+export const getLoginCredentials = () => {
+  try {
+    const saved = localStorage.getItem('rememberedLoginCredentials');
+    if (saved) {
+      const credentials = JSON.parse(saved);
+      // Optional: Check if credentials are not too old (e.g., older than 30 days)
+      const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
+      if (new Date().getTime() - credentials.timestamp < thirtyDaysInMs) {
+        return { account: credentials.account, password: credentials.password };
+      } else {
+        // Remove expired credentials
+        clearLoginCredentials();
+      }
+    }
+  } catch (error) {
+    console.error('Error retrieving login credentials:', error);
+  }
+  return { account: '', password: '' };
+};
+
+export const clearLoginCredentials = () => {
+  try {
+    localStorage.removeItem('rememberedLoginCredentials');
+  } catch (error) {
+    console.error('Error clearing login credentials:', error);
+  }
+};

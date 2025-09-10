@@ -6,7 +6,7 @@ import img_email from "../img/login/ic_mail.svg";
 import img_dropdown from "../img/login/caret.svg";
 import img_background from "../img/login/login_background.svg";
 import { counselorService, service } from "../../service/ServicePool";
-import { showToast, toastType, checkPassword, checkEmail } from "../../common/method";
+import { showToast, toastType, checkPassword, checkEmail, saveLoginCredentials, getLoginCredentials, clearLoginCredentials } from "../../common/method";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import { useLocation } from "react-router-dom";
@@ -40,8 +40,16 @@ function Login() {
     const [open, setOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [noticeMessage, setNoticeMessage] = useState("");
+    const [rememberCredentials, setRememberCredentials] = useState(false);
 
     useEffect(() => {
+        // Load saved credentials on component mount
+        const savedCredentials = getLoginCredentials();
+        if (savedCredentials.account && savedCredentials.password) {
+            setAccount(savedCredentials.account);
+            setPassword(savedCredentials.password);
+            setRememberCredentials(true);
+        }
 
         window.addEventListener('keypress', keyPressHandler);
         return () => {
@@ -72,6 +80,12 @@ function Login() {
                 console.log("admin login");
                 var res = await service.login(account, password)
                 if (res.token?.AccessToken) {
+                    // Save credentials if remember is checked
+                    if (rememberCredentials) {
+                        saveLoginCredentials(account, password);
+                    } else {
+                        clearLoginCredentials();
+                    }
                     message.success("登入成功!");
                     navigate("/admin", { replace: true });
                 } else {
@@ -82,6 +96,12 @@ function Login() {
                 counselorInfo.clearAll = null;
                 var res = await counselorService.login(account, password);
                 if (res.user_id) {
+                    // Save credentials if remember is checked
+                    if (rememberCredentials) {
+                        saveLoginCredentials(account, password);
+                    } else {
+                        clearLoginCredentials();
+                    }
                     navigate("home", { replace: true });
                 }
                 else {
@@ -156,6 +176,7 @@ function Login() {
         setConfirmedPassword("");
         setEmail("");
         setVerifyCode("");
+        setRememberCredentials(false);
     }
     async function setTimeDown() {
         let seconds = 30;
@@ -214,6 +235,20 @@ function Login() {
                 <div className={"C-col"} style={{ marginBottom: 12 }}>
                     <img className="password-icon" src={img_password} alt="123"></img>
                     <input className={"input-password"} placeholder="密碼" type={"password"} onChange={(text) => setPassword(text.target.value.trim())} value={password}></input>
+                </div>
+                <div className={"C-col"} style={{ marginBottom: 12 }}>
+                    <div className={"remember-credentials-container"}>
+                        <input 
+                            type="checkbox" 
+                            id="rememberCredentials" 
+                            className={"remember-checkbox"}
+                            checked={rememberCredentials}
+                            onChange={(e) => setRememberCredentials(e.target.checked)}
+                        />
+                        <label htmlFor="rememberCredentials" className={"remember-label"}>
+                            記住帳號密碼
+                        </label>
+                    </div>
                 </div>
                 <div className={"C-col"} style={{ marginBottom: 33 }}>
                     <span className={"forget-text"} style={{ color: " #353535" }} onClick={() => onClickForget()}>
