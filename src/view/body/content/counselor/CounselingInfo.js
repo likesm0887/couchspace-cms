@@ -125,7 +125,7 @@ const CounselingInfo = () => {
             let tempLanguages = languagesItems;
             let tempExpertiseList = [];
             counselorInfo.ConsultingFees?.map((consultingFee, index) => {
-                let tempIndex = tempConsultingFees.findIndex((item) => item.label === consultingFee.Type.Label);
+                let tempIndex = tempConsultingFees.findIndex((item) => item.value === consultingFee.Type.Value && item.label === consultingFee.Type.Label);
                 if (tempIndex !== -1) {
                     tempConsultingFees[tempIndex].enabled = true;
                     tempConsultingFees[tempIndex].fee = consultingFee.Fee;
