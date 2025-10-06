@@ -26,6 +26,15 @@ export class RegisterService {
                 return result
             });
     }
+
+    login2(account, password) {
+        return this.login(account, password);
+    }
+
+    logout() {
+        adminAuthentication.updateAuthentication(false);
+        cookie.remove("token");
+    }
 }
 
 export default RegisterService
