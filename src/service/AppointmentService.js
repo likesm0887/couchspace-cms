@@ -148,4 +148,18 @@ export class AppointmentService {
     };
     return (await fetch(api, requestOptions)).json();
   }
+
+  async updateAppointmentStatus(updateStatusData) {
+    console.log(updateStatusData);
+    const api = this.base_url + "/api/v1/appointments/status";
+    const requestOptions = {
+      method: "PUT",
+      body: JSON.stringify(updateStatusData),
+      headers: {
+        Authorization: cookie.load("token"),
+        "Content-Type": "application/json",
+      },
+    };
+    return (await fetch(api, requestOptions)).json();
+  }
 }

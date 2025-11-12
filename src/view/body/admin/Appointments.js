@@ -132,6 +132,8 @@ const Appointments = () => {
   const [memberDetail, setMemberDetail] = useState("");
   const [sortedInfo, setSortedInfo] = useState({});
   const [loading, setLoading] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [selectedAppointmentForCancel, setSelectedAppointmentForCancel] = useState(null);
   const {
     token: { colorBgContainer },
   } = theme.useToken();
@@ -264,6 +266,24 @@ const Appointments = () => {
         sorter: (a, b) => a.Status.localeCompare(b.Status, "en"),
       },
       {
+        title: "更改狀態",
+        key: "StatusAction",
+        hidden: showAdminFlag,
+        render: (text, record) => {
+          // Only show cancel button if status is CONFIRMED or ROOMCREATED
+          const canCancel = record.Status === "已確認" || record.Status === "諮商房間已建立";
+          return canCancel ? (
+            <Button
+              type="primary"
+              danger
+              onClick={() => handleCancelAppointment(record)}
+            >
+              取消預約
+            </Button>
+          ) : null;
+        },
+      },
+      {
         title: "標記狀態",
         dataIndex: "AdminFlag",
         key: "AdminFlag",
@@ -309,6 +329,38 @@ const Appointments = () => {
       });
 
     setLoading(false);
+  };
+
+  const handleCancelAppointment = (record) => {
+    setSelectedAppointmentForCancel(record);
+    setIsCancelModalOpen(true);
+  };
+
+  const confirmCancelAppointment = async () => {
+    if (!selectedAppointmentForCancel) return;
+    
+    setLoading(true);
+    try {
+      await appointmentService.updateAppointmentStatus({
+        AppointmentId: selectedAppointmentForCancel.AppointmentID,
+        Status: "CANCELLED",
+        AdminFlag: "WaitForProcess",
+      });
+      message.success("已成功取消預約");
+      setIsCancelModalOpen(false);
+      setSelectedAppointmentForCancel(null);
+      fetchData();
+    } catch (error) {
+      message.error("取消預約失敗");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelModalClose = () => {
+    setIsCancelModalOpen(false);
+    setSelectedAppointmentForCancel(null);
   };
 
   function getStatusDesc(code) {
@@ -1054,6 +1106,28 @@ const Appointments = () => {
             />
           </Layout>
         </Layout>
+      </Modal>
+      <Modal
+        title="確認取消預約"
+        open={isCancelModalOpen}
+        onOk={confirmCancelAppointment}
+        onCancel={handleCancelModalClose}
+        okText="確認取消"
+        cancelText="返回"
+        okButtonProps={{ danger: true }}
+      >
+        <p>確定要取消此預約嗎？</p>
+        {selectedAppointmentForCancel && (
+          <div>
+            <p>預約編號：{selectedAppointmentForCancel.AppointmentID?.slice(-5)}</p>
+            <p>案主姓名：{selectedAppointmentForCancel.UserName}</p>
+            <p>諮商師：{selectedAppointmentForCancel.CounselorName}</p>
+            <p>預約時間：{selectedAppointmentForCancel.DateTime}</p>
+          </div>
+        )}
+        <p style={{ color: "red", marginTop: "10px" }}>
+          取消後，標記狀態將自動設定為「待處理」
+        </p>
       </Modal>
     </>
   );
