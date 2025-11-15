@@ -23,6 +23,7 @@ import {
   Space,
   Input,
 } from "antd";
+
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { Layout, theme, Descriptions, Badge } from "antd";
@@ -132,6 +133,10 @@ const Appointments = () => {
   const [memberDetail, setMemberDetail] = useState("");
   const [sortedInfo, setSortedInfo] = useState({});
   const [loading, setLoading] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
+  const [selectedAppointmentForCancel, setSelectedAppointmentForCancel] =
+    useState(null);
   const {
     token: { colorBgContainer },
   } = theme.useToken();
@@ -257,11 +262,30 @@ const Appointments = () => {
         key: "CreateDate",
         sorter: (a, b) => Date.parse(a.CreateDate) - Date.parse(b.CreateDate),
       },
+
       {
         title: "狀態",
         dataIndex: "Status",
         key: "Status",
         sorter: (a, b) => a.Status.localeCompare(b.Status, "en"),
+      },
+      {
+        title: "更改狀態",
+        key: "StatusAction",
+        hidden: !showAdminFlag,
+        render: (text, record) => {
+          // Only show cancel button if status is CONFIRMED or ROOMCREATED
+
+          return (
+            <Button
+              type="primary"
+              danger
+              onClick={() => handleCancelAppointment(record)}
+            >
+              取消預約
+            </Button>
+          );
+        },
       },
       {
         title: "標記狀態",
@@ -309,6 +333,46 @@ const Appointments = () => {
       });
 
     setLoading(false);
+  };
+
+  const handleCancelAppointment = (record) => {
+    console.log(record);
+    if (record.Status !== "已確認") {
+      messageApi.open({
+        type: "error",
+        content: "狀態為:已確認才能取消",
+      });
+      return;
+    }
+    setSelectedAppointmentForCancel(record);
+    setIsCancelModalOpen(true);
+  };
+
+  const confirmCancelAppointment = async () => {
+    if (!selectedAppointmentForCancel) return;
+
+    setLoading(true);
+    try {
+      await appointmentService.updateAppointmentStatus({
+        AppointmentId: selectedAppointmentForCancel.AppointmentID,
+        Status: "CANCELLED",
+        AdminFlag: "WaitForProcess",
+      });
+      message.success("已成功取消預約");
+      setIsCancelModalOpen(false);
+      setSelectedAppointmentForCancel(null);
+      fetchData();
+    } catch (error) {
+      message.error("取消預約失敗");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelModalClose = () => {
+    setIsCancelModalOpen(false);
+    setSelectedAppointmentForCancel(null);
   };
 
   function getStatusDesc(code) {
@@ -396,12 +460,9 @@ const Appointments = () => {
       });
     var end = null;
     var start = null;
-    const dateTime = moment(form[99].DateTime, "YYYY-MM-DD HH:mm");
+
     if (startDate !== null) {
-       start = moment(
-        startDate.format("YYYY-MM-DD HH:mm"),
-        "YYYY-MM-DD HH:mm"
-      );
+      start = moment(startDate.format("YYYY-MM-DD HH:mm"), "YYYY-MM-DD HH:mm");
     }
     if (endDate !== null) {
       end = moment(endDate.format("YYYY-MM-DD HH:mm"), "YYYY-MM-DD HH:mm"); // 設置晚一點的結束日期
@@ -639,7 +700,13 @@ const Appointments = () => {
         key: "3",
         label: "照片",
         span: 2,
-        children: <Image crossOrigin="anonymous"  src={member.Photo} height={150}></Image>,
+        children: (
+          <Image
+            crossOrigin="anonymous"
+            src={member.Photo}
+            height={150}
+          ></Image>
+        ),
       },
       {
         key: "1",
@@ -673,7 +740,11 @@ const Appointments = () => {
         label: "照片",
         span: 2,
         children: (
-          <Image crossOrigin="anonymous"  src={currentSelectCounselor.Photo} height={150}></Image>
+          <Image
+            crossOrigin="anonymous"
+            src={currentSelectCounselor.Photo}
+            height={150}
+          ></Image>
         ),
       },
       {
@@ -894,6 +965,7 @@ const Appointments = () => {
   const [endDate, setEndDate] = useState(null);
   return (
     <>
+      {contextHolder}
       <Flex gap="middle" justify="space-between" baseStyle>
         <Statistic title="預約數量" value={userCount} formatter={formatter} />
 
@@ -1054,6 +1126,30 @@ const Appointments = () => {
             />
           </Layout>
         </Layout>
+      </Modal>
+      <Modal
+        title="確認取消預約"
+        open={isCancelModalOpen}
+        onOk={confirmCancelAppointment}
+        onCancel={handleCancelModalClose}
+        okText="確認取消"
+        cancelText="返回"
+        okButtonProps={{ danger: true }}
+      >
+        <p>確定要取消此預約嗎？</p>
+        {selectedAppointmentForCancel && (
+          <div>
+            <p>
+              預約編號：{selectedAppointmentForCancel.AppointmentID?.slice(-5)}
+            </p>
+            <p>案主姓名：{selectedAppointmentForCancel.UserName}</p>
+            <p>諮商師：{selectedAppointmentForCancel.CounselorName}</p>
+            <p>預約時間：{selectedAppointmentForCancel.DateTime}</p>
+          </div>
+        )}
+        <p style={{ color: "red", marginTop: "10px" }}>
+          取消後，標記狀態將自動設定為「待處理」
+        </p>
       </Modal>
     </>
   );

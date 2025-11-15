@@ -31,6 +31,8 @@ import Banner from "./view/body/admin/Banner";
 import CounselorBanner from "./view/body/admin/CounselorBanner";
 import Appointments from "./view/body/admin/Appointments";
 import PromoCode from "./view/body/admin/Promo_code";
+import DeepLinkRedirector from "./view/deeplink/DeepLinkRedirector.js";
+import ProtectedRoute from "./utility/ProtectedRoute.js";
 function App() {
   // registerServiceWorker()
   // Notification()
@@ -38,47 +40,57 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="Login" element={<Login2 />}></Route>
-        <Route path="admin" element={<Admin />}>
-          <Route path="course" element={<Course />}></Route>
-          <Route path="banner" element={<Banner />}></Route>
-          <Route path="music" element={<Music />}></Route>
-          <Route path="category" element={<Category />}></Route>
-          <Route path="teacher" element={<Teacher />}></Route>
-          <Route path="user" element={<User />}></Route>
-          <Route path="setting" element={<Setting />}></Route>
-          <Route path="membership" element={<Membership />}></Route>
-          <Route path="counselor" element={<Counselor />}></Route>
-          <Route path="counselorBanner" element={<CounselorBanner />}></Route>
-          <Route path="appointments" element={<Appointments />}></Route>
-          <Route path="promocode" element={<PromoCode />}></Route>
+        <Route path="login" element={<Login />}></Route>
+        <Route element={<ProtectedRoute redirectPath={"/login"} isAdmin={true} />}>
+          <Route path="admin" element={<Admin />}>
+            <Route path="course" element={<Course />}></Route>
+            <Route path="banner" element={<Banner />}></Route>
+            <Route path="music" element={<Music />}></Route>
+            <Route path="category" element={<Category />}></Route>
+            <Route path="teacher" element={<Teacher />}></Route>
+            <Route path="user" element={<User />}></Route>
+            <Route path="setting" element={<Setting />}></Route>
+            <Route path="membership" element={<Membership />}></Route>
+            <Route path="counselor" element={<Counselor />}></Route>
+            <Route path="counselorBanner" element={<CounselorBanner />}></Route>
+            <Route path="appointments" element={<Appointments />}></Route>
+            <Route path="promocode" element={<PromoCode />}></Route>
+          </Route>
         </Route>
         <Route path="couchspace-cms/register" element={<Register />} />
 
         <Route path="couchspace-cms/" element={<Login />} />
-        <Route path="couchspace-cms/home/consultation/counseling/:id" element={<Counseling />} />
-        <Route path="couchspace-cms/home" element={<Home />}>
-          <Route>
-            <Route index element={<Consultation />} />
+        <Route element={<ProtectedRoute redirectPath={"/couchspace-cms"} isAdmin={false} />}>
+          <Route path="couchspace-cms/home/consultation/counseling/:id" element={<Counseling />} />
+          <Route path="couchspace-cms/home" element={<Home />}>
             <Route>
-              <Route path="consultation" element={<Consultation />} />
+              <Route index element={<Consultation />} />
               <Route>
-                <Route
-                  path="consultation/:id"
-                  element={<AppointmentDetail />}
-                />
+                <Route path="consultation" element={<Consultation />} />
+                <Route>
+                  <Route
+                    path="consultation/:id"
+                    element={<AppointmentDetail />}
+                  />
+                </Route>
               </Route>
+              <Route path="meditation" element={<Meditation />} />
+              <Route path="repair" element={<Repair />} />
+              <Route path="basicInfo" element={<BasicInfo />} />
+              <Route path="counselingInfo" element={<CounselingInfo />} />
+              <Route
+                path="counselingManagement"
+                element={<CounselingManagement />}
+              />
             </Route>
-            <Route path="meditation" element={<Meditation />} />
-            <Route path="repair" element={<Repair />} />
-            <Route path="basicInfo" element={<BasicInfo />} />
-            <Route path="counselingInfo" element={<CounselingInfo />} />
-            <Route
-              path="counselingManagement"
-              element={<CounselingManagement />}
-            />
           </Route>
         </Route>
+        <Route
+          path="/deeplink/player/:deeplinkUrl"
+          element={
+            <DeepLinkRedirector />
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

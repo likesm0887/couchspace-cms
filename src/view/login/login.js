@@ -5,10 +5,12 @@ import img_password from "../img/login/ic_key.svg";
 import img_email from "../img/login/ic_mail.svg";
 import img_dropdown from "../img/login/caret.svg";
 import img_background from "../img/login/login_background.svg";
-import { counselorService } from "../../service/ServicePool";
+import { counselorService, service } from "../../service/ServicePool";
 import { showToast, toastType, checkPassword, checkEmail } from "../../common/method";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
+import { useLocation } from "react-router-dom";
+import { message } from "antd";
 import { counselorInfo } from "../../dataContract/counselor";
 import { ForgetPassword, ResetPassword } from "../../dataContract/counselor";
 import {
@@ -26,6 +28,7 @@ const tabType = Object.freeze({
 const screenWidth = window.innerWidth;
 function Login() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [identity, setIdentity] = useState("");
     const [account, setAccount] = useState("");
     const [password, setPassword] = useState("");
@@ -64,29 +67,28 @@ function Login() {
     };
     const onClickLogin = async () => {
         try {
-            counselorInfo.clearAll = null;
-            // showToast(toastType.error, "213123");
-            // showToast(toastType.info, "213123");
-            // showToast(toastType.success, "213123");
-            // showToast(toastType.warning, "213123");
-            // if (!checkEmail(account)) {
-            //     showToast(toastType.error, "email格式有誤");
-            // }
-            // console.log("account", account);
-            // console.log("password", password);
-            // if (!checkPassword(password)) {
-            //     showToast(toastType.error, "密碼需包含英數且至少8個字元");
-            // }
-            // else {
-            var res = await counselorService.login(account, password);
-            if (res.user_id) {
-                navigate("home", { replace: true });
+            if (location.pathname.includes("login")) {
+                // admin
+                console.log("admin login");
+                var res = await service.login(account, password)
+                if (res.token?.AccessToken) {
+                    message.success("登入成功!");
+                    navigate("/admin", { replace: true });
+                } else {
+                    message.error("登入失敗!");
+                }
             }
             else {
-                // if res is token, res.message is undefined => will not show toast
-                showToast(toastType.error, res.message);
+                counselorInfo.clearAll = null;
+                var res = await counselorService.login(account, password);
+                if (res.user_id) {
+                    navigate("home", { replace: true });
+                }
+                else {
+                    // if res is token, res.message is undefined => will not show toast
+                    showToast(toastType.error, res.message);
+                }
             }
-            // }
         }
         catch (err) { // http status not 200
             console.log(err);
