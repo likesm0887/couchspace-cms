@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 import { Space, Table, Input, Select, Image, Tag, List, Avatar } from 'antd';
 import { meditationService } from "../../../service/ServicePool";
+import AdminProfile from "../../header/AdminProfile";
 import {
   DesktopOutlined,
   FileOutlined,
@@ -99,7 +100,9 @@ function Admin() {
         <Menu onClick={onClick} selectedKeys={[current]} theme="dark" defaultSelectedKeys={['1']} mode="inline" items={items} />
       </Sider>
       <Layout className="site-layout">
-        <Header style={{ padding: 0, background: colorBgContainer }} />
+        <Header style={{ padding: '0 16px', background: colorBgContainer, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <AdminProfile />
+        </Header>
         <Content style={{ margin: '0 16px' }}>
           <Outlet />
         </Content>
