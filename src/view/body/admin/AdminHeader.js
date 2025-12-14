@@ -61,7 +61,11 @@ function AdminHeader() {
   }, []);
 
   const handleLogout = () => {
-    cookie.remove("token");
+    // Clear all cookies
+    const allCookies = cookie.loadAll();
+    Object.keys(allCookies).forEach((key) => {
+      cookie.remove(key);
+    });
     navigate("/login", { replace: true });
   };
 
