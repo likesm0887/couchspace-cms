@@ -27,6 +27,7 @@ import {
   CustomerServiceOutlined,
 } from "@ant-design/icons";
 import { meditationService } from "../../../service/ServicePool";
+import AdminHeader from "./AdminHeader";
 function Category() {
   const [data, setData] = useState([]);
   const [allCourse, setAllCourse] = useState([]);
@@ -61,7 +62,7 @@ function Category() {
     {
       value: "-1",
       label: "首頁",
-    }
+    },
   ];
   const columns = [
     {
@@ -143,15 +144,15 @@ function Category() {
 
     const result = [];
     for (let i = 0; i < res.length; i++) {
-      const courses = await meditationService.batchQueryCourses({
-        ids: res[i].CourseIds,
-      });
+      const categoryCourses = courses.filter((course) =>
+        res[i].CourseIds.includes(course.CourseID)
+      );
       result.push({
         key: res[i]._id,
         Name: res[i].Name,
         Seq: res[i].Seq,
-        CourseChild: courses,
-        Courses: courses?.map((e) => e.CourseID),
+        CourseChild: categoryCourses,
+        Courses: categoryCourses?.map((e) => e.CourseID),
         BigCategories: res[i].BigCategories,
       });
     }
@@ -249,7 +250,7 @@ function Category() {
     setSeleteCategory(selectCategory);
   };
   const openEdit = (e) => {
-     setModal1Open(true);
+    setModal1Open(true);
     setCurrentModel("Edit");
 
     setSeleteCategory({
@@ -262,8 +263,10 @@ function Category() {
     form.setFieldValue("Seq", e.Seq);
     form.setFieldValue("Name", e.Name);
     form.setFieldValue("Courses", getDefault);
-    form.setFieldValue("BigCategories", getBigCategoriesDefault( "Edit",e.BigCategories));
-   
+    form.setFieldValue(
+      "BigCategories",
+      getBigCategoriesDefault("Edit", e.BigCategories)
+    );
   };
 
   const getSeqDefault = () => {
@@ -275,7 +278,7 @@ function Category() {
     return 1;
   };
 
-  function getBigCategoriesDefault(currentModel,selectBigCategories) {
+  function getBigCategoriesDefault(currentModel, selectBigCategories) {
     if (currentModel == "New") {
       return [];
     }
@@ -288,7 +291,6 @@ function Category() {
       );
     }
 
-   
     return result.map((r) => r.value);
   }
 

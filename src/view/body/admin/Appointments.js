@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   Drawer,
   Button,
@@ -15,7 +15,6 @@ import {
   message,
   Tooltip,
   Calendar,
-  Grid,
   Row,
   DatePicker,
   Select,
@@ -42,6 +41,7 @@ import {
   appointmentService,
   counselorService,
 } from "../../../service/ServicePool";
+import AdminHeader from "./AdminHeader";
 import CountUp from "react-countup";
 import { Label, Margin } from "@mui/icons-material";
 const DrawerForm = ({ id, visible, onClose, record, callback }) => {
@@ -123,9 +123,11 @@ const Appointments = () => {
   const formatter = (value) => <CountUp end={value} separator="," />;
   const [visible, setVisible] = useState(false);
   const [record, setRecord] = useState(null);
-  const [confirmedAppointment, setConfirmedAppointment] = useState();
-  const [userData, setUserData] = useState();
+  const [allAppointments, setAllAppointments] = useState([]);
   const [userCount, setUserCount] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [currentSelectCounselorId, setCurrentSelectCounselorId] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModal2Open, setIsModal2Open] = useState(false);
@@ -409,117 +411,131 @@ const Appointments = () => {
       });
   };
 
-  const fetchData = async (inputSearchTerm = null) => {
-    const result = await appointmentService.getAllAppointmentForAdmin();
+  const transformAppointment = (u) => ({
+    AppointmentID: u.AppointmentID,
+    UserEmail: "member.Email",
+    UserID: u.UserID,
+    UserName: u.UserName,
+    CounselorID: u.CounselorID,
+    CounselorName: u.CounselorName,
+    PromoCodeID: u.PromoCodeID,
+    DiscountFee: u.Service.Fee - u.DiscountFee,
+    DateTime: u.Time.Date + " " + u.Time.StartTime,
+    Fee: u.Service.Fee,
+    Type: u.Service.Type.Label,
+    AdminFlag: u.AdminFlag,
+    CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
+      .format("YYYY-MM-DD HH:mm:SS")
+      .toString(),
+    Status: getStatusDesc(u.Status),
+  });
 
-    console.log(result);
-
-    var form = result
-      ?.filter((s) => s.Status !== "CONFIRMED" && s.Status !== "ROOMCREATED")
-      .map((u) => {
-        return {
-          AppointmentID: u.AppointmentID,
-          UserEmail: "member.Email",
-          UserID: u.UserID,
-          UserName: u.UserName,
-          CounselorID: u.CounselorID,
-          CounselorName: u.CounselorName,
-          PromoCodeID: u.PromoCodeID,
-          DiscountFee: u.Service.Fee - u.DiscountFee,
-          DateTime: u.Time.Date + " " + u.Time.StartTime,
-          Fee: u.Service.Fee,
-          Type: u.Service.Type.Label,
-          AdminFlag: u.AdminFlag,
-          CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
-            .format("YYYY-MM-DD HH:mm:SS")
-            .toString(),
-          Status: getStatusDesc(u.Status),
-        };
-      });
-
-    var form2 = result
-      ?.filter((s) => s.Status == "CONFIRMED" || s.Status == "ROOMCREATED")
-      .map((u) => {
-        return {
-          AppointmentID: u.AppointmentID,
-          UserEmail: "member.Email",
-          UserID: u.UserID,
-          UserName: u.UserName,
-          CounselorID: u.CounselorID,
-          CounselorName: u.CounselorName,
-          DateTime: u.Time.Date + " " + u.Time.StartTime,
-          Fee: u.Service.Fee,
-          PromoCodeID: u.PromoCodeID,
-          DiscountFee: u.Service.Fee - u.DiscountFee,
-          Type: u.Service.Type.Label,
-          CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
-            .format("YYYY-MM-DD HH:mm:SS")
-            .toString(),
-          Status: getStatusDesc(u.Status),
-        };
-      });
-    var end = null;
-    var start = null;
+  const isInDateRange = (dateTimeStr) => {
+    let start = null;
+    let end = null;
 
     if (startDate !== null) {
       start = moment(startDate.format("YYYY-MM-DD HH:mm"), "YYYY-MM-DD HH:mm");
     }
     if (endDate !== null) {
-      end = moment(endDate.format("YYYY-MM-DD HH:mm"), "YYYY-MM-DD HH:mm"); // 設置晚一點的結束日期
+      end = moment(endDate.format("YYYY-MM-DD HH:mm"), "YYYY-MM-DD HH:mm");
     }
-    // 設置早一點的起始日期
+    if (startDate === null && endDate === null) return true;
 
-    // const isInRange =
-    //   dateTime.isSameOrAfter(start) && dateTime.isSameOrBefore(end);
-    // console.log("Is in range:", isInRange);
+    const dateTime = moment(dateTimeStr, "YYYY-MM-DD HH:mm");
+    return dateTime.isSameOrAfter(start) && dateTime.isSameOrBefore(end);
+  };
 
-    if (inputSearchTerm !== null) {
-      form = form.filter((u) => {
-        const appointmentIdMatch =
-          typeof u.AppointmentID === "string" &&
-          u.AppointmentID.slice(-5).includes(inputSearchTerm);
-        const userIdMatch = u.UserID.slice(-5).includes(inputSearchTerm);
-        const userNameMatch = u.UserName?.includes(inputSearchTerm);
-        const counselorNameMatch = u.CounselorName?.includes(inputSearchTerm);
-        const dateInRange =
-          (moment(u.DateTime, "YYYY-MM-DD HH:mm").isSameOrAfter(start) &&
-            moment(u.DateTime, "YYYY-MM-DD HH:mm").isSameOrBefore(end)) ||
-          (startDate === null && endDate === null);
+  const matchesSearch = (app) => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    return (
+      (app.AppointmentID && app.AppointmentID.toLowerCase().includes(term)) ||
+      (app.UserID && app.UserID.toString().toLowerCase().includes(term)) ||
+      (app.UserName && app.UserName.toLowerCase().includes(term)) ||
+      (app.CounselorName && app.CounselorName.toLowerCase().includes(term))
+    );
+  };
 
-        return (
-          (appointmentIdMatch ||
-            userIdMatch ||
-            userNameMatch ||
-            counselorNameMatch) &&
-          dateInRange
-        );
-      });
-
-      form2 = form2.filter((u) => {
-        const appointmentIdMatch =
-          typeof u.AppointmentID === "string" &&
-          u.AppointmentID.slice(-5).includes(inputSearchTerm);
-        const userIdMatch = u.UserID.slice(-5).includes(inputSearchTerm);
-        const userNameMatch = u.UserName?.includes(inputSearchTerm);
-        const counselorNameMatch = u.CounselorName?.includes(inputSearchTerm);
-        const dateInRange =
-          (moment(u.DateTime, "YYYY-MM-DD HH:mm").isSameOrAfter(start) &&
-            moment(u.DateTime, "YYYY-MM-DD HH:mm").isSameOrBefore(end)) ||
-          (startDate === null && endDate === null);
-
-        return (
-          (appointmentIdMatch ||
-            userIdMatch ||
-            userNameMatch ||
-            counselorNameMatch) &&
-          dateInRange
-        );
-      });
-    }
-    setUserData(form);
-    setConfirmedAppointment(form2);
+  const fetchData = async () => {
+    const result = await appointmentService.getAllAppointmentForAdmin();
+    console.log(result);
+    setAllAppointments(result || []);
     setUserCount(result.length);
   };
+
+  // Memoized filtered and transformed data
+  const { userData, confirmedAppointment } = useMemo(() => {
+    const transformAppointmentLocal = (u) => ({
+      AppointmentID: u.AppointmentID,
+      UserEmail: "member.Email",
+      UserID: u.UserID,
+      UserName: u.UserName,
+      CounselorID: u.CounselorID,
+      CounselorName: u.CounselorName,
+      PromoCodeID: u.PromoCodeID,
+      DiscountFee: u.Service.Fee - u.DiscountFee,
+      DateTime: u.Time.Date + " " + u.Time.StartTime,
+      Fee: u.Service.Fee,
+      Type: u.Service.Type.Label,
+      AdminFlag: u.AdminFlag,
+      CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
+        .format("YYYY-MM-DD HH:mm:SS")
+        .toString(),
+      Status: getStatusDesc(u.Status),
+    });
+
+    const isInDateRangeLocal = (dateTimeStr) => {
+      let start = null;
+      let end = null;
+
+      if (startDate !== null) {
+        start = moment(
+          startDate.format("YYYY-MM-DD HH:mm"),
+          "YYYY-MM-DD HH:mm"
+        );
+      }
+      if (endDate !== null) {
+        end = moment(endDate.format("YYYY-MM-DD HH:mm"), "YYYY-MM-DD HH:mm");
+      }
+      if (startDate === null && endDate === null) return true;
+
+      const dateTime = moment(dateTimeStr, "YYYY-MM-DD HH:mm");
+      return dateTime.isSameOrAfter(start) && dateTime.isSameOrBefore(end);
+    };
+
+    const matchesSearchFlag = (app) => {
+      if (!searchTerm) return true;
+      const term = searchTerm.toLowerCase();
+      return (
+        (app.AppointmentID && app.AppointmentID.toLowerCase().includes(term)) ||
+        (app.UserID && app.UserID.toString().toLowerCase().includes(term)) ||
+        (app.UserName && app.UserName.toLowerCase().includes(term)) ||
+        (app.CounselorName && app.CounselorName.toLowerCase().includes(term))
+      );
+    };
+
+    const transformed = allAppointments.map(transformAppointmentLocal);
+
+    const userDataFiltered = transformed
+      .filter((u) => {
+        const status = u.Status;
+        return status !== "已確認" && status !== "諮商房間已建立";
+      })
+      .filter((u) => matchesSearchFlag(u) && isInDateRangeLocal(u.DateTime));
+
+    const confirmedFiltered = transformed
+      .filter((u) => {
+        const status = u.Status;
+        return status === "已確認" || status === "諮商房間已建立";
+      })
+      .filter((u) => matchesSearchFlag(u) && isInDateRangeLocal(u.DateTime));
+
+    return {
+      userData: userDataFiltered,
+      confirmedAppointment: confirmedFiltered,
+    };
+  }, [allAppointments, searchTerm, startDate, endDate]);
 
   const [
     currentSelectCounselorAppointmentTime,
@@ -940,29 +956,13 @@ const Appointments = () => {
     );
   };
 
-  const handleSearch = () => {
-    const queryParams = {
-      searchTerm,
-      startDate,
-      endDate,
-    };
-    console.log(searchTerm);
-    fetchData(searchTerm);
-
-    // 在這裡執行查詢操作
-    console.log("查詢參數:", queryParams);
-    // 例如調用查詢函數
-    // queryAppointments(queryParams);
-  };
+  // Search is handled reactively via useMemo
 
   const handleClear = () => {
     setSearchTerm("");
     setStartDate(null);
     setEndDate(null);
   };
-  const [searchTerm, setSearchTerm] = useState("");
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
   return (
     <>
       {contextHolder}
@@ -1017,18 +1017,6 @@ const Appointments = () => {
                   value={endDate}
                   onChange={(date) => setEndDate(date)}
                 />
-                <Button
-                  style={{
-                    backgroundColor: "#0085ff", // 藍色背景（查詢按鈕）
-                    borderColor: "#0085ff", // 藍色邊框
-                    color: "#fff", // 白色字體
-                    borderRadius: "5px", // 圓角邊框
-                    padding: "0px 15px", // 按鈕內邊距
-                  }}
-                  onClick={handleSearch}
-                >
-                  查詢
-                </Button>
                 <Button
                   style={{
                     backgroundColor: "#ffffff", // 白色背景（清除按鈕）

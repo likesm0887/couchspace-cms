@@ -22,6 +22,7 @@ import {
   Drawer,
 } from "antd";
 import { CopyOutlined } from "@ant-design/icons";
+import AdminHeader from "./AdminHeader";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { DndContext } from "@dnd-kit/core";
 import { MenuOutlined } from "@ant-design/icons";
