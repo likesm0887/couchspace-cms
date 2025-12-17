@@ -44,25 +44,20 @@ function AdminHeader() {
     maxWidth: "calc(50% - 8px)",
   };
   useEffect(() => {
-    const adminUserId = cookie.load("admin_userId");
-    console.log(adminUserId);
-
-    memberService
-      .getGetUserById(adminUserId)
-      .then((info) => {
-        console.log(info);
-        setAdminName(info.UserName.NickName);
-        setAdminPhoto(info.Photo);
-      })
-      .catch(() => {
-        setAdminName("Admin");
-        setAdminPhoto("");
-      });
+    getData();
   }, []);
 
+  const getData = async () => {
+    const adminUserId = cookie.load("admin_userId");
+    console.log(adminUserId);
+    const info = await memberService.getGetUserById(adminUserId);
+    setAdminName(info.UserName.NickName);
+    setAdminPhoto(info.photo);
+  };
   const handleLogout = () => {
     // Clear all cookies
     const allCookies = cookie.loadAll();
+    console.log(allCookies);
     Object.keys(allCookies).forEach((key) => {
       cookie.remove(key);
     });
