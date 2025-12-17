@@ -4,7 +4,7 @@ import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import cookie from "react-cookies";
 import { service, memberService } from "../../../service/ServicePool";
-
+import { adminAuthentication } from "../../../utility/ProtectedRoute";
 const { Header } = Layout;
 
 function AdminHeader() {
@@ -51,6 +51,7 @@ function AdminHeader() {
     const adminUserId = cookie.load("admin_userId");
     console.log(adminUserId);
     const info = await memberService.getGetUserById(adminUserId);
+    console.log(info);
     setAdminName(info.UserName.NickName);
     setAdminPhoto(info.photo);
   };
@@ -61,6 +62,7 @@ function AdminHeader() {
     Object.keys(allCookies).forEach((key) => {
       cookie.remove(key);
     });
+    adminAuthentication.updateAuthentication(false);
     navigate("/login", { replace: true });
   };
 

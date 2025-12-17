@@ -45,9 +45,16 @@ function Login() {
   const [open, setOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [noticeMessage, setNoticeMessage] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
 
   useEffect(() => {
     window.addEventListener("keypress", keyPressHandler);
+    // 載入儲存的帳號
+    const savedAccount = localStorage.getItem("rememberedAccount");
+    if (savedAccount) {
+      setAccount(savedAccount);
+      setRememberMe(true);
+    }
     return () => {
       window.removeEventListener("keypress", keyPressHandler);
     };
@@ -76,6 +83,11 @@ function Login() {
         console.log("admin login");
         var res = await service.login(account, password);
         if (res.token?.AccessToken) {
+          if (rememberMe) {
+            localStorage.setItem("rememberedAccount", account);
+          } else {
+            localStorage.removeItem("rememberedAccount");
+          }
           message.success("登入成功!");
 
           navigate("/admin", { replace: true });
@@ -86,6 +98,11 @@ function Login() {
         counselorInfo.clearAll = null;
         var res = await counselorService.login(account, password);
         if (res.user_id) {
+          if (rememberMe) {
+            localStorage.setItem("rememberedAccount", account);
+          } else {
+            localStorage.removeItem("rememberedAccount");
+          }
           navigate("home", { replace: true });
         } else {
           // if res is token, res.message is undefined => will not show toast
@@ -239,7 +256,34 @@ function Login() {
             value={password}
           ></input>
         </div>
-        <div className={"C-col"} style={{ marginBottom: 33 }}>
+        <div
+          className={"C-col"}
+          style={{
+            marginBottom: 33,
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <span>
+            <input
+              type="checkbox"
+              id="rememberMe"
+              checked={rememberMe}
+              onChange={(e) => {
+                setRememberMe(e.target.checked);
+                if (!e.target.checked) {
+                  localStorage.removeItem("rememberedAccount");
+                  setAccount("");
+                }
+              }}
+            />
+            <label
+              htmlFor="rememberMe"
+              style={{ color: "#353535", marginLeft: 8 }}
+            >
+              記住帳號
+            </label>
+          </span>
           <span
             className={"forget-text"}
             style={{ color: " #353535" }}

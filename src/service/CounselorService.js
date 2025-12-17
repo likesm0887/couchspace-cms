@@ -75,14 +75,14 @@ export class CounselorService {
    * @returns
    */
   getCounselorInfoById(id) {
-    if (this.adminToken === undefined) {
+    if (cookie.load("token") === undefined) {
       return;
     }
     const api = this.base_url + "/api/v1/counselor/" + id;
     const requestOptions = {
       method: "GET",
       headers: {
-        Authorization: this.adminToken,
+        Authorization: cookie.load("token"),
         "Content-Type": "application/json",
       },
     };
@@ -100,7 +100,7 @@ export class CounselorService {
    */
   getAllCounselorInfo(isFilterUnVerify) {
     console.log(this.adminToken);
-    if (this.adminToken === undefined) {
+    if (cookie.load("token") === undefined) {
       return;
     }
     console.log(isFilterUnVerify ? "Y" : "N");
@@ -112,7 +112,7 @@ export class CounselorService {
     const requestOptions = {
       method: "GET",
       headers: {
-        Authorization: this.adminToken,
+        Authorization: cookie.load("token"),
         "Content-Type": "application/json",
       },
     };
@@ -130,14 +130,14 @@ export class CounselorService {
    * @returns
    */
   setCounselorVerify(id, verify) {
-    if (this.adminToken === undefined) {
+    if (cookie.load("token") === undefined) {
       return;
     }
     const api = this.base_url + "/api/v1/counselors/verify";
     const requestOptions = {
       method: "POST",
       headers: {
-        Authorization: this.adminToken,
+        Authorization: cookie.load("token"),
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -163,14 +163,14 @@ export class CounselorService {
       return;
     }
     console.log(this.token);
-    if (this.adminToken === undefined) {
+    if (cookie.load("token") === undefined) {
       return;
     }
     const api = this.base_url + "/api/v1/counselors/verify/" + id;
     const requestOptions = {
       method: "GET",
       headers: {
-        Authorization: this.adminToken,
+        Authorization: cookie.load("token"),
         "Content-Type": "application/json",
       },
     };
@@ -187,7 +187,7 @@ export class CounselorService {
    * @returns
    */
   getAppointmentTimeById(id) {
-    if (this.adminToken === undefined) {
+    if (cookie.load("token") === undefined) {
       return;
     }
     const api = this.base_url + "/api/v1/appointmentTime/" + id;
@@ -195,7 +195,7 @@ export class CounselorService {
     const requestOptions = {
       method: "GET",
       headers: {
-        Authorization: this.adminToken,
+        Authorization: cookie.load("token"),
         "Content-Type": "application/json",
       },
     };
@@ -213,7 +213,7 @@ export class CounselorService {
    * @returns
    */
   getCalenderById(id) {
-    if (this.adminToken === undefined) {
+    if (cookie.load("token") === undefined) {
       return;
     }
     const api = this.base_url + "/api/v1/calender/" + id;
@@ -221,7 +221,7 @@ export class CounselorService {
     const requestOptions = {
       method: "GET",
       headers: {
-        Authorization: this.adminToken,
+        Authorization: cookie.load("token"),
         "Content-Type": "application/json",
       },
     };

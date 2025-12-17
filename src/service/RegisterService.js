@@ -19,9 +19,9 @@ export class RegisterService {
       .then((result) => {
         console.log(result);
         this.token = result.token;
+        console.log("token:" + this.token.AccessToken);
         cookie.save("token", this.token.AccessToken);
         cookie.save("admin_userId", result.user_id);
-
         adminAuthentication.updateAuthentication(true);
         console.log("update auth", adminAuthentication.isAuthenticated);
         return result;

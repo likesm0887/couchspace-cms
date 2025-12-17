@@ -4,7 +4,6 @@ export class AppointmentService {
   constructor(base_url) {
     this.base_url = base_url;
     this.token = cookie.load("token_counselor");
-    this.adminToken = cookie.load("token");
   }
   setToken(token_counselor) {
     this.token = token_counselor;
