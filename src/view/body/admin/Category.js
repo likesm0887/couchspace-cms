@@ -139,13 +139,14 @@ function Category() {
     setLoading(true);
     const res = await meditationService.getAllCategory();
     const courses = await meditationService.getAllCourse();
+    console.log(res);
     setAllCourse(courses);
     createOptions(courses);
 
     const result = [];
     for (let i = 0; i < res.length; i++) {
-      const categoryCourses = courses.filter((course) =>
-        res[i].CourseIds.includes(course.CourseID)
+      const categoryCourses = courses?.filter((course) =>
+        res[i]?.CourseIds?.includes(course.CourseID)
       );
       result.push({
         key: res[i]._id,
