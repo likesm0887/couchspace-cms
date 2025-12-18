@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
   message,
   Space,
@@ -9,31 +9,19 @@ import {
   Drawer,
   Tag,
   Form,
-  Rate,
   FloatButton,
-  Empty,
   Button,
-  Modal,
   Switch,
-  Spin,
 } from "antd";
 import {
   SearchOutlined,
   PlusCircleOutlined,
   EditOutlined,
-  LineChartOutlined,
 } from "@ant-design/icons";
 import ReactAudioPlayer from "react-audio-player";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-} from "recharts";
 import { meditationService } from "../../../service/ServicePool";
 import logo from "../../img/content/userIcon.svg";
+import AdminHeader from "./AdminHeader";
 
 function Music() {
   const [data, setData] = useState([]);
@@ -48,134 +36,140 @@ function Music() {
   const [duration, setDuration] = useState(0);
   const [teachers, setTeachers] = useState([]);
 
-  const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-    }) => (
-      <div style={{ padding: 8 }}>
-        <Input
-          placeholder={`Search ${dataIndex}`}
-          value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{ width: 188, marginBottom: 8, display: "block" }}
-        />
-        <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-          >
-            Search
-          </Button>
-          <Button onClick={() => handleReset(clearFilters)} size="small">
-            Reset
-          </Button>
-        </Space>
-      </div>
-    ),
-  });
-
-  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+  const handleSearch = useCallback((selectedKeys, confirm, dataIndex) => {
     confirm();
     // Add filtering logic here
-  };
+  }, []);
 
-  const handleReset = (clearFilters) => {
+  const handleReset = useCallback((clearFilters) => {
     clearFilters();
     // Reset filtering logic here
-  };
+  }, []);
 
-  const columns = [
-    {
-      title: "編輯",
-      dataIndex: "editBtn",
-      key: "editBtn",
-      render: (_, element) => (
-        <Button
-          icon={<EditOutlined />}
-          type="primary"
-          onClick={() => openEdit(element)}
-        />
+  const getColumnSearchProps = useCallback(
+    (dataIndex) => ({
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder={`Search ${dataIndex}`}
+            value={selectedKeys[0]}
+            onChange={(e) =>
+              setSelectedKeys(e.target.value ? [e.target.value] : [])
+            }
+            onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            style={{ width: 188, marginBottom: 8, display: "block" }}
+          />
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+              icon={<SearchOutlined />}
+              size="small"
+            >
+              Search
+            </Button>
+            <Button onClick={() => handleReset(clearFilters)} size="small">
+              Reset
+            </Button>
+          </Space>
+        </div>
       ),
-    },
-    {
-      title: "圖片",
-      dataIndex: "image",
-      key: "image",
-      render: (image) => (
-        <Image
-          crossOrigin="anonymous"
-          src={image}
-          width="70px"
-          preview={false}
-        />
-      ),
-    },
-    {
-      title: "啟用",
-      dataIndex: "isDelete",
-      key: "isDelete",
-      render: (_, { isDelete }) => <>{isDelete == "Y" ? "未啟用" : "啟用中"}</>,
-    },
-    {
-      title: "名稱",
-      dataIndex: "name",
-      key: "name",
-      ...getColumnSearchProps("name"),
-    },
-    {
-      title: "系列",
-      dataIndex: "series",
-      key: "series",
-      render: (_, { tags }) => (
-        <>
-          {tags?.map((tag) => (
-            <Tag key={tag}>{tag.toUpperCase()}</Tag>
-          ))}
-        </>
-      ),
-    },
-    {
-      title: "收費",
-      dataIndex: "free",
-      key: "free",
-    },
-    {
-      title: "收聽",
-      dataIndex: "views",
-      key: "views",
-      sorter: (a, b) => a.views - b.views,
-    },
-    {
-      title: "音檔",
-      dataIndex: "path",
-      key: "path",
-      render: (path) => <ReactAudioPlayer src={path} controls />,
-    },
-    {
-      title: "老師",
-      dataIndex: "teacherID",
-      key: "teacherID",
-      render: (teacherID) => {
-        const teacher = teachers.find((t) => t.value === teacherID);
-        return teacher ? teacher.label : "未指定";
+    }),
+    [handleSearch, handleReset]
+  );
+
+  const columns = useMemo(
+    () => [
+      {
+        title: "編輯",
+        dataIndex: "editBtn",
+        key: "editBtn",
+        render: (_, element) => (
+          <Button
+            icon={<EditOutlined />}
+            type="primary"
+            onClick={() => openEdit(element)}
+          />
+        ),
       },
-    },
-    {
-      title: "新增日期",
-      dataIndex: "createDate",
-      key: "createDate",
-    },
-  ];
+      {
+        title: "圖片",
+        dataIndex: "image",
+        key: "image",
+        render: (image) => (
+          <Image
+            crossOrigin="anonymous"
+            src={image}
+            width="70px"
+            preview={false}
+          />
+        ),
+      },
+      {
+        title: "啟用",
+        dataIndex: "isDelete",
+        key: "isDelete",
+        render: (_, { isDelete }) => (isDelete === "Y" ? "未啟用" : "啟用中"),
+      },
+      {
+        title: "名稱",
+        dataIndex: "name",
+        key: "name",
+        ...getColumnSearchProps("name"),
+      },
+      {
+        title: "系列",
+        dataIndex: "series",
+        key: "series",
+        render: (_, { tags }) => (
+          <>
+            {tags?.map((tag) => (
+              <Tag key={tag}>{tag.toUpperCase()}</Tag>
+            ))}
+          </>
+        ),
+      },
+      {
+        title: "收費",
+        dataIndex: "free",
+        key: "free",
+      },
+      {
+        title: "收聽",
+        dataIndex: "views",
+        key: "views",
+        sorter: (a, b) => a.views - b.views,
+      },
+      {
+        title: "音檔",
+        dataIndex: "path",
+        key: "path",
+        render: (path) => <ReactAudioPlayer src={path} controls />,
+      },
+      {
+        title: "老師",
+        dataIndex: "teacherID",
+        key: "teacherID",
+        render: (teacherID) => {
+          const teacher = teachers.find((t) => t.value === teacherID);
+          return teacher ? teacher.label : "未指定";
+        },
+      },
+      {
+        title: "新增日期",
+        dataIndex: "createDate",
+        key: "createDate",
+      },
+    ],
+    [getColumnSearchProps, teachers]
+  );
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     const res = await meditationService.getAllMusic();
     const result = res.map((item) => ({
@@ -189,13 +183,13 @@ function Music() {
       views: item.TotalView,
       createDate: item.CreateDate,
       isDelete: item.IsDelete,
-      teacherID: item.TeacherID, // Add teacher ID to the music data
+      teacherID: item.TeacherID,
     }));
     setData(result);
     setLoading(false);
-  };
+  }, []);
 
-  const fetchTeachers = async () => {
+  const fetchTeachers = useCallback(async () => {
     try {
       const res = await meditationService.getAllTeacher();
       const teacherOptions = res.map((teacher) => ({
@@ -206,9 +200,9 @@ function Music() {
     } catch (error) {
       console.error("Failed to fetch teachers:", error);
     }
-  };
+  }, []);
 
-  const handleDownload = async () => {
+  const handleDownload = useCallback(async () => {
     try {
       const response = await meditationService.getMusicRecordExcel();
       const blob = await response.blob();
@@ -220,102 +214,113 @@ function Music() {
     } catch (error) {
       console.error("Download failed", error);
     }
-  };
+  }, []);
 
-  const openEdit = (record) => {
-    setCurrentModel("Edit");
-    setShortImage(record.image);
-    setShortMusic(record.path);
-    setSelectMusic(record.key);
-    console.log(record.key);
-    handleAudioDuration(record.path);
+  const openEdit = useCallback(
+    (record) => {
+      setCurrentModel("Edit");
+      setShortImage(record.image);
+      setShortMusic(record.path);
+      setSelectMusic(record.key);
+      console.log(record.key);
+      handleAudioDuration(record.path);
 
-    form.setFieldsValue({
-      key: record.key,
-      musicId: record.MusicID,
-      name: record.name,
-      image: record.image,
-      time: record.time,
-      path: record.path,
-      free: record.free,
-      isDelete: record.isDelete === "N" || record.isDelete === "",
-      teacherID: record.teacherID, // Include teacher ID in edit form
-    });
-    setModalOpen(true);
-  };
+      form.setFieldsValue({
+        key: record.key,
+        musicId: record.MusicID,
+        name: record.name,
+        image: record.image,
+        time: record.time,
+        path: record.path,
+        free: record.free,
+        isDelete: record.isDelete === "N" || record.isDelete === "",
+        teacherID: record.teacherID,
+      });
+      setModalOpen(true);
+    },
+    [form]
+  );
 
-  const handleFinish = async () => {
+  const handleFinish = useCallback(async () => {
     const values = form.getFieldsValue();
     console.log(values);
-    if (currentModel === "New") {
-      await meditationService.createMusic({
-        UploadUserName: "小幫手003",
-        Title: form.getFieldValue("name"),
-        Description: "",
-        Path: form.getFieldValue("path"),
-        Type: "Course",
-        Free: form.getFieldValue("free") == "Free",
-        Image: form.getFieldValue("image"),
-        Time: Math.floor(duration),
-        IsDelete: form.getFieldValue("isDelete") ? "N" : "Y",
-        TeacherID: form.getFieldValue("teacherID"), // Include teacher ID
-      });
-    } else {
-      await meditationService.updateMusic({
-        MusicId: selectMusic,
-        UploadUserName: "小幫手003",
-        Title: form.getFieldValue("name"),
-        Description: "",
-        Path: form.getFieldValue("path"),
-        Type: "Course",
-        Free: form.getFieldValue("free") == "Free",
-        Image: form.getFieldValue("image"),
-        Time: Math.floor(duration),
-        IsDelete: form.getFieldValue("isDelete") ? "N" : "Y",
-        TeacherID: form.getFieldValue("teacherID"), // Include teacher ID
-      });
+    setLoading(true);
+    try {
+      if (currentModel === "New") {
+        await meditationService.createMusic({
+          UploadUserName: "小幫手003",
+          Title: form.getFieldValue("name"),
+          Description: "",
+          Path: form.getFieldValue("path"),
+          Type: "Course",
+          Free: form.getFieldValue("free") === "Free",
+          Image: form.getFieldValue("image"),
+          Time: Math.floor(duration),
+          IsDelete: form.getFieldValue("isDelete") ? "N" : "Y",
+          TeacherID: form.getFieldValue("teacherID"),
+        });
+      } else {
+        await meditationService.updateMusic({
+          MusicId: selectMusic,
+          UploadUserName: "小幫手003",
+          Title: form.getFieldValue("name"),
+          Description: "",
+          Path: form.getFieldValue("path"),
+          Type: "Course",
+          Free: form.getFieldValue("free") === "Free",
+          Image: form.getFieldValue("image"),
+          Time: Math.floor(duration),
+          IsDelete: form.getFieldValue("isDelete") ? "N" : "Y",
+          TeacherID: form.getFieldValue("teacherID"),
+        });
+      }
+      setModalOpen(false);
+      await fetchData();
+    } finally {
+      setLoading(false);
     }
-    setModalOpen(false);
-    fetchData();
-  };
+  }, [currentModel, selectMusic, form, duration, fetchData]);
 
-  useEffect(() => {
-    fetchData();
-    fetchTeachers();
-  }, []);
-  const handleAudioDuration = (url) => {
+  const handleNew = useCallback(() => {
+    setShortImage("");
+    setShortMusic("");
+    setCurrentModel("New");
+    setDuration("");
+    form.resetFields();
+    setModalOpen(true);
+  }, [form]);
+
+  const handleAudioDuration = useCallback((url) => {
     const audio = new Audio(url);
     audio.addEventListener("loadedmetadata", () => {
       setDuration(audio.duration); // 格式化時長
     });
-  };
+  }, []);
 
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    setShortMusic(value);
-    handleAudioDuration(value);
-  };
+  const handleInputChange = useCallback(
+    (e) => {
+      const value = e.target.value;
+      setShortMusic(value);
+      handleAudioDuration(value);
+    },
+    [handleAudioDuration]
+  );
 
-  const getDuration = () => {
+  const getDuration = useCallback(() => {
     const minutes = Math.floor(duration / 60);
     const seconds = Math.floor(duration % 60);
     return `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
-  };
+  }, [duration]);
+
+  useEffect(() => {
+    fetchData();
+    fetchTeachers();
+  }, [fetchData, fetchTeachers]);
   return (
     <div>
       <Button onClick={handleDownload}>下載報表</Button>
 
-      <FloatButton
-        icon={<PlusCircleOutlined />}
-        onClick={() => {
-          setShortImage("");
-          setShortMusic("");
-          setCurrentModel("New");
-          form.resetFields();
-          setModalOpen(true);
-          setDuration("");
-        }}
-      />
+      <FloatButton icon={<PlusCircleOutlined />} onClick={handleNew} />
 
       <Drawer
         title={currentModel === "Edit" ? "編輯音樂" : "新增音樂"}

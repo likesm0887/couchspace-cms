@@ -1,30 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { meditationService } from "../../../service/ServicePool";
-import { Button, Modal } from "antd";
+import { Button } from "antd";
 import moment from "moment";
 import {
   message,
   Space,
   Table,
   Input,
-  Select,
   Image,
   Form,
   FloatButton,
-  Layout,
-  Menu,
-  Spin,
-  Alert,
   Drawer,
 } from "antd";
 
-import {
-  PlusCircleOutlined,
-  EditOutlined,
-  CustomerServiceOutlined,
-} from "@ant-design/icons";
-import { async } from "@firebase/util";
-import { set } from "react-hook-form";
+import { PlusCircleOutlined, EditOutlined } from "@ant-design/icons";
+import AdminHeader from "./AdminHeader";
 
 function Teacher() {
   const { TextArea } = Input;
@@ -35,69 +25,69 @@ function Teacher() {
   const [messageApi, contextHolder] = message.useMessage();
   const [selectedTeacherKey, setSelectedTeacherKey] = useState([]);
   const [form] = Form.useForm();
-  const column = [
-    {
-      title: "編輯",
-      dataIndex: "editBtn",
-      key: "editBtn",
-      render: (_, element) => (
-        <Button
-          icon={<EditOutlined />}
-          type="primary"
-          onClick={() => openEdit(element)}
-        ></Button>
-      ),
-    },
+  const columns = useMemo(
+    () => [
+      {
+        title: "編輯",
+        dataIndex: "editBtn",
+        key: "editBtn",
+        render: (_, element) => (
+          <Button
+            icon={<EditOutlined />}
+            type="primary"
+            onClick={() => openEdit(element)}
+          ></Button>
+        ),
+      },
 
-    {
-      title: "圖片",
-      dataIndex: "image",
-      key: "image",
-      render: (image) => (
-        <Image crossOrigin="anonymous" src={image} width="70px" />
-      ),
-    },
-    {
-      title: "姓名",
-      dataIndex: "name",
-      key: "name",
-    },
-    {
-      title: "稱號",
-      dataIndex: "title",
-      key: "title",
-    },
-    {
-      title: "介紹",
-      dataIndex: "description",
-      key: "description",
-      defaultSortOrder: "descend",
-    },
-    {
-      title: "新增日期",
-      dataIndex: "createDate",
-      key: "createDate",
-      defaultSortOrder: "descend",
-      sorter: (a, b) =>
-        moment(a.createDate).unix() - moment(b.createDate).unix(),
-    },
-    {
-      title: "最後更新日期",
-      dataIndex: "updateDate",
-      key: "updateDate",
-      defaultSortOrder: "descend",
-      sorter: (a, b) =>
-        moment(a.createDate).unix() - moment(b.createDate).unix(),
-    },
-  ];
+      {
+        title: "圖片",
+        dataIndex: "image",
+        key: "image",
+        render: (image) => (
+          <Image crossOrigin="anonymous" src={image} width="70px" />
+        ),
+      },
+      {
+        title: "姓名",
+        dataIndex: "name",
+        key: "name",
+      },
+      {
+        title: "稱號",
+        dataIndex: "title",
+        key: "title",
+      },
+      {
+        title: "介紹",
+        dataIndex: "description",
+        key: "description",
+        defaultSortOrder: "descend",
+      },
+      {
+        title: "新增日期",
+        dataIndex: "createDate",
+        key: "createDate",
+        defaultSortOrder: "descend",
+        sorter: (a, b) =>
+          moment(a.createDate).unix() - moment(b.createDate).unix(),
+      },
+      {
+        title: "最後更新日期",
+        dataIndex: "updateDate",
+        key: "updateDate",
+        defaultSortOrder: "descend",
+        sorter: (a, b) =>
+          moment(a.createDate).unix() - moment(b.createDate).unix(),
+      },
+    ],
+    []
+  );
 
   const tableProps = {
     loading,
   };
-  useEffect(() => {
-    getData();
-  }, []);
-  const getData = async () => {
+  const getData = useCallback(async () => {
     setLoading(true);
     const res = await meditationService.getAllTeacher();
     const result = res.map((element) => ({
@@ -111,85 +101,102 @@ function Teacher() {
     }));
     setLoading(false);
     setData(result);
-  };
+  }, []);
 
-  const openEdit = async (e) => {
-    const res = await meditationService.getTeacherById(e.key);
-    setCurrentModel("Edit");
-    setSelectedTeacherKey(res.TeacherId);
-    form.setFieldValue("image", res.Image);
-    form.setFieldValue("name", res.Name);
-    form.setFieldValue("title", res.Title);
-    form.setFieldValue("image", res.Image);
-    form.setFieldValue("description", res.Description);
-    setIsDrawerOpen(true);
-  };
-  const onChange = () => {};
-  const onFinish = (e) => {
-    console.log(e);
-    if (currentModel == "Edit") {
-      setLoading(true);
-      meditationService
-        .updateTeacher({
-          TeacherId: selectedTeacherKey,
-          Name: form.getFieldValue("name"),
-          Title: form.getFieldValue("title"),
-          Image: form.getFieldValue("image"),
-          Description: form.getFieldValue("description"),
-        })
-        .then((e) => {
-          messageApi.open({
-            type: "success",
-            content: "編輯成功",
-          });
-          getData().then((e) => {
-            setIsDrawerOpen(false);
-            setLoading(false);
-          });
-        })
-        .catch((e) => {
-          messageApi.open({
-            type: "fail",
-            content: "Oops 出現一點小錯誤",
-          });
-        });
-    }
-    if (currentModel == "New") {
-      meditationService
-        .createTeacher({
-          Name: form.getFieldValue("name"),
-          Title: form.getFieldValue("title"),
-          Image: form.getFieldValue("image"),
-          Description: form.getFieldValue("description"),
-        })
-        .then((e) => {
-          messageApi.open({
-            type: "success",
-            content: "新增成功",
-          });
-          getData().then((e) => {
-            setIsDrawerOpen(false);
-            setLoading(false);
-          });
-        })
-        .catch((e) => {
-          messageApi.open({
-            type: "fail",
-            content: "Oops 出現一點小錯誤",
-          });
-        });
-    }
-  };
-  const onNew = () => {
+  const openEdit = useCallback(
+    async (e) => {
+      const res = await meditationService.getTeacherById(e.key);
+      setCurrentModel("Edit");
+      setSelectedTeacherKey(res.TeacherId);
+      form.setFieldsValue({
+        image: res.Image,
+        name: res.Name,
+        title: res.Title,
+        description: res.Description,
+      });
+      setIsDrawerOpen(true);
+    },
+    [form]
+  );
+
+  const onNew = useCallback(() => {
     setCurrentModel("New");
     form.resetFields();
-
     setIsDrawerOpen(true);
-  };
+  }, [form]);
 
-  const onFinishFailed = (errorInfo) => {
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
+  const onChange = useCallback(() => {}, []);
+
+  const onFinish = useCallback(
+    (e) => {
+      console.log(e);
+      if (currentModel === "Edit") {
+        setLoading(true);
+        meditationService
+          .updateTeacher({
+            TeacherId: selectedTeacherKey,
+            Name: form.getFieldValue("name"),
+            Title: form.getFieldValue("title"),
+            Image: form.getFieldValue("image"),
+            Description: form.getFieldValue("description"),
+          })
+          .then(() => {
+            messageApi.open({
+              type: "success",
+              content: "編輯成功",
+            });
+            getData().then(() => {
+              setIsDrawerOpen(false);
+              setLoading(false);
+            });
+          })
+          .catch(() => {
+            messageApi.open({
+              type: "fail",
+              content: "Oops 出現一點小錯誤",
+            });
+            setLoading(false);
+          });
+      }
+      if (currentModel === "New") {
+        setLoading(true);
+        meditationService
+          .createTeacher({
+            Name: form.getFieldValue("name"),
+            Title: form.getFieldValue("title"),
+            Image: form.getFieldValue("image"),
+            Description: form.getFieldValue("description"),
+          })
+          .then(() => {
+            messageApi.open({
+              type: "success",
+              content: "新增成功",
+            });
+            getData().then(() => {
+              setIsDrawerOpen(false);
+              setLoading(false);
+            });
+          })
+          .catch(() => {
+            messageApi.open({
+              type: "fail",
+              content: "Oops 出現一點小錯誤",
+            });
+            setLoading(false);
+          });
+      }
+    },
+    [currentModel, selectedTeacherKey, form, messageApi, getData]
+  );
+
+  const onFinishFailed = useCallback((errorInfo) => {
     console.log("Failed:", errorInfo);
-  };
+  }, []);
+
   return (
     <div>
       <FloatButton
@@ -273,7 +280,7 @@ function Teacher() {
       <Table
         {...tableProps}
         onChange={onChange}
-        columns={column}
+        columns={columns}
         dataSource={data}
         pagination={{ pageSize: 7 }}
       ></Table>

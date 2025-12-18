@@ -10,6 +10,7 @@ import {
   UserOutlined,
   DownloadOutlined,
 } from "@ant-design/icons";
+import AdminHeader from "./AdminHeader";
 const DrawerForm = ({ visible, onClose, record }) => {
   // Define state for the form fields
   const [name, setName] = useState(record?.name || "");
@@ -97,7 +98,11 @@ const UserPage = () => {
       dataIndex: "photo",
       key: "photo",
       render: (url) => (
-        <img crossOrigin="anonymous" src={(url = url == null ? "" : url)} style={{ width: "100px" }} />
+        <img
+          crossOrigin="anonymous"
+          src={(url = url == null ? "" : url)}
+          style={{ width: "100px" }}
+        />
       ),
     },
     {

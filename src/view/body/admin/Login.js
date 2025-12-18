@@ -8,8 +8,6 @@ import {
 } from "@ant-design/icons";
 import {
   LoginForm,
-  ProFormCaptcha,
-  ProFormCheckbox,
   ProFormText,
   ProConfigProvider,
 } from "@ant-design/pro-components";
@@ -43,6 +41,7 @@ export default () => {
           message.success("登入成功!");
           console.log(result);
           cookie.save("token", result.token.AccessToken);
+
           navigate("/admin", { replace: true });
         } else {
           message.error("登入失敗!");
