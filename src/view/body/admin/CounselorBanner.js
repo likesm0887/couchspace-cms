@@ -97,8 +97,8 @@ const CounselorBanners = () => {
         <Image
           crossOrigin="anonymous"
           src={image}
-          width="70px"
-          preview={false}
+          width="130px"
+          preview={true}
         />
       ),
     },

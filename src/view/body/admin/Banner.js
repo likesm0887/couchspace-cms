@@ -208,8 +208,8 @@ const Banner = () => {
     <Image
       crossOrigin="anonymous"
       src={image}
-      width="70px"
-      preview={false}
+      width="150px"
+      preview={true}
       loading="lazy"
     />
   ), []);
