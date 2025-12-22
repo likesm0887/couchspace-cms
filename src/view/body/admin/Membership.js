@@ -1,4 +1,4 @@
-// 新增一個欄位名叫開通會員帳號，提示顯示 請輸入要開通的會員帳號，跟一個選擇日期的元件，新增一個送出按鈕，使用Antd元件, 元件之間有間隔
+// 會員資格管理頁面 - 重新設計版本
 
 import React, { useState } from "react";
 import {
@@ -14,11 +14,16 @@ import {
   Spin,
   Modal,
   Divider,
+  Card,
+  Typography,
+  Form,
 } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-import { CardMembership } from "@mui/icons-material";
+import { UploadOutlined, CrownOutlined, UserOutlined, FileExcelOutlined } from "@ant-design/icons";
 import { memberService } from "../../../service/ServicePool";
 import dayjs from "dayjs";
+
+const { Title, Text } = Typography;
+
 const Membership = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [memberAccount, setMemberAccount] = useState("");
@@ -28,6 +33,8 @@ const Membership = () => {
   const [loading, setLoading] = useState(false);
   const [successResultData, setSuccessResultData] = useState([]);
   const [failResultData, setFailResultData] = useState([]);
+  const [form] = Form.useForm();
+
   const handleMemberAccountChange = (e) => {
     setMemberAccount(e.target.value);
   };
@@ -35,6 +42,7 @@ const Membership = () => {
   const handleDateChange = (date) => {
     setSelectedDate(date);
   };
+
   const showModal = () => {
     setIsModalOpen(true);
   };
@@ -46,7 +54,16 @@ const Membership = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
+
   const handleSubmit = async (level) => {
+    if (!memberAccount || !selectedDate) {
+      messageApi.open({
+        type: "error",
+        content: "請輸入會員帳號和選擇到期日期",
+      });
+      return;
+    }
+
     var result = await memberService.setMembership([
       {
         Email: memberAccount,
@@ -58,63 +75,51 @@ const Membership = () => {
 
     if (result[0].success) {
       console.log(result);
-
       messageApi.open({
         type: "success",
-        content: level==='LEVELUP'?"已升級為Permium":"已降級為平民",
+        content: level === 'LEVELUP' ? "已升級為Premium" : "已降級為平民",
       });
+      // 清空表單
+      setMemberAccount("");
+      setSelectedDate(null);
+      form.resetFields();
     } else {
       console.log(result);
       messageApi.open({
         type: "error",
-        content: "新增失敗 失敗原因: " + result[0].status_text,
+        content: "操作失敗 失敗原因: " + result[0].status_text,
       });
     }
   };
 
   const batchSubmit = async () => {
-    setLoading(true)
+    if (data.length === 0) {
+      messageApi.open({
+        type: "error",
+        content: "請先上傳會員列表",
+      });
+      return;
+    }
+
+    setLoading(true);
     var result = await memberService.setMembership(data);
-    setLoading(false)
+    setLoading(false);
     console.log(result[0]);
     setSuccessResultData(result.filter((r) => r.success));
     setFailResultData(result.filter((r) => !r.success));
     setIsModalOpen(true);
-    // if (result[0].success) {
-    //   console.log(result);
-    //   result.forEach((r) => {
-    //     if (r.error_code !== "") {
-    //       messageApi.open({
-    //         type: "error",
-    //         content: "新增失敗 失敗原因: " + r.status_text,
-    //       });
-    //     }
-    //   });
-    //   messageApi.open({
-    //     type: "success",
-    //     content: "新增成功",
-    //   });
-    // } else {
-    //   console.log(result);
-    //   messageApi.open({
-    //     type: "error",
-    //     content: "新增失敗 失敗原因: " + result[0].status_text,
-    //   });
-    // }
   };
 
   const formatTo = (dateString) => {
     const dateObj = new Date(dateString);
     const year = dateObj.getUTCFullYear();
-    const month = ("0" + (dateObj.getUTCMonth() + 1)).slice(-2); // add leading zero if needed
-    const day = ("0" + dateObj.getUTCDate()).slice(-2); // add leading zero if needed
+    const month = ("0" + (dateObj.getUTCMonth() + 1)).slice(-2);
+    const day = ("0" + dateObj.getUTCDate()).slice(-2);
     return `${year}-${month}-${day}`;
   };
 
   const props = {
     name: "file",
-
-    //action: "https://www.mocky.io/v2/5cc8019d300000980a055e76",
     headers: {
       authorization: "authorization-text",
     },
@@ -123,9 +128,9 @@ const Membership = () => {
         console.log(info.file, info.fileList);
       }
       if (info.file.status === "done") {
-        message.success(`${info.file.name} file uploaded successfully`);
+        message.success(`${info.file.name} 文件上傳成功`);
       } else if (info.file.status === "error") {
-        message.error(`${info.file.name} file upload failed.`);
+        message.error(`${info.file.name} 文件上傳失敗`);
       }
     },
     onRemove() {
@@ -133,30 +138,30 @@ const Membership = () => {
     },
     beforeUpload(file) {
       const valid =
-        file.type ==
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
-        file.type == "application/vnd.ms-excel";
+        file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+        file.type === "application/vnd.ms-excel";
       if (!valid) {
-        message.error(`${file.name} is not a excel file`);
+        message.error(`${file.name} 不是有效的Excel文件`);
         return false;
       }
       if (valid) {
         console.log(valid);
         const formData = new FormData();
         formData.append("file", file);
-        setLoading(true)
+        setLoading(true);
         memberService.uploadMembership(formData).then((res) => {
           setData(res);
-          setLoading(false)
+          setLoading(false);
           return true;
         });
       }
       return false;
     },
   };
+
   const columns = [
     {
-      title: "帳號",
+      title: "會員帳號",
       dataIndex: "Email",
       key: "Email",
     },
@@ -166,151 +171,215 @@ const Membership = () => {
       key: "ExpiredDate",
     },
   ];
-  const result = [
+
+  const resultColumns = [
     {
-      title: "Account",
+      title: "帳號",
       dataIndex: "error_code",
       key: "error_code",
-      width:"30px",
+      width: "30%",
       render: (text) => <a>{text}</a>,
     },
     {
-      title: "Status",
+      title: "狀態",
       dataIndex: "status_text",
       key: "status_text",
-      width:"60px",
+      width: "70%",
     },
   ];
 
-  //call /api/v1/members/membership呼叫成功用toast顯示，錯誤訊息也是用antd toast
   return (
     <Spin spinning={loading}>
-      <Space direction="vertical">
+      <div style={{ padding: "24px" }}>
+        <Title level={2} style={{ marginBottom: "24px", textAlign: "center" }}>
+          <CrownOutlined style={{ marginRight: "8px" }} />
+          會員資格管理
+        </Title>
+
         <Modal
-          title="Batch Grant Result"
+          title="批量處理結果"
           open={isModalOpen}
           onOk={handleOk}
           onCancel={handleCancel}
-          width={'30%'}
+          width="50%"
+          centered
         >
-          <Divider>Success</Divider>
-          <Row>
-            <Col>
-              <Table columns={result} dataSource={successResultData} pagination={false} scroll={{ x: 60, y: 300 }} />
-            </Col>
-          </Row>
-          <Divider>Fail</Divider>
-          <Row>
-            <Col>
-              <Table columns={result} dataSource={failResultData} pagination={false}  scroll={{ x: 60, y: 300 }}  />
-            </Col>
-          </Row>
+          <Divider orientation="left">處理成功</Divider>
+          <Table
+            columns={resultColumns}
+            dataSource={successResultData}
+            pagination={false}
+            scroll={{ y: 200 }}
+            size="small"
+          />
+          <Divider orientation="left">處理失敗</Divider>
+          <Table
+            columns={resultColumns}
+            dataSource={failResultData}
+            pagination={false}
+            scroll={{ y: 200 }}
+            size="small"
+          />
         </Modal>
 
-        <Row gutter={[16, 16]} style={{ width: 800 }}>
-          <Col span={12}>
-            <Row>
-              <Col>
-                <Input
-                  size="big"
-                  placeholder="請輸入會員帳號"
-                  value={memberAccount}
-                  onChange={handleMemberAccountChange}
-                  style={{ marginBottom: "16px", width: 200 }}
-                />
-              </Col>
-              <Col>
-                <dev style={{ marginBottom: "16px", marginLeft: "10px" }}>
+        <Row gutter={[24, 24]}>
+          {/* 單個會員操作卡片 */}
+          <Col xs={24} lg={12}>
+            <Card
+              title={
+                <>
+                  <UserOutlined style={{ marginRight: "8px" }} />
+                  單個會員操作
+                </>
+              }
+              bordered={false}
+              style={{ height: "100%" }}
+            >
+              <Form form={form} layout="vertical">
+                <Form.Item
+                  label="會員帳號"
+                  rules={[{ required: true, message: "請輸入會員帳號" }]}
+                >
+                  <Input
+                    placeholder="請輸入會員帳號"
+                    value={memberAccount}
+                    onChange={handleMemberAccountChange}
+                    size="large"
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  label="到期日期"
+                  rules={[{ required: true, message: "請選擇到期日期" }]}
+                >
                   <DatePicker
                     presets={[
                       {
-                        label: "One Month",
-                        value: dayjs().add(+1, "month"),
+                        label: "一個月",
+                        value: dayjs().add(1, "month"),
                       },
                       {
-                        label: "Three Month",
-                        value: dayjs().add(+3, "month"),
+                        label: "三個月",
+                        value: dayjs().add(3, "month"),
                       },
                       {
-                        label: "Six Month",
-                        value: dayjs().add(+6, "month"),
+                        label: "六個月",
+                        value: dayjs().add(6, "month"),
                       },
                       {
-                        label: "Nine Month",
-                        value: dayjs().add(+9, "month"),
+                        label: "九個月",
+                        value: dayjs().add(9, "month"),
                       },
                       {
-                        label: "One Year",
-                        value: dayjs().add(+12, "month"),
+                        label: "一年",
+                        value: dayjs().add(12, "month"),
                       },
                       {
-                        label: "Forever",
-                        value: dayjs().add(+999, "year"),
+                        label: "永久",
+                        value: dayjs().add(999, "year"),
                       },
                     ]}
-                    placeholder="選擇日期"
+                    placeholder="選擇到期日期"
                     value={selectedDate}
                     onChange={handleDateChange}
+                    size="large"
+                    style={{ width: "100%" }}
                   />
-                </dev>
-              </Col>
-            </Row>
-            <Row>
-              <Button
-                type="primary"
-                style={{ marginRight: "16px", marginBottom: "20px" }}
-                onClick={() => handleSubmit("LEVELUP")}
-              >
-                升級為Premium
-              </Button>
+                </Form.Item>
 
-              <Button type="primary" onClick={() => handleSubmit("LEVELDOWN")}>
-                降級成平民
-              </Button>
-            </Row>
+                <Form.Item>
+                  <Space size="middle">
+                    <Button
+                      type="primary"
+                      size="large"
+                      icon={<CrownOutlined />}
+                      onClick={() => handleSubmit("LEVELUP")}
+                    >
+                      升級為Premium
+                    </Button>
+                    <Button
+                      danger
+                      size="large"
+                      onClick={() => handleSubmit("LEVELDOWN")}
+                    >
+                      降級為平民
+                    </Button>
+                  </Space>
+                </Form.Item>
+              </Form>
+            </Card>
           </Col>
 
-          <Col span={12}>
-            <Row gutter={[30, 30]}>
-              <Col span={10}>
-                <Upload {...props} maxCount={1}>
-                  <Button icon={<UploadOutlined />}>
-                    Click to Upload Premium List
+          {/* 批量操作卡片 */}
+          <Col xs={24} lg={12}>
+            <Card
+              title={
+                <>
+                  <FileExcelOutlined style={{ marginRight: "8px" }} />
+                  批量操作
+                </>
+              }
+              bordered={false}
+              style={{ height: "100%" }}
+            >
+              <Space direction="vertical" style={{ width: "100%" }}>
+                <div>
+                  <Text strong>步驟1: 上傳會員列表</Text>
+                  <br />
+                  <Text type="secondary">請上傳包含會員帳號和到期日期的Excel文件</Text>
+                </div>
+
+                <Upload {...props} maxCount={1} style={{ width: "100%" }}>
+                  <Button
+                    icon={<UploadOutlined />}
+                    size="large"
+                    block
+                    style={{ height: "48px" }}
+                  >
+                    點擊上傳Premium會員列表
                   </Button>
                 </Upload>
-              </Col>
-              <Col span={20}>
-                {data.length != 0 ? (
-                  <Button
-                    type="primary"
-                    style={{ marginRight: "16px", marginBottom: "20px" }}
-                    onClick={() => batchSubmit()}
-                  >
-                    通通升級為Premium
-                  </Button>
-                ) : (
-                  <div></div>
+
+                {data.length > 0 && (
+                  <>
+                    <div>
+                      <Text strong>步驟2: 確認並批量處理</Text>
+                    </div>
+
+                    <Space>
+                      <Button
+                        type="primary"
+                        size="large"
+                        icon={<CrownOutlined />}
+                        onClick={batchSubmit}
+                      >
+                        通通升級為Premium
+                      </Button>
+                      <Button size="large" onClick={showModal}>
+                        查看上次結果
+                      </Button>
+                    </Space>
+
+                    <div>
+                      <Text strong>預覽列表 ({data.length} 筆資料)</Text>
+                    </div>
+
+                    <Table
+                      dataSource={data}
+                      columns={columns}
+                      pagination={{ pageSize: 5 }}
+                      size="small"
+                      scroll={{ y: 200 }}
+                    />
+                  </>
                 )}
-                <Button type="primary" onClick={showModal}>
-                  查看前一次上傳結果
-                </Button>
-                <>{contextHolder}</>
-              </Col>
-            </Row>
-            <Row>
-              {data.length != 0 ? (
-                <Table
-                  dataSource={data}
-                  columns={columns}
-                  pagination={{ pageSize: 5 }}
-                />
-              ) : (
-                <div></div>
-              )}
-            </Row>
+              </Space>
+            </Card>
           </Col>
         </Row>
-      </Space>
+
+        {contextHolder}
+      </div>
     </Spin>
   );
 };

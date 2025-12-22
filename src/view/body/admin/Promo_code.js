@@ -1,4 +1,4 @@
-import { PlusCircleOutlined, EditOutlined } from "@ant-design/icons";
+import { PlusCircleOutlined, EditOutlined, SearchOutlined, ClearOutlined } from "@ant-design/icons";
 
 import {
   Table,
@@ -34,6 +34,13 @@ import {
   UserOutlined,
   DownloadOutlined,
 } from "@ant-design/icons";
+
+const customInputStyle = `
+  .custom-search-input .ant-input::placeholder {
+    font-size: 14px !important;
+    color: #999 !important;
+  }
+`;
 const PromoCode = () => {
   const { RangePicker } = DatePicker;
 
@@ -209,10 +216,10 @@ const PromoCode = () => {
     if (inputSearchTerm !== null) {
       console.log(inputSearchTerm)
       promoCodes = promoCodes.filter((u) => {
-        const tokenMatch =
-          u.Token.includes(inputSearchTerm);
+        const tokenMatch = u.Token.includes(inputSearchTerm);
+        const presentTokenMatch = u.PresentToken.includes(inputSearchTerm);
 
-        return tokenMatch;
+        return tokenMatch || presentTokenMatch;
       });
     }
     setPromoCode(promoCodes);
@@ -396,6 +403,7 @@ const PromoCode = () => {
   const formatter = (value) => <CountUp end={value} separator="," />;
   return (
     <div>
+      <style dangerouslySetInnerHTML={{ __html: customInputStyle }} />
       <Flex gap="middle" justify="space-between" baseStyle>
         <Statistic
           title="優惠券數量"
@@ -403,62 +411,58 @@ const PromoCode = () => {
           formatter={formatter}
         />
 
-        {/* 第二行：查詢和清除按鈕 */}
-        <Flex gap="small" justify="space-between" vertical>
-          <Row>
-            <Col span={16}></Col>
-            <Col span={8}>
-              <ExportButton
-                style={{
-                  width: "100px",
-                  backgroundColor: "#f5a623", // 橘黃色背景
-                  borderColor: "#f5a623", // 邊框顏色
-                  color: "#fff", // 白色字體
-                  borderRadius: "5px", // 圓角邊框
-                  padding: "6px 16px", // 按鈕內邊距
-                  fontWeight: "bold", // 粗體字
-                }}
-                data={promoCode}
-              >
-                下載報表
-              </ExportButton>
-            </Col>
-          </Row>
-          <Flex justify="space-evenly" gap="small">
-            <Flex gap="small" justify="space-evenly">
-              <Input
+        {/* 美化搜尋列 */}
+        <Flex gap="small" vertical>
+          <div style={{
+            backgroundColor: '#f8f9fa',
+            borderRadius: '12px',
+            padding: '12px 16px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            border: '1px solid #e9ecef'
+          }}>
+            <Flex gap="small" align="center">
+              <Input.Search
                 value={searchTerm}
-                placeholder="優惠碼代碼"
-                style={{ width: "150px" }}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-
-              <Button
+                placeholder="搜尋優惠代碼或Code..."
+                className="custom-search-input"
                 style={{
-                  backgroundColor: "#0085ff", // 藍色背景（查詢按鈕）
-                  borderColor: "#0085ff", // 藍色邊框
-                  color: "#fff", // 白色字體
-                  borderRadius: "5px", // 圓角邊框
-                  padding: "0px 15px", // 按鈕內邊距
+                  width: "250px",
+                  borderRadius: "8px",
+                  
                 }}
-                onClick={handleSearch}
-              >
-                查詢
-              </Button>
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onSearch={handleSearch}
+                enterButton={
+                  <Button
+                    type="primary"
+                    style={{
+                      backgroundColor: "#1890ff",
+                      borderColor: "#1890ff",
+                      borderRadius: "6px",
+                      height: "32px"
+                    }}
+                    icon={<SearchOutlined />}
+                  >
+                    搜尋
+                  </Button>
+                }
+              />
               <Button
                 style={{
-                  backgroundColor: "#ffffff", // 白色背景（清除按鈕）
-                  borderColor: "#0085ff", // 藍色邊框
-                  color: "#0085ff", // 藍色字體
-                  borderRadius: "5px", // 圓角邊框
-                  padding: "0px 20px", // 按鈕內邊距
+                  backgroundColor: "#ffffff",
+                  borderColor: "#d9d9d9",
+                  color: "#666",
+                  borderRadius: "6px",
+                  height: "32px",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
                 }}
                 onClick={handleClear}
+                icon={<ClearOutlined />}
               >
                 清除
               </Button>
             </Flex>
-          </Flex>
+          </div>
         </Flex>
       </Flex>
       <FloatButton

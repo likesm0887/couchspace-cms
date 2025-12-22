@@ -14,6 +14,8 @@ import {
   Card,
   Calendar,
   Space,
+  Row,
+  Col,
 } from "antd";
 import { Layout, theme, Descriptions, Badge, Outlet } from "antd";
 import "./counselor.css";
@@ -143,7 +145,7 @@ const Counselor = () => {
       dataIndex: "photo",
       key: "photo",
       render: (url) => (
-        <img crossOrigin="anonymous" src={url} style={{ width: "80px", height: "100px" }} />
+        <Image crossOrigin="anonymous" src={url} width={150} height={100} />
       ),
     },
     {
@@ -519,14 +521,18 @@ const Counselor = () => {
 
   return (
     <>
-      <Statistic
-        title="Register Users"
-        value={userCount}
-        formatter={formatter}
-      />
-      <Statistic title="Permium Users" value={permiun} formatter={formatter} />
-      <Statistic title="Active Users" value={active} formatter={formatter} />
-      <Table columns={columns} dataSource={userData} />
+      <Row gutter={16} style={{ marginBottom: 16 }}>
+        <Col span={24}>
+          <Card>
+            <Statistic
+              title="註冊用戶"
+              value={userCount}
+              formatter={formatter}
+            />
+          </Card>
+        </Col>
+      </Row>
+      <Table columns={columns} dataSource={userData} size="small" />
       <DrawerForm
         id={currentSelectCounselorId}
         callback={fetchData}

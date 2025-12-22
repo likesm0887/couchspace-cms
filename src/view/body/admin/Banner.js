@@ -28,13 +28,13 @@ import {
   Button,
   Drawer,
 } from "antd";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   counselorService,
   meditationService,
 } from "../../../service/ServicePool";
 
-const Row = ({ children, ...props }) => {
+const Row = React.memo(({ children, ...props }) => {
   const {
     attributes,
     listeners,
@@ -83,77 +83,9 @@ const Row = ({ children, ...props }) => {
       })}
     </tr>
   );
-};
+});
 
 const Banner = () => {
-  const columns = [
-    {
-      key: "sort",
-    },
-    {
-      title: "順序",
-      dataIndex: "seq",
-    },
-    {
-      title: "Banner圖片",
-      dataIndex: "imageUrl",
-      render: (image) => (
-        <Image
-          crossOrigin="anonymous"
-          src={image}
-          width="70px"
-          preview={false}
-        />
-      ),
-    },
-    {
-      title: "連結類型",
-      dataIndex: "type",
-      render: (text) => {
-        const typeMap = {
-          EXTERNAL_LINK: "外部連結",
-          SINGLE_AUDIO: "單首音檔",
-          SERIES: "系列專輯",
-          CONSULTANT_PAGE: "諮詢師介紹頁",
-        };
-        return typeMap[text] || text;
-      },
-    },
-    {
-      title: "連結內容",
-      dataIndex: "linkSourceID",
-      render: (text, record) => {
-        console.log(record);
-        if (record.type === "EXTERNAL_LINK") {
-          return (
-            <a
-              href={record.linkSourceID}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {record.linkSourceID}
-            </a>
-          );
-        }
-        return text;
-      },
-    },
-
-    {
-      title: "刪除",
-      dataIndex: "editBtn",
-      key: "editBtn",
-      render: (_, element) => (
-        <Button
-          icon={<DeleteFilled />}
-          type="primary"
-          onClick={(e) => {
-            onBannerDelete(element);
-          }}
-        ></Button>
-      ),
-    },
-  ];
   const [modal1Open, setModal1Open] = useState(false);
   const [dataSource, setDataSource] = useState([]);
   const [previewBannerImage, setPreviewBannerImage] = useState([]);
@@ -167,175 +99,417 @@ const Banner = () => {
   const [oriCommonData, setOriCommonData] = useState([]);
 
   const [selectedType, setSelectedType] = useState(null);
+
+  // 刪除函數需要在 render 函數之前定義
+  const onBannerDelete = useCallback(async (e) => {
+    if (!oriCommonData?.NewBanners) return;
+
+    let select = oriCommonData.NewBanners.findIndex(
+      (o) => o.Seq === e.seq && o.ImageUrl === e.imageUrl
+    );
+    if (select === -1) return;
+
+    console.log(select);
+
+    // 創建深拷貝避免直接修改狀態
+    const updatedCommonData = JSON.parse(JSON.stringify(oriCommonData));
+    updatedCommonData.NewBanners.splice(select, 1);
+
+    // 重新排序
+    updatedCommonData.NewBanners.forEach((item, index) => {
+      item.Seq = index + 1;
+    });
+
+    setLoading2(true);
+    try {
+      await meditationService.updateCommonData(updatedCommonData);
+      // 更新本地狀態
+      setOriCommonData(updatedCommonData);
+      // 重新加載數據
+      const commonData = await meditationService.getCommonData();
+      setOriCommonData(commonData);
+
+      // 並發獲取所有相關數據
+      const [allCourses, allMusics, allCounselor] = await Promise.all([
+        meditationService.getAllCourse(),
+        meditationService.getAllMusic(),
+        counselorService.getAllCounselorInfo(),
+      ]);
+
+      // 建立映射以提高查詢效率
+      const coursesMap = new Map(allCourses.map(c => [c.CourseID, c.CourseName]));
+      const musicsMap = new Map(allMusics.map(m => [m.MusicID, m.Title]));
+      const counselorsMap = new Map(allCounselor.map(c => [
+        c.ID,
+        `${c?.UserName?.Name?.LastName || ''}${c?.UserName?.Name?.FirstName || ''}`
+      ]));
+
+      // 高效處理banner數據
+      const banner = commonData.NewBanners?.map((e) => {
+        let linkSourceName = '';
+        if (e.Type === "SERIES") {
+          linkSourceName = coursesMap.get(e.LinkSourceID) || '';
+        } else if (e.Type === "SINGLE_AUDIO") {
+          linkSourceName = musicsMap.get(e.LinkSourceID) || '';
+        } else if (e.Type === "CONSULTANT_PAGE") {
+          linkSourceName = counselorsMap.get(e.LinkSourceID) || '';
+        } else if (e.Type === "EXTERNAL_LINK") {
+          linkSourceName = e.LinkSourceID;
+        }
+
+        return {
+          key: e.Seq,
+          imageUrl: e.ImageUrl,
+          linkSourceID: linkSourceName,
+          type: e.Type,
+          seq: e.Seq,
+        };
+      }) || [];
+
+      // 設置下拉選項
+      setAllCourses(allCourses.map(c => ({
+        label: c.CourseName,
+        value: c.CourseID,
+      })));
+      setAllMusics(allMusics.map(m => ({
+        label: m.Title,
+        value: m.MusicID,
+      })));
+      setAllCounselor(allCounselor.map(c => ({
+        label: `${c?.UserName?.Name?.LastName || ''}${c?.UserName?.Name?.FirstName || ''}`,
+        value: c.ID,
+      })));
+
+      setDataSource(banner);
+    } catch (error) {
+      console.error('Error deleting banner:', error);
+      // 失敗時重新加載數據
+      try {
+        const commonData = await meditationService.getCommonData();
+        setOriCommonData(commonData);
+        // 簡單重新加載，省略詳細的數據處理
+        setDataSource(commonData.NewBanners?.map((e, index) => ({
+          key: e.Seq,
+          imageUrl: e.ImageUrl,
+          linkSourceID: e.LinkSourceID,
+          type: e.Type,
+          seq: e.Seq,
+        })) || []);
+      } catch (fallbackError) {
+        console.error('Error in fallback reload:', fallbackError);
+      }
+    } finally {
+      setLoading2(false);
+    }
+  }, [oriCommonData]);
+
+  // 優化 render 函數
+  const renderImage = useCallback((image) => (
+    <Image
+      crossOrigin="anonymous"
+      src={image}
+      width="70px"
+      preview={false}
+      loading="lazy"
+    />
+  ), []);
+
+  const renderType = useCallback((text) => {
+    const typeMap = {
+      EXTERNAL_LINK: "外部連結",
+      SINGLE_AUDIO: "單首音檔",
+      SERIES: "系列專輯",
+      CONSULTANT_PAGE: "諮詢師介紹頁",
+    };
+    return typeMap[text] || text;
+  }, []);
+
+  const renderLinkContent = useCallback((text, record) => {
+    if (record.type === "EXTERNAL_LINK") {
+      return (
+        <a
+          href={record.linkSourceID}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {record.linkSourceID}
+        </a>
+      );
+    }
+    return text;
+  }, []);
+
+  const renderDeleteButton = useCallback((_, element) => (
+    <Button
+      icon={<DeleteFilled />}
+      type="primary"
+      onClick={() => onBannerDelete(element)}
+    />
+  ), [onBannerDelete]);
+
+  // 優化 columns
+  const columns = useMemo(() => [
+    {
+      key: "sort",
+    },
+    {
+      title: "順序",
+      dataIndex: "seq",
+    },
+    {
+      title: "Banner圖片",
+      dataIndex: "imageUrl",
+      render: renderImage,
+    },
+    {
+      title: "連結類型",
+      dataIndex: "type",
+      render: renderType,
+    },
+    {
+      title: "連結內容",
+      dataIndex: "linkSourceID",
+      render: renderLinkContent,
+    },
+    {
+      title: "刪除",
+      dataIndex: "editBtn",
+      key: "editBtn",
+      render: renderDeleteButton,
+    },
+  ], [renderImage, renderType, renderLinkContent, renderDeleteButton]);
+
   useEffect(() => {
     getData();
   }, []);
 
-  const onBannerDelete = async (e) => {
-    let select = oriCommonData.NewBanners.findIndex(
-      (o) => o.Seq === e.seq && o.ImageUrl === e.imageUrl
-    );
-    console.log(select);
-    oriCommonData.NewBanners.splice(select, 1);
-    for (let index = 0; index < oriCommonData.NewBanners.length; index++) {
-      oriCommonData.NewBanners[index].Seq = index + 1;
-    }
-    setLoading2(true);
-    await meditationService.updateCommonData(oriCommonData);
-    getData();
-    setLoading2(false);
-  };
 
-  const getSourceName = async (bannerItem) => {
-    if (bannerItem.Type === "SERIES") {
-      // 查詢單筆課程資料（假設 batchQueryCourses 回傳陣列）
-      const courses = await meditationService.batchQueryCourses({
-        ids: [bannerItem.LinkSourceID],
-      });
-      return courses?.[0]?.CourseName || "";
-    }
 
-    if (bannerItem.Type === "SINGLE_AUDIO") {
-      // 查詢單筆音檔資料
-      const musicList = await meditationService.batchQueryMusic({
-        ids: [bannerItem.LinkSourceID],
-      });
-      return musicList?.[0]?.Title || "";
-    }
-
-    if (bannerItem.Type === "CONSULTANT_PAGE") {
-      // 取得諮詢師資料
-      const counselor = await counselorService.getCounselorInfoById(
-        bannerItem.LinkSourceID
-      );
-      console.log(counselor);
-      return (
-        counselor?.UserName?.Name.LastName +
-          counselor?.UserName?.Name.FirstName || ""
-      );
-    }
-
-    if (bannerItem.Type === "EXTERNAL_LINK") {
-      return bannerItem.LinkSourceID;
-    }
-
-    return "";
-  };
-
-  const getData = async () => {
+  const getData = useCallback(async () => {
     const commonData = await meditationService.getCommonData();
     setOriCommonData(commonData);
     console.log(commonData.NewBanners.map((b) => b.LinkSourceID));
 
-    // 使用 Promise.all 等待所有非同步取得結果
-    const banner = await Promise.all(
-      commonData.NewBanners.map(async (e) => {
-        return {
-          key: e.Seq,
-          imageUrl: e.ImageUrl,
-          // 注意：await 取得每個 banner 的 linkSourceID
-          linkSourceID: await getSourceName(e),
-          type: e.Type,
-          seq: e.Seq,
-        };
-      })
-    );
+    // 並發獲取所有相關數據
+    const [allCourses, allMusics, allCounselor] = await Promise.all([
+      meditationService.getAllCourse(),
+      meditationService.getAllMusic(),
+      counselorService.getAllCounselorInfo(),
+    ]);
 
-    const allCourses = await meditationService.getAllCourse();
-    const allMusics = await meditationService.getAllMusic();
-    const allCounselor = await counselorService.getAllCounselorInfo();
-    console.log(allCourses);
-    setAllMusics(
-      allMusics.map((c) => ({
-        label: c.Title,
-        value: c.MusicID,
-      }))
-    );
-    setAllCourses(
-      allCourses.map((c) => ({
-        label: c.CourseName,
-        value: c.CourseID,
-      }))
-    );
-    setAllCounselor(
-      allCounselor.map((c) => ({
-        label: c?.UserName?.Name.LastName + c?.UserName?.Name.FirstName,
-        value: c.ID,
-      }))
-    );
-    console.log(
-      allCourses.map((c) => ({
-        label: c.CourseName,
-        value: c.CourseID,
-      }))
-    );
+    // 建立映射以提高查詢效率
+    const coursesMap = new Map(allCourses.map(c => [c.CourseID, c.CourseName]));
+    const musicsMap = new Map(allMusics.map(m => [m.MusicID, m.Title]));
+    const counselorsMap = new Map(allCounselor.map(c => [
+      c.ID,
+      `${c?.UserName?.Name?.LastName || ''}${c?.UserName?.Name?.FirstName || ''}`
+    ]));
+
+    // 高效處理banner數據
+    const banner = commonData.NewBanners?.map((e) => {
+      let linkSourceName = '';
+      if (e.Type === "SERIES") {
+        linkSourceName = coursesMap.get(e.LinkSourceID) || '';
+      } else if (e.Type === "SINGLE_AUDIO") {
+        linkSourceName = musicsMap.get(e.LinkSourceID) || '';
+      } else if (e.Type === "CONSULTANT_PAGE") {
+        linkSourceName = counselorsMap.get(e.LinkSourceID) || '';
+      } else if (e.Type === "EXTERNAL_LINK") {
+        linkSourceName = e.LinkSourceID;
+      }
+
+      return {
+        key: e.Seq,
+        imageUrl: e.ImageUrl,
+        linkSourceID: linkSourceName,
+        type: e.Type,
+        seq: e.Seq,
+      };
+    }) || [];
+
+    // 設置下拉選項
+    setAllCourses(allCourses.map(c => ({
+      label: c.CourseName,
+      value: c.CourseID,
+    })));
+    setAllMusics(allMusics.map(m => ({
+      label: m.Title,
+      value: m.MusicID,
+    })));
+    setAllCounselor(allCounselor.map(c => ({
+      label: `${c?.UserName?.Name?.LastName || ''}${c?.UserName?.Name?.FirstName || ''}`,
+      value: c.ID,
+    })));
 
     console.log(commonData);
     setDataSource(banner);
-  };
+  }, []);
 
-  const onDragEnd = async ({ active, over }) => {
-    console.log(oriCommonData);
-    let toChangeCommonData = [];
-    if (active.id !== over?.id) {
-      setDataSource((previous) => {
-        const activeIndex = previous.findIndex((i) => i.key === active.id);
-        const overIndex = previous.findIndex((i) => i.key === over?.id);
-        let result = arrayMove(previous, activeIndex, overIndex);
+  const onDragEnd = useCallback(async ({ active, over }) => {
+    if (!oriCommonData?.NewBanners || active.id === over?.id) return;
 
-        for (let index = 0; index < result.length; index++) {
-          console.log(oriCommonData);
-          let select = oriCommonData.NewBanners.find(
-            (o) =>
-              o.Seq === result[index].seq &&
-              o.ImageUrl === result[index].imageUrl
-          );
-          console.log(select);
-          toChangeCommonData.push({
-            Seq: index + 1,
-            Type: select.Type,
-            ImageUrl: select.ImageUrl,
-            LinkSourceID: select.LinkSourceID,
-          });
-          console.log(toChangeCommonData);
-        }
-        oriCommonData.NewBanners = toChangeCommonData;
-        return result;
-      });
+    const activeIndex = dataSource.findIndex((i) => i.key === active.id);
+    const overIndex = dataSource.findIndex((i) => i.key === over?.id);
+
+    if (activeIndex === -1 || overIndex === -1) return;
+
+    // 更新本地狀態
+    const result = arrayMove(dataSource, activeIndex, overIndex);
+    const updatedDataSource = result.map((item, index) => ({
+      ...item,
+      seq: index + 1,
+      key: index + 1,
+    }));
+
+    // 更新後端數據
+    const updatedBanners = updatedDataSource.map((item) => {
+      const originalItem = oriCommonData.NewBanners.find(
+        (o) => o.ImageUrl === item.imageUrl
+      );
+      return {
+        Seq: item.seq,
+        ImageUrl: originalItem?.ImageUrl,
+        Type: originalItem?.Type,
+        LinkSourceID: originalItem?.LinkSourceID,
+      };
+    });
+
+    const updatedCommonData = {
+      ...oriCommonData,
+      NewBanners: updatedBanners,
+    };
+
+    // 先更新本地狀態
+    setDataSource(updatedDataSource);
+    setOriCommonData(updatedCommonData);
+
+    try {
       setLoading2(true);
-      await meditationService.updateCommonData(oriCommonData);
-
-      console.log(oriCommonData);
-      getData();
+      await meditationService.updateCommonData(updatedCommonData);
+    } catch (error) {
+      console.error('Error updating banner order:', error);
+      // 失敗時重新加載數據
+      try {
+        const commonData = await meditationService.getCommonData();
+        setOriCommonData(commonData);
+        setDataSource(commonData.NewBanners?.map((e, index) => ({
+          key: e.Seq,
+          imageUrl: e.ImageUrl,
+          linkSourceID: e.LinkSourceID,
+          type: e.Type,
+          seq: e.Seq,
+        })) || []);
+      } catch (fallbackError) {
+        console.error('Error in fallback reload:', fallbackError);
+      }
+    } finally {
       setLoading2(false);
     }
-  };
+  }, [oriCommonData, dataSource]);
 
-  const onFinish = async () => {
+  const onFinish = useCallback(async () => {
     const image = form.getFieldValue("image");
     const linkSourceID = form.getFieldValue("LinkSourceID");
 
     console.log("image:", image);
     console.log("linkSourceID:", linkSourceID);
 
-    if (!image || !linkSourceID) {
+    if (!image || !linkSourceID || !oriCommonData?.NewBanners) {
       return;
     }
 
-    oriCommonData.NewBanners.push({
-      Seq: oriCommonData.NewBanners.length + 1,
+    // 創建深拷貝避免直接修改狀態
+    const updatedCommonData = JSON.parse(JSON.stringify(oriCommonData));
+    updatedCommonData.NewBanners.push({
+      Seq: updatedCommonData.NewBanners.length + 1,
       Type: selectedType,
       ImageUrl: image,
       LinkSourceID: linkSourceID, // 確保 ID 存入
     });
 
-    console.log(oriCommonData);
+    console.log(updatedCommonData);
     setLoading(true);
-    await meditationService.updateCommonData(oriCommonData);
-    setModal1Open(false);
-    getData();
-    setLoading(false);
-  };
+    try {
+      await meditationService.updateCommonData(updatedCommonData);
+      // 更新本地狀態
+      setOriCommonData(updatedCommonData);
+      setModal1Open(false);
+      // 重新加載完整數據
+      const commonData = await meditationService.getCommonData();
+      setOriCommonData(commonData);
+
+      // 並發獲取所有相關數據
+      const [allCourses, allMusics, allCounselor] = await Promise.all([
+        meditationService.getAllCourse(),
+        meditationService.getAllMusic(),
+        counselorService.getAllCounselorInfo(),
+      ]);
+
+      // 建立映射以提高查詢效率
+      const coursesMap = new Map(allCourses.map(c => [c.CourseID, c.CourseName]));
+      const musicsMap = new Map(allMusics.map(m => [m.MusicID, m.Title]));
+      const counselorsMap = new Map(allCounselor.map(c => [
+        c.ID,
+        `${c?.UserName?.Name?.LastName || ''}${c?.UserName?.Name?.FirstName || ''}`
+      ]));
+
+      // 高效處理banner數據
+      const banner = commonData.NewBanners?.map((e) => {
+        let linkSourceName = '';
+        if (e.Type === "SERIES") {
+          linkSourceName = coursesMap.get(e.LinkSourceID) || '';
+        } else if (e.Type === "SINGLE_AUDIO") {
+          linkSourceName = musicsMap.get(e.LinkSourceID) || '';
+        } else if (e.Type === "CONSULTANT_PAGE") {
+          linkSourceName = counselorsMap.get(e.LinkSourceID) || '';
+        } else if (e.Type === "EXTERNAL_LINK") {
+          linkSourceName = e.LinkSourceID;
+        }
+
+        return {
+          key: e.Seq,
+          imageUrl: e.ImageUrl,
+          linkSourceID: linkSourceName,
+          type: e.Type,
+          seq: e.Seq,
+        };
+      }) || [];
+
+      // 設置下拉選項
+      setAllCourses(allCourses.map(c => ({
+        label: c.CourseName,
+        value: c.CourseID,
+      })));
+      setAllMusics(allMusics.map(m => ({
+        label: m.Title,
+        value: m.MusicID,
+      })));
+      setAllCounselor(allCounselor.map(c => ({
+        label: `${c?.UserName?.Name?.LastName || ''}${c?.UserName?.Name?.FirstName || ''}`,
+        value: c.ID,
+      })));
+
+      setDataSource(banner);
+    } catch (error) {
+      console.error('Error adding banner:', error);
+      // 失敗時重新加載數據
+      try {
+        const commonData = await meditationService.getCommonData();
+        setOriCommonData(commonData);
+        setDataSource(commonData.NewBanners?.map((e, index) => ({
+          key: e.Seq,
+          imageUrl: e.ImageUrl,
+          linkSourceID: e.LinkSourceID,
+          type: e.Type,
+          seq: e.Seq,
+        })) || []);
+      } catch (fallbackError) {
+        console.error('Error in fallback reload:', fallbackError);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [oriCommonData, selectedType]);
   const typeOptions = [
     { label: "外部連結", value: "EXTERNAL_LINK" },
     { label: "單首音檔", value: "SINGLE_AUDIO" },
@@ -497,4 +671,4 @@ const Banner = () => {
     </div>
   );
 };
-export default Banner;
+export default React.memo(Banner);

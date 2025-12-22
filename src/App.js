@@ -6,6 +6,7 @@ import {
   Route,
   Routes,
 } from "react-router-dom";
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Login from "./view/login/login";
 import Login2 from "./view/body/admin/Login";
 import Home from "./view/home/Home";
@@ -31,14 +32,17 @@ import Banner from "./view/body/admin/Banner";
 import CounselorBanner from "./view/body/admin/CounselorBanner";
 import Appointments from "./view/body/admin/Appointments";
 import PromoCode from "./view/body/admin/Promo_code";
+import Reports from "./view/body/admin/Reports";
 import DeepLinkRedirector from "./view/deeplink/DeepLinkRedirector.js";
 import ProtectedRoute from "./utility/ProtectedRoute.js";
 function App() {
   // registerServiceWorker()
   // Notification()
   boot();
+  const theme = createTheme();
   return (
-    <BrowserRouter>
+    <ThemeProvider theme={theme}>
+      <BrowserRouter>
       <Routes>
         <Route path="login" element={<Login />}></Route>
         <Route element={<ProtectedRoute redirectPath={"/login"} isAdmin={true} />}>
@@ -55,6 +59,7 @@ function App() {
             <Route path="counselorBanner" element={<CounselorBanner />}></Route>
             <Route path="appointments" element={<Appointments />}></Route>
             <Route path="promocode" element={<PromoCode />}></Route>
+            <Route path="reports" element={<Reports />}></Route>
           </Route>
         </Route>
         <Route path="couchspace-cms/register" element={<Register />} />
@@ -92,7 +97,8 @@ function App() {
           }
         />
       </Routes>
-    </BrowserRouter>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

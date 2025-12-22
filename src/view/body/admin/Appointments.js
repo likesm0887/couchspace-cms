@@ -966,30 +966,11 @@ const Appointments = () => {
   return (
     <>
       {contextHolder}
-      <Flex gap="middle" justify="space-between" baseStyle>
+        <Flex gap="middle" justify="space-between" baseStyle>
         <Statistic title="預約數量" value={userCount} formatter={formatter} />
 
         {/* 第二行：查詢和清除按鈕 */}
         <Flex gap="small" justify="space-between" vertical>
-          <Row>
-            <Col span={18}></Col>
-            <Col span={6}>
-              <ExportButton
-                style={{
-                  width: "100px",
-                  backgroundColor: "#f5a623", // 橘黃色背景
-                  borderColor: "#f5a623", // 邊框顏色
-                  color: "#fff", // 白色字體
-                  borderRadius: "5px", // 圓角邊框
-                  padding: "6px 16px", // 按鈕內邊距
-                  fontWeight: "bold", // 粗體字
-                }}
-                data={userData}
-              >
-                下載報表
-              </ExportButton>
-            </Col>
-          </Row>
           <Flex justify="space-evenly" gap="small">
             <Flex gap="small" justify="space-evenly" vertical>
               <Row>

@@ -194,20 +194,6 @@ const UserPage = () => {
   };
   return (
     <>
-      <ExportButton
-        style={{
-          width: "100px",
-          backgroundColor: "#f5a623", // 橘黃色背景
-          borderColor: "#f5a623", // 邊框顏色
-          color: "#fff", // 白色字體
-          borderRadius: "5px", // 圓角邊框
-          padding: "6px 16px", // 按鈕內邊距
-          fontWeight: "bold", // 粗體字
-        }}
-        data={userData}
-      >
-        下載報表
-      </ExportButton>
       <Statistic
         title="Register Users"
         value={userCount}

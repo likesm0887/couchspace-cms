@@ -318,8 +318,6 @@ function Music() {
   }, [fetchData, fetchTeachers]);
   return (
     <div>
-      <Button onClick={handleDownload}>下載報表</Button>
-
       <FloatButton icon={<PlusCircleOutlined />} onClick={handleNew} />
 
       <Drawer

@@ -5,41 +5,48 @@ import { Outlet } from "react-router-dom";
 import { Space, Table, Input, Select, Image, Tag, List, Avatar } from "antd";
 import { meditationService } from "../../../service/ServicePool";
 import {
-  DesktopOutlined,
+  AudioOutlined,
+  CalendarOutlined,
+  CrownOutlined,
   FileOutlined,
+  FolderOpenOutlined,
+  PictureOutlined,
   PieChartOutlined,
+  TagOutlined,
   TeamOutlined,
   UserOutlined,
+  UsergroupAddOutlined,
 } from "@ant-design/icons";
 import { Breadcrumb, Layout, Menu, theme } from "antd";
 import AdminHeader from "./AdminHeader.js";
 const { Header, Content, Footer, Sider } = Layout;
 
 const items = [
-  getItem("分類", "0", <FileOutlined />),
+  getItem("分類", "0", <FolderOpenOutlined />),
   getItem("系列", "1", <PieChartOutlined />),
-  getItem("音樂", "2", <DesktopOutlined />),
-  getItem("導師", "3", <DesktopOutlined />),
-  getItem("設定", "4", <DesktopOutlined />),
-  getItem("用戶", "5", <DesktopOutlined />),
-  getItem("開通", "6", <DesktopOutlined />),
-  getItem("Banner", "7", <DesktopOutlined />),
-  getItem("優惠代碼", "12", <DesktopOutlined />),
+  getItem("音樂", "2", <AudioOutlined />),
+  getItem("導師", "3", <UserOutlined />),
+  // getItem("設定", "4", <DesktopOutlined />),
+  getItem("用戶", "5", <UsergroupAddOutlined />),
+  getItem("開通", "6", <CrownOutlined />),
+  getItem("Banner", "7", <PictureOutlined />),
+  getItem("優惠代碼", "12", <TagOutlined />),
+  getItem("報表", "13", <FileOutlined />),
   // getItem('放鬆專區', 'sub1', <UserOutlined />, [
   //   getItem('系列', '4'),
   //   getItem('音樂', '5'),
   //   getItem('分類', '6'),
   // ]),
   getItem("諮商專區", "sub2", <TeamOutlined />, [
-    getItem("諮商師", "8"),
-    getItem("預約訂單", "11"),
-    getItem("Banner", "10"),
+    getItem("諮商師", "8", <UserOutlined />),
+    getItem("預約訂單", "11", <CalendarOutlined />),
+    getItem("Banner", "10", <PictureOutlined />),
   ]),
-  getItem("行銷專區", "sub2", <TeamOutlined />, [
+  /*/getItem("行銷專區", "sub2", <TeamOutlined />, [
     getItem("Team 1", "6"),
     getItem("Team 2", "8"),
-  ]),
-  getItem("系統設定", "9", <FileOutlined />),
+  ]),*/
+  //getItem("系統設定", "9", <FileOutlined />),
 ];
 
 function getItem(label, key, icon, children) {
@@ -94,6 +101,9 @@ function Admin() {
     }
     if (e.key == 12) {
       navigate("promocode", { replace: true });
+    }
+    if (e.key == 13) {
+      navigate("reports", { replace: true });
     }
   };
 
