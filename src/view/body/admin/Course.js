@@ -268,8 +268,11 @@ function Course() {
     setLoading(true);
     const res = await meditationService.getAllCourse();
     const allMusics = await meditationService.getAllMusic();
+    const allTeachers = await meditationService.getAllTeacher();
+    const teacherMap = new Map(allTeachers.map(t => [t.TeacherId, t]));
     createOptions(allMusics);
     setAllMusics(allMusics);
+    setAllTeacherOption(allTeachers.map(t => ({ value: t.TeacherId, label: t.Name })));
     const result = [];
     for (let i = 0; i < res.length; i++) {
       //const musics = allMusics.filter(e=>res[i]?.MusicIDs?.includes(e));
@@ -286,7 +289,7 @@ function Course() {
       var teacher = null;
       if (res[i].TeacherID != "") {
         console.log(res[i].TeacherID);
-        teacher = await meditationService.getTeacherById(res[i].TeacherID);
+        teacher = teacherMap.get(res[i].TeacherID);
         console.log(teacher.Name);
         console.log(res[i]);
       }
@@ -311,8 +314,6 @@ function Course() {
     }
 
     setData(result);
-    createAllTeacherOptions();
-    console.log(allTeacherOption);
     setLoading(false);
   };
 
@@ -500,16 +501,7 @@ function Course() {
     form.setFieldsValue({ teacherId: value });
   };
 
-  const createAllTeacherOptions = async () => {
-    var allTeacher = await meditationService.getAllTeacher();
-    console.log(allTeacher);
-    var options = [];
-    allTeacher.forEach((t) => {
-      options.push({ value: t.TeacherId, label: t.Name });
-    });
-    setAllTeacherOption(options);
-    return options;
-  };
+
   const saveSortedMusics = () => {
     console.log("Sorted Musics:", course);
     setSortModalOpen(false);

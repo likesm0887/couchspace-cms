@@ -26,6 +26,7 @@ import {
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { Layout, theme, Descriptions, Badge } from "antd";
+import { Pagination } from "antd";
 import "./counselor.css";
 import moment from "moment";
 import { CopyOutlined } from "@ant-design/icons";
@@ -44,6 +45,78 @@ import {
 import AdminHeader from "./AdminHeader";
 import CountUp from "react-countup";
 import { Label, Margin } from "@mui/icons-material";
+
+// 常量定義
+const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
+const DEFAULT_PAGE_SIZE = 20;
+
+// 工具函數
+const transformAppointment = (u) => ({
+  AppointmentID: u.AppointmentID,
+  UserEmail: "member.Email",
+  UserID: u.UserID,
+  UserName: u.UserName,
+  CounselorID: u.CounselorID,
+  CounselorName: u.CounselorName,
+  PromoCodeID: u.PromoCodeID,
+  DiscountFee: u.Service.Fee - u.DiscountFee,
+  DateTime: u.Time.Date + " " + u.Time.StartTime,
+  Fee: u.Service.Fee,
+  Type: u.Service.Type.Label,
+  AdminFlag: u.AdminFlag,
+  CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
+    .format("YYYY-MM-DD HH:mm:SS")
+    .toString(),
+  Status: getStatusDesc(u.Status),
+});
+
+const getStatusDesc = (code) => {
+  if (code.toUpperCase() === "NEW") {
+    return "訂單成立(未付款)";
+  }
+  if (code.toUpperCase() === "UNPAID") {
+    return "訂單成立(未付款)";
+  }
+  if (code.toUpperCase() === "CONFIRMED") {
+    return "已確認";
+  }
+  if (code.toUpperCase() === "ROOMCREATED") {
+    return "諮商房間已建立";
+  }
+  if (code.toUpperCase() === "CANCELLED") {
+    return "已取消";
+  }
+  if (code.toUpperCase() === "COMPLETED") {
+    return "已完成";
+  }
+};
+
+const isInDateRange = (dateTimeStr, startDate, endDate) => {
+  let start = null;
+  let end = null;
+
+  if (startDate !== null) {
+    start = moment(startDate.format("YYYY-MM-DD HH:mm"), "YYYY-MM-DD HH:mm");
+  }
+  if (endDate !== null) {
+    end = moment(endDate.format("YYYY-MM-DD HH:mm"), "YYYY-MM-DD HH:mm");
+  }
+  if (startDate === null && endDate === null) return true;
+
+  const dateTime = moment(dateTimeStr, "YYYY-MM-DD HH:mm");
+  return dateTime.isSameOrAfter(start) && dateTime.isSameOrBefore(end);
+};
+
+const matchesSearch = (app, searchTerm) => {
+  if (!searchTerm) return true;
+  const term = searchTerm.toLowerCase();
+  return (
+    (app.AppointmentID && app.AppointmentID.toLowerCase().includes(term)) ||
+    (app.UserID && app.UserID.toString().toLowerCase().includes(term)) ||
+    (app.UserName && app.UserName.toLowerCase().includes(term)) ||
+    (app.CounselorName && app.CounselorName.toLowerCase().includes(term))
+  );
+};
 const DrawerForm = ({ id, visible, onClose, record, callback }) => {
   // Define state for the form fields
   const [form] = Form.useForm();
@@ -139,6 +212,11 @@ const Appointments = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [selectedAppointmentForCancel, setSelectedAppointmentForCancel] =
     useState(null);
+  // 分頁狀態
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [confirmedCurrentPage, setConfirmedCurrentPage] = useState(1);
+  const [confirmedPageSize, setConfirmedPageSize] = useState(20);
   const {
     token: { colorBgContainer },
   } = theme.useToken();
@@ -377,29 +455,6 @@ const Appointments = () => {
     setSelectedAppointmentForCancel(null);
   };
 
-  function getStatusDesc(code) {
-    if (code.toUpperCase() === "NEW") {
-      return "訂單成立(未付款)";
-    }
-    if (code.toUpperCase() === "UNPAID") {
-      return "訂單成立(未付款)";
-    }
-    if (code.toUpperCase() === "CONFIRMED") {
-      return "已確認";
-    }
-    if (code.toUpperCase() === "ROOMCREATED") {
-      return "諮商房間已建立";
-    }
-
-    if (code.toUpperCase() === "CANCELLED") {
-      return "已取消";
-    }
-
-    if (code.toUpperCase() === "COMPLETED") {
-      return "已完成";
-    }
-  }
-
   const copyToClipboard = (text) => {
     navigator.clipboard
       .writeText(text)
@@ -411,52 +466,6 @@ const Appointments = () => {
       });
   };
 
-  const transformAppointment = (u) => ({
-    AppointmentID: u.AppointmentID,
-    UserEmail: "member.Email",
-    UserID: u.UserID,
-    UserName: u.UserName,
-    CounselorID: u.CounselorID,
-    CounselorName: u.CounselorName,
-    PromoCodeID: u.PromoCodeID,
-    DiscountFee: u.Service.Fee - u.DiscountFee,
-    DateTime: u.Time.Date + " " + u.Time.StartTime,
-    Fee: u.Service.Fee,
-    Type: u.Service.Type.Label,
-    AdminFlag: u.AdminFlag,
-    CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
-      .format("YYYY-MM-DD HH:mm:SS")
-      .toString(),
-    Status: getStatusDesc(u.Status),
-  });
-
-  const isInDateRange = (dateTimeStr) => {
-    let start = null;
-    let end = null;
-
-    if (startDate !== null) {
-      start = moment(startDate.format("YYYY-MM-DD HH:mm"), "YYYY-MM-DD HH:mm");
-    }
-    if (endDate !== null) {
-      end = moment(endDate.format("YYYY-MM-DD HH:mm"), "YYYY-MM-DD HH:mm");
-    }
-    if (startDate === null && endDate === null) return true;
-
-    const dateTime = moment(dateTimeStr, "YYYY-MM-DD HH:mm");
-    return dateTime.isSameOrAfter(start) && dateTime.isSameOrBefore(end);
-  };
-
-  const matchesSearch = (app) => {
-    if (!searchTerm) return true;
-    const term = searchTerm.toLowerCase();
-    return (
-      (app.AppointmentID && app.AppointmentID.toLowerCase().includes(term)) ||
-      (app.UserID && app.UserID.toString().toLowerCase().includes(term)) ||
-      (app.UserName && app.UserName.toLowerCase().includes(term)) ||
-      (app.CounselorName && app.CounselorName.toLowerCase().includes(term))
-    );
-  };
-
   const fetchData = async () => {
     const result = await appointmentService.getAllAppointmentForAdmin();
     console.log(result);
@@ -464,78 +473,42 @@ const Appointments = () => {
     setUserCount(result.length);
   };
 
-  // Memoized filtered and transformed data
-  const { userData, confirmedAppointment } = useMemo(() => {
-    const transformAppointmentLocal = (u) => ({
-      AppointmentID: u.AppointmentID,
-      UserEmail: "member.Email",
-      UserID: u.UserID,
-      UserName: u.UserName,
-      CounselorID: u.CounselorID,
-      CounselorName: u.CounselorName,
-      PromoCodeID: u.PromoCodeID,
-      DiscountFee: u.Service.Fee - u.DiscountFee,
-      DateTime: u.Time.Date + " " + u.Time.StartTime,
-      Fee: u.Service.Fee,
-      Type: u.Service.Type.Label,
-      AdminFlag: u.AdminFlag,
-      CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
-        .format("YYYY-MM-DD HH:mm:SS")
-        .toString(),
-      Status: getStatusDesc(u.Status),
-    });
-
-    const isInDateRangeLocal = (dateTimeStr) => {
-      let start = null;
-      let end = null;
-
-      if (startDate !== null) {
-        start = moment(
-          startDate.format("YYYY-MM-DD HH:mm"),
-          "YYYY-MM-DD HH:mm"
-        );
-      }
-      if (endDate !== null) {
-        end = moment(endDate.format("YYYY-MM-DD HH:mm"), "YYYY-MM-DD HH:mm");
-      }
-      if (startDate === null && endDate === null) return true;
-
-      const dateTime = moment(dateTimeStr, "YYYY-MM-DD HH:mm");
-      return dateTime.isSameOrAfter(start) && dateTime.isSameOrBefore(end);
-    };
-
-    const matchesSearchFlag = (app) => {
-      if (!searchTerm) return true;
-      const term = searchTerm.toLowerCase();
-      return (
-        (app.AppointmentID && app.AppointmentID.toLowerCase().includes(term)) ||
-        (app.UserID && app.UserID.toString().toLowerCase().includes(term)) ||
-        (app.UserName && app.UserName.toLowerCase().includes(term)) ||
-        (app.CounselorName && app.CounselorName.toLowerCase().includes(term))
-      );
-    };
-
-    const transformed = allAppointments.map(transformAppointmentLocal);
+  // Memoized filtered and transformed data with pagination
+  const { userData, confirmedAppointment, userDataPaginated, confirmedAppointmentPaginated } = useMemo(() => {
+    const transformed = allAppointments.map(transformAppointment);
 
     const userDataFiltered = transformed
       .filter((u) => {
         const status = u.Status;
         return status !== "已確認" && status !== "諮商房間已建立";
       })
-      .filter((u) => matchesSearchFlag(u) && isInDateRangeLocal(u.DateTime));
+      .filter((u) => matchesSearch(u, searchTerm) && isInDateRange(u.DateTime, startDate, endDate));
 
     const confirmedFiltered = transformed
       .filter((u) => {
         const status = u.Status;
         return status === "已確認" || status === "諮商房間已建立";
       })
-      .filter((u) => matchesSearchFlag(u) && isInDateRangeLocal(u.DateTime));
+      .filter((u) => matchesSearch(u, searchTerm) && isInDateRange(u.DateTime, startDate, endDate));
+
+    // 實現分頁
+    const userDataPaginated = userDataFiltered.slice(
+      (currentPage - 1) * pageSize,
+      currentPage * pageSize
+    );
+
+    const confirmedAppointmentPaginated = confirmedFiltered.slice(
+      (confirmedCurrentPage - 1) * confirmedPageSize,
+      confirmedCurrentPage * confirmedPageSize
+    );
 
     return {
       userData: userDataFiltered,
       confirmedAppointment: confirmedFiltered,
+      userDataPaginated,
+      confirmedAppointmentPaginated,
     };
-  }, [allAppointments, searchTerm, startDate, endDate]);
+  }, [allAppointments, searchTerm, startDate, endDate, currentPage, pageSize, confirmedCurrentPage, confirmedPageSize]);
 
   const [
     currentSelectCounselorAppointmentTime,
@@ -1023,8 +996,22 @@ const Appointments = () => {
       />
       <Table
         columns={columns(true)}
-        dataSource={confirmedAppointment}
+        dataSource={confirmedAppointmentPaginated}
         spinning={loading}
+        pagination={false}
+      />
+      <Pagination
+        current={confirmedCurrentPage}
+        pageSize={confirmedPageSize}
+        total={confirmedAppointment.length}
+        onChange={(page, size) => {
+          setConfirmedCurrentPage(page);
+          setConfirmedPageSize(size);
+        }}
+        showSizeChanger
+        pageSizeOptions={PAGE_SIZE_OPTIONS}
+        showQuickJumper
+        showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
       />
       <Statistic
         title="歷史清單"
@@ -1033,8 +1020,22 @@ const Appointments = () => {
       />
       <Table
         columns={columns(false)}
-        dataSource={userData}
+        dataSource={userDataPaginated}
         spinning={loading}
+        pagination={false}
+      />
+      <Pagination
+        current={currentPage}
+        pageSize={pageSize}
+        total={userData.length}
+        onChange={(page, size) => {
+          setCurrentPage(page);
+          setPageSize(size);
+        }}
+        showSizeChanger
+        pageSizeOptions={PAGE_SIZE_OPTIONS}
+        showQuickJumper
+        showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
       />
       <DrawerForm
         id={currentSelectCounselorId}
