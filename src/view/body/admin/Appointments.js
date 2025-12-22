@@ -474,6 +474,18 @@ const Appointments = () => {
     setUserCount(result.length);
   };
 
+  // Memoized tab counts
+  const tabCounts = useMemo(() => {
+    const transformed = allAppointments.map(transformAppointment);
+    return {
+      all: transformed.length,
+      pending: transformed.filter((u) => u.Status === "訂單成立(未付款)").length,
+      confirmed: transformed.filter((u) => u.Status === "已確認" || u.Status === "諮商房間已建立").length,
+      completed: transformed.filter((u) => u.Status === "已完成").length,
+      cancelled: transformed.filter((u) => u.Status === "已取消").length,
+    };
+  }, [allAppointments]);
+
   // Memoized filtered and transformed data with pagination
   const { filteredData, paginatedData } = useMemo(() => {
     const transformed = allAppointments.map(transformAppointment);
@@ -1053,7 +1065,19 @@ const Appointments = () => {
     },
     {
       key: "confirmed",
-      label: "已確認",
+      label: (
+        <span>
+          已確認
+          <Badge
+            count={tabCounts.confirmed}
+            showZero
+            style={{
+              marginLeft: 8,
+              backgroundColor: tabCounts.confirmed > 0 ? '#f5222d' : '#d9d9d9'
+            }}
+          />
+        </span>
+      ),
       children: (
         <>
           <SearchCard tabKey="confirmed" />

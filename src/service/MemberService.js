@@ -185,4 +185,24 @@ export class MemberService {
         return res;
       });
   }
+
+  uploadPhoto(file) {
+    if (cookie.load("token") === undefined) {
+      return;
+    }
+    var data = new FormData();
+    data.append("myFile", file);
+    data.append("baseUrl", this.base_url);
+    const api = this.base_url + "/api/v1/members/photo";
+    const requestOptions = {
+      method: "POST",
+      headers: { Authorization: cookie.load("token") },
+      body: data,
+    };
+    return fetch(api, requestOptions)
+      .then((res) => res.json())
+      .then((res) => {
+        return res;
+      });
+  }
 }

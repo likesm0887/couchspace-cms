@@ -1,5 +1,5 @@
 
-import { Button, Space, message, Card, Row, Col, Statistic, Divider } from "antd";
+import { Button, message, Card, Row, Col, Statistic, Divider } from "antd";
 import { DownloadOutlined, FileTextOutlined, ShoppingCartOutlined, TagsOutlined, UserOutlined } from "@ant-design/icons";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -70,7 +70,7 @@ const Reports = () => {
         ForOneMember: p.ForOneMember ? "啟用" : "不啟用",
         DuplicateUse: p.DuplicateUse ? "啟用" : "不啟用",
         Action: p.Action.ActionCode === "MUL" ? p.Action.Value * 10 + "折" : p.Action.ActionCode === "SUB" ? "減" + p.Action.Value + "元" : "開通" + p.Action.Value + "個月",
-        CanUseTimes: p.CanUseTimes == "-1" ? "無上限" : p.CanUseTimes,
+        CanUseTimes: p.CanUseTimes === "-1" ? "無上限" : p.CanUseTimes,
         UsedTimes: p?.MemberPromoCodeRecord?.length > 0 ? p?.MemberPromoCodeRecord?.length : "0",
       }));
 
@@ -97,7 +97,7 @@ const Reports = () => {
         photo: u.photo,
         account: u.mail,
         birthdate: u.birthdate,
-        membership: u.membership.level == "premium" ? "premium" : "free",
+        membership: u.membership.level === "premium" ? "premium" : "free",
       }));
 
       const wb = XLSX.utils.book_new();
@@ -114,6 +114,8 @@ const Reports = () => {
       message.error("用戶報表下載失敗");
     }
   };
+
+
 
   return (
     <div style={{ padding: "24px", background: "#f5f5f5", minHeight: "100vh" }}>

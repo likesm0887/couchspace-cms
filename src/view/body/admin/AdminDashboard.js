@@ -1,5 +1,5 @@
-import React from 'react';
-import { Card, Row, Col, Typography, Statistic, Space } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Card, Row, Col, Typography, Statistic } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import {
   UserOutlined,
@@ -7,15 +7,65 @@ import {
   FileOutlined,
   CalendarOutlined
 } from '@ant-design/icons';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { appointmentService } from '../../../service/ServicePool';
 
 const { Title, Paragraph } = Typography;
 
 function AdminDashboard() {
   const navigate = useNavigate();
+  const [appointmentChartData, setAppointmentChartData] = useState([]);
+  const [loadingChart, setLoadingChart] = useState(false);
 
   const handleCardClick = (path) => {
     navigate(path, { replace: true });
   };
+
+  const fetchAppointmentChartData = async () => {
+    setLoadingChart(true);
+    try {
+      const result = await appointmentService.getAllAppointmentForAdmin();
+      console.log('API result:', result); // 调试日志
+
+      const completedAppointments = result.filter(appointment =>
+        appointment.Status === 'COMPLETED' &&
+        appointment.CounselorID !== '46b644b6-09ae-4fd5-9bb0-a56bb4901a3e'
+      );
+      console.log('Completed appointments (excluding specific counselor):', completedAppointments); // 调试日志
+
+      // 按月份聚合数据 - 使用CreateDate
+      const monthlyData = {};
+      completedAppointments.forEach(appointment => {
+        // 处理 CreateDate 格式 "2024-02-28 10-05-01"
+        const createDateStr = appointment.CreateDate;
+        const dateParts = createDateStr.split(' ')[0]; // 取日期部分 "2024-02-28"
+        const date = new Date(dateParts);
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        monthlyData[monthKey] = (monthlyData[monthKey] || 0) + 1;
+      });
+
+      console.log('Monthly data:', monthlyData); // 调试日志
+
+      // 转换为图表数据格式
+      const chartData = Object.keys(monthlyData)
+        .sort()
+        .map(month => ({
+          month: month,
+          count: monthlyData[month]
+        }));
+
+      console.log('Chart data:', chartData); // 调试日志
+      setAppointmentChartData(chartData);
+    } catch (error) {
+      console.error("Failed to fetch appointment chart data", error);
+    } finally {
+      setLoadingChart(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAppointmentChartData();
+  }, []);
 
   return (
     <div style={{ padding: '24px' }}>
@@ -101,7 +151,46 @@ function AdminDashboard() {
         </Col>
       </Row>
 
-      <div style={{ textAlign: 'center', marginTop: '48px' }}>
+      <Row gutter={[16, 16]} style={{ marginTop: '32px' }}>
+        <Col xs={24} lg={12}>
+          <Card
+            title="每月已完成預約訂單統計"
+            size="small"
+            loading={loadingChart}
+          >
+            <div style={{ width: "100%", height: "250px" }}>
+              {appointmentChartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={appointmentChartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="month"
+                      tick={{ fontSize: 10 }}
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                    />
+                    <YAxis tick={{ fontSize: 10 }} />
+                    <Tooltip
+                      formatter={(value, name) => [value, '已完成數量']}
+                      labelFormatter={(label) => `月份: ${label}`}
+                    />
+                    <Bar dataKey="count" fill="#1890ff" />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                !loadingChart && (
+                  <div style={{ textAlign: "center", padding: "30px", color: "#999", fontSize: "12px" }}>
+                    暫無數據
+                  </div>
+                )
+              )}
+            </div>
+          </Card>
+        </Col>
+      </Row>
+
+      <div style={{ textAlign: 'center', marginTop: '32px' }}>
         <Paragraph style={{ fontSize: '16px', color: '#666' }}>
           請使用左側導航欄訪問各個管理功能
         </Paragraph>
