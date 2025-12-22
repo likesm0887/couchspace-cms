@@ -23,8 +23,7 @@ import {
   Input,
 } from "antd";
 
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
+
 import { Layout, theme, Descriptions, Badge } from "antd";
 import { Pagination } from "antd";
 import "./counselor.css";
@@ -34,7 +33,6 @@ import {
   LaptopOutlined,
   NotificationOutlined,
   UserOutlined,
-  DownloadOutlined,
 } from "@ant-design/icons";
 
 import {
@@ -198,9 +196,13 @@ const Appointments = () => {
   const [record, setRecord] = useState(null);
   const [allAppointments, setAllAppointments] = useState([]);
   const [userCount, setUserCount] = useState(0);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [tabFilters, setTabFilters] = useState({
+    all: { searchTerm: "", startDate: null, endDate: null, statusFilter: "", counselorFilter: "" },
+    pending: { searchTerm: "", startDate: null, endDate: null, statusFilter: "", counselorFilter: "" },
+    confirmed: { searchTerm: "", startDate: null, endDate: null, statusFilter: "", counselorFilter: "" },
+    completed: { searchTerm: "", startDate: null, endDate: null, statusFilter: "", counselorFilter: "" },
+    cancelled: { searchTerm: "", startDate: null, endDate: null, statusFilter: "", counselorFilter: "" },
+  });
   const [currentSelectCounselorId, setCurrentSelectCounselorId] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModal2Open, setIsModal2Open] = useState(false);
@@ -212,11 +214,10 @@ const Appointments = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [selectedAppointmentForCancel, setSelectedAppointmentForCancel] =
     useState(null);
+  const [activeTab, setActiveTab] = useState("all");
   // 分頁狀態
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [confirmedCurrentPage, setConfirmedCurrentPage] = useState(1);
-  const [confirmedPageSize, setConfirmedPageSize] = useState(20);
   const {
     token: { colorBgContainer },
   } = theme.useToken();
@@ -474,41 +475,37 @@ const Appointments = () => {
   };
 
   // Memoized filtered and transformed data with pagination
-  const { userData, confirmedAppointment, userDataPaginated, confirmedAppointmentPaginated } = useMemo(() => {
+  const { filteredData, paginatedData } = useMemo(() => {
     const transformed = allAppointments.map(transformAppointment);
 
-    const userDataFiltered = transformed
-      .filter((u) => {
-        const status = u.Status;
-        return status !== "已確認" && status !== "諮商房間已建立";
-      })
-      .filter((u) => matchesSearch(u, searchTerm) && isInDateRange(u.DateTime, startDate, endDate));
+    const currentFilters = tabFilters[activeTab] || { searchTerm: "", startDate: null, endDate: null, statusFilter: "", counselorFilter: "" };
+    let filtered = transformed
+      .filter((u) => matchesSearch(u, currentFilters.searchTerm) && isInDateRange(u.DateTime, currentFilters.startDate, currentFilters.endDate))
+      .filter((u) => !currentFilters.statusFilter || u.Status === currentFilters.statusFilter)
+      .filter((u) => !currentFilters.counselorFilter || u.CounselorName.includes(currentFilters.counselorFilter));
 
-    const confirmedFiltered = transformed
-      .filter((u) => {
-        const status = u.Status;
-        return status === "已確認" || status === "諮商房間已建立";
-      })
-      .filter((u) => matchesSearch(u, searchTerm) && isInDateRange(u.DateTime, startDate, endDate));
+    // Filter by tab
+    if (activeTab === "pending") {
+      filtered = filtered.filter((u) => u.Status === "訂單成立(未付款)");
+    } else if (activeTab === "confirmed") {
+      filtered = filtered.filter((u) => u.Status === "已確認" || u.Status === "諮商房間已建立");
+    } else if (activeTab === "completed") {
+      filtered = filtered.filter((u) => u.Status === "已完成");
+    } else if (activeTab === "cancelled") {
+      filtered = filtered.filter((u) => u.Status === "已取消");
+    }
+    // all tab includes all
 
-    // 實現分頁
-    const userDataPaginated = userDataFiltered.slice(
+    const paginated = filtered.slice(
       (currentPage - 1) * pageSize,
       currentPage * pageSize
     );
 
-    const confirmedAppointmentPaginated = confirmedFiltered.slice(
-      (confirmedCurrentPage - 1) * confirmedPageSize,
-      confirmedCurrentPage * confirmedPageSize
-    );
-
     return {
-      userData: userDataFiltered,
-      confirmedAppointment: confirmedFiltered,
-      userDataPaginated,
-      confirmedAppointmentPaginated,
+      filteredData: filtered,
+      paginatedData: paginated,
     };
-  }, [allAppointments, searchTerm, startDate, endDate, currentPage, pageSize, confirmedCurrentPage, confirmedPageSize]);
+  }, [allAppointments, tabFilters, currentPage, pageSize, activeTab]);
 
   const [
     currentSelectCounselorAppointmentTime,
@@ -899,143 +896,272 @@ const Appointments = () => {
     ]);
   };
 
-  const ExportButton = ({ data }) => {
-    const handleExport = () => {
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.json_to_sheet(data);
-      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-      const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-      saveAs(
-        new Blob([wbout], { type: "application/octet-stream" }),
-        "table-data.xlsx"
-      );
-    };
 
+
+  const updateTabFilters = (tabKey, key, value) => {
+    setTabFilters(prev => ({
+      ...prev,
+      [tabKey]: {
+        ...prev[tabKey],
+        [key]: value
+      }
+    }));
+  };
+
+  const handleClear = (tabKey) => {
+    setTabFilters(prev => ({
+      ...prev,
+      [tabKey]: { searchTerm: "", startDate: null, endDate: null, statusFilter: "", counselorFilter: "" }
+    }));
+    setCurrentPage(1);
+  };
+
+  const handleTabChange = (key) => {
+    setActiveTab(key);
+    setCurrentPage(1);
+  };
+
+  const SearchCard = ({ tabKey }) => {
+    const filters = tabFilters[tabKey] || { searchTerm: "", startDate: null, endDate: null, statusFilter: "", counselorFilter: "" };
     return (
-      <Button
-        style={{
-          backgroundColor: "#f5a623", // 橘黃色背景
-          borderColor: "#f5a623", // 邊框顏色
-          color: "#fff", // 白色字體
-          margin: 16,
-          borderRadius: "5px", // 圓角邊框
-          padding: "0px 5px 0px 5px ", // 按鈕內邊距
-        }}
-        icon={<DownloadOutlined />} // 如果你有使用 icon
-        onClick={handleExport}
-      >
-        下載報表
-      </Button>
+      <Card style={{ marginBottom: 16, backgroundColor: '#f9f9f9', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+        <Flex wrap gap="small" align="center">
+          <Input
+            value={filters.searchTerm}
+            placeholder="輸入訂單編號/案主ID/案主姓名/諮商師姓名"
+            style={{
+              width: 300,
+              fontSize: '14px'
+            }}
+            onChange={(e) => updateTabFilters(tabKey, 'searchTerm', e.target.value)}
+            allowClear
+          />
+          <style dangerouslySetInnerHTML={{
+            __html: `
+              .ant-input::placeholder {
+                font-size: 12px !important;
+              }
+            `
+          }} />
+          <Select
+            placeholder="選擇狀態"
+            value={filters.statusFilter}
+            onChange={(value) => updateTabFilters(tabKey, 'statusFilter', value)}
+            style={{ width: 120 }}
+            allowClear
+          >
+            <Option value="訂單成立(未付款)">待處理</Option>
+            <Option value="已確認">已確認</Option>
+            <Option value="諮商房間已建立">已確認</Option>
+            <Option value="已完成">已完成</Option>
+            <Option value="已取消">已取消</Option>
+          </Select>
+          <DatePicker
+            placeholder="開始日期"
+            value={filters.startDate}
+            onChange={(date) => updateTabFilters(tabKey, 'startDate', date)}
+          />
+          <DatePicker
+            placeholder="結束日期"
+            value={filters.endDate}
+            onChange={(date) => updateTabFilters(tabKey, 'endDate', date)}
+          />
+          <style dangerouslySetInnerHTML={{
+            __html: `
+              .ant-picker-input input::placeholder {
+                font-size: 12px !important;
+              }
+            `
+          }} />
+          <Button
+            type="primary"
+            onClick={() => handleClear(tabKey)}
+          >
+            清除篩選
+          </Button>
+        </Flex>
+      </Card>
     );
   };
 
-  // Search is handled reactively via useMemo
+  const tabItems = [
+    {
+      key: "all",
+      label: "所有預約",
+      children: (
+        <>
+          <SearchCard tabKey="all" />
+          <Statistic
+            title="預約數量"
+            value={filteredData.length}
+            formatter={formatter}
+          />
+          <Table
+            columns={columns(activeTab === "confirmed")}
+            dataSource={paginatedData}
+            spinning={loading}
+            pagination={false}
+          />
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={filteredData.length}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            showSizeChanger
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            showQuickJumper
+            showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
+          />
+        </>
+      ),
+    },
+    {
+      key: "pending",
+      label: "待處理",
+      children: (
+        <>
+          <SearchCard tabKey="pending" />
+          <Statistic
+            title="待處理預約數量"
+            value={filteredData.length}
+            formatter={formatter}
+          />
+          <Table
+            columns={columns(false)}
+            dataSource={paginatedData}
+            spinning={loading}
+            pagination={false}
+          />
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={filteredData.length}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            showSizeChanger
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            showQuickJumper
+            showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
+          />
+        </>
+      ),
+    },
+    {
+      key: "confirmed",
+      label: "已確認",
+      children: (
+        <>
+          <SearchCard tabKey="confirmed" />
+          <Statistic
+            title="已確認預約數量"
+            value={filteredData.length}
+            formatter={formatter}
+          />
+          <Table
+            columns={columns(true)}
+            dataSource={paginatedData}
+            spinning={loading}
+            pagination={false}
+          />
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={filteredData.length}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            showSizeChanger
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            showQuickJumper
+            showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
+          />
+        </>
+      ),
+    },
+    {
+      key: "completed",
+      label: "已完成",
+      children: (
+        <>
+          <SearchCard tabKey="completed" />
+          <Statistic
+            title="已完成預約數量"
+            value={filteredData.length}
+            formatter={formatter}
+          />
+          <Table
+            columns={columns(false)}
+            dataSource={paginatedData}
+            spinning={loading}
+            pagination={false}
+          />
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={filteredData.length}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            showSizeChanger
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            showQuickJumper
+            showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
+          />
+        </>
+      ),
+    },
+    {
+      key: "cancelled",
+      label: "已取消",
+      children: (
+        <>
+          <SearchCard tabKey="cancelled" />
+          <Statistic
+            title="已取消預約數量"
+            value={filteredData.length}
+            formatter={formatter}
+          />
+          <Table
+            columns={columns(false)}
+            dataSource={paginatedData}
+            spinning={loading}
+            pagination={false}
+          />
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={filteredData.length}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            showSizeChanger
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            showQuickJumper
+            showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
+          />
+        </>
+      ),
+    },
+  ];
 
-  const handleClear = () => {
-    setSearchTerm("");
-    setStartDate(null);
-    setEndDate(null);
-  };
+
+
   return (
     <>
       {contextHolder}
-        <Flex gap="middle" justify="space-between" baseStyle>
-        <Statistic title="預約數量" value={userCount} formatter={formatter} />
-
-        {/* 第二行：查詢和清除按鈕 */}
-        <Flex gap="small" justify="space-between" vertical>
-          <Flex justify="space-evenly" gap="small">
-            <Flex gap="small" justify="space-evenly" vertical>
-              <Row>
-                <Col span={5}></Col>
-                <Col span={19}>
-                  <Input
-                    value={searchTerm}
-                    placeholder="輸入訂單編號/案主ID/案主姓名/諮商師姓名"
-                    style={{ width: "350px" }}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </Col>
-              </Row>
-              <Flex gap="middle" justify="space-evenly" baseStyle>
-                <DatePicker
-                  placeholder="預約時間"
-                  style={{ width: "120px" }}
-                  value={startDate}
-                  onChange={(date) => setStartDate(date)}
-                />
-                -
-                <DatePicker
-                  placeholder="預約時間"
-                  style={{ width: "120px" }}
-                  value={endDate}
-                  onChange={(date) => setEndDate(date)}
-                />
-                <Button
-                  style={{
-                    backgroundColor: "#ffffff", // 白色背景（清除按鈕）
-                    borderColor: "#0085ff", // 藍色邊框
-                    color: "#0085ff", // 藍色字體
-                    borderRadius: "5px", // 圓角邊框
-                    padding: "0px 20px", // 按鈕內邊距
-                  }}
-                  onClick={handleClear}
-                >
-                  清除
-                </Button>
-              </Flex>
-            </Flex>
-          </Flex>
-        </Flex>
-      </Flex>
-
-      <Statistic
-        title="即將要開始的諮商"
-        value={confirmedAppointment?.length}
-        formatter={formatter}
-      />
-      <Table
-        columns={columns(true)}
-        dataSource={confirmedAppointmentPaginated}
-        spinning={loading}
-        pagination={false}
-      />
-      <Pagination
-        current={confirmedCurrentPage}
-        pageSize={confirmedPageSize}
-        total={confirmedAppointment.length}
-        onChange={(page, size) => {
-          setConfirmedCurrentPage(page);
-          setConfirmedPageSize(size);
-        }}
-        showSizeChanger
-        pageSizeOptions={PAGE_SIZE_OPTIONS}
-        showQuickJumper
-        showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
-      />
-      <Statistic
-        title="歷史清單"
-        value={userData?.length}
-        formatter={formatter}
-      />
-      <Table
-        columns={columns(false)}
-        dataSource={userDataPaginated}
-        spinning={loading}
-        pagination={false}
-      />
-      <Pagination
-        current={currentPage}
-        pageSize={pageSize}
-        total={userData.length}
-        onChange={(page, size) => {
-          setCurrentPage(page);
-          setPageSize(size);
-        }}
-        showSizeChanger
-        pageSizeOptions={PAGE_SIZE_OPTIONS}
-        showQuickJumper
-        showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
+      <Tabs
+        activeKey={activeTab}
+        onChange={handleTabChange}
+        tabBarStyle={{ backgroundColor: '#fafafa', borderRadius: '8px', padding: '8px', marginBottom: '16px' }}
+        items={tabItems}
       />
       <DrawerForm
         id={currentSelectCounselorId}

@@ -18,12 +18,14 @@ import {
   Col,
 } from "antd";
 import { Layout, theme, Descriptions, Badge, Outlet } from "antd";
-import "./counselor.css";
+
 import moment from "moment";
 import {
   LaptopOutlined,
   NotificationOutlined,
   UserOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
 } from "@ant-design/icons";
 
 import {
@@ -90,7 +92,7 @@ const DrawerForm = ({ id, visible, onClose, record, callback }) => {
 
 const Counselor = () => {
   const { Header, Content, Footer, Sider } = Layout;
-  const formatter = (value) => <CountUp end={value} separator="," />;
+  const formatter = (value) => <CountUp end={value} separator=" ," suffix="  位" />;
   const [visible, setVisible] = useState(false);
   const [record, setRecord] = useState(null);
   const [userData, setUserData] = useState();
@@ -112,6 +114,14 @@ const Counselor = () => {
         <Button type="primary" onClick={() => handleEdit(record.id)}>
           編輯
         </Button>
+      ),
+    },
+    {
+      title: "Photo",
+      dataIndex: "photo",
+      key: "photo",
+      render: (url) => (
+        <Image crossOrigin="anonymous" src={url} width="70px" />
       ),
     },
     {
@@ -139,15 +149,6 @@ const Counselor = () => {
       dataIndex: "email",
       key: "email",
     },
-
-    {
-      title: "Photo",
-      dataIndex: "photo",
-      key: "photo",
-      render: (url) => (
-        <Image crossOrigin="anonymous" src={url} width={150} height={100} />
-      ),
-    },
     {
       title: "Expertises",
       key: "expertises",
@@ -155,10 +156,9 @@ const Counselor = () => {
       render: (tags) => (
         <span>
           {tags.map((tag) => {
-            let color = tag.length > 5 ? "geekblue" : "green";
-            if (tag === "loser") {
-              color = "volcano";
-            }
+            const colors = ['pink', 'red', 'yellow', 'orange', 'cyan', 'green', 'blue', 'purple', 'geekblue', 'magenta', 'volcano', 'gold', 'lime'];
+            const hash = tag.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+            const color = colors[hash % colors.length];
             return (
               <Tag color={color} key={tag}>
                 {tag.toUpperCase()}
@@ -185,8 +185,15 @@ const Counselor = () => {
       title: "是否通過認證",
       dataIndex: "isverify",
       key: "isverify",
+      render: (text) => {
+        if (text === "已認證") {
+          return <span><CheckCircleOutlined style={{ color: 'green' }} /> {text}</span>;
+        } else {
+          return <span><CloseCircleOutlined style={{ color: 'red' }} /> {text}</span>;
+        }
+      },
     },
-    
+
   ];
 
   const fetchData = async () => {
@@ -524,15 +531,17 @@ const Counselor = () => {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={24}>
           <Card>
-            <Statistic
-              title="註冊用戶"
-              value={userCount}
-              formatter={formatter}
-            />
+            <div>
+              <span>已加入的諮商師數量：</span>
+              <span style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                <CountUp end={userCount} separator="," />
+              </span>
+              {' '}位
+            </div>
           </Card>
         </Col>
       </Row>
-      <Table columns={columns} dataSource={userData} size="small" />
+      <Table columns={columns} dataSource={userData} />
       <DrawerForm
         id={currentSelectCounselorId}
         callback={fetchData}

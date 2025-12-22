@@ -22,6 +22,7 @@ import ProtectedRoute from "./utility/ProtectedRoute.js";
 // Lazy imports
 const Music = React.lazy(() => import("./view/body/admin/Music"));
 const Admin = React.lazy(() => import("./view/body/admin/Admin"));
+const AdminDashboard = React.lazy(() => import("./view/body/admin/AdminDashboard"));
 const Consultation = React.lazy(() => import("./view/body/content/counsulation/Consultation"));
 const AppointmentDetail = React.lazy(() => import("./view/body/content/counsulation/AppointmentDetail"));
 const Counseling = React.lazy(() => import("./view/body/content/counsulation/Counseling"));
@@ -50,9 +51,14 @@ function App() {
         <Route path="login" element={<Login />}></Route>
         <Route element={<ProtectedRoute redirectPath={"/login"} isAdmin={true} />}>
           <Route path="admin" element={<Suspense fallback={<div>Loading Admin...</div>}><Admin /></Suspense>}>
+            <Route index element={<Suspense fallback={<div>Loading...</div>}><AdminDashboard /></Suspense>}></Route>
             <Route path="course" element={<Suspense fallback={<div>Loading...</div>}><Course /></Suspense>}></Route>
             <Route path="banner" element={<Suspense fallback={<div>Loading...</div>}><Banner /></Suspense>}></Route>
-            <Route path="music" element={<Suspense fallback={<div>Loading...</div>}><Music /></Suspense>}></Route>
+            <Route path="music" element={<Suspense fallback={<div>Loading...</div>}><Music /></Suspense>}>
+              <Route index element={<Suspense fallback={<div>Loading...</div>}><Music /></Suspense>} />
+              <Route path="meditation" element={<Suspense fallback={<div>Loading...</div>}><Music /></Suspense>} />
+              <Route path="whitenoise" element={<Suspense fallback={<div>Loading...</div>}><Music /></Suspense>} />
+            </Route>
             <Route path="category" element={<Suspense fallback={<div>Loading...</div>}><Category /></Suspense>}></Route>
             <Route path="teacher" element={<Suspense fallback={<div>Loading...</div>}><Teacher /></Suspense>}></Route>
             <Route path="user" element={<Suspense fallback={<div>Loading...</div>}><User /></Suspense>}></Route>

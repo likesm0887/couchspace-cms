@@ -12,18 +12,24 @@ import {
   FloatButton,
   Button,
   Switch,
+  Tabs,
 } from "antd";
 import {
   SearchOutlined,
   PlusCircleOutlined,
   EditOutlined,
+  SmileOutlined,
+  SoundOutlined,
 } from "@ant-design/icons";
 import ReactAudioPlayer from "react-audio-player";
 import { meditationService } from "../../../service/ServicePool";
 import logo from "../../img/content/userIcon.svg";
 import AdminHeader from "./AdminHeader";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function Music() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectMusic, setSelectMusic] = useState("false");
@@ -35,6 +41,7 @@ function Music() {
   const [shortMusic, setShortMusic] = useState("");
   const [duration, setDuration] = useState(0);
   const [teachers, setTeachers] = useState([]);
+  const [activeTab, setActiveTab] = useState("meditation");
 
   const handleSearch = useCallback((selectedKeys, confirm, dataIndex) => {
     confirm();
@@ -312,10 +319,31 @@ function Music() {
     return `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
   }, [duration]);
 
+  const isWhiteNoise = useCallback((path) => {
+    const match = path.match(/\/music\/(\w)/);
+    return match && match[1] === '0';
+  }, []);
+
+  const filteredData = useMemo(() => {
+    const meditation = data.filter(item => !isWhiteNoise(item.path));
+    const whiteNoise = data.filter(item => isWhiteNoise(item.path));
+    return { meditation, whiteNoise };
+  }, [data, isWhiteNoise]);
+
   useEffect(() => {
     fetchData();
     fetchTeachers();
   }, [fetchData, fetchTeachers]);
+
+  useEffect(() => {
+    if (location.pathname.endsWith('/meditation')) {
+      setActiveTab('meditation');
+    } else if (location.pathname.endsWith('/whitenoise')) {
+      setActiveTab('whiteNoise');
+    } else {
+      setActiveTab('meditation');
+    }
+  }, [location.pathname]);
   return (
     <div>
       <FloatButton icon={<PlusCircleOutlined />} onClick={handleNew} />
@@ -398,7 +426,16 @@ function Music() {
         </Form>
       </Drawer>
 
-      <Table columns={columns} dataSource={data} loading={loading} />
+
+
+      <Tabs activeKey={activeTab} onChange={setActiveTab}>
+        <Tabs.TabPane tab={<span><SmileOutlined /> 冥想</span>} key="meditation">
+          <Table columns={columns} dataSource={filteredData.meditation} loading={loading} />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab={<span><SoundOutlined /> 白噪音</span>} key="whiteNoise">
+          <Table columns={columns} dataSource={filteredData.whiteNoise} loading={loading} />
+        </Tabs.TabPane>
+      </Tabs>
       {contextHolder}
     </div>
   );

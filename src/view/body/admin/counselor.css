@@ -18,3 +18,8 @@
   .notes-month section {
     font-size: 1px;
   }
+
+.ant-input.small-placeholder-input::placeholder {
+  font-size: 12px !important;
+  color: #999 !important;
+}

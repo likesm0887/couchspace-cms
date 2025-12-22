@@ -77,6 +77,7 @@ function AdminHeader() {
         alignItems: "center",
       }}
     >
+      {/* Admin info on the right */}
       <div style={{ display: "flex", alignItems: "center" }}>
         <span style={{ marginRight: 8, fontSize: 16 }}>
           {adminName} 管理員{" "}
