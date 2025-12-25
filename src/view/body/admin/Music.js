@@ -59,6 +59,10 @@ function Music() {
   const [shortImage, setShortImage] = useState("");
   const [shortMusic, setShortMusic] = useState("");
   const [duration, setDuration] = useState(0);
+  const [apiDuration, setApiDuration] = useState(0);
+  const [apiDurationString, setApiDurationString] = useState("");
+  const [detecting, setDetecting] = useState(false);
+  const [durationDetected, setDurationDetected] = useState(false);
   const [teachers, setTeachers] = useState([]);
   const [activeTab, setActiveTab] = useState("meditation");
   const [currentStep, setCurrentStep] = useState(0);
@@ -284,7 +288,7 @@ function Music() {
       const teacherOptions = res.map((teacher) => ({
         label: teacher.Name,
         value: teacher.TeacherId,
-        image: teacher.Image,
+        image: teacher.Image || logo, // 確保有默認圖片
         title: teacher.Title,
       }));
       setTeachers(teacherOptions);
@@ -315,7 +319,11 @@ function Music() {
       setShortMusic(record.path);
       setSelectMusic(record.key);
       console.log(record.key);
-      handleAudioDuration(record.path);
+
+      // 編輯時不清空檢測結果，讓原有數據保持
+      setApiDuration(0);
+      setApiDurationString("");
+      setDuration(record.time || 0); // 設置原有的時長
 
       // 設置選中的老師
       setSelectedTeacher(record.teacherID);
@@ -325,7 +333,7 @@ function Music() {
         musicId: record.MusicID,
         name: record.name,
         image: record.image,
-        time: record.time,
+        time: record.time, // 使用原有的時長
         path: record.path,
         free: record.free,
         isDelete: record.isDelete === "N" || record.isDelete === "",
@@ -407,10 +415,43 @@ function Music() {
     (e) => {
       const value = e.target.value;
       setShortMusic(value);
-      handleAudioDuration(value);
+      // 清除之前的檢測結果，但保留原有的時長（如果有的話）
+      setApiDuration(0);
+      setApiDurationString("");
+      // 只有在新增模式下才清除時長，在編輯模式下保留原有數據
+      if (currentModel === "New") {
+        setDuration(0);
+      }
     },
-    [handleAudioDuration]
+    [currentModel]
   );
+
+  const handleDetectDuration = useCallback(async () => {
+    if (!shortMusic || !shortMusic.trim()) {
+      return;
+    }
+
+    setDetecting(true);
+    setDurationDetected(false);
+    try {
+      const durationData = await meditationService.getAudioDuration(shortMusic);
+      if (durationData && durationData.duration_seconds) {
+        setApiDuration(durationData.duration_seconds);
+        setApiDurationString(durationData.duration_string || "");
+        // 自動填入時長字段
+        form.setFieldsValue({ time: Math.floor(durationData.duration_seconds) });
+        setDuration(durationData.duration_seconds);
+        setDurationDetected(true);
+      }
+    } catch (error) {
+      console.error("Failed to get audio duration from API:", error);
+      // 如果API失敗，回退到原來的本地檢測方法
+      handleAudioDuration(shortMusic);
+      setDurationDetected(true);
+    } finally {
+      setDetecting(false);
+    }
+  }, [shortMusic, form, handleAudioDuration]);
 
   const getDuration = useCallback(() => {
     const minutes = Math.floor(duration / 60);
@@ -493,6 +534,7 @@ function Music() {
                       setCurrentStep(currentStep + 1);
                     }
                   }}
+                  disabled={currentStep === 1 && detecting}
                 >
                   下一步
                 </Button>
@@ -628,6 +670,18 @@ function Music() {
                       size="large"
                     />
                   </Form.Item>
+                  {shortMusic && shortMusic.trim() && (
+                    <Form.Item>
+                      <Button
+                        type="primary"
+                        onClick={handleDetectDuration}
+                        loading={detecting}
+                        disabled={detecting}
+                      >
+                        {detecting ? '檢測中...' : '檢測音樂時長'}
+                      </Button>
+                    </Form.Item>
+                  )}
                   <Form.Item
                     name="time"
                     label="音樂時長（秒）"
@@ -641,9 +695,17 @@ function Music() {
                       size="large"
                     />
                   </Form.Item>
-                  {duration && (
+                  {apiDurationString && (
                     <Alert
-                      message={`自動檢測時長：${getDuration()}`}
+                      message={`檢測時長：${apiDurationString} (${apiDuration}秒)`}
+                      type="info"
+                      showIcon
+                      style={{ marginTop: '8px' }}
+                    />
+                  )}
+                  {duration && !apiDurationString && (
+                    <Alert
+                      message={`本地檢測時長：${getDuration()}`}
                       type="success"
                       showIcon
                       style={{ marginTop: '8px' }}
