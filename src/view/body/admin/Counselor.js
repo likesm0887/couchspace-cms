@@ -17,18 +17,15 @@ import {
   Row,
   Col,
   Input,
+  Form,
+  Divider,
+  Typography,
+  message,
 } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { SearchOutlined, DeleteOutlined, ExclamationCircleOutlined, SaveOutlined, UserOutlined, CheckCircleOutlined, CloseCircleOutlined, NotificationOutlined, LaptopOutlined } from "@ant-design/icons";
 import { Layout, theme, Descriptions, Badge, Outlet } from "antd";
 
 import moment from "moment";
-import {
-  LaptopOutlined,
-  NotificationOutlined,
-  UserOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-} from "@ant-design/icons";
 
 import {
   appointmentService,
@@ -39,55 +36,211 @@ import img_account from "../../img/login/ic_identity.svg";
 import { fontFamily } from "@mui/system";
 import { isNil } from "@ant-design/pro-components";
 const DrawerForm = ({ id, visible, onClose, record, callback }) => {
-  // Define state for the form fields
-
   const [verify, setVerify] = useState(false);
-  // Clear form fields
+  const [counselorInfo, setCounselorInfo] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const changeVerify = (e) => {
     setVerify(e);
-    console.log(e);
   };
 
   useEffect(() => {
-    console.log("JIJI");
-    if (id!==null){
-    const getCounselorVerify = async () => {
-      const isVerify = await counselorService.getCounselorVerify(id);
-      console.log(isVerify);
-      setVerify(isVerify);
-    };
-    getCounselorVerify();
-  }
-    console.log("HIHIH");
-  }, [id]);
+    if (id && visible) {
+      const getCounselorInfo = async () => {
+        try {
+          const info = await counselorService.getCounselorInfoById(id);
+          const isVerify = await counselorService.getCounselorVerify(id);
+          setCounselorInfo(info);
+          setVerify(isVerify);
+        } catch (error) {
+          console.error('獲取諮商師資訊失敗:', error);
+        }
+      };
+      getCounselorInfo();
+    }
+  }, [id, visible]);
 
-  // Handle form submission
   const handleSubmit = async () => {
-    console.log(verify);
-    await counselorService.setCounselorVerify(id, verify);
-    onClose();
-    callback();
+    setLoading(true);
+    try {
+      await counselorService.setCounselorVerify(id, verify);
+      message.success('諮商師認證狀態已成功更新');
+      onClose();
+      callback();
+    } catch (error) {
+      console.error('儲存失敗:', error);
+      message.error('儲存失敗，請稍後再試');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = () => {
+    const counselorName = counselorInfo ?
+      counselorInfo.UserName.Name.LastName + counselorInfo.UserName.Name.FirstName : '';
+
+    Modal.confirm({
+      title: '確認刪除諮商師',
+      icon: <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />,
+      content: (
+        <div>
+          <p>您確定要刪除諮商師 <strong>{counselorName}</strong> 嗎？</p>
+          <p style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '8px' }}>
+            此操作無法撤銷，將永久刪除該諮商師的所有資料。
+          </p>
+        </div>
+      ),
+      okText: '確定刪除',
+      cancelText: '取消',
+      okButtonProps: { danger: true },
+      onOk: async () => {
+        try {
+          await counselorService.deleteCounselor(id);
+          message.success('諮商師已成功刪除');
+          onClose();
+          callback();
+        } catch (error) {
+          console.error('刪除失敗:', error);
+          message.error('刪除失敗，請稍後再試');
+        }
+      },
+    });
   };
 
   return (
     <Drawer
-      title={record ? "Edit User" : "Add User"}
-      width={400}
+      title={
+        <Space>
+          <UserOutlined />
+          編輯諮商師資訊
+        </Space>
+      }
+      width={500}
       onClose={onClose}
       visible={visible}
+      footer={
+        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+          <Button onClick={handleDelete} danger icon={<DeleteOutlined />}>
+            刪除諮商師
+          </Button>
+          <Space>
+            <Button onClick={onClose}>
+              取消
+            </Button>
+            <Button
+              type="primary"
+              onClick={handleSubmit}
+              loading={loading}
+              icon={<SaveOutlined />}
+            >
+              儲存變更
+            </Button>
+          </Space>
+        </Space>
+      }
     >
-      <label>Membership:</label>
-      <br />
-      <Switch
-        checkedChildren="已認證"
-        unCheckedChildren="未認證"
-        checked={verify}
-        onChange={changeVerify}
-      />
-      <Space>
-        <Button onClick={handleSubmit}>{record ? "Save" : "儲存"}</Button>
-      </Space>
+      <div style={{ padding: '20px 0' }}>
+        {/* 諮商師基本資訊卡片 */}
+        {counselorInfo && (
+          <Card
+            size="small"
+            style={{ marginBottom: 24 }}
+            title={
+              <Space>
+                <UserOutlined />
+                諮商師資訊
+              </Space>
+            }
+          >
+            <Row gutter={16}>
+              <Col span={12}>
+                <div style={{ marginBottom: 12 }}>
+                  <Typography.Text strong>姓名：</Typography.Text>
+                  <Typography.Text>
+                    {counselorInfo.UserName.Name.LastName}{counselorInfo.UserName.Name.FirstName}
+                  </Typography.Text>
+                </div>
+                <div style={{ marginBottom: 12 }}>
+                  <Typography.Text strong>暱稱：</Typography.Text>
+                  <Typography.Text>{counselorInfo.UserName.NickName}</Typography.Text>
+                </div>
+                <div style={{ marginBottom: 12 }}>
+                  <Typography.Text strong>Email：</Typography.Text>
+                  <Typography.Text>{counselorInfo.Email}</Typography.Text>
+                </div>
+              </Col>
+              <Col span={12}>
+                <div style={{ marginBottom: 12 }}>
+                  <Typography.Text strong>手機：</Typography.Text>
+                  <Typography.Text>{counselorInfo.Phone}</Typography.Text>
+                </div>
+                <div style={{ marginBottom: 12 }}>
+                  <Typography.Text strong>職稱：</Typography.Text>
+                  <Typography.Text>{counselorInfo.Position}</Typography.Text>
+                </div>
+                <div style={{ marginBottom: 12 }}>
+                  <Typography.Text strong>專長：</Typography.Text>
+                  <div>
+                    {counselorInfo.Expertises?.map((expertise, index) => (
+                      <Tag key={index} color="blue" size="small">
+                        {expertise.Skill}
+                      </Tag>
+                    ))}
+                  </div>
+                </div>
+              </Col>
+            </Row>
+          </Card>
+        )}
+
+        {/* 認證狀態設定 */}
+        <Card
+          size="small"
+          title={
+            <Space>
+              <CheckCircleOutlined />
+              認證狀態設定
+            </Space>
+          }
+        >
+          <Form layout="vertical">
+            <Form.Item label="諮商師認證狀態">
+              <Space>
+                <Switch
+                  checkedChildren="已認證"
+                  unCheckedChildren="未認證"
+                  checked={verify}
+                  onChange={changeVerify}
+                  size="default"
+                />
+                <Typography.Text type={verify ? "success" : "danger"}>
+                  {verify ? "已通過認證" : "未通過認證"}
+                </Typography.Text>
+              </Space>
+              <Typography.Paragraph type="secondary" style={{ fontSize: '12px', marginTop: '8px' }}>
+                切換此開關來變更諮商師的認證狀態。已認證的諮商師將能夠提供諮商服務。
+              </Typography.Paragraph>
+            </Form.Item>
+          </Form>
+        </Card>
+
+        <Divider />
+
+        {/* 警告區域 */}
+        <Card size="small" style={{ borderColor: '#ffccc7', backgroundColor: '#fff2f0' }}>
+          <Space>
+            <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />
+            <div>
+              <Typography.Text strong style={{ color: '#ff4d4f' }}>
+                危險操作
+              </Typography.Text>
+              <Typography.Paragraph style={{ margin: '4px 0 0 0', color: '#ff4d4f' }}>
+                刪除諮商師將永久移除其所有資料，包括個人資訊、預約記錄等。此操作無法復原。
+              </Typography.Paragraph>
+            </div>
+          </Space>
+        </Card>
+      </div>
     </Drawer>
   );
 };

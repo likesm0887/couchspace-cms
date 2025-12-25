@@ -405,7 +405,7 @@ export class CounselorService {
    * @param {*} data
    * @returns
    */
-  requestForgetPassword(data: ForgetPassword) {
+  requestForgetPassword(data) {
     const api = this.base_url + "/api/v1/counselors/forget";
     const requestOptions = {
       method: "POST",
@@ -424,7 +424,7 @@ export class CounselorService {
    * @param {*} data Target Account need to be reset
    * @returns
    */
-  resetPassword(data: ResetPassword) {
+  resetPassword(data) {
     console.log("data", data);
     const api = this.base_url + "/api/v1/counselors/resetPassword";
     const requestOptions = {
@@ -436,6 +436,30 @@ export class CounselorService {
       .then((res) => res.json())
       .then((res) => {
         return res;
+      });
+  }
+  /**
+   * Delete Counselor by ID, called by Admin
+   * @param {*} id Counselor ID
+   * @returns
+   */
+  deleteCounselor(id) {
+    if (cookie.load("token") === undefined) {
+      return;
+    }
+    const api = this.base_url + "/api/v1/counselor/" + id;
+    const requestOptions = {
+      method: "DELETE",
+      headers: {
+        Authorization: cookie.load("token"),
+        "Content-Type": "application/json",
+      },
+    };
+
+    return fetch(api, requestOptions)
+      .then((res) => res.json())
+      .then((result) => {
+        return result;
       });
   }
 }

@@ -17,18 +17,21 @@ import {
   Calendar,
   Row,
   DatePicker,
+  TimePicker,
   Select,
   Flex,
   Space,
   Input,
+  Typography,
 } from "antd";
 
 
 import { Layout, theme, Descriptions, Badge } from "antd";
 import { Pagination } from "antd";
 import "./counselor.css";
+import "./appointments.css";
 import moment from "moment";
-import { CopyOutlined } from "@ant-design/icons";
+import { CopyOutlined, EditOutlined, ClockCircleOutlined, CalendarOutlined } from "@ant-design/icons";
 import {
   LaptopOutlined,
   NotificationOutlined,
@@ -118,76 +121,199 @@ const matchesSearch = (app, searchTerm, promoCodeFilter, adminFlagFilter) => {
   const matchesFlag = adminFlagFilter === "全部" || app.AdminFlag === adminFlagFilter;
   return matchesTerm && matchesPromo && matchesFlag;
 };
-const DrawerForm = ({ id, visible, onClose, record, callback }) => {
-  // Define state for the form fields
+const DrawerForm = ({ id, visible, onClose, record, callback, allAppointments }) => {
   const [form] = Form.useForm();
-  const [verify, setVerify] = useState(false);
-
-  // Clear form fields
-
-  const changeVerify = (e) => {
-    setVerify(e);
-    console.log(e);
-  };
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    console.log(id);
-    const getCounselorVerify = async () => {
-      const isVerify = await counselorService.getCounselorVerify(id);
-      console.log(isVerify);
-      setVerify(isVerify);
-    };
-    getCounselorVerify();
-  }, [id]);
+    if (visible && id && allAppointments) {
+      // Find the appointment data
+      const appointment = allAppointments.find(app => app.AppointmentID === id);
+      if (appointment && appointment.DateTime) {
+        try {
+          // Parse the date and time from DateTime string
+          const dateTimeStr = appointment.DateTime; // e.g., "2023-12-25 14:30-15:30"
+          const [dateStr, timeStr] = dateTimeStr.split(' ');
+          if (dateStr && timeStr) {
+            const [startTimeStr, endTimeStr] = timeStr.split('-');
+
+            // Set form values
+            form.setFieldsValue({
+              date: moment(dateStr, 'YYYY-MM-DD'),
+              startTime: moment(startTimeStr, 'HH:mm'),
+              endTime: moment(endTimeStr, 'HH:mm'),
+            });
+          } else {
+            // Reset form if data format is invalid
+            form.resetFields();
+          }
+        } catch (error) {
+          console.error('解析預約時間失敗:', error);
+          form.resetFields();
+        }
+      } else {
+        // Reset form if no data found
+        form.resetFields();
+      }
+    }
+  }, [visible, id, allAppointments, form]);
 
   // Handle form submission
-  const handleSubmit = async (value) => {
-    console.log(value);
-    console.log(id);
-    let time = {
-      AppointmentId: id,
-      Date: value.date,
-      StartTime: value.startTime,
-      EndTime: value.endTime,
-    };
-    appointmentService.changeAppointmentTime(time).then((e) => {
-      message.success("修改成功");
-    });
+  const handleSubmit = async (values) => {
+    setLoading(true);
+    try {
+      const timeData = {
+        AppointmentId: id,
+        Date: values.date.format('YYYY-MM-DD'),
+        StartTime: values.startTime.format('HH:mm'),
+        EndTime: values.endTime.format('HH:mm'),
+      };
 
-    onClose();
-    callback();
+      await appointmentService.changeAppointmentTime(timeData);
+      message.success("預約時間修改成功");
+      onClose();
+      callback();
+    } catch (error) {
+      message.error("修改失敗，請稍後再試");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const validateTimeRange = (_, value) => {
+    if (!value) return Promise.resolve();
+
+    const startTime = form.getFieldValue('startTime');
+    const endTime = value;
+
+    if (startTime && endTime) {
+      const start = moment(startTime, 'HH:mm');
+      const end = moment(endTime, 'HH:mm');
+
+      if (end.isSameOrBefore(start)) {
+        return Promise.reject(new Error('結束時間必須晚於開始時間'));
+      }
+    }
+
+    return Promise.resolve();
   };
 
   return (
-    <Drawer title={"Edit"} width={400} onClose={onClose} visible={visible}>
-      <Form form={form} onFinish={handleSubmit}>
-        <Form.Item name="date" label="日期" rules={[{ required: true }]}>
-          <Input placeholder="2022-05-06" />
-        </Form.Item>
-        <Form.Item
-          name="startTime"
-          label="起始時間"
-          rules={[{ required: true }]}
-        >
-          <Input placeholder="09:00" />
-        </Form.Item>
-        <Form.Item name="endTime" label="結束時間" rules={[{ required: true }]}>
-          <Input placeholder="10:00" />
-        </Form.Item>
-        <br />
-        {/* <label>Membership:</label> */}
-        {/* <Switch
-        checkedChildren="已認證"
-        unCheckedChildren="未認證"
-        checked={verify}
-        onChange={changeVerify}
-      /> */}
+    <Drawer
+      title={
         <Space>
-          <Button onClick={() => form.submit()}>
-            {record ? "Save" : "儲存"}
+          <EditOutlined />
+          編輯預約時間
+        </Space>
+      }
+      width={500}
+      onClose={onClose}
+      open={visible}
+      footer={
+        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+          <Button onClick={onClose}>
+            取消
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => form.submit()}
+            loading={loading}
+            icon={<ClockCircleOutlined />}
+          >
+            儲存修改
           </Button>
         </Space>
-      </Form>
+      }
+    >
+      <div style={{ padding: '20px 0' }}>
+        {/* 預約資訊卡片 */}
+        <Card
+          size="small"
+          style={{ marginBottom: 24 }}
+          title={
+            <Space>
+              <CalendarOutlined />
+              預約日期與時間設定
+            </Space>
+          }
+        >
+          <Form form={form} onFinish={handleSubmit} layout="vertical">
+            <Row gutter={16}>
+              <Col span={24}>
+                <Form.Item
+                  name="date"
+                  label="預約日期"
+                  rules={[
+                    { required: true, message: '請選擇預約日期' },
+                    {
+                      validator: (_, value) => {
+                        if (!value) return Promise.resolve();
+                        const selectedDate = moment(value);
+                        const today = moment().startOf('day');
+                        if (selectedDate.isBefore(today)) {
+                          return Promise.reject(new Error('無法選擇過去的日期'));
+                        }
+                        return Promise.resolve();
+                      }
+                    }
+                  ]}
+                >
+                  <DatePicker
+                    placeholder="選擇日期"
+                    style={{ width: '100%' }}
+                    format="YYYY-MM-DD"
+                    disabledDate={(current) => {
+                      return current && current < moment().startOf('day');
+                    }}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="startTime"
+                  label="開始時間"
+                  rules={[
+                    { required: true, message: '請選擇開始時間' }
+                  ]}
+                >
+                <TimePicker
+                  placeholder="開始時間"
+                  format="HH:mm"
+                  style={{ width: '100%' }}
+                  minuteStep={5}
+                />
+                </Form.Item>
+              </Col>
+
+              <Col span={12}>
+                <Form.Item
+                  name="endTime"
+                  label="結束時間"
+                  rules={[
+                    { required: true, message: '請選擇結束時間' },
+                    { validator: validateTimeRange }
+                  ]}
+                >
+                  <TimePicker
+                    placeholder="結束時間"
+                    format="HH:mm"
+                    style={{ width: '100%' }}
+                    minuteStep={5}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
+
+          <Typography.Paragraph type="secondary" style={{ fontSize: '12px', marginTop: '16px' }}>
+            修改預約時間後，系統將自動通知相關用戶。請確保新的時間不會與其他預約衝突。
+          </Typography.Paragraph>
+        </Card>
+      </div>
     </Drawer>
   );
 };
@@ -1212,6 +1338,7 @@ const Appointments = () => {
         visible={visible}
         onClose={handleClose}
         record={record}
+        allAppointments={allAppointments}
       />
 
       <Modal
