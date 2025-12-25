@@ -13,6 +13,16 @@ import {
   Button,
   Switch,
   Tabs,
+  Card,
+  Divider,
+  Row,
+  Col,
+  Steps,
+  Upload,
+  Progress,
+  Typography,
+  Alert,
+  Modal,
 } from "antd";
 import {
   SearchOutlined,
@@ -20,6 +30,15 @@ import {
   EditOutlined,
   SmileOutlined,
   SoundOutlined,
+  PictureOutlined,
+  AudioOutlined,
+  SettingOutlined,
+  UploadOutlined,
+  CheckCircleOutlined,
+  PlayCircleOutlined,
+  PauseCircleOutlined,
+  LoadingOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import ReactAudioPlayer from "react-audio-player";
 import { meditationService } from "../../../service/ServicePool";
@@ -42,6 +61,10 @@ function Music() {
   const [duration, setDuration] = useState(0);
   const [teachers, setTeachers] = useState([]);
   const [activeTab, setActiveTab] = useState("meditation");
+  const [currentStep, setCurrentStep] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [teacherModalVisible, setTeacherModalVisible] = useState(false);
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
 
   const handleSearch = useCallback((selectedKeys, confirm, dataIndex) => {
     confirm();
@@ -261,6 +284,8 @@ function Music() {
       const teacherOptions = res.map((teacher) => ({
         label: teacher.Name,
         value: teacher.TeacherId,
+        image: teacher.Image,
+        title: teacher.Title,
       }));
       setTeachers(teacherOptions);
     } catch (error) {
@@ -285,11 +310,15 @@ function Music() {
   const openEdit = useCallback(
     (record) => {
       setCurrentModel("Edit");
+      setCurrentStep(0); // 編輯時回到第一步
       setShortImage(record.image);
       setShortMusic(record.path);
       setSelectMusic(record.key);
       console.log(record.key);
       handleAudioDuration(record.path);
+
+      // 設置選中的老師
+      setSelectedTeacher(record.teacherID);
 
       form.setFieldsValue({
         key: record.key,
@@ -309,11 +338,15 @@ function Music() {
 
   const handleFinish = useCallback(async () => {
     const values = form.getFieldsValue();
-    console.log(values);
+    const teacherID = form.getFieldValue("teacherID");
+    console.log("Form values:", values);
+    console.log("TeacherID:", teacherID);
+    console.log("Selected teacher:", selectedTeacher);
+
     setLoading(true);
     try {
       if (currentModel === "New") {
-        await meditationService.createMusic({
+        const createData = {
           UploadUserName: "小幫手003",
           Title: form.getFieldValue("name"),
           Description: "",
@@ -323,10 +356,12 @@ function Music() {
           Image: form.getFieldValue("image"),
           Time: Math.floor(duration),
           IsDelete: form.getFieldValue("isDelete") ? "N" : "Y",
-          TeacherID: form.getFieldValue("teacherID"),
-        });
+          TeacherID: teacherID,
+        };
+        console.log("Creating music with data:", createData);
+        await meditationService.createMusic(createData);
       } else {
-        await meditationService.updateMusic({
+        const updateData = {
           MusicId: selectMusic,
           UploadUserName: "小幫手003",
           Title: form.getFieldValue("name"),
@@ -337,21 +372,26 @@ function Music() {
           Image: form.getFieldValue("image"),
           Time: Math.floor(duration),
           IsDelete: form.getFieldValue("isDelete") ? "N" : "Y",
-          TeacherID: form.getFieldValue("teacherID"),
-        });
+          TeacherID: teacherID,
+        };
+        console.log("Updating music with data:", updateData);
+        await meditationService.updateMusic(updateData);
       }
       setModalOpen(false);
       await fetchData();
     } finally {
       setLoading(false);
     }
-  }, [currentModel, selectMusic, form, duration, fetchData]);
+  }, [currentModel, selectMusic, form, duration, fetchData, selectedTeacher]);
 
   const handleNew = useCallback(() => {
     setShortImage("");
     setShortMusic("");
     setCurrentModel("New");
     setDuration("");
+    setCurrentStep(0);
+    setUploadProgress(0);
+    setSelectedTeacher(null); // 重置選中的老師
     form.resetFields();
     setModalOpen(true);
   }, [form]);
@@ -383,6 +423,12 @@ function Music() {
     return match && match[1] === '0';
   }, []);
 
+  const handleTeacherSelect = useCallback((teacherId) => {
+    setSelectedTeacher(teacherId);
+    form.setFieldsValue({ teacherID: teacherId });
+    setTeacherModalVisible(false);
+  }, [form]);
+
   const filteredData = useMemo(() => {
     const meditation = data.filter(item => !isWhiteNoise(item.path));
     const whiteNoise = data.filter(item => isWhiteNoise(item.path));
@@ -408,81 +454,269 @@ function Music() {
       <FloatButton icon={<PlusCircleOutlined />} onClick={handleNew} />
 
       <Drawer
-        title={currentModel === "Edit" ? "編輯音樂" : "新增音樂"}
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {currentModel === "Edit" ? <EditOutlined /> : <PlusCircleOutlined />}
+            {currentModel === "Edit" ? "編輯音樂" : "新增音樂"}
+          </div>
+        }
         open={modalOpen}
         onClose={() => {
           setModalOpen(false);
         }}
-        width={720}
+        width={900}
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              {currentStep > 0 && (
+                <Button onClick={() => setCurrentStep(currentStep - 1)}>
+                  上一步
+                </Button>
+              )}
+            </div>
+            <div>
+              <Button onClick={() => setModalOpen(false)} style={{ marginRight: 8 }}>
+                取消
+              </Button>
+              {currentStep < 2 ? (
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    if (currentStep === 0) {
+                      // 在第一步檢查音樂名稱必填
+                      form.validateFields(['name']).then(() => {
+                        setCurrentStep(currentStep + 1);
+                      }).catch(() => {
+                        // 驗證失敗，錯誤信息會自動顯示
+                      });
+                    } else {
+                      setCurrentStep(currentStep + 1);
+                    }
+                  }}
+                >
+                  下一步
+                </Button>
+              ) : (
+                <Button type="primary" onClick={handleFinish} loading={loading}>
+                  完成
+                </Button>
+              )}
+            </div>
+          </div>
+        }
       >
-        <Form form={form} onFinish={handleFinish} layout="vertical">
-          <Form.Item name="name" label="名稱" rules={[{ required: true }]}>
-            <Input placeholder="輸入音樂名稱" />
-          </Form.Item>
-          <Form.Item name="image" label="圖片 URL" rules={[{ required: true }]}>
-            <Input
-              placeholder="輸入圖片 URL"
-              onChange={(e) => setShortImage(e.target.value)}
-            />
-          </Form.Item>
-          {shortImage && (
-            <Image
-              crossOrigin="anonymous"
-              src={shortImage}
-              width="15%"
-              fallback={logo}
-              preview={{
-                mask: null, // 可選，移除遮罩
-                className: "custom-preview", // 添加自定義 className
-              }}
-              style={{
-                objectFit: "contain", // 圖片縮放模式
-                maxWidth: "200%", // 預覽圖片最大寬度
-                maxHeight: "200%", // 預覽圖片最大高度
-              }}
-            />
+        <div style={{ padding: '20px 0' }}>
+          <Steps current={currentStep} size="small" style={{ marginBottom: '24px' }}>
+            <Steps.Step title="基本信息" icon={<SettingOutlined />} />
+            <Steps.Step title="媒體上傳" icon={<UploadOutlined />} />
+            <Steps.Step title="確認設置" icon={<CheckCircleOutlined />} />
+          </Steps>
+
+          {currentStep === 0 && (
+            <Card title={<span><SettingOutlined /> 基本信息設置</span>} bordered={false}>
+              <Form form={form} layout="vertical">
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item
+                      name="name"
+                      label="音樂名稱"
+                      rules={[{ required: true, message: '請輸入音樂名稱' }]}
+                    >
+                      <Input
+                        placeholder="輸入音樂名稱"
+                        prefix={<AudioOutlined />}
+                        size="large"
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      name="teacherID"
+                      label="選擇老師"
+                    >
+                      <div onClick={() => {
+                        console.log('Opening teacher modal from div');
+                        setTeacherModalVisible(true);
+                      }}>
+                        <Button
+                          type="default"
+                          size="large"
+                          block
+                          icon={<UserOutlined />}
+                        >
+                          {selectedTeacher ? teachers.find(t => t.value === selectedTeacher)?.label || '選擇老師' : '選擇老師'}
+                        </Button>
+                      </div>
+                    </Form.Item>
+                  </Col>
+                </Row>
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item
+                      name="free"
+                      label="收費模式"
+                    >
+                      <Select
+                        placeholder="選擇收費模式"
+                        size="large"
+                        options={[
+                          { label: "免費", value: "Free" },
+                          { label: "付費", value: "Premium" },
+                        ]}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      name="isDelete"
+                      label="啟用狀態"
+                    >
+                      <Switch
+                        checkedChildren="啟用"
+                        unCheckedChildren="停用"
+                        size="default"
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </Form>
+            </Card>
           )}
-          <Form.Item name="time" label="音樂時長" rules={[{ required: true }]}>
-            <Input
-              placeholder="音樂時長"
-              onChange={(r) => {
-                setDuration(r.target.value);
-              }}
-            />
-          </Form.Item>
-          <Form.Item name="path" label="音樂 URL" rules={[{ required: true }]}>
-            <Input placeholder="輸入音樂 URL" onChange={handleInputChange} />
-          </Form.Item>
-          {duration && (
-            <div style={{ marginTop: "10px", color: "#666" }}>
-              <label>音樂時長：{getDuration()}</label>
+
+          {currentStep === 1 && (
+            <div>
+              <Card title={<span><PictureOutlined /> 圖片上傳</span>} bordered={false} style={{ marginBottom: '16px' }}>
+                <Form form={form} layout="vertical">
+                <Form.Item
+                  name="image"
+                  label="圖片 URL"
+                >
+                  <Input
+                    placeholder="輸入圖片 URL"
+                    onChange={(e) => setShortImage(e.target.value)}
+                    size="large"
+                  />
+                </Form.Item>
+                  {shortImage && (
+                    <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                      <Image
+                        crossOrigin="anonymous"
+                        src={shortImage}
+                        width={200}
+                        height={200}
+                        style={{
+                          objectFit: "cover",
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                        }}
+                        preview={false}
+                      />
+                    </div>
+                  )}
+                </Form>
+              </Card>
+
+              <Card title={<span><AudioOutlined /> 音頻上傳</span>} bordered={false}>
+                <Form form={form} layout="vertical">
+                  <Form.Item
+                    name="path"
+                    label="音樂 URL"
+                  >
+                    <Input
+                      placeholder="輸入音樂 URL 或上傳音頻文件"
+                      onChange={handleInputChange}
+                      size="large"
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    name="time"
+                    label="音樂時長（秒）"
+                  >
+                    <Input
+                      placeholder="音樂時長"
+                      type="number"
+                      onChange={(r) => {
+                        setDuration(r.target.value);
+                      }}
+                      size="large"
+                    />
+                  </Form.Item>
+                  {duration && (
+                    <Alert
+                      message={`自動檢測時長：${getDuration()}`}
+                      type="success"
+                      showIcon
+                      style={{ marginTop: '8px' }}
+                    />
+                  )}
+                  {shortMusic && (
+                    <div style={{ marginTop: '16px', padding: '16px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderRadius: '12px', color: 'white' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                        <PlayCircleOutlined style={{ fontSize: '24px' }} />
+                        <Typography.Text strong style={{ color: 'white', fontSize: '16px' }}>
+                          音頻預覽
+                        </Typography.Text>
+                      </div>
+                      <ReactAudioPlayer
+                        src={shortMusic}
+                        controls
+                        style={{
+                          width: '100%',
+                          filter: 'brightness(1.1)',
+                        }}
+                      />
+                    </div>
+                  )}
+                </Form>
+              </Card>
             </div>
           )}
-          <ReactAudioPlayer
-            src={shortMusic}
-            controls
-            width="100px"
-            onAbort={true}
-            onCanPlay={true}
-          />
-          <Form.Item name="free" label="收費模式" rules={[{ required: true }]}>
-            <Select
-              options={[
-                { label: "Free", value: "Free" },
-                { label: "Premium", value: "Premium" },
-              ]}
-            />
-          </Form.Item>
-          <Form.Item name="teacherID" label="老師" rules={[{ required: true }]}>
-            <Select placeholder="選擇老師" options={teachers} allowClear />
-          </Form.Item>
-          <Form.Item name="isDelete" label="啟用" rules={[{ required: true }]}>
-            <Switch />
-          </Form.Item>
-          <Button type="primary" htmlType="submit">
-            提交
-          </Button>
-        </Form>
+
+          {currentStep === 2 && (
+            <Card title={<span><CheckCircleOutlined /> 確認設置</span>} bordered={false}>
+              <div style={{ padding: '20px 0' }}>
+                <Row gutter={24}>
+                  <Col span={12}>
+                    <Card size="small" title="基本信息" style={{ marginBottom: '16px' }}>
+                      <p><strong>音樂名稱：</strong>{form.getFieldValue('name') || '未設置'}</p>
+                      <p><strong>老師：</strong>{teachers.find(t => t.value === form.getFieldValue('teacherID'))?.label || '未設置'}</p>
+                      <p><strong>收費模式：</strong>{form.getFieldValue('free') === 'Free' ? '免費' : '付費'}</p>
+                      <p><strong>狀態：</strong>{form.getFieldValue('isDelete') ? '啟用' : '停用'}</p>
+                    </Card>
+                  </Col>
+                  <Col span={12}>
+                    <Card size="small" title="媒體信息" style={{ marginBottom: '16px' }}>
+                      <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                        {shortImage && (
+                          <Image
+                            crossOrigin="anonymous"
+                            src={shortImage}
+                            width={120}
+                            height={120}
+                            style={{
+                              objectFit: "cover",
+                              borderRadius: '8px',
+                              boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                            }}
+                            preview={false}
+                          />
+                        )}
+                      </div>
+                      <p><strong>時長：</strong>{duration ? getDuration() : '未檢測'}</p>
+                      <p><strong>音頻：</strong>{shortMusic ? '已設置' : '未設置'}</p>
+                    </Card>
+                  </Col>
+                </Row>
+                <Alert
+                  message="請確認所有信息正確，點擊完成按鈕保存音樂。"
+                  type="info"
+                  showIcon
+                  style={{ marginTop: '16px' }}
+                />
+              </div>
+            </Card>
+          )}
+        </div>
       </Drawer>
 
 
@@ -495,6 +729,79 @@ function Music() {
           <Table columns={columns} dataSource={filteredData.whiteNoise} loading={loading} />
         </Tabs.TabPane>
       </Tabs>
+
+      <Modal
+        title="選擇老師"
+        open={teacherModalVisible}
+        onCancel={() => {
+          console.log('Closing teacher modal');
+          setTeacherModalVisible(false);
+        }}
+        footer={[
+          <Button key="cancel" onClick={() => {
+            console.log('Cancel button clicked');
+            setTeacherModalVisible(false);
+          }}>
+            取消
+          </Button>,
+          <Button key="ok" type="primary" onClick={() => {
+            console.log('OK button clicked');
+            setTeacherModalVisible(false);
+          }}>
+            確定
+          </Button>,
+        ]}
+        width={800}
+      >
+        <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+          <Row gutter={[16, 16]}>
+            {teachers.map((teacher) => (
+              <Col span={12} key={teacher.value}>
+                <Card
+                  hoverable
+                  onClick={() => handleTeacherSelect(teacher.value)}
+                  style={{
+                    cursor: 'pointer',
+                    border: selectedTeacher === teacher.value ? '2px solid #1890ff' : '1px solid #d9d9d9',
+                    backgroundColor: selectedTeacher === teacher.value ? '#f6ffed' : '#fff',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <Image
+                      src={teacher.image}
+                      width={60}
+                      height={60}
+                      style={{
+                        borderRadius: '50%',
+                        objectFit: 'cover',
+                        border: '2px solid #f0f0f0',
+                      }}
+                      fallback={logo}
+                      preview={false}
+                    />
+                    <div>
+                      <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '4px' }}>
+                        {teacher.label}
+                      </div>
+                      {teacher.title && (
+                        <div style={{ fontSize: '14px', color: '#666', fontStyle: 'italic' }}>
+                          {teacher.title}
+                        </div>
+                      )}
+                    </div>
+                    {selectedTeacher === teacher.value && (
+                      <div style={{ marginLeft: 'auto', color: '#52c41a', fontSize: '18px' }}>
+                        ✓
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        </div>
+      </Modal>
+
       {contextHolder}
     </div>
   );
