@@ -90,6 +90,49 @@ function Music() {
     [handleSearch, handleReset]
   );
 
+  const getColumnSelectProps = useCallback(
+    (dataIndex, options) => ({
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <div style={{ padding: 8 }}>
+          <Select
+            placeholder={`Select ${dataIndex}`}
+            value={selectedKeys[0]}
+            onChange={(value) =>
+              setSelectedKeys(value ? [value] : [])
+            }
+            style={{ width: 188, marginBottom: 8, display: "block" }}
+            allowClear
+          >
+            {options.map(option => (
+              <Select.Option key={option.value} value={option.value}>
+                {option.label}
+              </Select.Option>
+            ))}
+          </Select>
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+              icon={<SearchOutlined />}
+              size="small"
+            >
+              Search
+            </Button>
+            <Button onClick={() => handleReset(clearFilters)} size="small">
+              Reset
+            </Button>
+          </Space>
+        </div>
+      ),
+    }),
+    [handleSearch, handleReset]
+  );
+
   const columns = useMemo(
     () => [
       {
@@ -122,12 +165,22 @@ function Music() {
         dataIndex: "isDelete",
         key: "isDelete",
         render: (_, { isDelete }) => (isDelete === "Y" ? "未啟用" : "啟用中"),
+        ...getColumnSelectProps("isDelete", [
+          { label: "啟用", value: "enabled" },
+          { label: "非啟用", value: "disabled" },
+        ]),
+        onFilter: (value, record) => {
+          if (value === "enabled") return record.isDelete !== "Y";
+          if (value === "disabled") return record.isDelete === "Y";
+          return false;
+        },
       },
       {
         title: "名稱",
         dataIndex: "name",
         key: "name",
         ...getColumnSearchProps("name"),
+        onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
       },
       {
         title: "系列",
@@ -145,6 +198,11 @@ function Music() {
         title: "收費",
         dataIndex: "free",
         key: "free",
+        ...getColumnSelectProps("free", [
+          { label: "Free", value: "Free" },
+          { label: "Premium", value: "Premium" },
+        ]),
+        onFilter: (value, record) => record.free === value,
       },
       {
         title: "收聽",
@@ -171,9 +229,10 @@ function Music() {
         title: "新增日期",
         dataIndex: "createDate",
         key: "createDate",
+        sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
       },
     ],
-    [getColumnSearchProps, teachers]
+    [getColumnSearchProps, getColumnSelectProps, teachers]
   );
 
   const fetchData = useCallback(async () => {

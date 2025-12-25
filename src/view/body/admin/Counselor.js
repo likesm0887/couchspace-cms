@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
   Drawer,
   Button,
@@ -16,7 +16,9 @@ import {
   Space,
   Row,
   Col,
+  Input,
 } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 import { Layout, theme, Descriptions, Badge, Outlet } from "antd";
 
 import moment from "moment";
@@ -103,12 +105,57 @@ const Counselor = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [detail, setDetail] = useState("");
 
+  const handleSearch = useCallback((selectedKeys, confirm, dataIndex) => {
+    confirm();
+  }, []);
+
+  const handleReset = useCallback((clearFilters) => {
+    clearFilters();
+  }, []);
+
+  const getColumnSearchProps = useCallback(
+    (dataIndex) => ({
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder={`Search ${dataIndex}`}
+            value={selectedKeys[0]}
+            onChange={(e) =>
+              setSelectedKeys(e.target.value ? [e.target.value] : [])
+            }
+            onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            style={{ width: 188, marginBottom: 8, display: "block" }}
+          />
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+              icon={<SearchOutlined />}
+              size="small"
+            >
+              Search
+            </Button>
+            <Button onClick={() => handleReset(clearFilters)} size="small">
+              Reset
+            </Button>
+          </Space>
+        </div>
+      ),
+    }),
+    [handleSearch, handleReset]
+  );
+
   const {
     token: { colorBgContainer },
   } = theme.useToken();
   const columns = [
     {
-      title: "Action",
+      title: "操作",
       key: "action",
       render: (text, record) => (
         <Button type="primary" onClick={() => handleEdit(record.id)}>
@@ -117,7 +164,7 @@ const Counselor = () => {
       ),
     },
     {
-      title: "Photo",
+      title: "頭像",
       dataIndex: "photo",
       key: "photo",
       render: (url) => (
@@ -125,14 +172,16 @@ const Counselor = () => {
       ),
     },
     {
-      title: "ID",
+      title: "諮商師ID",
       dataIndex: "id",
       key: "id",
     },
     {
-      title: "Name",
+      title: "姓名",
       dataIndex: "name",
       key: "name",
+      ...getColumnSearchProps("姓名"),
+      onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
       render: (text, record) => (
         <a style={{ color: "#1677FF" }} onClick={() => openModal(record.id)}>
           {text}
@@ -140,17 +189,21 @@ const Counselor = () => {
       ),
     },
     {
-      title: "Nickname",
+      title: "暱稱",
       dataIndex: "nickname",
       key: "nickname",
+      ...getColumnSearchProps("暱稱"),
+      onFilter: (value, record) => record.nickname.toLowerCase().includes(value.toLowerCase()),
     },
     {
       title: "Email",
       dataIndex: "email",
       key: "email",
+      ...getColumnSearchProps("Email"),
+      onFilter: (value, record) => record.email.toLowerCase().includes(value.toLowerCase()),
     },
     {
-      title: "Expertises",
+      title: "專長",
       key: "expertises",
       dataIndex: "expertises",
       render: (tags) => (
@@ -169,7 +222,7 @@ const Counselor = () => {
       ),
     },
     {
-      title: "Account",
+      title: "帳號",
       dataIndex: "account",
       key: "account",
     },
@@ -179,7 +232,7 @@ const Counselor = () => {
       key: "LatestLoginTime",
       defaultSortOrder: "descend",
       sorter: (a, b) =>
-        moment(a.latestLoginDate).unix() - moment(b.latestLoginDate).unix(),
+        moment(b.LatestLoginTime).unix() - moment(a.LatestLoginTime).unix(),
     },
     {
       title: "是否通過認證",

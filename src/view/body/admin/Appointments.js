@@ -105,15 +105,18 @@ const isInDateRange = (dateTimeStr, startDate, endDate) => {
   return dateTime.isSameOrAfter(start) && dateTime.isSameOrBefore(end);
 };
 
-const matchesSearch = (app, searchTerm) => {
-  if (!searchTerm) return true;
+const matchesSearch = (app, searchTerm, promoCodeFilter, adminFlagFilter) => {
+  if (!searchTerm && !promoCodeFilter && adminFlagFilter === "全部") return true;
   const term = searchTerm.toLowerCase();
-  return (
+  const matchesTerm = !searchTerm || (
     (app.AppointmentID && app.AppointmentID.toLowerCase().includes(term)) ||
     (app.UserID && app.UserID.toString().toLowerCase().includes(term)) ||
     (app.UserName && app.UserName.toLowerCase().includes(term)) ||
     (app.CounselorName && app.CounselorName.toLowerCase().includes(term))
   );
+  const matchesPromo = !promoCodeFilter || (app.PromoCodeID && app.PromoCodeID.toLowerCase().includes(promoCodeFilter.toLowerCase()));
+  const matchesFlag = adminFlagFilter === "全部" || app.AdminFlag === adminFlagFilter;
+  return matchesTerm && matchesPromo && matchesFlag;
 };
 const DrawerForm = ({ id, visible, onClose, record, callback }) => {
   // Define state for the form fields
@@ -196,12 +199,12 @@ const Appointments = () => {
   const [record, setRecord] = useState(null);
   const [allAppointments, setAllAppointments] = useState([]);
   const [userCount, setUserCount] = useState(0);
-  const [tabFilters, setTabFilters] = useState({
-    all: { searchTerm: "", startDate: null, endDate: null, statusFilter: "", counselorFilter: "" },
-    pending: { searchTerm: "", startDate: null, endDate: null, statusFilter: "", counselorFilter: "" },
-    confirmed: { searchTerm: "", startDate: null, endDate: null, statusFilter: "", counselorFilter: "" },
-    completed: { searchTerm: "", startDate: null, endDate: null, statusFilter: "", counselorFilter: "" },
-    cancelled: { searchTerm: "", startDate: null, endDate: null, statusFilter: "", counselorFilter: "" },
+  const [filters, setFilters] = useState({
+    all: { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" },
+    pending: { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" },
+    confirmed: { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" },
+    completed: { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" },
+    cancelled: { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" },
   });
   const [currentSelectCounselorId, setCurrentSelectCounselorId] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -240,7 +243,8 @@ const Appointments = () => {
         title: "預約成立時間",
         dataIndex: "CreateDate",
         key: "CreateDate",
-        sorter: (a, b) => Date.parse(a.CreateDate) - Date.parse(b.CreateDate),
+        sorter: (a, b) => Date.parse(b.CreateDate) - Date.parse(a.CreateDate),
+        defaultSortOrder: 'descend',
       },
       {
         title: "交易單號",
@@ -314,7 +318,8 @@ const Appointments = () => {
         title: "預約日期",
         dataIndex: "DateTime",
         key: "DateTime",
-        sorter: (a, b) => new Date(a.DateTime) - new Date(b.DateTime),
+        sorter: (a, b) => new Date(b.DateTime) - new Date(a.DateTime),
+        defaultSortOrder: 'descend',
       },
 
       {
@@ -336,12 +341,6 @@ const Appointments = () => {
         title: "折扣費用",
         key: "DiscountFee",
         dataIndex: "DiscountFee",
-      },
-      {
-        title: "預約成立時間",
-        dataIndex: "CreateDate",
-        key: "CreateDate",
-        sorter: (a, b) => Date.parse(a.CreateDate) - Date.parse(b.CreateDate),
       },
 
       {
@@ -490,11 +489,9 @@ const Appointments = () => {
   const { filteredData, paginatedData } = useMemo(() => {
     const transformed = allAppointments.map(transformAppointment);
 
-    const currentFilters = tabFilters[activeTab] || { searchTerm: "", startDate: null, endDate: null, statusFilter: "", counselorFilter: "" };
+    const currentFilters = filters[activeTab] || { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" };
     let filtered = transformed
-      .filter((u) => matchesSearch(u, currentFilters.searchTerm) && isInDateRange(u.DateTime, currentFilters.startDate, currentFilters.endDate))
-      .filter((u) => !currentFilters.statusFilter || u.Status === currentFilters.statusFilter)
-      .filter((u) => !currentFilters.counselorFilter || u.CounselorName.includes(currentFilters.counselorFilter));
+      .filter((u) => matchesSearch(u, currentFilters.searchTerm, currentFilters.promoCodeFilter, currentFilters.adminFlagFilter) && isInDateRange(u.DateTime, currentFilters.startDate, currentFilters.endDate));
 
     // Filter by tab
     if (activeTab === "pending") {
@@ -508,6 +505,9 @@ const Appointments = () => {
     }
     // all tab includes all
 
+    // Sort by CreateDate desc (newest first)
+    filtered.sort((a, b) => Date.parse(b.CreateDate) - Date.parse(a.CreateDate));
+
     const paginated = filtered.slice(
       (currentPage - 1) * pageSize,
       currentPage * pageSize
@@ -517,7 +517,7 @@ const Appointments = () => {
       filteredData: filtered,
       paginatedData: paginated,
     };
-  }, [allAppointments, tabFilters, currentPage, pageSize, activeTab]);
+  }, [allAppointments, filters, currentPage, pageSize, activeTab]);
 
   const [
     currentSelectCounselorAppointmentTime,
@@ -910,20 +910,19 @@ const Appointments = () => {
 
 
 
-  const updateTabFilters = (tabKey, key, value) => {
-    setTabFilters(prev => ({
+  const applySearch = (tabKey, values) => {
+    setFilters(prev => ({
       ...prev,
-      [tabKey]: {
-        ...prev[tabKey],
-        [key]: value
-      }
+      [tabKey]: values
     }));
+    setCurrentPage(1);
   };
 
   const handleClear = (tabKey) => {
-    setTabFilters(prev => ({
+    const empty = { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" };
+    setFilters(prev => ({
       ...prev,
-      [tabKey]: { searchTerm: "", startDate: null, endDate: null, statusFilter: "", counselorFilter: "" }
+      [tabKey]: empty
     }));
     setCurrentPage(1);
   };
@@ -934,19 +933,21 @@ const Appointments = () => {
   };
 
   const SearchCard = ({ tabKey }) => {
-    const filters = tabFilters[tabKey] || { searchTerm: "", startDate: null, endDate: null, statusFilter: "", counselorFilter: "" };
+    const [localFilters, setLocalFilters] = useState(filters[tabKey] || { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" });
+    useEffect(() => setLocalFilters(filters[tabKey]), [tabKey, filters]);
     return (
       <Card style={{ marginBottom: 16, backgroundColor: '#f9f9f9', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-        <Flex wrap gap="small" align="center">
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
           <Input
-            value={filters.searchTerm}
+            value={localFilters.searchTerm}
             placeholder="輸入訂單編號/案主ID/案主姓名/諮商師姓名"
             style={{
               width: 300,
               fontSize: '14px'
             }}
-            onChange={(e) => updateTabFilters(tabKey, 'searchTerm', e.target.value)}
+            onChange={(e) => setLocalFilters(prev => ({ ...prev, searchTerm: e.target.value }))}
             allowClear
+            autoComplete="off"
           />
           <style dangerouslySetInnerHTML={{
             __html: `
@@ -955,28 +956,41 @@ const Appointments = () => {
               }
             `
           }} />
+          <Input
+            value={localFilters.promoCodeFilter}
+            placeholder="優惠代碼"
+            style={{
+              width: 120,
+              fontSize: '14px'
+            }}
+            onChange={(e) => setLocalFilters(prev => ({ ...prev, promoCodeFilter: e.target.value }))}
+            allowClear
+            autoComplete="off"
+          />
           <Select
-            placeholder="選擇狀態"
-            value={filters.statusFilter}
-            onChange={(value) => updateTabFilters(tabKey, 'statusFilter', value)}
+            placeholder="標記狀態"
+            value={localFilters.adminFlagFilter}
+            onChange={(value) => setLocalFilters(prev => ({ ...prev, adminFlagFilter: value }))}
             style={{ width: 120 }}
             allowClear
           >
-            <Option value="訂單成立(未付款)">待處理</Option>
-            <Option value="已確認">已確認</Option>
-            <Option value="諮商房間已建立">已確認</Option>
-            <Option value="已完成">已完成</Option>
-            <Option value="已取消">已取消</Option>
+            <Option value="全部">全部</Option>
+            <Option value="Completed">已完成</Option>
+            <Option value="CounselorUnCompleted">諮商師未完成</Option>
+            <Option value="UserUnCompleted">案主未完成</Option>
+            <Option value="CustomerServiceProcess">平台處理</Option>
+            <Option value="WaitForProcess">待處理</Option>
+            <Option value="Cancelled">已取消</Option>
           </Select>
           <DatePicker
             placeholder="開始日期"
-            value={filters.startDate}
-            onChange={(date) => updateTabFilters(tabKey, 'startDate', date)}
+            value={localFilters.startDate}
+            onChange={(date) => setLocalFilters(prev => ({ ...prev, startDate: date }))}
           />
           <DatePicker
             placeholder="結束日期"
-            value={filters.endDate}
-            onChange={(date) => updateTabFilters(tabKey, 'endDate', date)}
+            value={localFilters.endDate}
+            onChange={(date) => setLocalFilters(prev => ({ ...prev, endDate: date }))}
           />
           <style dangerouslySetInnerHTML={{
             __html: `
@@ -987,11 +1001,16 @@ const Appointments = () => {
           }} />
           <Button
             type="primary"
+            onClick={() => applySearch(tabKey, localFilters)}
+          >
+            搜尋
+          </Button>
+          <Button
             onClick={() => handleClear(tabKey)}
           >
             清除篩選
           </Button>
-        </Flex>
+        </div>
       </Card>
     );
   };

@@ -71,7 +71,7 @@ const PromoCode = () => {
       dataIndex: "Token",
     },
     {
-      title: "Code",
+      title: "代碼",
       dataIndex: "PresentToken",
       render: (i, element) => (
         <Button
