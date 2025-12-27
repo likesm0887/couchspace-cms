@@ -342,6 +342,24 @@ const Counselor = () => {
       ),
     },
     {
+      title: "角色",
+      dataIndex: "subRole",
+      key: "subRole",
+      width: 120,
+      sorter: (a, b) => {
+        const roleA = a.subRole === "HeartCoach" ? "心教練" : "心理師";
+        const roleB = b.subRole === "HeartCoach" ? "心教練" : "心理師";
+        return roleA.localeCompare(roleB);
+      },
+      render: (text) => {
+        if (text === "HeartCoach") {
+          return "心教練";
+        } else {
+          return "心理師";
+        }
+      },
+    },
+    {
       title: "暱稱",
       dataIndex: "nickname",
       key: "nickname",
@@ -416,7 +434,8 @@ const Counselor = () => {
         photo: u.Photo == "" ? img_account : u.Photo,
         account: u.Email,
         isverify: u.IsVerify ? "已認證" : "未認證",
-        LatestLoginTime:u.LatestLoginTime
+        LatestLoginTime:u.LatestLoginTime,
+        subRole: u.SubRole
       };
     });
     setUserData(form);
