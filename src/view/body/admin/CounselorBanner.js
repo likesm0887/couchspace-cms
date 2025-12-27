@@ -28,7 +28,7 @@ import {
   Button,
   Drawer,
 } from "antd";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   counselorService,
   meditationService,
@@ -97,8 +97,8 @@ const CounselorBanners = () => {
         <Image
           crossOrigin="anonymous"
           src={image}
-          width="70px"
-          preview={false}
+          width="130px"
+          preview={true}
         />
       ),
     },
@@ -125,6 +125,7 @@ const CounselorBanners = () => {
       ),
     },
   ];
+
   const [modal1Open, setModal1Open] = useState(false);
   const [dataSource, setDataSource] = useState([]);
   const [previewBannerImage, setPreviewBannerImage] = useState([]);
@@ -134,141 +135,191 @@ const CounselorBanners = () => {
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [oriCommonData, setOriCommonData] = useState([]);
-  useEffect(() => {
-    getData();
+  const [counselors, setCounselors] = useState([]);
+
+  // 優化：使用 useCallback 包裝數據獲取函數
+  const fetchCounselors = useCallback(async () => {
+    const counselorsData = await counselorService.getAllCounselorInfo(true);
+    setCounselors(counselorsData);
+    const courses = counselorsData.map((c) => ({
+      label: c.UserName?.Name?.FirstName + c.UserName?.Name?.LastName,
+      value: c.ID,
+    }));
+    setAllCourses(courses);
   }, []);
-  const onBannerDelete = async (e) => {
-    let select = oriCommonData.CounselorBanners?.findIndex(
-      (o) => o.Seq === e.seq && o.ImageUrl === e.imageUrl
-    );
-    console.log(select);
-    oriCommonData.CounselorBanners?.splice(select, 1);
-    for (
-      let index = 0;
-      index < oriCommonData.CounselorBanners?.length;
-      index++
-    ) {
-      oriCommonData.CounselorBanners[index].Seq = index + 1;
-    }
-    setLoading2(true);
-    await meditationService.updateCommonData(oriCommonData);
-    getData();
-    setLoading2(false);
-  };
-  const getData = async () => {
-    let commonData = await meditationService.getCommonData();
+
+  const fetchCommonData = useCallback(async () => {
+    const commonData = await meditationService.getCommonData();
     setOriCommonData(commonData);
-    console.log(commonData?.CounselorBanners?.map((b) => b.LinkSourceID));
-    let counselors = await counselorService.getAllCounselorInfo();
-    console.log(counselors);
-    let banner = commonData.CounselorBanners?.map((e) => {
-      let counselor = counselors?.find((c) => c.ID === e.LinkSourceID);
+    return commonData;
+  }, []);
+
+  // 優化：使用 useMemo 計算 dataSource
+  const processedDataSource = useMemo(() => {
+    if (!oriCommonData.CounselorBanners || !counselors.length) return [];
+
+    return oriCommonData.CounselorBanners.map((e) => {
+      const counselor = counselors.find((c) => c.ID === e.LinkSourceID);
       return {
         key: e.Seq,
         imageUrl: e.ImageUrl,
-        linkSourceID:
-          counselor?.UserName?.Name?.LastName +
-          counselor?.UserName?.Name?.FirstName,
+        linkSourceID: counselor?.UserName?.Name?.LastName + counselor?.UserName?.Name?.FirstName || '未知',
         seq: e.Seq,
       };
     });
-    const allCounselors = await counselorService.getAllCounselorInfo(true);
+  }, [oriCommonData.CounselorBanners, counselors]);
 
-    setAllCourses(
-      allCounselors.map((c) => {
-        return {
-          label: c.UserName?.Name?.FirstName + c.UserName?.Name.LastName,
-          value: c.ID,
-        };
-      })
-    );
-    console.log(
-      allCounselors.map((c) => {
-        return {
-          label: c.UserName?.Name?.FirstName + c.UserName?.Name.LastName,
-          value: c.ID,
-        };
-      })
-    );
+  // 更新 dataSource 當 processedDataSource 改變時
+  useEffect(() => {
+    setDataSource(processedDataSource);
+  }, [processedDataSource]);
 
-    console.log(oriCommonData);
-    setDataSource(banner);
-  };
-
-  const onDragEnd = async ({ active, over }) => {
-    console.log(oriCommonData);
-    let toChangeCommonData = [];
-    if (active.id !== over?.id) {
-      setDataSource((previous) => {
-        const activeIndex = previous.findIndex((i) => i.key === active.id);
-        const overIndex = previous.findIndex((i) => i.key === over?.id);
-        let result = arrayMove(previous, activeIndex, overIndex);
-
-        for (let index = 0; index < result.length; index++) {
-          console.log(oriCommonData);
-          let select = oriCommonData.CounselorBanners?.find(
-            (o) =>
-              o.Seq === result[index].seq &&
-              o.ImageUrl === result[index].imageUrl
-          );
-          console.log(select);
-          toChangeCommonData.push({
-            Seq: index + 1,
-            ImageUrl: select.ImageUrl,
-            LinkSourceID: select.LinkSourceID,
-          });
-          console.log(toChangeCommonData);
-        }
-        oriCommonData.CounselorBanners = toChangeCommonData;
-        return result;
-      });
+  const getData = useCallback(async () => {
+    try {
       setLoading2(true);
-      await meditationService.updateCommonData(oriCommonData);
-
-      console.log(oriCommonData);
-      getData();
+      await Promise.all([fetchCounselors(), fetchCommonData()]);
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    } finally {
       setLoading2(false);
     }
-  };
+  }, [fetchCounselors, fetchCommonData]);
 
-  const onFinish = async () => {
-    console.log(form.getFieldValue("image"));
-    console.log(selectCourse);
-    if (form.getFieldValue("image") === "" || selectCourse === undefined) {
-      return;
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
+  // 優化：使用 useCallback 包裝刪除函數
+  const onBannerDelete = useCallback(async (element) => {
+    const selectIndex = oriCommonData.CounselorBanners?.findIndex(
+      (o) => o.Seq === element.seq && o.ImageUrl === element.imageUrl
+    );
+
+    if (selectIndex === -1) return;
+
+    const updatedBanners = [...oriCommonData.CounselorBanners];
+    updatedBanners.splice(selectIndex, 1);
+
+    // 重新排序
+    const reorderedBanners = updatedBanners.map((banner, index) => ({
+      ...banner,
+      Seq: index + 1,
+    }));
+
+    const updatedCommonData = {
+      ...oriCommonData,
+      CounselorBanners: reorderedBanners,
+    };
+
+    setLoading2(true);
+    try {
+      await meditationService.updateCommonData(updatedCommonData);
+      setOriCommonData(updatedCommonData);
+    } catch (error) {
+      console.error('Failed to delete banner:', error);
+    } finally {
+      setLoading2(false);
     }
-    oriCommonData.CounselorBanners?.push({
-      Seq: oriCommonData.CounselorBanners?.length + 1,
-      ImageUrl: form.getFieldValue("image"),
-      LinkSourceID: selectCourse,
+  }, [oriCommonData]);
+
+  // 優化：使用 useCallback 包裝拖拽結束函數
+  const onDragEnd = useCallback(async ({ active, over }) => {
+    if (active.id === over?.id) return;
+
+    const activeIndex = dataSource.findIndex((i) => i.key === active.id);
+    const overIndex = dataSource.findIndex((i) => i.key === over?.id);
+
+    if (activeIndex === -1 || overIndex === -1) return;
+
+    const reorderedData = arrayMove(dataSource, activeIndex, overIndex);
+
+    // 更新本地狀態
+    setDataSource(reorderedData);
+
+    // 更新後端數據
+    const updatedBanners = reorderedData.map((item, index) => {
+      const originalBanner = oriCommonData.CounselorBanners?.find(
+        (o) => o.Seq === item.seq && o.ImageUrl === item.imageUrl
+      );
+      return {
+        Seq: index + 1,
+        ImageUrl: originalBanner?.ImageUrl || item.imageUrl,
+        LinkSourceID: originalBanner?.LinkSourceID,
+      };
     });
 
-    console.log(oriCommonData);
+    const updatedCommonData = {
+      ...oriCommonData,
+      CounselorBanners: updatedBanners,
+    };
+
+    setLoading2(true);
+    try {
+      await meditationService.updateCommonData(updatedCommonData);
+      setOriCommonData(updatedCommonData);
+    } catch (error) {
+      console.error('Failed to update banner order:', error);
+      // 如果更新失敗，恢復原始順序
+      setDataSource(processedDataSource);
+    } finally {
+      setLoading2(false);
+    }
+  }, [dataSource, oriCommonData, processedDataSource]);
+
+  // 優化：使用 useCallback 包裝提交函數
+  const onFinish = useCallback(async () => {
+    const imageUrl = form.getFieldValue("image");
+    if (!imageUrl || !selectCourse) {
+      return;
+    }
+
+    const newBanner = {
+      Seq: (oriCommonData.CounselorBanners?.length || 0) + 1,
+      ImageUrl: imageUrl,
+      LinkSourceID: selectCourse,
+    };
+
+    const updatedCommonData = {
+      ...oriCommonData,
+      CounselorBanners: [...(oriCommonData.CounselorBanners || []), newBanner],
+    };
+
     setLoading(true);
-    await meditationService.updateCommonData(oriCommonData);
-    setModal1Open(false);
-    getData();
-    setLoading(false);
-  };
+    try {
+      await meditationService.updateCommonData(updatedCommonData);
+      setOriCommonData(updatedCommonData);
+      setModal1Open(false);
+      form.resetFields();
+      setSelectCourse(null);
+      setPreviewBannerImage("");
+    } catch (error) {
+      console.error('Failed to add banner:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [form, selectCourse, oriCommonData]);
+
+  // 優化：使用 useCallback 包裝重置函數
+  const handleAddBanner = useCallback(() => {
+    setModal1Open(true);
+    setSelectCourse(null);
+    form.resetFields();
+    setPreviewBannerImage("");
+  }, [form]);
+
   return (
     <div>
       <FloatButton
         shape="circle"
         type="primary"
         style={{ right: 94 }}
-        onClick={() => {
-          setModal1Open(true);
-          setSelectCourse(null);
-          form.setFieldValue("image", "");
-          setPreviewBannerImage("");
-        }}
+        onClick={handleAddBanner}
         tooltip={<div>Add Banner</div>}
         icon={<PlusCircleOutlined />}
       />
       <Spin size="large" spinning={loading2}>
         <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
           <SortableContext
-            // rowKey array
             items={dataSource?.map((i) => i.key)}
             strategy={verticalListSortingStrategy}
           >
@@ -292,7 +343,6 @@ const CounselorBanners = () => {
         }}
         destroyOnClose={true}
         open={modal1Open}
-        //onOk={() => onFinish()}
         onClose={() => setModal1Open(false)}
         width={360}
         cancelText="取消"
@@ -313,7 +363,6 @@ const CounselorBanners = () => {
                 placeholder="圖片"
                 size="big"
                 onChange={(e) => {
-                  console.log(e.target.value);
                   setPreviewBannerImage(e.target.value);
                 }}
               />

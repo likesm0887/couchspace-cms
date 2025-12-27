@@ -444,4 +444,26 @@ export class MeditationService {
 
     return fetch(api, requestOptions);
   }
+
+  getAudioDuration(audioUrl) {
+    const api = this.base_url + "/mp3/duration";
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        Authorization: cookie.load("token"),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ url: audioUrl }),
+    };
+
+    return fetch(api, requestOptions)
+      .then((res) => res.json())
+      .then((result) => {
+        return result;
+      })
+      .catch((error) => {
+        console.error("Failed to get audio duration:", error);
+        throw error;
+      });
+  }
 }

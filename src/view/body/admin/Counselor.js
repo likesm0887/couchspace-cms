@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
   Drawer,
   Button,
@@ -14,15 +14,18 @@ import {
   Card,
   Calendar,
   Space,
+  Row,
+  Col,
+  Input,
+  Form,
+  Divider,
+  Typography,
+  message,
 } from "antd";
+import { SearchOutlined, DeleteOutlined, ExclamationCircleOutlined, SaveOutlined, UserOutlined, CheckCircleOutlined, CloseCircleOutlined, NotificationOutlined, LaptopOutlined } from "@ant-design/icons";
 import { Layout, theme, Descriptions, Badge, Outlet } from "antd";
-import "./counselor.css";
+
 import moment from "moment";
-import {
-  LaptopOutlined,
-  NotificationOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
 
 import {
   appointmentService,
@@ -33,62 +36,218 @@ import img_account from "../../img/login/ic_identity.svg";
 import { fontFamily } from "@mui/system";
 import { isNil } from "@ant-design/pro-components";
 const DrawerForm = ({ id, visible, onClose, record, callback }) => {
-  // Define state for the form fields
-
   const [verify, setVerify] = useState(false);
-  // Clear form fields
+  const [counselorInfo, setCounselorInfo] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const changeVerify = (e) => {
     setVerify(e);
-    console.log(e);
   };
 
   useEffect(() => {
-    console.log("JIJI");
-    if (id!==null){
-    const getCounselorVerify = async () => {
-      const isVerify = await counselorService.getCounselorVerify(id);
-      console.log(isVerify);
-      setVerify(isVerify);
-    };
-    getCounselorVerify();
-  }
-    console.log("HIHIH");
-  }, [id]);
+    if (id && visible) {
+      const getCounselorInfo = async () => {
+        try {
+          const info = await counselorService.getCounselorInfoById(id);
+          const isVerify = await counselorService.getCounselorVerify(id);
+          setCounselorInfo(info);
+          setVerify(isVerify);
+        } catch (error) {
+          console.error('獲取諮商師資訊失敗:', error);
+        }
+      };
+      getCounselorInfo();
+    }
+  }, [id, visible]);
 
-  // Handle form submission
   const handleSubmit = async () => {
-    console.log(verify);
-    await counselorService.setCounselorVerify(id, verify);
-    onClose();
-    callback();
+    setLoading(true);
+    try {
+      await counselorService.setCounselorVerify(id, verify);
+      message.success('諮商師認證狀態已成功更新');
+      onClose();
+      callback();
+    } catch (error) {
+      console.error('儲存失敗:', error);
+      message.error('儲存失敗，請稍後再試');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = () => {
+    const counselorName = counselorInfo ?
+      counselorInfo.UserName.Name.LastName + counselorInfo.UserName.Name.FirstName : '';
+
+    Modal.confirm({
+      title: '確認刪除諮商師',
+      icon: <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />,
+      content: (
+        <div>
+          <p>您確定要刪除諮商師 <strong>{counselorName}</strong> 嗎？</p>
+          <p style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '8px' }}>
+            此操作無法撤銷，將永久刪除該諮商師的所有資料。
+          </p>
+        </div>
+      ),
+      okText: '確定刪除',
+      cancelText: '取消',
+      okButtonProps: { danger: true },
+      onOk: async () => {
+        try {
+          await counselorService.deleteCounselor(id);
+          message.success('諮商師已成功刪除');
+          onClose();
+          callback();
+        } catch (error) {
+          console.error('刪除失敗:', error);
+          message.error('刪除失敗，請稍後再試');
+        }
+      },
+    });
   };
 
   return (
     <Drawer
-      title={record ? "Edit User" : "Add User"}
-      width={400}
+      title={
+        <Space>
+          <UserOutlined />
+          編輯諮商師資訊
+        </Space>
+      }
+      width={500}
       onClose={onClose}
       visible={visible}
+      footer={
+        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+          <Button onClick={handleDelete} danger icon={<DeleteOutlined />}>
+            刪除諮商師
+          </Button>
+          <Space>
+            <Button onClick={onClose}>
+              取消
+            </Button>
+            <Button
+              type="primary"
+              onClick={handleSubmit}
+              loading={loading}
+              icon={<SaveOutlined />}
+            >
+              儲存變更
+            </Button>
+          </Space>
+        </Space>
+      }
     >
-      <label>Membership:</label>
-      <br />
-      <Switch
-        checkedChildren="已認證"
-        unCheckedChildren="未認證"
-        checked={verify}
-        onChange={changeVerify}
-      />
-      <Space>
-        <Button onClick={handleSubmit}>{record ? "Save" : "儲存"}</Button>
-      </Space>
+      <div style={{ padding: '20px 0' }}>
+        {/* 諮商師基本資訊卡片 */}
+        {counselorInfo && (
+          <Card
+            size="small"
+            style={{ marginBottom: 24 }}
+            title={
+              <Space>
+                <UserOutlined />
+                諮商師資訊
+              </Space>
+            }
+          >
+            <Row gutter={16}>
+              <Col span={12}>
+                <div style={{ marginBottom: 12 }}>
+                  <Typography.Text strong>姓名：</Typography.Text>
+                  <Typography.Text>
+                    {counselorInfo.UserName.Name.LastName}{counselorInfo.UserName.Name.FirstName}
+                  </Typography.Text>
+                </div>
+                <div style={{ marginBottom: 12 }}>
+                  <Typography.Text strong>暱稱：</Typography.Text>
+                  <Typography.Text>{counselorInfo.UserName.NickName}</Typography.Text>
+                </div>
+                <div style={{ marginBottom: 12 }}>
+                  <Typography.Text strong>Email：</Typography.Text>
+                  <Typography.Text>{counselorInfo.Email}</Typography.Text>
+                </div>
+              </Col>
+              <Col span={12}>
+                <div style={{ marginBottom: 12 }}>
+                  <Typography.Text strong>手機：</Typography.Text>
+                  <Typography.Text>{counselorInfo.Phone}</Typography.Text>
+                </div>
+                <div style={{ marginBottom: 12 }}>
+                  <Typography.Text strong>職稱：</Typography.Text>
+                  <Typography.Text>{counselorInfo.Position}</Typography.Text>
+                </div>
+                <div style={{ marginBottom: 12 }}>
+                  <Typography.Text strong>專長：</Typography.Text>
+                  <div>
+                    {counselorInfo.Expertises?.map((expertise, index) => (
+                      <Tag key={index} color="blue" size="small">
+                        {expertise.Skill}
+                      </Tag>
+                    ))}
+                  </div>
+                </div>
+              </Col>
+            </Row>
+          </Card>
+        )}
+
+        {/* 認證狀態設定 */}
+        <Card
+          size="small"
+          title={
+            <Space>
+              <CheckCircleOutlined />
+              認證狀態設定
+            </Space>
+          }
+        >
+          <Form layout="vertical">
+            <Form.Item label="諮商師認證狀態">
+              <Space>
+                <Switch
+                  checkedChildren="已認證"
+                  unCheckedChildren="未認證"
+                  checked={verify}
+                  onChange={changeVerify}
+                  size="default"
+                />
+                <Typography.Text type={verify ? "success" : "danger"}>
+                  {verify ? "已通過認證" : "未通過認證"}
+                </Typography.Text>
+              </Space>
+              <Typography.Paragraph type="secondary" style={{ fontSize: '12px', marginTop: '8px' }}>
+                切換此開關來變更諮商師的認證狀態。已認證的諮商師將能夠提供諮商服務。
+              </Typography.Paragraph>
+            </Form.Item>
+          </Form>
+        </Card>
+
+        <Divider />
+
+        {/* 警告區域 */}
+        <Card size="small" style={{ borderColor: '#ffccc7', backgroundColor: '#fff2f0' }}>
+          <Space>
+            <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />
+            <div>
+              <Typography.Text strong style={{ color: '#ff4d4f' }}>
+                危險操作
+              </Typography.Text>
+              <Typography.Paragraph style={{ margin: '4px 0 0 0', color: '#ff4d4f' }}>
+                刪除諮商師將永久移除其所有資料，包括個人資訊、預約記錄等。此操作無法復原。
+              </Typography.Paragraph>
+            </div>
+          </Space>
+        </Card>
+      </div>
     </Drawer>
   );
 };
 
 const Counselor = () => {
   const { Header, Content, Footer, Sider } = Layout;
-  const formatter = (value) => <CountUp end={value} separator="," />;
+  const formatter = (value) => <CountUp end={value} separator=" ," suffix="  位" />;
   const [visible, setVisible] = useState(false);
   const [record, setRecord] = useState(null);
   const [userData, setUserData] = useState();
@@ -99,12 +258,57 @@ const Counselor = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [detail, setDetail] = useState("");
 
+  const handleSearch = useCallback((selectedKeys, confirm, dataIndex) => {
+    confirm();
+  }, []);
+
+  const handleReset = useCallback((clearFilters) => {
+    clearFilters();
+  }, []);
+
+  const getColumnSearchProps = useCallback(
+    (dataIndex) => ({
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder={`Search ${dataIndex}`}
+            value={selectedKeys[0]}
+            onChange={(e) =>
+              setSelectedKeys(e.target.value ? [e.target.value] : [])
+            }
+            onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            style={{ width: 188, marginBottom: 8, display: "block" }}
+          />
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+              icon={<SearchOutlined />}
+              size="small"
+            >
+              Search
+            </Button>
+            <Button onClick={() => handleReset(clearFilters)} size="small">
+              Reset
+            </Button>
+          </Space>
+        </div>
+      ),
+    }),
+    [handleSearch, handleReset]
+  );
+
   const {
     token: { colorBgContainer },
   } = theme.useToken();
   const columns = [
     {
-      title: "Action",
+      title: "操作",
       key: "action",
       render: (text, record) => (
         <Button type="primary" onClick={() => handleEdit(record.id)}>
@@ -113,14 +317,24 @@ const Counselor = () => {
       ),
     },
     {
-      title: "ID",
+      title: "頭像",
+      dataIndex: "photo",
+      key: "photo",
+      render: (url) => (
+        <Image crossOrigin="anonymous" src={url} width="70px" />
+      ),
+    },
+    {
+      title: "諮商師ID",
       dataIndex: "id",
       key: "id",
     },
     {
-      title: "Name",
+      title: "姓名",
       dataIndex: "name",
       key: "name",
+      ...getColumnSearchProps("姓名"),
+      onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
       render: (text, record) => (
         <a style={{ color: "#1677FF" }} onClick={() => openModal(record.id)}>
           {text}
@@ -128,35 +342,47 @@ const Counselor = () => {
       ),
     },
     {
-      title: "Nickname",
+      title: "角色",
+      dataIndex: "subRole",
+      key: "subRole",
+      width: 120,
+      sorter: (a, b) => {
+        const roleA = a.subRole === "HeartCoach" ? "心教練" : "心理師";
+        const roleB = b.subRole === "HeartCoach" ? "心教練" : "心理師";
+        return roleA.localeCompare(roleB);
+      },
+      render: (text) => {
+        if (text === "HeartCoach") {
+          return "心教練";
+        } else {
+          return "心理師";
+        }
+      },
+    },
+    {
+      title: "暱稱",
       dataIndex: "nickname",
       key: "nickname",
+      ...getColumnSearchProps("暱稱"),
+      onFilter: (value, record) => record.nickname.toLowerCase().includes(value.toLowerCase()),
     },
     {
       title: "Email",
       dataIndex: "email",
       key: "email",
-    },
-
-    {
-      title: "Photo",
-      dataIndex: "photo",
-      key: "photo",
-      render: (url) => (
-        <img crossOrigin="anonymous" src={url} style={{ width: "80px", height: "100px" }} />
-      ),
+      ...getColumnSearchProps("Email"),
+      onFilter: (value, record) => record.email.toLowerCase().includes(value.toLowerCase()),
     },
     {
-      title: "Expertises",
+      title: "專長",
       key: "expertises",
       dataIndex: "expertises",
       render: (tags) => (
         <span>
           {tags.map((tag) => {
-            let color = tag.length > 5 ? "geekblue" : "green";
-            if (tag === "loser") {
-              color = "volcano";
-            }
+            const colors = ['pink', 'red', 'yellow', 'orange', 'cyan', 'green', 'blue', 'purple', 'geekblue', 'magenta', 'volcano', 'gold', 'lime'];
+            const hash = tag.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+            const color = colors[hash % colors.length];
             return (
               <Tag color={color} key={tag}>
                 {tag.toUpperCase()}
@@ -167,7 +393,7 @@ const Counselor = () => {
       ),
     },
     {
-      title: "Account",
+      title: "帳號",
       dataIndex: "account",
       key: "account",
     },
@@ -177,14 +403,21 @@ const Counselor = () => {
       key: "LatestLoginTime",
       defaultSortOrder: "descend",
       sorter: (a, b) =>
-        moment(a.latestLoginDate).unix() - moment(b.latestLoginDate).unix(),
+        moment(b.LatestLoginTime).unix() - moment(a.LatestLoginTime).unix(),
     },
     {
       title: "是否通過認證",
       dataIndex: "isverify",
       key: "isverify",
+      render: (text) => {
+        if (text === "已認證") {
+          return <span><CheckCircleOutlined style={{ color: 'green' }} /> {text}</span>;
+        } else {
+          return <span><CloseCircleOutlined style={{ color: 'red' }} /> {text}</span>;
+        }
+      },
     },
-    
+
   ];
 
   const fetchData = async () => {
@@ -201,7 +434,8 @@ const Counselor = () => {
         photo: u.Photo == "" ? img_account : u.Photo,
         account: u.Email,
         isverify: u.IsVerify ? "已認證" : "未認證",
-        LatestLoginTime:u.LatestLoginTime
+        LatestLoginTime:u.LatestLoginTime,
+        subRole: u.SubRole
       };
     });
     setUserData(form);
@@ -519,13 +753,19 @@ const Counselor = () => {
 
   return (
     <>
-      <Statistic
-        title="Register Users"
-        value={userCount}
-        formatter={formatter}
-      />
-      <Statistic title="Permium Users" value={permiun} formatter={formatter} />
-      <Statistic title="Active Users" value={active} formatter={formatter} />
+      <Row gutter={16} style={{ marginBottom: 16 }}>
+        <Col span={24}>
+          <Card>
+            <div>
+              <span>已加入的諮商師數量：</span>
+              <span style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                <CountUp end={userCount} separator="," />
+              </span>
+              {' '}位
+            </div>
+          </Card>
+        </Col>
+      </Row>
       <Table columns={columns} dataSource={userData} />
       <DrawerForm
         id={currentSelectCounselorId}

@@ -1,4 +1,4 @@
-import React, { Children, useEffect, useState } from "react";
+import React, { Children, useEffect, useState, useCallback, useMemo } from "react";
 import {
   message,
   Space,
@@ -21,7 +21,7 @@ import {
   Alert,
   Drawer,
 } from "antd";
-import { CopyOutlined } from "@ant-design/icons";
+import { CopyOutlined, SearchOutlined } from "@ant-design/icons";
 import AdminHeader from "./AdminHeader";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { DndContext } from "@dnd-kit/core";
@@ -105,119 +105,170 @@ function Course() {
   const [sortModalOpen, setSortModalOpen] = useState(false);
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const columns = [
-    {
-      title: "編輯",
-      dataIndex: "editBtn",
-      key: "editBtn",
-      render: (_, element) => (
-        <Button
-          icon={<EditOutlined />}
-          type="primary"
-          onClick={() => openEdit(element)}
-        ></Button>
-      ),
-    },
 
-    {
-      title: "圖片",
-      dataIndex: "image",
-      key: "image",
-      render: (image) => (
-        <Image crossOrigin="anonymous" src={image} width="70px" />
-      ),
-    },
-    {
-      title: "Index",
-      dataIndex: "Index",
-      key: "Index",
-    },
-    {
-      title: "系列ID",
-      dataIndex: "CourseID",
-      key: "CourseID",
-      render: (text, record) => (
-        <div>
-          <Tooltip title={text}>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <a style={{ color: "#1677FF", marginRight: 8 }}>
-                {text?.slice(-5)}
-              </a>
-              <Button
-                type="link"
-                icon={<CopyOutlined />}
-                onClick={() => copyToClipboard(record.CourseID)}
-              />
-            </div>
-          </Tooltip>
+  const handleSearch = useCallback((selectedKeys, confirm, dataIndex) => {
+    confirm();
+  }, []);
+
+  const handleReset = useCallback((clearFilters) => {
+    clearFilters();
+  }, []);
+
+  const getColumnSearchProps = useCallback(
+    (dataIndex) => ({
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder={`Search ${dataIndex}`}
+            value={selectedKeys[0]}
+            onChange={(e) =>
+              setSelectedKeys(e.target.value ? [e.target.value] : [])
+            }
+            onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            style={{ width: 188, marginBottom: 8, display: "block" }}
+          />
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+              icon={<SearchOutlined />}
+              size="small"
+            >
+              Search
+            </Button>
+            <Button onClick={() => handleReset(clearFilters)} size="small">
+              Reset
+            </Button>
+          </Space>
         </div>
       ),
-    },
-    {
-      title: "名稱",
-      dataIndex: "courseName",
-      key: "courseName",
-    },
-    {
-      title: "導師",
-      dataIndex: "teacherName",
-      key: "teacherName",
-    },
-    {
-      title: "分類",
-      dataIndex: "series",
-      key: "series",
-      render: (_, { tags }) => (
-        <>
-          {["主題", "技巧"]?.map((tag) => {
-            let color = tag.length > 5 ? "geekblue" : "green";
-            if (tag === "主題") {
-              color = "volcano";
-            }
-            return (
-              <Tag color={color} key={tag}>
-                {tag.toUpperCase()}
-              </Tag>
-            );
-          })}
-        </>
-      ),
-    },
-    {
-      title: "Tags",
-      dataIndex: "tags",
-      key: "tags",
-      render: (_, { tags }) => (
-        <>
-          {tags?.map((tag) => {
-            let color = tag.length > 5 ? "geekblue" : "green";
-            if (tag === "主題") {
-              color = "volcano";
-            }
-            return (
-              <Tag color={color} key={tag}>
-                {tag.toUpperCase()}
-              </Tag>
-            );
-          })}
-        </>
-      ),
-    },
-    {
-      title: "系列介紹",
-      dataIndex: "description",
-      key: "description",
-      defaultSortOrder: "descend",
-    },
-    {
-      title: "新增日期",
-      dataIndex: "createDate",
-      key: "createDate",
-      defaultSortOrder: "descend",
-      sorter: (a, b) =>
-        moment(a.createDate).unix() - moment(b.createDate).unix(),
-    },
-  ];
+    }),
+    [handleSearch, handleReset]
+  );
+  const columns = useMemo(
+    () => [
+      {
+        title: "編輯",
+        dataIndex: "editBtn",
+        key: "editBtn",
+        render: (_, element) => (
+          <Button
+            icon={<EditOutlined />}
+            type="primary"
+            onClick={() => openEdit(element)}
+          ></Button>
+        ),
+      },
+
+      {
+        title: "圖片",
+        dataIndex: "image",
+        key: "image",
+        render: (image) => (
+          <Image crossOrigin="anonymous" src={image} width="70px" />
+        ),
+      },
+      {
+        title: "Index",
+        dataIndex: "Index",
+        key: "Index",
+      },
+      {
+        title: "系列ID",
+        dataIndex: "CourseID",
+        key: "CourseID",
+        render: (text, record) => (
+          <div>
+            <Tooltip title={text}>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <a style={{ color: "#1677FF", marginRight: 8 }}>
+                  {text?.slice(-5)}
+                </a>
+                <Button
+                  type="link"
+                  icon={<CopyOutlined />}
+                  onClick={() => copyToClipboard(record.CourseID)}
+                />
+              </div>
+            </Tooltip>
+          </div>
+        ),
+      },
+      {
+        title: "名稱",
+        dataIndex: "courseName",
+        key: "courseName",
+        ...getColumnSearchProps("courseName"),
+        onFilter: (value, record) => record.courseName.toLowerCase().includes(value.toLowerCase()),
+      },
+      {
+        title: "導師",
+        dataIndex: "teacherName",
+        key: "teacherName",
+        ...getColumnSearchProps("teacherName"),
+        onFilter: (value, record) => record.teacherName.toLowerCase().includes(value.toLowerCase()),
+      },
+      {
+        title: "分類",
+        dataIndex: "series",
+        key: "series",
+        render: (_, { tags }) => (
+          <>
+            {["主題", "技巧"]?.map((tag) => {
+              let color = tag.length > 5 ? "geekblue" : "green";
+              if (tag === "主題") {
+                color = "volcano";
+              }
+              return (
+                <Tag color={color} key={tag}>
+                  {tag.toUpperCase()}
+                </Tag>
+              );
+            })}
+          </>
+        ),
+      },
+      {
+        title: "Tags",
+        dataIndex: "tags",
+        key: "tags",
+        render: (_, { tags }) => (
+          <>
+            {tags?.map((tag) => {
+              let color = tag.length > 5 ? "geekblue" : "green";
+              if (tag === "主題") {
+                color = "volcano";
+              }
+              return (
+                <Tag color={color} key={tag}>
+                  {tag.toUpperCase()}
+                </Tag>
+              );
+            })}
+          </>
+        ),
+      },
+      {
+        title: "系列介紹",
+        dataIndex: "description",
+        key: "description",
+        ...getColumnSearchProps("description"),
+        onFilter: (value, record) => record.description.toLowerCase().includes(value.toLowerCase()),
+      },
+      {
+        title: "新增日期",
+        dataIndex: "createDate",
+        key: "createDate",
+        sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
+      },
+    ],
+    [getColumnSearchProps]
+  );
   const copyToClipboard = (text) => {
     navigator.clipboard
       .writeText(text)
@@ -268,8 +319,11 @@ function Course() {
     setLoading(true);
     const res = await meditationService.getAllCourse();
     const allMusics = await meditationService.getAllMusic();
+    const allTeachers = await meditationService.getAllTeacher();
+    const teacherMap = new Map(allTeachers.map(t => [t.TeacherId, t]));
     createOptions(allMusics);
     setAllMusics(allMusics);
+    setAllTeacherOption(allTeachers.map(t => ({ value: t.TeacherId, label: t.Name })));
     const result = [];
     for (let i = 0; i < res.length; i++) {
       //const musics = allMusics.filter(e=>res[i]?.MusicIDs?.includes(e));
@@ -286,7 +340,7 @@ function Course() {
       var teacher = null;
       if (res[i].TeacherID != "") {
         console.log(res[i].TeacherID);
-        teacher = await meditationService.getTeacherById(res[i].TeacherID);
+        teacher = teacherMap.get(res[i].TeacherID);
         console.log(teacher.Name);
         console.log(res[i]);
       }
@@ -311,8 +365,6 @@ function Course() {
     }
 
     setData(result);
-    createAllTeacherOptions();
-    console.log(allTeacherOption);
     setLoading(false);
   };
 
@@ -500,16 +552,7 @@ function Course() {
     form.setFieldsValue({ teacherId: value });
   };
 
-  const createAllTeacherOptions = async () => {
-    var allTeacher = await meditationService.getAllTeacher();
-    console.log(allTeacher);
-    var options = [];
-    allTeacher.forEach((t) => {
-      options.push({ value: t.TeacherId, label: t.Name });
-    });
-    setAllTeacherOption(options);
-    return options;
-  };
+
   const saveSortedMusics = () => {
     console.log("Sorted Musics:", course);
     setSortModalOpen(false);

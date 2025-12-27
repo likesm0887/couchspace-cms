@@ -1,0 +1,4 @@
+/* Appointments Edit Drawer Styles - Consistent with other admin pages */
+.appointment-edit-drawer .ant-drawer-body {
+  padding: 20px 0;
+}

@@ -17,23 +17,25 @@ import {
   Calendar,
   Row,
   DatePicker,
+  TimePicker,
   Select,
   Flex,
   Space,
   Input,
+  Typography,
 } from "antd";
 
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
+
 import { Layout, theme, Descriptions, Badge } from "antd";
+import { Pagination } from "antd";
 import "./counselor.css";
+import "./appointments.css";
 import moment from "moment";
-import { CopyOutlined } from "@ant-design/icons";
+import { CopyOutlined, EditOutlined, ClockCircleOutlined, CalendarOutlined } from "@ant-design/icons";
 import {
   LaptopOutlined,
   NotificationOutlined,
   UserOutlined,
-  DownloadOutlined,
 } from "@ant-design/icons";
 
 import {
@@ -44,76 +46,274 @@ import {
 import AdminHeader from "./AdminHeader";
 import CountUp from "react-countup";
 import { Label, Margin } from "@mui/icons-material";
-const DrawerForm = ({ id, visible, onClose, record, callback }) => {
-  // Define state for the form fields
+
+// 常量定義
+const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
+const DEFAULT_PAGE_SIZE = 20;
+
+// 工具函數
+const transformAppointment = (u) => ({
+  AppointmentID: u.AppointmentID,
+  UserEmail: "member.Email",
+  UserID: u.UserID,
+  UserName: u.UserName,
+  CounselorID: u.CounselorID,
+  CounselorName: u.CounselorName,
+  PromoCodeID: u.PromoCodeID,
+  DiscountFee: u.Service.Fee - u.DiscountFee,
+  DateTime: u.Time.Date + " " + u.Time.StartTime,
+  Fee: u.Service.Fee,
+  Type: u.Service.Type.Label,
+  AdminFlag: u.AdminFlag,
+  CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
+    .format("YYYY-MM-DD HH:mm:SS")
+    .toString(),
+  Status: getStatusDesc(u.Status),
+});
+
+const getStatusDesc = (code) => {
+  if (code.toUpperCase() === "NEW") {
+    return "訂單成立(未付款)";
+  }
+  if (code.toUpperCase() === "UNPAID") {
+    return "訂單成立(未付款)";
+  }
+  if (code.toUpperCase() === "CONFIRMED") {
+    return "已確認";
+  }
+  if (code.toUpperCase() === "ROOMCREATED") {
+    return "諮商房間已建立";
+  }
+  if (code.toUpperCase() === "CANCELLED") {
+    return "已取消";
+  }
+  if (code.toUpperCase() === "COMPLETED") {
+    return "已完成";
+  }
+};
+
+const isInDateRange = (dateTimeStr, startDate, endDate) => {
+  let start = null;
+  let end = null;
+
+  if (startDate !== null) {
+    start = moment(startDate.format("YYYY-MM-DD HH:mm"), "YYYY-MM-DD HH:mm");
+  }
+  if (endDate !== null) {
+    end = moment(endDate.format("YYYY-MM-DD HH:mm"), "YYYY-MM-DD HH:mm");
+  }
+  if (startDate === null && endDate === null) return true;
+
+  const dateTime = moment(dateTimeStr, "YYYY-MM-DD HH:mm");
+  return dateTime.isSameOrAfter(start) && dateTime.isSameOrBefore(end);
+};
+
+const matchesSearch = (app, searchTerm, promoCodeFilter, adminFlagFilter) => {
+  if (!searchTerm && !promoCodeFilter && adminFlagFilter === "全部") return true;
+  const term = searchTerm.toLowerCase();
+  const matchesTerm = !searchTerm || (
+    (app.AppointmentID && app.AppointmentID.toLowerCase().includes(term)) ||
+    (app.UserID && app.UserID.toString().toLowerCase().includes(term)) ||
+    (app.UserName && app.UserName.toLowerCase().includes(term)) ||
+    (app.CounselorName && app.CounselorName.toLowerCase().includes(term))
+  );
+  const matchesPromo = !promoCodeFilter || (app.PromoCodeID && app.PromoCodeID.toLowerCase().includes(promoCodeFilter.toLowerCase()));
+  const matchesFlag = adminFlagFilter === "全部" || app.AdminFlag === adminFlagFilter;
+  return matchesTerm && matchesPromo && matchesFlag;
+};
+const DrawerForm = ({ id, visible, onClose, record, callback, allAppointments }) => {
   const [form] = Form.useForm();
-  const [verify, setVerify] = useState(false);
-
-  // Clear form fields
-
-  const changeVerify = (e) => {
-    setVerify(e);
-    console.log(e);
-  };
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    console.log(id);
-    const getCounselorVerify = async () => {
-      const isVerify = await counselorService.getCounselorVerify(id);
-      console.log(isVerify);
-      setVerify(isVerify);
-    };
-    getCounselorVerify();
-  }, [id]);
+    if (visible && id && allAppointments) {
+      // Find the appointment data
+      const appointment = allAppointments.find(app => app.AppointmentID === id);
+      if (appointment && appointment.DateTime) {
+        try {
+          // Parse the date and time from DateTime string
+          const dateTimeStr = appointment.DateTime; // e.g., "2023-12-25 14:30-15:30"
+          const [dateStr, timeStr] = dateTimeStr.split(' ');
+          if (dateStr && timeStr) {
+            const [startTimeStr, endTimeStr] = timeStr.split('-');
+
+            // Set form values
+            form.setFieldsValue({
+              date: moment(dateStr, 'YYYY-MM-DD'),
+              startTime: moment(startTimeStr, 'HH:mm'),
+              endTime: moment(endTimeStr, 'HH:mm'),
+            });
+          } else {
+            // Reset form if data format is invalid
+            form.resetFields();
+          }
+        } catch (error) {
+          console.error('解析預約時間失敗:', error);
+          form.resetFields();
+        }
+      } else {
+        // Reset form if no data found
+        form.resetFields();
+      }
+    }
+  }, [visible, id, allAppointments, form]);
 
   // Handle form submission
-  const handleSubmit = async (value) => {
-    console.log(value);
-    console.log(id);
-    let time = {
-      AppointmentId: id,
-      Date: value.date,
-      StartTime: value.startTime,
-      EndTime: value.endTime,
-    };
-    appointmentService.changeAppointmentTime(time).then((e) => {
-      message.success("修改成功");
-    });
+  const handleSubmit = async (values) => {
+    setLoading(true);
+    try {
+      const timeData = {
+        AppointmentId: id,
+        Date: values.date.format('YYYY-MM-DD'),
+        StartTime: values.startTime.format('HH:mm'),
+        EndTime: values.endTime.format('HH:mm'),
+      };
 
-    onClose();
-    callback();
+      await appointmentService.changeAppointmentTime(timeData);
+      message.success("預約時間修改成功");
+      onClose();
+      callback();
+    } catch (error) {
+      message.error("修改失敗，請稍後再試");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const validateTimeRange = (_, value) => {
+    if (!value) return Promise.resolve();
+
+    const startTime = form.getFieldValue('startTime');
+    const endTime = value;
+
+    if (startTime && endTime) {
+      const start = moment(startTime, 'HH:mm');
+      const end = moment(endTime, 'HH:mm');
+
+      if (end.isSameOrBefore(start)) {
+        return Promise.reject(new Error('結束時間必須晚於開始時間'));
+      }
+    }
+
+    return Promise.resolve();
   };
 
   return (
-    <Drawer title={"Edit"} width={400} onClose={onClose} visible={visible}>
-      <Form form={form} onFinish={handleSubmit}>
-        <Form.Item name="date" label="日期" rules={[{ required: true }]}>
-          <Input placeholder="2022-05-06" />
-        </Form.Item>
-        <Form.Item
-          name="startTime"
-          label="起始時間"
-          rules={[{ required: true }]}
-        >
-          <Input placeholder="09:00" />
-        </Form.Item>
-        <Form.Item name="endTime" label="結束時間" rules={[{ required: true }]}>
-          <Input placeholder="10:00" />
-        </Form.Item>
-        <br />
-        {/* <label>Membership:</label> */}
-        {/* <Switch
-        checkedChildren="已認證"
-        unCheckedChildren="未認證"
-        checked={verify}
-        onChange={changeVerify}
-      /> */}
+    <Drawer
+      title={
         <Space>
-          <Button onClick={() => form.submit()}>
-            {record ? "Save" : "儲存"}
+          <EditOutlined />
+          編輯預約時間
+        </Space>
+      }
+      width={500}
+      onClose={onClose}
+      open={visible}
+      footer={
+        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+          <Button onClick={onClose}>
+            取消
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => form.submit()}
+            loading={loading}
+            icon={<ClockCircleOutlined />}
+          >
+            儲存修改
           </Button>
         </Space>
-      </Form>
+      }
+    >
+      <div style={{ padding: '20px 0' }}>
+        {/* 預約資訊卡片 */}
+        <Card
+          size="small"
+          style={{ marginBottom: 24 }}
+          title={
+            <Space>
+              <CalendarOutlined />
+              預約日期與時間設定
+            </Space>
+          }
+        >
+          <Form form={form} onFinish={handleSubmit} layout="vertical">
+            <Row gutter={16}>
+              <Col span={24}>
+                <Form.Item
+                  name="date"
+                  label="預約日期"
+                  rules={[
+                    { required: true, message: '請選擇預約日期' },
+                    {
+                      validator: (_, value) => {
+                        if (!value) return Promise.resolve();
+                        const selectedDate = moment(value);
+                        const today = moment().startOf('day');
+                        if (selectedDate.isBefore(today)) {
+                          return Promise.reject(new Error('無法選擇過去的日期'));
+                        }
+                        return Promise.resolve();
+                      }
+                    }
+                  ]}
+                >
+                  <DatePicker
+                    placeholder="選擇日期"
+                    style={{ width: '100%' }}
+                    format="YYYY-MM-DD"
+                    disabledDate={(current) => {
+                      return current && current < moment().startOf('day');
+                    }}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="startTime"
+                  label="開始時間"
+                  rules={[
+                    { required: true, message: '請選擇開始時間' }
+                  ]}
+                >
+                <TimePicker
+                  placeholder="開始時間"
+                  format="HH:mm"
+                  style={{ width: '100%' }}
+                  minuteStep={5}
+                />
+                </Form.Item>
+              </Col>
+
+              <Col span={12}>
+                <Form.Item
+                  name="endTime"
+                  label="結束時間"
+                  rules={[
+                    { required: true, message: '請選擇結束時間' },
+                    { validator: validateTimeRange }
+                  ]}
+                >
+                  <TimePicker
+                    placeholder="結束時間"
+                    format="HH:mm"
+                    style={{ width: '100%' }}
+                    minuteStep={5}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
+
+          <Typography.Paragraph type="secondary" style={{ fontSize: '12px', marginTop: '16px' }}>
+            修改預約時間後，系統將自動通知相關用戶。請確保新的時間不會與其他預約衝突。
+          </Typography.Paragraph>
+        </Card>
+      </div>
     </Drawer>
   );
 };
@@ -125,9 +325,13 @@ const Appointments = () => {
   const [record, setRecord] = useState(null);
   const [allAppointments, setAllAppointments] = useState([]);
   const [userCount, setUserCount] = useState(0);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [filters, setFilters] = useState({
+    all: { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" },
+    pending: { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" },
+    confirmed: { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" },
+    completed: { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" },
+    cancelled: { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" },
+  });
   const [currentSelectCounselorId, setCurrentSelectCounselorId] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModal2Open, setIsModal2Open] = useState(false);
@@ -139,6 +343,10 @@ const Appointments = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [selectedAppointmentForCancel, setSelectedAppointmentForCancel] =
     useState(null);
+  const [activeTab, setActiveTab] = useState("all");
+  // 分頁狀態
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   const {
     token: { colorBgContainer },
   } = theme.useToken();
@@ -161,7 +369,8 @@ const Appointments = () => {
         title: "預約成立時間",
         dataIndex: "CreateDate",
         key: "CreateDate",
-        sorter: (a, b) => Date.parse(a.CreateDate) - Date.parse(b.CreateDate),
+        sorter: (a, b) => Date.parse(b.CreateDate) - Date.parse(a.CreateDate),
+        defaultSortOrder: 'descend',
       },
       {
         title: "交易單號",
@@ -235,7 +444,8 @@ const Appointments = () => {
         title: "預約日期",
         dataIndex: "DateTime",
         key: "DateTime",
-        sorter: (a, b) => new Date(a.DateTime) - new Date(b.DateTime),
+        sorter: (a, b) => new Date(b.DateTime) - new Date(a.DateTime),
+        defaultSortOrder: 'descend',
       },
 
       {
@@ -257,12 +467,6 @@ const Appointments = () => {
         title: "折扣費用",
         key: "DiscountFee",
         dataIndex: "DiscountFee",
-      },
-      {
-        title: "預約成立時間",
-        dataIndex: "CreateDate",
-        key: "CreateDate",
-        sorter: (a, b) => Date.parse(a.CreateDate) - Date.parse(b.CreateDate),
       },
 
       {
@@ -377,29 +581,6 @@ const Appointments = () => {
     setSelectedAppointmentForCancel(null);
   };
 
-  function getStatusDesc(code) {
-    if (code.toUpperCase() === "NEW") {
-      return "訂單成立(未付款)";
-    }
-    if (code.toUpperCase() === "UNPAID") {
-      return "訂單成立(未付款)";
-    }
-    if (code.toUpperCase() === "CONFIRMED") {
-      return "已確認";
-    }
-    if (code.toUpperCase() === "ROOMCREATED") {
-      return "諮商房間已建立";
-    }
-
-    if (code.toUpperCase() === "CANCELLED") {
-      return "已取消";
-    }
-
-    if (code.toUpperCase() === "COMPLETED") {
-      return "已完成";
-    }
-  }
-
   const copyToClipboard = (text) => {
     navigator.clipboard
       .writeText(text)
@@ -411,52 +592,6 @@ const Appointments = () => {
       });
   };
 
-  const transformAppointment = (u) => ({
-    AppointmentID: u.AppointmentID,
-    UserEmail: "member.Email",
-    UserID: u.UserID,
-    UserName: u.UserName,
-    CounselorID: u.CounselorID,
-    CounselorName: u.CounselorName,
-    PromoCodeID: u.PromoCodeID,
-    DiscountFee: u.Service.Fee - u.DiscountFee,
-    DateTime: u.Time.Date + " " + u.Time.StartTime,
-    Fee: u.Service.Fee,
-    Type: u.Service.Type.Label,
-    AdminFlag: u.AdminFlag,
-    CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
-      .format("YYYY-MM-DD HH:mm:SS")
-      .toString(),
-    Status: getStatusDesc(u.Status),
-  });
-
-  const isInDateRange = (dateTimeStr) => {
-    let start = null;
-    let end = null;
-
-    if (startDate !== null) {
-      start = moment(startDate.format("YYYY-MM-DD HH:mm"), "YYYY-MM-DD HH:mm");
-    }
-    if (endDate !== null) {
-      end = moment(endDate.format("YYYY-MM-DD HH:mm"), "YYYY-MM-DD HH:mm");
-    }
-    if (startDate === null && endDate === null) return true;
-
-    const dateTime = moment(dateTimeStr, "YYYY-MM-DD HH:mm");
-    return dateTime.isSameOrAfter(start) && dateTime.isSameOrBefore(end);
-  };
-
-  const matchesSearch = (app) => {
-    if (!searchTerm) return true;
-    const term = searchTerm.toLowerCase();
-    return (
-      (app.AppointmentID && app.AppointmentID.toLowerCase().includes(term)) ||
-      (app.UserID && app.UserID.toString().toLowerCase().includes(term)) ||
-      (app.UserName && app.UserName.toLowerCase().includes(term)) ||
-      (app.CounselorName && app.CounselorName.toLowerCase().includes(term))
-    );
-  };
-
   const fetchData = async () => {
     const result = await appointmentService.getAllAppointmentForAdmin();
     console.log(result);
@@ -464,78 +599,51 @@ const Appointments = () => {
     setUserCount(result.length);
   };
 
-  // Memoized filtered and transformed data
-  const { userData, confirmedAppointment } = useMemo(() => {
-    const transformAppointmentLocal = (u) => ({
-      AppointmentID: u.AppointmentID,
-      UserEmail: "member.Email",
-      UserID: u.UserID,
-      UserName: u.UserName,
-      CounselorID: u.CounselorID,
-      CounselorName: u.CounselorName,
-      PromoCodeID: u.PromoCodeID,
-      DiscountFee: u.Service.Fee - u.DiscountFee,
-      DateTime: u.Time.Date + " " + u.Time.StartTime,
-      Fee: u.Service.Fee,
-      Type: u.Service.Type.Label,
-      AdminFlag: u.AdminFlag,
-      CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
-        .format("YYYY-MM-DD HH:mm:SS")
-        .toString(),
-      Status: getStatusDesc(u.Status),
-    });
-
-    const isInDateRangeLocal = (dateTimeStr) => {
-      let start = null;
-      let end = null;
-
-      if (startDate !== null) {
-        start = moment(
-          startDate.format("YYYY-MM-DD HH:mm"),
-          "YYYY-MM-DD HH:mm"
-        );
-      }
-      if (endDate !== null) {
-        end = moment(endDate.format("YYYY-MM-DD HH:mm"), "YYYY-MM-DD HH:mm");
-      }
-      if (startDate === null && endDate === null) return true;
-
-      const dateTime = moment(dateTimeStr, "YYYY-MM-DD HH:mm");
-      return dateTime.isSameOrAfter(start) && dateTime.isSameOrBefore(end);
+  // Memoized tab counts
+  const tabCounts = useMemo(() => {
+    const transformed = allAppointments.map(transformAppointment);
+    return {
+      all: transformed.length,
+      pending: transformed.filter((u) => u.Status === "訂單成立(未付款)").length,
+      confirmed: transformed.filter((u) => u.Status === "已確認" || u.Status === "諮商房間已建立").length,
+      completed: transformed.filter((u) => u.Status === "已完成").length,
+      cancelled: transformed.filter((u) => u.Status === "已取消").length,
     };
+  }, [allAppointments]);
 
-    const matchesSearchFlag = (app) => {
-      if (!searchTerm) return true;
-      const term = searchTerm.toLowerCase();
-      return (
-        (app.AppointmentID && app.AppointmentID.toLowerCase().includes(term)) ||
-        (app.UserID && app.UserID.toString().toLowerCase().includes(term)) ||
-        (app.UserName && app.UserName.toLowerCase().includes(term)) ||
-        (app.CounselorName && app.CounselorName.toLowerCase().includes(term))
-      );
-    };
+  // Memoized filtered and transformed data with pagination
+  const { filteredData, paginatedData } = useMemo(() => {
+    const transformed = allAppointments.map(transformAppointment);
 
-    const transformed = allAppointments.map(transformAppointmentLocal);
+    const currentFilters = filters[activeTab] || { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" };
+    let filtered = transformed
+      .filter((u) => matchesSearch(u, currentFilters.searchTerm, currentFilters.promoCodeFilter, currentFilters.adminFlagFilter) && isInDateRange(u.DateTime, currentFilters.startDate, currentFilters.endDate));
 
-    const userDataFiltered = transformed
-      .filter((u) => {
-        const status = u.Status;
-        return status !== "已確認" && status !== "諮商房間已建立";
-      })
-      .filter((u) => matchesSearchFlag(u) && isInDateRangeLocal(u.DateTime));
+    // Filter by tab
+    if (activeTab === "pending") {
+      filtered = filtered.filter((u) => u.Status === "訂單成立(未付款)");
+    } else if (activeTab === "confirmed") {
+      filtered = filtered.filter((u) => u.Status === "已確認" || u.Status === "諮商房間已建立");
+    } else if (activeTab === "completed") {
+      filtered = filtered.filter((u) => u.Status === "已完成");
+    } else if (activeTab === "cancelled") {
+      filtered = filtered.filter((u) => u.Status === "已取消");
+    }
+    // all tab includes all
 
-    const confirmedFiltered = transformed
-      .filter((u) => {
-        const status = u.Status;
-        return status === "已確認" || status === "諮商房間已建立";
-      })
-      .filter((u) => matchesSearchFlag(u) && isInDateRangeLocal(u.DateTime));
+    // Sort by CreateDate desc (newest first)
+    filtered.sort((a, b) => Date.parse(b.CreateDate) - Date.parse(a.CreateDate));
+
+    const paginated = filtered.slice(
+      (currentPage - 1) * pageSize,
+      currentPage * pageSize
+    );
 
     return {
-      userData: userDataFiltered,
-      confirmedAppointment: confirmedFiltered,
+      filteredData: filtered,
+      paginatedData: paginated,
     };
-  }, [allAppointments, searchTerm, startDate, endDate]);
+  }, [allAppointments, filters, currentPage, pageSize, activeTab]);
 
   const [
     currentSelectCounselorAppointmentTime,
@@ -926,134 +1034,303 @@ const Appointments = () => {
     ]);
   };
 
-  const ExportButton = ({ data }) => {
-    const handleExport = () => {
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.json_to_sheet(data);
-      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-      const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-      saveAs(
-        new Blob([wbout], { type: "application/octet-stream" }),
-        "table-data.xlsx"
-      );
-    };
 
+
+  const applySearch = (tabKey, values) => {
+    setFilters(prev => ({
+      ...prev,
+      [tabKey]: values
+    }));
+    setCurrentPage(1);
+  };
+
+  const handleClear = (tabKey) => {
+    const empty = { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" };
+    setFilters(prev => ({
+      ...prev,
+      [tabKey]: empty
+    }));
+    setCurrentPage(1);
+  };
+
+  const handleTabChange = (key) => {
+    setActiveTab(key);
+    setCurrentPage(1);
+  };
+
+  const SearchCard = ({ tabKey }) => {
+    const [localFilters, setLocalFilters] = useState(filters[tabKey] || { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" });
+    useEffect(() => setLocalFilters(filters[tabKey]), [tabKey, filters]);
     return (
-      <Button
-        style={{
-          backgroundColor: "#f5a623", // 橘黃色背景
-          borderColor: "#f5a623", // 邊框顏色
-          color: "#fff", // 白色字體
-          margin: 16,
-          borderRadius: "5px", // 圓角邊框
-          padding: "0px 5px 0px 5px ", // 按鈕內邊距
-        }}
-        icon={<DownloadOutlined />} // 如果你有使用 icon
-        onClick={handleExport}
-      >
-        下載報表
-      </Button>
+      <Card style={{ marginBottom: 16, backgroundColor: '#f9f9f9', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <Input
+            value={localFilters.searchTerm}
+            placeholder="輸入訂單編號/案主ID/案主姓名/諮商師姓名"
+            style={{
+              width: 300,
+              fontSize: '14px'
+            }}
+            onChange={(e) => setLocalFilters(prev => ({ ...prev, searchTerm: e.target.value }))}
+            allowClear
+            autoComplete="off"
+          />
+          <style dangerouslySetInnerHTML={{
+            __html: `
+              .ant-input::placeholder {
+                font-size: 12px !important;
+              }
+            `
+          }} />
+          <Input
+            value={localFilters.promoCodeFilter}
+            placeholder="優惠代碼"
+            style={{
+              width: 120,
+              fontSize: '14px'
+            }}
+            onChange={(e) => setLocalFilters(prev => ({ ...prev, promoCodeFilter: e.target.value }))}
+            allowClear
+            autoComplete="off"
+          />
+          <Select
+            placeholder="標記狀態"
+            value={localFilters.adminFlagFilter}
+            onChange={(value) => setLocalFilters(prev => ({ ...prev, adminFlagFilter: value }))}
+            style={{ width: 120 }}
+            allowClear
+          >
+            <Option value="全部">全部</Option>
+            <Option value="Completed">已完成</Option>
+            <Option value="CounselorUnCompleted">諮商師未完成</Option>
+            <Option value="UserUnCompleted">案主未完成</Option>
+            <Option value="CustomerServiceProcess">平台處理</Option>
+            <Option value="WaitForProcess">待處理</Option>
+            <Option value="Cancelled">已取消</Option>
+          </Select>
+          <DatePicker
+            placeholder="開始日期"
+            value={localFilters.startDate}
+            onChange={(date) => setLocalFilters(prev => ({ ...prev, startDate: date }))}
+          />
+          <DatePicker
+            placeholder="結束日期"
+            value={localFilters.endDate}
+            onChange={(date) => setLocalFilters(prev => ({ ...prev, endDate: date }))}
+          />
+          <style dangerouslySetInnerHTML={{
+            __html: `
+              .ant-picker-input input::placeholder {
+                font-size: 12px !important;
+              }
+            `
+          }} />
+          <Button
+            type="primary"
+            onClick={() => applySearch(tabKey, localFilters)}
+          >
+            搜尋
+          </Button>
+          <Button
+            onClick={() => handleClear(tabKey)}
+          >
+            清除篩選
+          </Button>
+        </div>
+      </Card>
     );
   };
 
-  // Search is handled reactively via useMemo
+  const tabItems = [
+    {
+      key: "all",
+      label: "所有預約",
+      children: (
+        <>
+          <SearchCard tabKey="all" />
+          <Statistic
+            title="預約數量"
+            value={filteredData.length}
+            formatter={formatter}
+          />
+          <Table
+            columns={columns(activeTab === "confirmed")}
+            dataSource={paginatedData}
+            spinning={loading}
+            pagination={false}
+          />
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={filteredData.length}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            showSizeChanger
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            showQuickJumper
+            showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
+          />
+        </>
+      ),
+    },
+    {
+      key: "pending",
+      label: "待處理",
+      children: (
+        <>
+          <SearchCard tabKey="pending" />
+          <Statistic
+            title="待處理預約數量"
+            value={filteredData.length}
+            formatter={formatter}
+          />
+          <Table
+            columns={columns(false)}
+            dataSource={paginatedData}
+            spinning={loading}
+            pagination={false}
+          />
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={filteredData.length}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            showSizeChanger
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            showQuickJumper
+            showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
+          />
+        </>
+      ),
+    },
+    {
+      key: "confirmed",
+      label: (
+        <span>
+          已確認
+          <Badge
+            count={tabCounts.confirmed}
+            showZero
+            style={{
+              marginLeft: 8,
+              backgroundColor: tabCounts.confirmed > 0 ? '#f5222d' : '#d9d9d9'
+            }}
+          />
+        </span>
+      ),
+      children: (
+        <>
+          <SearchCard tabKey="confirmed" />
+          <Statistic
+            title="已確認預約數量"
+            value={filteredData.length}
+            formatter={formatter}
+          />
+          <Table
+            columns={columns(true)}
+            dataSource={paginatedData}
+            spinning={loading}
+            pagination={false}
+          />
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={filteredData.length}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            showSizeChanger
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            showQuickJumper
+            showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
+          />
+        </>
+      ),
+    },
+    {
+      key: "completed",
+      label: "已完成",
+      children: (
+        <>
+          <SearchCard tabKey="completed" />
+          <Statistic
+            title="已完成預約數量"
+            value={filteredData.length}
+            formatter={formatter}
+          />
+          <Table
+            columns={columns(false)}
+            dataSource={paginatedData}
+            spinning={loading}
+            pagination={false}
+          />
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={filteredData.length}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            showSizeChanger
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            showQuickJumper
+            showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
+          />
+        </>
+      ),
+    },
+    {
+      key: "cancelled",
+      label: "已取消",
+      children: (
+        <>
+          <SearchCard tabKey="cancelled" />
+          <Statistic
+            title="已取消預約數量"
+            value={filteredData.length}
+            formatter={formatter}
+          />
+          <Table
+            columns={columns(false)}
+            dataSource={paginatedData}
+            spinning={loading}
+            pagination={false}
+          />
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={filteredData.length}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            showSizeChanger
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            showQuickJumper
+            showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
+          />
+        </>
+      ),
+    },
+  ];
 
-  const handleClear = () => {
-    setSearchTerm("");
-    setStartDate(null);
-    setEndDate(null);
-  };
+
+
   return (
     <>
       {contextHolder}
-      <Flex gap="middle" justify="space-between" baseStyle>
-        <Statistic title="預約數量" value={userCount} formatter={formatter} />
-
-        {/* 第二行：查詢和清除按鈕 */}
-        <Flex gap="small" justify="space-between" vertical>
-          <Row>
-            <Col span={18}></Col>
-            <Col span={6}>
-              <ExportButton
-                style={{
-                  width: "100px",
-                  backgroundColor: "#f5a623", // 橘黃色背景
-                  borderColor: "#f5a623", // 邊框顏色
-                  color: "#fff", // 白色字體
-                  borderRadius: "5px", // 圓角邊框
-                  padding: "6px 16px", // 按鈕內邊距
-                  fontWeight: "bold", // 粗體字
-                }}
-                data={userData}
-              >
-                下載報表
-              </ExportButton>
-            </Col>
-          </Row>
-          <Flex justify="space-evenly" gap="small">
-            <Flex gap="small" justify="space-evenly" vertical>
-              <Row>
-                <Col span={5}></Col>
-                <Col span={19}>
-                  <Input
-                    value={searchTerm}
-                    placeholder="輸入訂單編號/案主ID/案主姓名/諮商師姓名"
-                    style={{ width: "350px" }}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </Col>
-              </Row>
-              <Flex gap="middle" justify="space-evenly" baseStyle>
-                <DatePicker
-                  placeholder="預約時間"
-                  style={{ width: "120px" }}
-                  value={startDate}
-                  onChange={(date) => setStartDate(date)}
-                />
-                -
-                <DatePicker
-                  placeholder="預約時間"
-                  style={{ width: "120px" }}
-                  value={endDate}
-                  onChange={(date) => setEndDate(date)}
-                />
-                <Button
-                  style={{
-                    backgroundColor: "#ffffff", // 白色背景（清除按鈕）
-                    borderColor: "#0085ff", // 藍色邊框
-                    color: "#0085ff", // 藍色字體
-                    borderRadius: "5px", // 圓角邊框
-                    padding: "0px 20px", // 按鈕內邊距
-                  }}
-                  onClick={handleClear}
-                >
-                  清除
-                </Button>
-              </Flex>
-            </Flex>
-          </Flex>
-        </Flex>
-      </Flex>
-
-      <Statistic
-        title="即將要開始的諮商"
-        value={confirmedAppointment?.length}
-        formatter={formatter}
-      />
-      <Table
-        columns={columns(true)}
-        dataSource={confirmedAppointment}
-        spinning={loading}
-      />
-      <Statistic
-        title="歷史清單"
-        value={userData?.length}
-        formatter={formatter}
-      />
-      <Table
-        columns={columns(false)}
-        dataSource={userData}
-        spinning={loading}
+      <Tabs
+        activeKey={activeTab}
+        onChange={handleTabChange}
+        tabBarStyle={{ backgroundColor: '#fafafa', borderRadius: '8px', padding: '8px', marginBottom: '16px' }}
+        items={tabItems}
       />
       <DrawerForm
         id={currentSelectCounselorId}
@@ -1061,6 +1338,7 @@ const Appointments = () => {
         visible={visible}
         onClose={handleClose}
         record={record}
+        allAppointments={allAppointments}
       />
 
       <Modal

@@ -13,7 +13,7 @@ import {
   Drawer,
 } from "antd";
 
-import { PlusCircleOutlined, EditOutlined } from "@ant-design/icons";
+import { PlusCircleOutlined, EditOutlined, SearchOutlined } from "@ant-design/icons";
 import AdminHeader from "./AdminHeader";
 
 function Teacher() {
@@ -25,6 +25,51 @@ function Teacher() {
   const [messageApi, contextHolder] = message.useMessage();
   const [selectedTeacherKey, setSelectedTeacherKey] = useState([]);
   const [form] = Form.useForm();
+
+  const handleSearch = useCallback((selectedKeys, confirm, dataIndex) => {
+    confirm();
+  }, []);
+
+  const handleReset = useCallback((clearFilters) => {
+    clearFilters();
+  }, []);
+
+  const getColumnSearchProps = useCallback(
+    (dataIndex) => ({
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder={`Search ${dataIndex}`}
+            value={selectedKeys[0]}
+            onChange={(e) =>
+              setSelectedKeys(e.target.value ? [e.target.value] : [])
+            }
+            onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            style={{ width: 188, marginBottom: 8, display: "block" }}
+          />
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+              icon={<SearchOutlined />}
+              size="small"
+            >
+              Search
+            </Button>
+            <Button onClick={() => handleReset(clearFilters)} size="small">
+              Reset
+            </Button>
+          </Space>
+        </div>
+      ),
+    }),
+    [handleSearch, handleReset]
+  );
   const columns = useMemo(
     () => [
       {
@@ -52,6 +97,8 @@ function Teacher() {
         title: "姓名",
         dataIndex: "name",
         key: "name",
+        ...getColumnSearchProps("name"),
+        onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
       },
       {
         title: "稱號",
@@ -81,7 +128,7 @@ function Teacher() {
           moment(a.createDate).unix() - moment(b.createDate).unix(),
       },
     ],
-    []
+    [getColumnSearchProps]
   );
 
   const tableProps = {
