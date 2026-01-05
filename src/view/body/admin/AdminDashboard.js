@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Typography, Statistic } from 'antd';
+import { Card, Row, Col, Typography, Statistic, Calendar, Badge } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import {
   UserOutlined,
@@ -9,6 +9,8 @@ import {
 } from '@ant-design/icons';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { appointmentService } from '../../../service/ServicePool';
+import dayjs from 'dayjs';
+
 
 const { Title, Paragraph } = Typography;
 
@@ -16,9 +18,32 @@ function AdminDashboard() {
   const navigate = useNavigate();
   const [appointmentChartData, setAppointmentChartData] = useState([]);
   const [loadingChart, setLoadingChart] = useState(false);
+  const [confirmedAppointments, setConfirmedAppointments] = useState([]);
 
+  
   const handleCardClick = (path) => {
     navigate(path, { replace: true });
+  };
+
+  const getListData = (value) => {
+    const dateStr = value.format('YYYY-MM-DD');
+    return confirmedAppointments.filter(appointment => appointment.date === dateStr);
+  };
+
+  const cellRender = (current, info) => {
+    if (info.type === 'date') {
+      const listData = getListData(current);
+      return (
+        <ul className="events" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          {listData.map(item => (
+            <li key={item.content}>
+              <Badge status={item.type} text={item.content} />
+            </li>
+          ))}
+        </ul>
+      );
+    }
+    return info.originNode;
   };
 
   const fetchAppointmentChartData = async () => {
@@ -56,6 +81,21 @@ function AdminDashboard() {
 
       console.log('Chart data:', chartData); // 调试日志
       setAppointmentChartData(chartData);
+
+      // 获取已确认的预约 (包括CONFIRMED和ROOMCREATED状态)
+      const confirmedAppointments = result.filter(appointment =>
+        appointment.Status === 'CONFIRMED' || appointment.Status === 'ROOMCREATED'
+      ).map(appointment => ({
+        date: appointment.Time.Date.split(' ')[0],
+        counselorName: appointment.CounselorName,
+        time: `${appointment.Time.StartTime}-${appointment.Time.EndTime}`,
+        type: 'success',
+        content: `${appointment.CounselorName} ${appointment.Time.StartTime}-${appointment.Time.EndTime}`
+      }));
+      console.log('All appointments:', result.map(a => ({ Status: a.Status, Date: a.Time?.Date })));
+      console.log('Confirmed appointments:', confirmedAppointments);
+      setConfirmedAppointments(confirmedAppointments);
+      console.log('Processed confirmed appointments:', confirmedAppointments);
     } catch (error) {
       console.error("Failed to fetch appointment chart data", error);
     } finally {
@@ -63,10 +103,26 @@ function AdminDashboard() {
     }
   };
 
+const stylesObject = {
+  root: {
+    borderRadius: 8,
+    width: 600,
+  },
+};
+const stylesFunction = info => {
+  if (info.props.fullscreen) {
+    return {
+      root: {
+        border: '2px solid #BDE3C3',
+        borderRadius: 10,
+        backgroundColor: 'rgba(189,227,195, 0.3)',
+      },
+    };
+  }
+};
   useEffect(() => {
     fetchAppointmentChartData();
   }, []);
-
   return (
     <div style={{ padding: '24px' }}>
       <Title level={2} style={{ textAlign: 'center', marginBottom: '24px' }}>
@@ -158,7 +214,7 @@ function AdminDashboard() {
             size="small"
             loading={loadingChart}
           >
-            <div style={{ width: "100%", height: "250px" }}>
+            <div style={{ width: "100%", height: "400px" }}>
               {appointmentChartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={appointmentChartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
@@ -188,13 +244,53 @@ function AdminDashboard() {
             </div>
           </Card>
         </Col>
+
+        <Col xs={24} lg={12}>
+          <Card
+            title="已確認預約日曆"
+            size="small"
+          >  
+            <div style={{ width: "100%", height: "400px" }}>
+              <Calendar
+                cellRender={cellRender}
+                fullscreen={false}
+                style={{ width: "100%", height: "10px" }}
+                headerRender={({ value, type, onChange, onTypeChange }) => {
+                  const month = value.month();
+                  const year = value.year();
+                  return (
+                    <div style={{ padding: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <button
+                        type="button"
+                        onClick={() => onChange(value.clone().subtract(1, 'month'))}
+                        style={{ border: 'none', background: 'none', cursor: 'pointer' }}
+                      >
+                        ‹
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onTypeChange('month')}
+                        style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: '16px' }}
+                      >
+                        {month + 1}月
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onChange(value.clone().add(1, 'month'))}
+                        style={{ border: 'none', background: 'none', cursor: 'pointer' }}
+                      >
+                        ›
+                      </button>
+                    </div>
+                  );
+                }}
+              />
+            </div>
+          </Card>
+        </Col>
       </Row>
 
-      <div style={{ textAlign: 'center', marginTop: '32px' }}>
-        <Paragraph style={{ fontSize: '16px', color: '#666' }}>
-          請使用左側導航欄訪問各個管理功能
-        </Paragraph>
-      </div>
+      
     </div>
   );
 }
