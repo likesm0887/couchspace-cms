@@ -36,6 +36,7 @@ const Counselor = React.lazy(() => import("./view/body/admin/Counselor"));
 const Banner = React.lazy(() => import("./view/body/admin/Banner"));
 const CounselorBanner = React.lazy(() => import("./view/body/admin/CounselorBanner"));
 const Appointments = React.lazy(() => import("./view/body/admin/Appointments"));
+const AppointmentDetailAdmin = React.lazy(() => import("./view/body/admin/AppointmentDetailAdmin"));
 const PromoCode = React.lazy(() => import("./view/body/admin/Promo_code"));
 const Reports = React.lazy(() => import("./view/body/admin/Reports"));
 const Register = React.lazy(() => import("./view/register/register"));
@@ -67,6 +68,7 @@ function App() {
             <Route path="counselor" element={<Suspense fallback={<div>Loading...</div>}><Counselor /></Suspense>}></Route>
             <Route path="counselorBanner" element={<Suspense fallback={<div>Loading...</div>}><CounselorBanner /></Suspense>}></Route>
             <Route path="appointments" element={<Suspense fallback={<div>Loading...</div>}><Appointments /></Suspense>}></Route>
+            <Route path="appointments/:id" element={<Suspense fallback={<div>Loading...</div>}><AppointmentDetailAdmin /></Suspense>}></Route>
             <Route path="promocode" element={<Suspense fallback={<div>Loading...</div>}><PromoCode /></Suspense>}></Route>
             <Route path="reports" element={<Suspense fallback={<div>Loading...</div>}><Reports /></Suspense>}></Route>
           </Route>

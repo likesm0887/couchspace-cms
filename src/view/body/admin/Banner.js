@@ -27,6 +27,8 @@ import {
   Form,
   Button,
   Drawer,
+  Carousel,
+  Card,
 } from "antd";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
@@ -533,6 +535,57 @@ const Banner = () => {
         tooltip={<div>Add Banner</div>}
         icon={<PlusCircleOutlined />}
       />
+      {dataSource.length > 0 && (
+        <Card
+          title="Banner Preview"
+          style={{
+            marginTop: 20,
+            maxWidth: 600,
+            margin: '20px auto',
+            boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+            borderRadius: 8
+          }}
+          bodyStyle={{ padding: '16px' }}
+        >
+          <Carousel
+            autoplay
+            dots={true}
+            style={{
+              borderRadius: 6,
+              overflow: 'hidden',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}
+          >
+            {dataSource.map((banner) => (
+              <div key={banner.key} style={{ position: 'relative' }}>
+                <Image
+                  crossOrigin="anonymous"
+                  src={banner.imageUrl}
+                  width="100%"
+                  style={{
+                    maxHeight: '120px',
+                    objectFit: 'contain',
+                    borderRadius: 6
+                  }}
+                  preview={false}
+                />
+                <div style={{
+                  position: 'absolute',
+                  bottom: 8,
+                  left: 8,
+                  background: 'rgba(0,0,0,0.6)',
+                  color: 'white',
+                  padding: '4px 8px',
+                  borderRadius: 4,
+                  fontSize: '12px'
+                }}>
+                  Banner {banner.seq}
+                </div>
+              </div>
+            ))}
+          </Carousel>
+        </Card>
+      )}
       <Spin size="large" spinning={loading2}>
         <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
           <SortableContext

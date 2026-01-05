@@ -216,10 +216,11 @@ const PromoCode = () => {
     if (inputSearchTerm !== null) {
       console.log(inputSearchTerm)
       promoCodes = promoCodes.filter((u) => {
+        const idMatch = u.ID.toString().includes(inputSearchTerm);
         const tokenMatch = u.Token.includes(inputSearchTerm);
         const presentTokenMatch = u.PresentToken.includes(inputSearchTerm);
 
-        return tokenMatch || presentTokenMatch;
+        return idMatch || tokenMatch || presentTokenMatch;
       });
     }
     setPromoCode(promoCodes);
@@ -423,7 +424,7 @@ const PromoCode = () => {
             <Flex gap="small" align="center">
               <Input.Search
                 value={searchTerm}
-                placeholder="搜尋優惠代碼或Code..."
+                placeholder="搜尋ID、優惠代碼或Code..."
                 className="custom-search-input"
                 style={{
                   width: "250px",
