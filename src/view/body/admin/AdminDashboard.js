@@ -214,7 +214,7 @@ const stylesFunction = info => {
             size="small"
             loading={loadingChart}
           >
-            <div style={{ width: "100%", height: "400px" }}>
+            <div style={{ width: "100%", height: "300px" }}>
               {appointmentChartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={appointmentChartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
@@ -250,11 +250,11 @@ const stylesFunction = info => {
             title="已確認預約日曆"
             size="small"
           >  
-            <div style={{ width: "100%", height: "400px" }}>
+            <div style={{ width: "100%", height: "300px", overflow: "hidden" }}>
               <Calendar
                 cellRender={cellRender}
                 fullscreen={false}
-                style={{ width: "100%", height: "10px" }}
+                style={{ width: "100%", height: "100%" }}
                 headerRender={({ value, type, onChange, onTypeChange }) => {
                   const month = value.month();
                   const year = value.year();
