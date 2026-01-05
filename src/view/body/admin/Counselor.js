@@ -35,6 +35,222 @@ import CountUp from "react-countup";
 import img_account from "../../img/login/ic_identity.svg";
 import { fontFamily } from "@mui/system";
 import { isNil } from "@ant-design/pro-components";
+
+// CounselorDetailModal 組件 - 諮商師詳情模態框
+const CounselorDetailModal = ({ counselorData, counselorPhoto }) => {
+  if (!counselorData || counselorData.length === 0) {
+    return <div>載入中...</div>;
+  }
+
+  // 將Descriptions items轉換為對象格式供顯示
+  const counselorInfo = counselorData.reduce((acc, item) => {
+    acc[item.key] = item;
+    return acc;
+  }, {});
+
+  return (
+    <div style={{ padding: "16px", backgroundColor: "#f5f5f5" }}>
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        {/* Header */}
+        <div style={{ textAlign: "center", padding: "16px", backgroundColor: "#fff", borderRadius: "8px" }}>
+          <Typography.Title level={4} style={{ margin: 0 }}>
+            諮商師詳情
+            {counselorInfo["21"]?.children && (
+              <div style={{ marginTop: "8px" }}>
+                <Tag color="blue" style={{ fontSize: "14px", padding: "4px 12px" }}>
+                  {counselorInfo["21"]?.children === "HeartCoach" ? "心教練" : "心理師"}
+                </Tag>
+              </div>
+            )}
+          </Typography.Title>
+        </div>
+
+        <Row gutter={24}>
+          {/* 大頭貼 */}
+          <Col xs={24} lg={6}>
+            <Card title="大頭貼" bordered={false}>
+              <div style={{ textAlign: 'center' }}>
+                {counselorPhoto ? (
+                  <div>
+                    {counselorPhoto}
+                  </div>
+                ) : (
+                  <div style={{
+                    width: '120px',
+                    height: '120px',
+                    backgroundColor: '#f0f0f0',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto',
+                    color: '#999'
+                  }}>
+                    無照片
+                  </div>
+                )}
+              </div>
+            </Card>
+          </Col>
+
+          {/* 基本資訊 */}
+          <Col xs={24} lg={18}>
+            <Card title={<Space><UserOutlined />基本資訊</Space>} bordered={false}>
+              <Descriptions column={2} size="small">
+                <Descriptions.Item label="姓名">
+                  {counselorInfo["1"]?.children}
+                </Descriptions.Item>
+                <Descriptions.Item label="暱稱">
+                  {counselorInfo["2"]?.children}
+                </Descriptions.Item>
+                <Descriptions.Item label="Email">
+                  {counselorInfo["3"]?.children}
+                </Descriptions.Item>
+                <Descriptions.Item label="手機">
+                  {counselorInfo["5"]?.children}
+                </Descriptions.Item>
+                <Descriptions.Item label="性別">
+                  {counselorInfo["19"]?.children}
+                </Descriptions.Item>
+                <Descriptions.Item label="認證狀態">
+                  {counselorInfo["6"]?.children}
+                </Descriptions.Item>
+              </Descriptions>
+            </Card>
+          </Col>
+
+        </Row>
+
+        <Row gutter={24}>
+          {/* 專業資訊 */}
+          <Col xs={24} lg={12}>
+            <Card title={<Space><UserOutlined />專業資訊</Space>} bordered={false}>
+              <Descriptions column={1} size="small">
+                <Descriptions.Item label="學歷">
+                  {counselorInfo["8"]?.children}
+                </Descriptions.Item>
+                <Descriptions.Item label="職稱">
+                  {counselorInfo["10"]?.children}
+                </Descriptions.Item>
+                <Descriptions.Item label="經歷">
+                  {counselorInfo["7"]?.children}
+                </Descriptions.Item>
+                <Descriptions.Item label="從業時間">
+                  {counselorInfo["14"]?.children}
+                </Descriptions.Item>
+                <Descriptions.Item label="地點">
+                  {counselorInfo["13"]?.children}
+                </Descriptions.Item>
+                <Descriptions.Item label="語言">
+                  {counselorInfo["20"]?.children || "未設定"}
+                </Descriptions.Item>
+                <Descriptions.Item label="身分">
+                  {counselorInfo["21"]?.children === "HeartCoach" ? "心教練" : "心理師"}
+                </Descriptions.Item>
+              </Descriptions>
+            </Card>
+          </Col>
+
+          {/* 服務與資格 */}
+          <Col xs={24} lg={12}>
+            <Card title="服務與資格" bordered={false}>
+              <Descriptions column={1} size="small">
+                <Descriptions.Item label="認證狀態">
+                  {counselorInfo["6"]?.children}
+                </Descriptions.Item>
+                <Descriptions.Item label="機構資訊">
+                  {counselorInfo["9"]?.children}
+                </Descriptions.Item>
+                <Descriptions.Item label="地址">
+                  {counselorInfo["10"]?.children}
+                </Descriptions.Item>
+              </Descriptions>
+            </Card>
+          </Col>
+        </Row>
+
+        {/* 服務類別 */}
+        {counselorInfo["16"] && (
+          <Card title="服務類別" bordered={false}>
+            <Space wrap>
+              {counselorInfo["16"]?.children}
+            </Space>
+          </Card>
+        )}
+
+        {/* 專長 */}
+        {counselorInfo["17"] && (
+          <Card title="專長" bordered={false}>
+            <Space wrap>
+              {counselorInfo["17"]?.children}
+            </Space>
+          </Card>
+        )}
+
+        {/* 證照 */}
+        {counselorInfo["18"] && (
+          <Card title="證照資訊" bordered={false}>
+            <Space wrap>
+              {counselorInfo["18"]?.children}
+            </Space>
+          </Card>
+        )}
+
+        {/* 機構資訊 */}
+        {counselorInfo["9"] && (
+          <Card title="機構資訊" bordered={false}>
+            <Typography.Text>
+              {counselorInfo["9"]?.children}
+            </Typography.Text>
+          </Card>
+        )}
+
+        {/* 地址 */}
+        {counselorInfo["10"] && (
+          <Card title="地址" bordered={false}>
+            <Typography.Text>
+              {counselorInfo["10"]?.children}
+            </Typography.Text>
+          </Card>
+        )}
+
+        {/* 專長描述 */}
+        {counselorInfo["15"] && (
+          <Card title="專長描述" bordered={false}>
+            <Typography.Text>
+              {counselorInfo["15"]?.children}
+            </Typography.Text>
+          </Card>
+        )}
+
+        {/* 自我介紹 */}
+        {(counselorInfo["11"] || counselorInfo["12"]) && (
+          <Card title="自我介紹" bordered={false}>
+            <Space direction="vertical" size="small" style={{ width: "100%" }}>
+              {counselorInfo["11"] && (
+                <div>
+                  <Typography.Text strong>簡短介紹：</Typography.Text>
+                  <br />
+                  <Typography.Text>{counselorInfo["11"]?.children}</Typography.Text>
+                </div>
+              )}
+              {counselorInfo["12"] && (
+                <div>
+                  <Typography.Text strong>詳細介紹：</Typography.Text>
+                  <br />
+                  <Typography.Text>{counselorInfo["12"]?.children}</Typography.Text>
+                </div>
+              )}
+            </Space>
+          </Card>
+        )}
+
+
+      </Space>
+    </div>
+  );
+};
+
 const DrawerForm = ({ id, visible, onClose, record, callback }) => {
   const [verify, setVerify] = useState(false);
   const [counselorInfo, setCounselorInfo] = useState(null);
@@ -615,20 +831,9 @@ const Counselor = () => {
       {
         key: "20",
         label: "語言",
-        children: currentSelectCounselor?.Languages?.map((r) => {
-          if (r == "EN") {
-            return <Tag color="magenta">英文</Tag>;
-          }
-          if (r == "ZH") {
-            return <Tag color="magenta">中文</Tag>;
-          }
-          if (r == "NAN") {
-            return <Tag color="magenta">台語</Tag>;
-          }
-          if (r == "YUE") {
-            return <Tag color="magenta">粵語</Tag>;
-          }
-        }),
+        children: currentSelectCounselor?.Languages?.map((r) => (
+          <Tag color="magenta" key={r}>{r}</Tag>
+        )),
       },
       {
         key: "13",
@@ -665,7 +870,7 @@ const Counselor = () => {
         children: (
           <Badge
             status="processing"
-            text={currentSelectCounselor.isVerify ? "已認證" : "未認證"}
+            text={currentSelectCounselor.IsVerify ? "已認證" : "未認證"}
           />
         ),
       },
@@ -674,6 +879,11 @@ const Counselor = () => {
         label: "機構資訊",
 
         children: currentSelectCounselor.InstitutionTemp,
+      },
+      {
+        key: "21",
+        label: "身分",
+        children: currentSelectCounselor.SubRole === "HeartCoach" ? "心教練" : "心理師",
       },
 
       {
@@ -775,30 +985,15 @@ const Counselor = () => {
         record={record}
       />
       <Modal
-        title="Information"
+        title="諮商師詳情"
         open={isModalOpen}
-        onOk={handleOk}
         onCancel={handleCancel}
-        style={{ top: 20 }} // 设置高度为80%视窗高度
-        width={"80%"}
-        bodyStyle={{ height: "500px" }}
+        footer={null}
+        width={1200}
+        style={{ top: 20 }}
+        bodyStyle={{ maxHeight: "80vh", overflow: "auto" }}
       >
-        <Layout>
-          <Layout>
-            <Tabs
-              defaultActiveKey={"information"}
-              onChange={handleMenuClick}
-              tabPosition="left"
-              style={{
-                height: "480px",
-                borderRight: 0,
-                overflowY: "auto",
-                background: colorBgContainer,
-              }}
-              items={items2}
-            />
-          </Layout>
-        </Layout>
+        <CounselorDetailModal counselorData={detail} counselorPhoto={Array.isArray(detail) ? detail.find(item => item.key === "3")?.children : null} />
       </Modal>
     </>
   );
