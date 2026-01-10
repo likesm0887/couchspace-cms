@@ -667,6 +667,9 @@ const Counselor = () => {
     setCurrentSelectCounselorAppointments,
   ] = useState({});
   const openModal = async (id) => {
+    // 清空之前的數據，確保不會顯示舊的照片
+    setDetail([]);
+
     const res = await counselorService.getCounselorInfoById(id);
     console.log(id);
     const appointmentTime = await counselorService.getAppointmentTimeById(id);
