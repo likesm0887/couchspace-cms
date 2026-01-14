@@ -3,6 +3,7 @@ import { Button, message, Card, Row, Col, Statistic, Divider } from "antd";
 import { DownloadOutlined, FileTextOutlined, ShoppingCartOutlined, TagsOutlined, UserOutlined } from "@ant-design/icons";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import moment from "moment";
 import { meditationService, memberService, appointmentService } from "../../../service/ServicePool";
 
 const Reports = () => {
@@ -37,7 +38,7 @@ const Reports = () => {
         Fee: u.Service.Fee,
         Type: u.Service.Type.Label,
         AdminFlag: u.AdminFlag,
-        CreateDate: new Date(u.CreateDate).toLocaleString(),
+        CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-ss").format("YYYY-MM-DD HH:mm:ss"),
         Status: u.Status,
       }));
 

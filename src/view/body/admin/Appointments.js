@@ -31,12 +31,14 @@ import { Pagination } from "antd";
 import "./counselor.css";
 import "./appointments.css";
 import moment from "moment";
-import { CopyOutlined, EditOutlined, ClockCircleOutlined, CalendarOutlined } from "@ant-design/icons";
+import { CopyOutlined, EditOutlined, ClockCircleOutlined, CalendarOutlined, DownloadOutlined } from "@ant-design/icons";
 import {
   LaptopOutlined,
   NotificationOutlined,
   UserOutlined,
 } from "@ant-design/icons";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 import {
   memberService,
@@ -282,8 +284,8 @@ const transformAppointment = (u) => ({
   Fee: u.PromoCodeID ? u.DiscountFee : u.Service.Fee,
   Type: u.Service.Type.Label,
   AdminFlag: u.AdminFlag,
-  CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-SS")
-    .format("YYYY-MM-DD HH:mm:SS")
+  CreateDate: moment(u.CreateDate, "YYYY-MM-DD HH-mm-ss")
+    .format("YYYY-MM-DD HH:mm:ss")
     .toString(),
   Status: getStatusDesc(u.Status),
 });
@@ -325,8 +327,8 @@ const isInDateRange = (dateTimeStr, startDate, endDate) => {
   return dateTime.isSameOrAfter(start) && dateTime.isSameOrBefore(end);
 };
 
-const matchesSearch = (app, searchTerm, promoCodeFilter, adminFlagFilter) => {
-  if (!searchTerm && !promoCodeFilter && adminFlagFilter === "全部") return true;
+const matchesSearch = (app, searchTerm, promoCodeFilter, adminFlagFilter, yearFilter, monthFilter) => {
+  if (!searchTerm && !promoCodeFilter && adminFlagFilter === "全部" && !yearFilter && !monthFilter) return true;
   const term = searchTerm.toLowerCase();
   const matchesTerm = !searchTerm || (
     (app.AppointmentID && app.AppointmentID.toLowerCase().includes(term)) ||
@@ -336,7 +338,12 @@ const matchesSearch = (app, searchTerm, promoCodeFilter, adminFlagFilter) => {
   );
   const matchesPromo = !promoCodeFilter || (app.PromoCodeID && app.PromoCodeID.toLowerCase().includes(promoCodeFilter.toLowerCase()));
   const matchesFlag = adminFlagFilter === "全部" || app.AdminFlag === adminFlagFilter;
-  return matchesTerm && matchesPromo && matchesFlag;
+
+  const appointmentDate = app.DateTime && moment(app.DateTime.split(' ')[0]);
+  const matchesYear = !yearFilter || (appointmentDate && appointmentDate.year() === yearFilter);
+  const matchesMonth = !monthFilter || (appointmentDate && appointmentDate.month() + 1 === monthFilter);
+
+  return matchesTerm && matchesPromo && matchesFlag && matchesYear && matchesMonth;
 };
 const DrawerForm = ({ id, visible, onClose, record, callback, allAppointments }) => {
   const [form] = Form.useForm();
@@ -543,18 +550,18 @@ const Appointments = () => {
   const [allAppointments, setAllAppointments] = useState([]);
   const [userCount, setUserCount] = useState(0);
   const [filters, setFilters] = useState({
-    all: { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" },
-    pending: { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" },
-    confirmed: { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" },
-    completed: { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" },
-    cancelled: { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" },
+    all: { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部", yearFilter: null, monthFilter: null },
+    pending: { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部", yearFilter: null, monthFilter: null },
+    confirmed: { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部", yearFilter: null, monthFilter: null },
+    completed: { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部", yearFilter: null, monthFilter: null },
+    cancelled: { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部", yearFilter: null, monthFilter: null },
   });
   const [currentSelectCounselorId, setCurrentSelectCounselorId] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModal2Open, setIsModal2Open] = useState(false);
   const [detail, setDetail] = useState("");
   const [memberDetail, setMemberDetail] = useState("");
-  const [sortedInfo, setSortedInfo] = useState({});
+  const [sortedInfo, setSortedInfo] = useState({ columnKey: 'CreateDate', order: 'descend' });
   const [loading, setLoading] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
@@ -589,7 +596,7 @@ const Appointments = () => {
 
         dataIndex: "AppointmentID",
         key: "AppointmentID",
-        sortOrder: sortedInfo.columnKey === "name" ? sortedInfo.order : null,
+        sortOrder: sortedInfo.columnKey === "AppointmentID" ? sortedInfo.order : null,
         render: (text) => (
           <Tooltip title={text}>
             <a
@@ -661,14 +668,32 @@ const Appointments = () => {
         title: "預約成立時間",
         dataIndex: "CreateDate",
         key: "CreateDate",
-        sorter: (a, b) => Date.parse(b.CreateDate) - Date.parse(a.CreateDate),
+        sorter: (a, b) => {
+          if (!a.CreateDate || !b.CreateDate) return 0;
+          try {
+            const dateA = moment(a.CreateDate, "YYYY-MM-DD HH:mm:ss").toDate();
+            const dateB = moment(b.CreateDate, "YYYY-MM-DD HH:mm:ss").toDate();
+            return dateA - dateB;
+          } catch (error) {
+            return 0;
+          }
+        },
         defaultSortOrder: 'descend',
       },
       {
         title: "預約日期",
         dataIndex: "DateTime",
         key: "DateTime",
-        sorter: (a, b) => new Date(b.DateTime) - new Date(a.DateTime),
+        sorter: (a, b) => {
+          if (!a.DateTime || !b.DateTime) return 0;
+          try {
+            const dateA = moment(a.DateTime, "YYYY-MM-DD HH:mm").toDate();
+            const dateB = moment(b.DateTime, "YYYY-MM-DD HH:mm").toDate();
+            return dateA - dateB;
+          } catch (error) {
+            return 0;
+          }
+        },
         defaultSortOrder: 'descend',
       },
 
@@ -858,11 +883,59 @@ const Appointments = () => {
 
   // Memoized filtered and transformed data with pagination
   const { filteredData, paginatedData } = useMemo(() => {
+    // Transform data first
     const transformed = allAppointments.map(transformAppointment);
 
-    const currentFilters = filters[activeTab] || { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" };
-    let filtered = transformed
-      .filter((u) => matchesSearch(u, currentFilters.searchTerm, currentFilters.promoCodeFilter, currentFilters.adminFlagFilter) && isInDateRange(u.DateTime, currentFilters.startDate, currentFilters.endDate));
+    // Apply global sorting to entire transformed dataset
+    let sortedData = [...transformed];
+    if (sortedInfo.columnKey && sortedInfo.order) {
+      sortedData = sortedData.sort((a, b) => {
+        const { columnKey, order } = sortedInfo;
+        let result = 0;
+
+        if (columnKey === 'CreateDate') {
+          if (!a.CreateDate || !b.CreateDate) return 0;
+          try {
+            // CreateDate is already formatted as "YYYY-MM-DD HH:mm:ss" string
+            const dateA = moment(a.CreateDate, "YYYY-MM-DD HH:mm:ss");
+            const dateB = moment(b.CreateDate, "YYYY-MM-DD HH:mm:ss");
+            result = dateA.isBefore(dateB) ? -1 : dateA.isAfter(dateB) ? 1 : 0;
+          } catch (error) {
+            return 0;
+          }
+        } else if (columnKey === 'DateTime') {
+          if (!a.DateTime || !b.DateTime) return 0;
+          try {
+            const dateA = moment(a.DateTime, "YYYY-MM-DD HH:mm");
+            const dateB = moment(b.DateTime, "YYYY-MM-DD HH:mm");
+            result = dateA.isBefore(dateB) ? -1 : dateA.isAfter(dateB) ? 1 : 0;
+          } catch (error) {
+            return 0;
+          }
+        } else if (columnKey === 'Status') {
+          result = a.Status.localeCompare(b.Status, "en");
+        }
+
+        return order === 'ascend' ? result : -result;
+      });
+    } else {
+      // Default sort by CreateDate descending
+      sortedData = sortedData.sort((a, b) => {
+        if (!a.CreateDate || !b.CreateDate) return 0;
+        try {
+          const dateA = moment(a.CreateDate, "YYYY-MM-DD HH:mm:ss");
+          const dateB = moment(b.CreateDate, "YYYY-MM-DD HH:mm:ss");
+          return dateA.isBefore(dateB) ? 1 : dateA.isAfter(dateB) ? -1 : 0;
+        } catch (error) {
+          return 0;
+        }
+      });
+    }
+
+    // Apply filters to sorted data
+    const currentFilters = filters[activeTab] || { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部", yearFilter: null, monthFilter: null };
+    let filtered = sortedData
+      .filter((u) => matchesSearch(u, currentFilters.searchTerm, currentFilters.promoCodeFilter, currentFilters.adminFlagFilter, currentFilters.yearFilter, currentFilters.monthFilter) && isInDateRange(u.DateTime, currentFilters.startDate, currentFilters.endDate));
 
     // Filter by tab
     if (activeTab === "pending") {
@@ -876,9 +949,6 @@ const Appointments = () => {
     }
     // all tab includes all
 
-    // Sort by CreateDate desc (newest first)
-    filtered.sort((a, b) => Date.parse(b.CreateDate) - Date.parse(a.CreateDate));
-
     const paginated = filtered.slice(
       (currentPage - 1) * pageSize,
       currentPage * pageSize
@@ -888,7 +958,7 @@ const Appointments = () => {
       filteredData: filtered,
       paginatedData: paginated,
     };
-  }, [allAppointments, filters, currentPage, pageSize, activeTab]);
+  }, [allAppointments, filters, currentPage, pageSize, activeTab, sortedInfo]);
 
   const [
     currentSelectCounselorAppointmentTime,
@@ -909,21 +979,39 @@ const Appointments = () => {
   };
 
   const openModal = async (id) => {
-    const res = await counselorService.getCounselorInfoById(id);
-    console.log(id);
-    const appointmentTime = await counselorService.getAppointmentTimeById(id);
-    console.log(appointmentTime);
-    const counselorAppointments =
-      await appointmentService.getAppointmentsByCounselorIdByAdmin(id);
-    setcurrentSelectCounselorAppointmentTime(appointmentTime);
-    setCurrentSelectCounselorAppointments(counselorAppointments);
-    console.log(counselorAppointments);
+    try {
+      const res = await counselorService.getCounselorInfoById(id);
+      console.log(id);
 
-    createDescription(res);
-    console.log(id);
+      let appointmentTime = null;
+      try {
+        appointmentTime = await counselorService.getAppointmentTimeById(id);
+        console.log(appointmentTime);
+      } catch (error) {
+        console.warn('無法獲取預約時間:', error);
+        appointmentTime = { BusinessTimes: [] }; // 提供默認值
+      }
 
-    setIsModalOpen(true);
-    console.log(res);
+      let counselorAppointments = null;
+      try {
+        counselorAppointments = await appointmentService.getAppointmentsByCounselorIdByAdmin(id);
+        console.log(counselorAppointments);
+      } catch (error) {
+        console.warn('無法獲取諮商師預約:', error);
+        counselorAppointments = []; // 提供默認值
+      }
+
+      setcurrentSelectCounselorAppointmentTime(appointmentTime);
+      setCurrentSelectCounselorAppointments(counselorAppointments);
+      createDescription(res);
+      console.log(id);
+
+      setIsModalOpen(true);
+      console.log(res);
+    } catch (error) {
+      console.error('獲取諮商師資訊失敗:', error);
+      message.error('無法載入諮商師資訊，請稍後再試');
+    }
   };
   useEffect(() => {
     fetchData();
@@ -1284,7 +1372,7 @@ const Appointments = () => {
   };
 
   const handleClear = (tabKey) => {
-    const empty = { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" };
+    const empty = { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部", yearFilter: null, monthFilter: null };
     setFilters(prev => ({
       ...prev,
       [tabKey]: empty
@@ -1297,9 +1385,79 @@ const Appointments = () => {
     setCurrentPage(1);
   };
 
+  const handleTableChange = (pagination, filters, sorter) => {
+    setSortedInfo({
+      columnKey: sorter.columnKey,
+      order: sorter.order,
+    });
+    // When sorting changes, reset to first page
+    setCurrentPage(1);
+  };
+
+  const handleDownloadAppointmentReport = async () => {
+    try {
+      const getAdminFlagText = (adminFlag) => {
+        switch (adminFlag) {
+          case "Completed":
+            return "已完成";
+          case "CounselorUnCompleted":
+            return "諮商師未完成";
+          case "UserUnCompleted":
+            return "案主未完成";
+          case "CustomerServiceProcess":
+            return "平台處理";
+          case "WaitForProcess":
+            return "待處理";
+          case "Cancelled":
+            return "已取消";
+          default:
+            return adminFlag;
+        }
+      };
+
+      const data = filteredData.map((u) => ({
+        "交易單號": u.AppointmentID,
+        "案主ID": u.UserID,
+        "案主姓名": u.UserName,
+        "諮商師ID": u.CounselorID,
+        "諮商師姓名": u.CounselorName,
+        "優惠代碼": u.PromoCodeID,
+        "原價": u.PromoCodeID ? u.ServiceFee : u.Fee,
+        "折扣費用": u.PromoCodeID ? `-${u.DiscountFee}` : "-",
+        "折扣後價格": u.PromoCodeID ? u.Fee : "-",
+        "預約日期": u.DateTime,
+        "服務項目": u.Type,
+        "狀態": u.Status,
+        "標記狀態": getAdminFlagText(u.AdminFlag),
+        "預約成立時間": u.CreateDate,
+      }));
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+      const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+      saveAs(
+        new Blob([wbout], { type: "application/octet-stream" }),
+        `appointment_report_${activeTab}_${moment().format("YYYY-MM-DD_HH-mm-ss")}.xlsx`
+      );
+      message.success("預約報表下載成功");
+    } catch (error) {
+      console.error("Download failed", error);
+      message.error("預約報表下載失敗");
+    }
+  };
+
   const SearchCard = ({ tabKey }) => {
-    const [localFilters, setLocalFilters] = useState(filters[tabKey] || { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部" });
+    const [localFilters, setLocalFilters] = useState(filters[tabKey] || { searchTerm: "", startDate: null, endDate: null, promoCodeFilter: "", adminFlagFilter: "全部", yearFilter: null, monthFilter: null });
     useEffect(() => setLocalFilters(filters[tabKey]), [tabKey, filters]);
+
+    // 生成年份选项（从2023年到当前年份）
+    const currentYear = moment().year();
+    const yearOptions = [];
+    for (let year = 2023; year <= currentYear; year++) {
+      yearOptions.push(<Option key={year} value={year}>{year}年</Option>);
+    }
+
     return (
       <Card style={{ marginBottom: 16, backgroundColor: '#f9f9f9', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -1332,6 +1490,35 @@ const Appointments = () => {
             allowClear
             autoComplete="off"
           />
+          <Select
+            placeholder="年份篩選"
+            value={localFilters.yearFilter}
+            onChange={(value) => setLocalFilters(prev => ({ ...prev, yearFilter: value }))}
+            style={{ width: 120 }}
+            allowClear
+          >
+            {yearOptions}
+          </Select>
+          <Select
+            placeholder="月份篩選"
+            value={localFilters.monthFilter}
+            onChange={(value) => setLocalFilters(prev => ({ ...prev, monthFilter: value }))}
+            style={{ width: 120 }}
+            allowClear
+          >
+            <Option value={1}>1月</Option>
+            <Option value={2}>2月</Option>
+            <Option value={3}>3月</Option>
+            <Option value={4}>4月</Option>
+            <Option value={5}>5月</Option>
+            <Option value={6}>6月</Option>
+            <Option value={7}>7月</Option>
+            <Option value={8}>8月</Option>
+            <Option value={9}>9月</Option>
+            <Option value={10}>10月</Option>
+            <Option value={11}>11月</Option>
+            <Option value={12}>12月</Option>
+          </Select>
           <Select
             placeholder="標記狀態"
             value={localFilters.adminFlagFilter}
@@ -1375,6 +1562,14 @@ const Appointments = () => {
           >
             清除篩選
           </Button>
+          <Button
+            type="primary"
+            icon={<DownloadOutlined />}
+            onClick={handleDownloadAppointmentReport}
+            style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+          >
+            下載Excel
+          </Button>
         </div>
       </Card>
     );
@@ -1397,6 +1592,7 @@ const Appointments = () => {
             dataSource={paginatedData}
             spinning={loading}
             pagination={false}
+            onChange={handleTableChange}
           />
           <Pagination
             current={currentPage}
@@ -1430,6 +1626,7 @@ const Appointments = () => {
             dataSource={paginatedData}
             spinning={loading}
             pagination={false}
+            onChange={handleTableChange}
           />
           <Pagination
             current={currentPage}
@@ -1475,6 +1672,7 @@ const Appointments = () => {
             dataSource={paginatedData}
             spinning={loading}
             pagination={false}
+            onChange={handleTableChange}
           />
           <Pagination
             current={currentPage}
@@ -1508,6 +1706,7 @@ const Appointments = () => {
             dataSource={paginatedData}
             spinning={loading}
             pagination={false}
+            onChange={handleTableChange}
           />
           <Pagination
             current={currentPage}
@@ -1541,6 +1740,7 @@ const Appointments = () => {
             dataSource={paginatedData}
             spinning={loading}
             pagination={false}
+            onChange={handleTableChange}
           />
           <Pagination
             current={currentPage}

@@ -74,9 +74,9 @@ export class CounselorService {
    * @param {*} id Counselor ID
    * @returns
    */
-  getCounselorInfoById(id) {
+  async getCounselorInfoById(id) {
     if (cookie.load("token") === undefined) {
-      return;
+      throw new Error("No admin token available");
     }
     const api = this.base_url + "/api/v1/counselor/" + id;
     const requestOptions = {
@@ -87,11 +87,17 @@ export class CounselorService {
       },
     };
 
-    return fetch(api, requestOptions)
-      .then((res) => res.json())
-      .then((result) => {
-        return result;
-      });
+    try {
+      const res = await fetch(api, requestOptions);
+      if (!res.ok) {
+        throw new Error(`API request failed: ${res.status} ${res.statusText}`);
+      }
+      const result = await res.json();
+      return result;
+    } catch (error) {
+      console.error("Error in getCounselorInfoById:", error);
+      throw error;
+    }
   }
   /**
    * Get All Counselor Info, called by Admin
@@ -186,9 +192,9 @@ export class CounselorService {
    * @param {*} id Counselor ID
    * @returns
    */
-  getAppointmentTimeById(id) {
+  async getAppointmentTimeById(id) {
     if (cookie.load("token") === undefined) {
-      return;
+      throw new Error("No admin token available");
     }
     const api = this.base_url + "/api/v1/appointmentTime/" + id;
     console.log(api);
@@ -200,12 +206,18 @@ export class CounselorService {
       },
     };
 
-    return fetch(api, requestOptions)
-      .then((res) => res.json())
-      .then((res) => {
-        console.log("res", res);
-        return res;
-      });
+    try {
+      const res = await fetch(api, requestOptions);
+      if (!res.ok) {
+        throw new Error(`API request failed: ${res.status} ${res.statusText}`);
+      }
+      const result = await res.json();
+      console.log("res", result);
+      return result;
+    } catch (error) {
+      console.error("Error in getAppointmentTimeById:", error);
+      throw error;
+    }
   }
   /**
    * Get Counselor Calender, called by Admin
