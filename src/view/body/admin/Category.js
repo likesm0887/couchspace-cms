@@ -20,14 +20,32 @@ import {
   Spin,
   Alert,
   Drawer,
+  Card,
+  Typography,
+  Transfer,
 } from "antd";
 import {
   PlusCircleOutlined,
   EditOutlined,
   CustomerServiceOutlined,
+  BookOutlined,
 } from "@ant-design/icons";
 import { meditationService } from "../../../service/ServicePool";
 import AdminHeader from "./AdminHeader";
+
+const tableRowStyles = `
+  .table-row-even {
+    background-color: #fafafa !important;
+  }
+  .table-row-odd {
+    background-color: #ffffff !important;
+  }
+  .table-row-even:hover,
+  .table-row-odd:hover {
+    background-color: #e6f7ff !important;
+  }
+`;
+
 function Category() {
   const [data, setData] = useState([]);
   const [allCourse, setAllCourse] = useState([]);
@@ -234,6 +252,15 @@ function Category() {
 
     setAllCourseOption(result);
   };
+
+  // 為Transfer組件創建數據源
+  const createTransferData = (courses) => {
+    return courses.map(course => ({
+      key: course.CourseID,
+      title: course.CourseName,
+      description: course.Description || '暫無描述'
+    }));
+  };
   const onCourseChange = (e) => {
     form.setFieldValue("Courses", e);
   };
@@ -261,13 +288,14 @@ function Category() {
       Seq: e.Seq,
       BigCategories: e.BigCategories,
     });
-    form.setFieldValue("Seq", e.Seq);
-    form.setFieldValue("Name", e.Name);
-    form.setFieldValue("Courses", getDefault);
-    form.setFieldValue(
-      "BigCategories",
-      getBigCategoriesDefault("Edit", e.BigCategories)
-    );
+
+    // 設置表單值
+    form.setFieldsValue({
+      Name: e.Name,
+      Seq: e.Seq,
+      Courses: e.Courses || [], // 直接設置課程ID列表
+      BigCategories: getBigCategoriesDefault("Edit", e.BigCategories)
+    });
   };
 
   const getSeqDefault = () => {
@@ -326,11 +354,14 @@ function Category() {
 
   const openNew = () => {
     setCurrentModel("New");
-    form.setFieldValue("Name", "");
-    form.setFieldValue("Courses", "");
-    form.setFieldValue("Seq", 0);
-    form.setFieldValue("BigCategories", []);
-    console.log(allCourseOption[0]);
+
+    // 重置表單
+    form.setFieldsValue({
+      Name: "",
+      Courses: [],
+      Seq: 0,
+      BigCategories: []
+    });
 
     setModal1Open(true);
   };
@@ -338,18 +369,52 @@ function Category() {
     loading,
   };
   return (
-    <div>
-      <>{contextHolder}</>
-      <FloatButton
-        shape="circle"
-        type="primary"
-        style={{ right: 94 }}
-        onClick={openNew}
-        tooltip={<div>Add Category</div>}
-        icon={<PlusCircleOutlined />}
-      />
+    <>
+      <style>{tableRowStyles}</style>
+      <div style={{
+        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+        minHeight: '100vh',
+        padding: '20px'
+      }}>
+        <>{contextHolder}</>
+      <Card
+        title={
+          <Typography.Title level={2} style={{ margin: 0, color: '#1890ff' }}>
+            <CustomerServiceOutlined style={{ marginRight: '10px' }} />
+            類別管理
+          </Typography.Title>
+        }
+        bordered={false}
+        style={{
+          borderRadius: '12px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+          background: 'white'
+        }}
+      >
+        <FloatButton
+          shape="circle"
+          type="primary"
+          style={{
+            right: 94,
+            boxShadow: '0 4px 12px rgba(24, 144, 255, 0.3)'
+          }}
+          onClick={openNew}
+          tooltip={<div>新增類別</div>}
+          icon={<PlusCircleOutlined />}
+        />
       <Drawer
-        title={currentModel == "Edit" ? "編輯" : "新增"}
+        title={
+          <div style={{
+            color: '#1890ff',
+            fontSize: '20px',
+            fontWeight: 'bold',
+            display: 'flex',
+            alignItems: 'center'
+          }}>
+            {currentModel == "Edit" ? <EditOutlined style={{ marginRight: '8px' }} /> : <PlusCircleOutlined style={{ marginRight: '8px' }} />}
+            {currentModel == "Edit" ? "編輯類別" : "新增類別"}
+          </div>
+        }
         style={{
           top: 20,
         }}
@@ -358,28 +423,58 @@ function Category() {
         onOk={() => onFinish()}
         onClose={() => setModal1Open(false)}
         width={720}
-        cancelText="取消"
-        okText="確定"
-        bodyStyle={{ paddingBottom: 50 }}
+        bodyStyle={{
+          paddingBottom: 80,
+          background: 'linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%)'
+        }}
       >
-        <Form form={form} onSubmit={onFinish}>
-          <Space>
-            <Form.Item name="Name" label="分類名稱">
-              <Input
-                required
-                onChange={onNameChange}
-                value={form.name}
-                allowClear={true}
-                placeholder="名稱"
-                size="big"
-              />
-            </Form.Item>
-          </Space>
-          <p></p>
-          <Form.Item name="Courses" label="系列">
-            <Space>
+        <Form
+          form={form}
+          onSubmit={onFinish}
+          layout="vertical"
+          style={{
+            background: 'white',
+            padding: '20px',
+            borderRadius: '12px',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+          }}
+        >
+          <Form.Item
+            name="Name"
+            label={<span style={{ fontWeight: 'bold', color: '#1890ff' }}>分類名稱</span>}
+            rules={[{ required: true, message: '請輸入分類名稱' }]}
+          >
+            <Input
+              onChange={onNameChange}
+              allowClear={true}
+              placeholder="請輸入分類名稱"
+              size="large"
+              style={{ borderRadius: '6px' }}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="Courses"
+            label={
+              <span style={{ fontWeight: 'bold', color: '#1890ff', display: 'flex', alignItems: 'center' }}>
+                <BookOutlined style={{ marginRight: '6px' }} />
+                系列課程
+              </span>
+            }
+            extra={
+              <div style={{ color: '#666', fontSize: '12px', marginTop: '4px' }}>
+                選擇此類別所屬的系列課程，可多選
+              </div>
+            }
+          >
+            <div style={{
+              background: 'linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%)',
+              padding: '12px',
+              borderRadius: '8px',
+              border: '1px solid #d6e4ff'
+            }}>
               <Select
-                placeholder="選擇系列"
+                placeholder="請選擇系列課程..."
                 mode="multiple"
                 size="large"
                 onChange={onCourseChange}
@@ -387,34 +482,62 @@ function Category() {
                 options={allCourseOption}
                 defaultValue={getDefault}
                 style={{
-                  width: "600px",
+                  width: "100%",
+                  borderRadius: '6px'
+                }}
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                }
+                tagRender={(props) => {
+                  const { label, closable, onClose } = props;
+                  return (
+                    <Tag
+                      color="blue"
+                      closable={closable}
+                      onClose={onClose}
+                      style={{
+                        margin: '2px',
+                        borderRadius: '12px',
+                        fontSize: '12px'
+                      }}
+                    >
+                      {label}
+                    </Tag>
+                  );
                 }}
               />
-            </Space>
-          </Form.Item>
-          <p></p>
-          <Form.Item name="Seq" label="順序">
-            <Space>
-              <InputNumber
-                min={0}
-                max={999}
-                defaultValue={selectCategory.Seq}
-                bordered={true}
-                onChange={onSeqChange}
-              />
-            </Space>
+            </div>
           </Form.Item>
 
-          <Form.Item name="BigCategories" label="大分類">
+          <Form.Item
+            name="Seq"
+            label={<span style={{ fontWeight: 'bold', color: '#1890ff' }}>顯示順序</span>}
+          >
+            <InputNumber
+              min={0}
+              max={999}
+              defaultValue={selectCategory.Seq}
+              bordered={true}
+              onChange={onSeqChange}
+              style={{ width: '100%', borderRadius: '6px' }}
+              size="large"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="BigCategories"
+            label={<span style={{ fontWeight: 'bold', color: '#1890ff' }}>大分類</span>}
+          >
             <Select
               mode="multiple"
               size="large"
-              placeholder="選擇分類"
+              placeholder="選擇大分類"
               tokenSeparators={[","]}
               onChange={onBigCategoriesChange}
-              //value={selectCategory.BigCategories}
               defaultValue={getBigCategoriesDefault}
               options={allBigCategoriesOptions}
+              style={{ borderRadius: '6px' }}
             />
           </Form.Item>
         </Form>
@@ -422,15 +545,34 @@ function Category() {
         <div
           style={{
             position: "absolute",
-            bottom: "5%",
+            bottom: "0",
+            right: "0",
+            left: "0",
+            padding: "16px 24px",
+            background: 'white',
+            borderTop: '1px solid #f0f0f0',
+            borderRadius: '0 0 12px 12px'
           }}
         >
-          <Space>
-            <Button onClick={onFinish} type="primary">
-              確認
-            </Button>
-            <Button onClick={() => setModal1Open(false)} type="primary">
+          <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+            <Button
+              onClick={() => setModal1Open(false)}
+              size="large"
+              style={{ borderRadius: '6px' }}
+            >
               取消
+            </Button>
+            <Button
+              onClick={onFinish}
+              type="primary"
+              size="large"
+              style={{
+                borderRadius: '6px',
+                background: 'linear-gradient(135deg, #1890ff 0%, #40a9ff 100%)',
+                border: 'none'
+              }}
+            >
+              確認
             </Button>
           </Space>
         </div>
@@ -439,33 +581,166 @@ function Category() {
         {...tableProps}
         columns={columns}
         dataSource={data}
-        pagination={{ pageSize: 7 }}
-        // expandable={{
-        //     expandedRowRender: (record) => <p style={{ margin: 0 }}>{record.musicIDs[0].MusicID}</p>,
-        // }}
-
+        pagination={{
+          pageSize: 7,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          showTotal: (total, range) => `顯示 ${range[0]}-${range[1]} 共 ${total} 項`
+        }}
+        style={{
+          borderRadius: '8px',
+          overflow: 'hidden'
+        }}
+        rowClassName={(record, index) => index % 2 === 0 ? 'table-row-even' : 'table-row-odd'}
         expandable={{
           expandedRowRender: (record) => (
-            <List
-              itemLayout="horizontal"
-              dataSource={
-                record.CourseChild == undefined ? [] : record.CourseChild
-              }
-              renderItem={(item) => (
-                <List.Item>
-                  {
-                    <List.Item.Meta
-                      avatar={<Avatar src={item.Image} />}
-                      title={<a>{item.CourseName}</a>}
-                    />
-                  }
-                </List.Item>
+            <div style={{
+              background: 'linear-gradient(135deg, #f0f8ff 0%, #e6f7ff 100%)',
+              padding: '20px',
+              borderRadius: '12px',
+              margin: '8px 0',
+              border: '1px solid #d6e4ff'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '16px'
+              }}>
+                <Typography.Title level={5} style={{
+                  margin: 0,
+                  color: '#1890ff',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}>
+                  <BookOutlined style={{ marginRight: '8px' }} />
+                  相關課程
+                  <Tag color="blue" style={{
+                    marginLeft: '8px',
+                    borderRadius: '12px'
+                  }}>
+                    {record.CourseChild?.length || 0}
+                  </Tag>
+                </Typography.Title>
+              </div>
+
+              {record.CourseChild && record.CourseChild.length > 0 ? (
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                  gap: '12px',
+                  maxHeight: '400px',
+                  overflowY: 'auto',
+                  padding: '4px'
+                }}>
+                  {record.CourseChild.map((item, index) => (
+                    <Card
+                      key={item.CourseID}
+                      size="small"
+                      hoverable
+                      style={{
+                        borderRadius: '10px',
+                        border: '1px solid #b7d4ff',
+                        background: 'white',
+                        boxShadow: '0 4px 12px rgba(24, 144, 255, 0.08)',
+                        transition: 'all 0.3s ease',
+                        cursor: 'default'
+                      }}
+                      bodyStyle={{
+                        padding: '16px',
+                        height: '100%'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.boxShadow = '0 8px 20px rgba(24, 144, 255, 0.15)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(24, 144, 255, 0.08)';
+                      }}
+                    >
+                      <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                        <div style={{
+                          background: 'linear-gradient(135deg, #1890ff 0%, #40a9ff 100%)',
+                          color: 'white',
+                          padding: '6px 12px',
+                          borderRadius: '20px',
+                          fontSize: '12px',
+                          fontWeight: 'bold',
+                          textAlign: 'center',
+                          marginBottom: '12px',
+                          alignSelf: 'flex-start'
+                        }}>
+                          #{index + 1}
+                        </div>
+
+                        <div style={{
+                          fontWeight: 'bold',
+                          color: '#1890ff',
+                          fontSize: '15px',
+                          marginBottom: '8px',
+                          lineHeight: '1.3',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical'
+                        }}>
+                          {item.CourseName}
+                        </div>
+
+                        {item.Description && (
+                          <div style={{
+                            color: '#777',
+                            fontSize: '12px',
+                            lineHeight: '1.4',
+                            flex: 1,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: 'vertical'
+                          }}>
+                            {item.Description}
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div style={{
+                  textAlign: 'center',
+                  padding: '40px 20px',
+                  color: '#999'
+                }}>
+                  <BookOutlined style={{
+                    fontSize: '48px',
+                    color: '#d9d9d9',
+                    marginBottom: '16px'
+                  }} />
+                  <div style={{
+                    fontSize: '16px',
+                    fontStyle: 'italic',
+                    marginBottom: '8px'
+                  }}>
+                    尚未關聯任何課程
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: '#bbb'
+                  }}>
+                    編輯此類別以添加相關課程
+                  </div>
+                </div>
               )}
-            />
+            </div>
           ),
         }}
-      ></Table>
+      />
+      </Card>
     </div>
+    </>
   );
 }
 export default Category;
