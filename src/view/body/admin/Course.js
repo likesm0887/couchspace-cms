@@ -20,6 +20,8 @@ import {
   Spin,
   Alert,
   Drawer,
+  Card,
+  Typography,
 } from "antd";
 import { CopyOutlined, SearchOutlined } from "@ant-design/icons";
 import AdminHeader from "./AdminHeader";
@@ -37,11 +39,26 @@ import {
   PlusCircleOutlined,
   EditOutlined,
   CustomerServiceOutlined,
+  BookOutlined,
 } from "@ant-design/icons";
 import { meditationService } from "../../../service/ServicePool";
 import ReactAudioPlayer from "react-audio-player";
 import moment from "moment";
 const { TextArea } = Input;
+
+const tableRowStyles = `
+  .table-row-even {
+    background-color: #fafafa !important;
+  }
+  .table-row-odd {
+    background-color: #ffffff !important;
+  }
+  .table-row-even:hover,
+  .table-row-odd:hover {
+    background-color: #e6f7ff !important;
+  }
+`;
+
 const Row = ({ children, ...props }) => {
   const {
     attributes,
@@ -287,7 +304,7 @@ function Course() {
     console.log(e);
     setCurrentModel("Edit");
 
-    setCourse({
+    const courseData = {
       key: e.key,
       courseId: e.courseId,
       courseName: e.courseName,
@@ -300,14 +317,20 @@ function Course() {
       display: e.display,
       teacherID: e.teacherId,
       Index: e.Index,
-    });
+    };
+
+    setCourse(courseData);
     getDefaultMusic();
+
     form.setFieldValue("name", e.courseName);
     form.setFieldValue("image", e.image);
     form.setFieldValue("description", e.description);
     form.setFieldValue("Index", e.Index);
-    form.setFieldValue("teacherId", e.teacherId);
-    console.log(course);
+    form.setFieldValue("teacherName", e.teacherId);
+    form.setFieldValue("display", e.display);
+    form.setFieldValue("musics", e.musicIDs ? e.musicIDs.map(music => music.id || music.MusicID) : []);
+
+    console.log(courseData);
     setModal1Open(true);
   };
 
@@ -327,9 +350,7 @@ function Course() {
     const result = [];
     for (let i = 0; i < res.length; i++) {
       //const musics = allMusics.filter(e=>res[i]?.MusicIDs?.includes(e));
-      const musics = allMusics.filter((elementB) =>
-        res[i]?.MusicIDs?.some((elementA) => elementA.id === elementB.id)
-      );
+      const musics = allMusics.filter(e=>res[i]?.MusicIDs?.includes(e));
       //const musics = await fetchMusic(res[i].MusicIDs);
       res[i].Musics = [];
 
@@ -388,7 +409,7 @@ function Course() {
           Index: Number(form.getFieldValue("Index")),
           Description: form.getFieldValue("description"),
           Display: form.getFieldValue("display"),
-          TeacherID: form.getFieldValue("teacherId"),
+          TeacherID: form.getFieldValue("teacherName"),
           Tags: ["幫助睡眠", "正念", "紓解壓力"],
         })
         .then((e) => {
@@ -431,7 +452,7 @@ function Course() {
           CourseName: form.getFieldValue("name"),
           Image: form.getFieldValue("image"),
           Display: form.getFieldValue("display"),
-          TeacherID: form.getFieldValue("teacherId"),
+          TeacherID: form.getFieldValue("teacherName"),
           Index: Number(form.getFieldValue("Index")),
           Description: form.getFieldValue("description"),
           Tags: ["幫助睡眠", "正念", "紓解壓力"],
@@ -462,33 +483,19 @@ function Course() {
 
   const createOptions = (musics) => {
     musics.forEach((m) => {
-      options.push({ value: m.MusicID, label: m.Title });
+      options.push({ value: m.MusicID || m.id, label: m.Title });
     });
     setAllOption(options);
   };
 
-  const getDefault = (e) => {
-    if (currentModel == "New") {
+  const getDefault = () => {
+    if (currentModel === "New") {
       return [];
     }
-    const result = [];
-    console.log(course);
-    if (course.musicIDs == null) {
+    if (!course.musicIDs || course.musicIDs.length === 0) {
       return [];
     }
-    for (let index = 0; index < allOption.length; index++) {
-      for (let index2 = 0; index2 < course.musicIDs.length; index2++) {
-        if (result.includes(allOption[index].value)) {
-          continue;
-        }
-        if (allOption[index].value === course.musicIDs[index2].MusicID) {
-          result.push(course.musicIDs[index2].MusicID);
-        }
-      }
-    }
-    return result;
-
-    //    return allOption.map(e => { data.child.some(a => a._id = e.value) })
+    return course.musicIDs.map(music => music.MusicID || music.id);
   };
 
   const getDefaultMusic = (e) => {
@@ -549,7 +556,7 @@ function Course() {
     form.setFieldsValue({ display: value });
   };
   const onTeacherChange = (value) => {
-    form.setFieldsValue({ teacherId: value });
+    form.setFieldsValue({ teacherName: value });
   };
 
 
@@ -560,203 +567,285 @@ function Course() {
   };
 
   return (
-    <div>
-      <FloatButton
-        shape="circle"
-        type="primary"
-        style={{ right: 94 }}
-        onClick={openModal}
-        tooltip={<div>Add Music</div>}
-        icon={<PlusCircleOutlined />}
-      />
-      <>{contextHolder}</>
-      <Drawer
-        title={currentModel == "Edit" ? "編輯" : "新增"}
-        style={{
-          top: 20,
-        }}
-        destroyOnClose={true}
-        open={modal1Open}
-        onOk={() => onFinish()}
-        onClose={() => setModal1Open(false)}
-        width={720}
-        cancelText="取消"
-        okText="確定"
-        bodyStyle={{ paddingBottom: 50 }}
-      >
-        <Form form={form} onFinish={onFinish}>
-          <Space>
-            <Form.Item name="name">
-              <Input
-                required
-                value={form.name}
-                allowClear={true}
-                placeholder="名稱"
-                size="big"
-              />
-            </Form.Item>
-          </Space>
-          <p></p>
-          <Space>
-            <Select
-              disabled
-              placeholder="選擇系列"
-              filterOption={(input, option) =>
-                (option?.label ?? "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-              options={[
-                {
-                  value: "正念生活",
-                  label: "正念生活",
-                },
-                {
-                  value: "親子冥想",
-                  label: "親子冥想",
-                },
-              ]}
-            />
-          </Space>
-
-          <p></p>
-          <Form.Item name="teacherName" label="選擇導師">
-            <Space>
-              <Select
-                placeholder="選擇導師"
-                defaultValue={getDefaultTeacher}
-                options={allTeacherOption}
-                //onSearch={onSearch}
-                onChange={onTeacherChange}
-              />
-            </Space>
-          </Form.Item>
-          <Image
-            crossOrigin="anonymous"
-            width="100px"
-            src={form.getFieldValue("image")}
-          ></Image>
-          <Form.Item name="image">
-            <Input
-              allowClear={true}
-              defaultValue={course.image}
-              placeholder="系列圖片"
-              size="big"
-            />
-          </Form.Item>
-
-          <p></p>
-          <Form.Item name="display" label="版型">
-            <Space>
-              <Select
-                placeholder="選擇版型"
-                filterOption={(input, option) =>
-                  (option?.label ?? "Standard")
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                onChange={onDisplayChange}
-                defaultValue={getDefaultDisplay}
-                options={[
-                  {
-                    value: 0,
-                    label: "Standard",
-                  },
-                  {
-                    value: 1,
-                    label: "One",
-                  },
-                  {
-                    value: 2,
-                    label: "Three",
-                  },
-                ]}
-              />
-            </Space>
-          </Form.Item>
-          <Space>
-            <Form.Item name="Index" label="Index">
-              <Input required allowClear={true} placeholder="Index" />
-            </Form.Item>
-          </Space>
-          <p></p>
-          <Form.Item name="musics" label="音樂">
-            <Space>
-              <Select
-                mode="multiple"
-                size="large"
-                placeholder="Please select"
-                onChange={onChangeMusic}
-                filterOption={(input, option) =>
-                  (option?.label ?? "")
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                defaultValue={getDefault}
-                tokenSeparators={[","]}
-                style={{
-                  width: "300px",
-                }}
-                options={allOption}
-              />
-            </Space>
-
-            <p></p>
-          </Form.Item>
-
-          <>
-            <Form.Item name="description">
-              <TextArea rows={3} placeholder="介紹" maxLength={50} />
-            </Form.Item>
-          </>
-
-          <p></p>
-        </Form>
-        <div
+    <>
+      <style>{tableRowStyles}</style>
+      <div style={{
+        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+        minHeight: '100vh',
+        padding: '20px'
+      }}>
+        <>{contextHolder}</>
+        <Card
+          title={
+            <Typography.Title level={2} style={{ margin: 0, color: '#1890ff' }}>
+              <CustomerServiceOutlined style={{ marginRight: '10px' }} />
+              課程管理
+            </Typography.Title>
+          }
+          bordered={false}
           style={{
-            position: "absolute",
-            bottom: "5%",
+            borderRadius: '12px',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+            background: 'white'
           }}
         >
-          <Space>
-            <Button onClick={onFinish} type="primary">
-              確認
-            </Button>
-            <Button onClick={() => setModal1Open(false)} type="primary">
-              取消
-            </Button>
-          </Space>
-        </div>
-      </Drawer>
-      <Table
-        {...tableProps}
-        columns={columns}
-        dataSource={data}
-        pagination={{ pageSize: 7 }}
-        // expandable={{
-        //     expandedRowRender: (record) => <p style={{ margin: 0 }}>{record.musicIDs[0].MusicID}</p>,
-        // }}
+          <FloatButton
+            shape="circle"
+            type="primary"
+            style={{
+              right: 94,
+              boxShadow: '0 4px 12px rgba(24, 144, 255, 0.3)'
+            }}
+            onClick={openModal}
+            tooltip={<div>新增課程</div>}
+            icon={<PlusCircleOutlined />}
+          />
+          <Drawer
+            title={
+              <div style={{
+                color: '#1890ff',
+                fontSize: '20px',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                {currentModel == "Edit" ? <EditOutlined style={{ marginRight: '8px' }} /> : <PlusCircleOutlined style={{ marginRight: '8px' }} />}
+                {currentModel == "Edit" ? "編輯課程" : "新增課程"}
+              </div>
+            }
+            style={{
+              top: 20,
+            }}
+            destroyOnClose={true}
+            open={modal1Open}
+            onOk={() => onFinish()}
+            onClose={() => setModal1Open(false)}
+            width={720}
+            bodyStyle={{ paddingBottom: 80 }}
+          >
+            <Form
+              form={form}
+              onFinish={onFinish}
+              layout="vertical"
+              style={{
+                background: 'white',
+                padding: '20px',
+                borderRadius: '12px',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              <Form.Item
+                name="name"
+                label={<span style={{ fontWeight: 'bold', color: '#1890ff' }}>課程名稱</span>}
+                rules={[{ required: true, message: '請輸入課程名稱' }]}
+              >
+                <Input
+                  allowClear={true}
+                  placeholder="請輸入課程名稱"
+                  size="large"
+                  style={{ borderRadius: '6px' }}
+                />
+              </Form.Item>
 
-        expandable={{
-          expandedRowRender: (record) => (
-            <List
-              itemLayout="horizontal"
-              dataSource={record.child}
-              renderItem={(item) => (
-                <List.Item>
-                  {
-                    <List.Item.Meta
-                      avatar={<Avatar src={item.Image} />}
-                      title={<a>{item.Title}</a>}
-                    />
+              <Form.Item
+                name="teacherName"
+                label={<span style={{ fontWeight: 'bold', color: '#1890ff' }}>選擇導師</span>}
+              >
+                <Select
+                  placeholder="請選擇導師"
+                  options={allTeacherOption}
+                  onChange={onTeacherChange}
+                  size="large"
+                  style={{ borderRadius: '6px' }}
+                  showSearch
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                   }
-                </List.Item>
-              )}
-            />
-          ),
-        }}
-      ></Table>
-    </div>
+                />
+              </Form.Item>
+
+              <div style={{
+                background: 'linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%)',
+                padding: '12px',
+                borderRadius: '8px',
+                border: '1px solid #d6e4ff',
+                marginBottom: '16px'
+              }}>
+                <Image
+                  crossOrigin="anonymous"
+                  width="100px"
+                  src={form.getFieldValue("image")}
+                  style={{ marginBottom: '8px' }}
+                />
+                <Form.Item
+                  name="image"
+                  label={<span style={{ fontWeight: 'bold', color: '#1890ff' }}>系列圖片</span>}
+                >
+                  <Input
+                    allowClear={true}
+                    placeholder="請輸入圖片URL"
+                    size="large"
+                    style={{ borderRadius: '6px' }}
+                  />
+                </Form.Item>
+              </div>
+
+              <Form.Item
+                name="display"
+                label={<span style={{ fontWeight: 'bold', color: '#1890ff' }}>版型</span>}
+              >
+                <Select
+                  placeholder="請選擇版型"
+                  onChange={onDisplayChange}
+                  size="large"
+                  style={{ borderRadius: '6px' }}
+                  defaultValue={getDefaultDisplay()}
+                  options={[
+                    { value: 0, label: "Standard" },
+                    { value: 1, label: "One" },
+                    { value: 2, label: "Three" },
+                  ]}
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="Index"
+                label={<span style={{ fontWeight: 'bold', color: '#1890ff' }}>顯示順序</span>}
+              >
+                <Input
+                  type="number"
+                  allowClear={true}
+                  placeholder="請輸入順序"
+                  size="large"
+                  style={{ borderRadius: '6px' }}
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="musics"
+                label={
+                  <span style={{ fontWeight: 'bold', color: '#1890ff', display: 'flex', alignItems: 'center' }}>
+                    <BookOutlined style={{ marginRight: '6px' }} />
+                    音樂清單
+                  </span>
+                }
+                extra={
+                  <div style={{ color: '#666', fontSize: '12px', marginTop: '4px' }}>
+                    選擇此課程包含的音樂，可多選
+                  </div>
+                }
+              >
+                <div style={{
+                  background: 'linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%)',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #d6e4ff'
+                }}>
+                  <Select
+                    mode="multiple"
+                    placeholder="請選擇音樂..."
+                    onChange={onChangeMusic}
+                    size="large"
+                    tokenSeparators={[","]}
+                    style={{
+                      width: "100%",
+                      borderRadius: '6px'
+                    }}
+                    defaultValue={currentModel === "Edit" ? getDefault() : []}
+                    options={allOption}
+                    showSearch
+                    filterOption={(input, option) =>
+                      (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                    }
+                    tagRender={(props) => {
+                      const { label, closable, onClose } = props;
+                      return (
+                        <Tag
+                          color="blue"
+                          closable={closable}
+                          onClose={onClose}
+                          style={{
+                            margin: '2px',
+                            borderRadius: '12px',
+                            fontSize: '12px'
+                          }}
+                        >
+                          {label}
+                        </Tag>
+                      );
+                    }}
+                  />
+                </div>
+              </Form.Item>
+
+              <Form.Item
+                name="description"
+                label={<span style={{ fontWeight: 'bold', color: '#1890ff' }}>課程介紹</span>}
+              >
+                <TextArea
+                  rows={4}
+                  placeholder="請輸入課程介紹"
+                  maxLength={200}
+                  showCount
+                  style={{ borderRadius: '6px' }}
+                />
+              </Form.Item>
+            </Form>
+
+            <div
+              style={{
+                position: "absolute",
+                bottom: "0",
+                right: "0",
+                left: "0",
+                padding: "16px 24px",
+                background: 'white',
+                borderTop: '1px solid #f0f0f0',
+                borderRadius: '0 0 12px 12px'
+              }}
+            >
+              <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+                <Button
+                  onClick={() => setModal1Open(false)}
+                  size="large"
+                  style={{ borderRadius: '6px' }}
+                >
+                  取消
+                </Button>
+                <Button
+                  onClick={onFinish}
+                  type="primary"
+                  size="large"
+                  style={{
+                    borderRadius: '6px',
+                    background: 'linear-gradient(135deg, #1890ff 0%, #40a9ff 100%)',
+                    border: 'none'
+                  }}
+                >
+                  確認
+                </Button>
+              </Space>
+            </div>
+          </Drawer>
+          <Table
+            {...tableProps}
+            columns={columns}
+            dataSource={data}
+            pagination={{
+              pageSize: 7,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total, range) => `顯示 ${range[0]}-${range[1]} 共 ${total} 項`
+            }}
+            style={{
+              borderRadius: '8px',
+              overflow: 'hidden'
+            }}
+            rowClassName={(record, index) => index % 2 === 0 ? 'table-row-even' : 'table-row-odd'}
+          />
+        </Card>
+      </div>
+    </>
   );
 }
 
