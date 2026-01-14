@@ -667,24 +667,43 @@ const Counselor = () => {
     setCurrentSelectCounselorAppointments,
   ] = useState({});
   const openModal = async (id) => {
-    // 清空之前的數據，確保不會顯示舊的照片
-    setDetail([]);
+    try {
+      // 清空之前的數據，確保不會顯示舊的照片
+      setDetail([]);
 
-    const res = await counselorService.getCounselorInfoById(id);
-    console.log(id);
-    const appointmentTime = await counselorService.getAppointmentTimeById(id);
-    console.log(appointmentTime);
-    const counselorAppointments =
-      await appointmentService.getAppointmentsByCounselorId(id);
-    setcurrentSelectCounselorAppointmentTime(appointmentTime);
-    setCurrentSelectCounselorAppointments(counselorAppointments);
-    console.log(counselorAppointments);
-    setCurrentSelectCounselor(res);
-    createDescription(res);
-    console.log(id);
+      const res = await counselorService.getCounselorInfoById(id);
+      console.log(id);
 
-    setIsModalOpen(true);
-    console.log(res);
+      let appointmentTime = null;
+      try {
+        appointmentTime = await counselorService.getAppointmentTimeById(id);
+        console.log(appointmentTime);
+      } catch (error) {
+        console.warn('無法獲取預約時間:', error);
+        appointmentTime = { BusinessTimes: [] }; // 提供默認值
+      }
+
+      let counselorAppointments = null;
+      try {
+        counselorAppointments = await appointmentService.getAppointmentsByCounselorId(id);
+        console.log(counselorAppointments);
+      } catch (error) {
+        console.warn('無法獲取諮商師預約:', error);
+        counselorAppointments = []; // 提供默認值
+      }
+
+      setcurrentSelectCounselorAppointmentTime(appointmentTime);
+      setCurrentSelectCounselorAppointments(counselorAppointments);
+      setCurrentSelectCounselor(res);
+      createDescription(res);
+      console.log(id);
+
+      setIsModalOpen(true);
+      console.log(res);
+    } catch (error) {
+      console.error('獲取諮商師資訊失敗:', error);
+      message.error('無法載入諮商師資訊，請稍後再試');
+    }
   };
   useEffect(() => {
     fetchData();

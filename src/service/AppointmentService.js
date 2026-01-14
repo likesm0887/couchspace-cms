@@ -44,9 +44,12 @@ export class AppointmentService {
         return res;
       });
   }
-  getAppointmentsByCounselorId(id) {
+  async getAppointmentsByCounselorId(id) {
     if (id == null) {
-      return;
+      throw new Error("Counselor ID is required");
+    }
+    if (!this.token) {
+      throw new Error("No counselor token available");
     }
     const api =
       this.base_url +
@@ -56,16 +59,22 @@ export class AppointmentService {
     const requestOptions = {
       method: "Get",
       headers: {
-        Authorization: this.token_counselor,
+        Authorization: this.token,
         "Content-Type": "application/json",
       },
     };
 
-    return fetch(api, requestOptions)
-      .then((res) => res.json())
-      .then((res) => {
-        return res;
-      });
+    try {
+      const res = await fetch(api, requestOptions);
+      if (!res.ok) {
+        throw new Error(`API request failed: ${res.status} ${res.statusText}`);
+      }
+      const result = await res.json();
+      return result;
+    } catch (error) {
+      console.error("Error in getAppointmentsByCounselorId:", error);
+      throw error;
+    }
   }
   getAppointmentsByCounselorIdByAdmin(id) {
     const api =
