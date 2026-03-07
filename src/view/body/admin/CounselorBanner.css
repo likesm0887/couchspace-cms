@@ -1,0 +1,16 @@
+.counselor-banner {
+  position: relative;
+}
+
+.counselor-banner-table .ant-table-placeholder,
+.counselor-banner-table .ant-empty {
+  position: relative;
+  z-index: 1 !important;
+}
+
+.counselor-banner-drawer,
+.counselor-banner-drawer .ant-drawer,
+.counselor-banner-drawer .ant-drawer-mask,
+.counselor-banner-drawer .ant-drawer-content-wrapper {
+  z-index: 9999 !important;
+}

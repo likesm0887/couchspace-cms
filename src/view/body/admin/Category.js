@@ -23,12 +23,14 @@ import {
   Card,
   Typography,
   Transfer,
+  Modal,
 } from "antd";
 import {
   PlusCircleOutlined,
   EditOutlined,
   CustomerServiceOutlined,
   BookOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import { meditationService } from "../../../service/ServicePool";
 import AdminHeader from "./AdminHeader";
@@ -92,6 +94,18 @@ function Category() {
           icon={<EditOutlined />}
           type="primary"
           onClick={() => openEdit(element)}
+        ></Button>
+      ),
+    },
+    {
+      title: "刪除",
+      dataIndex: "deleteBtn",
+      key: "deleteBtn",
+      render: (_, element) => (
+        <Button
+          icon={<DeleteOutlined />}
+          danger
+          onClick={() => handleDelete(element)}
         ></Button>
       ),
     },
@@ -350,6 +364,34 @@ function Category() {
     }
     form.setFieldsValue({ Courses: result });
     return result;
+  };
+
+  const handleDelete = (element) => {
+    Modal.confirm({
+      title: '確認刪除',
+      content: `確定要刪除類別 "${element.Name}" 嗎？此操作無法恢復。`,
+      okText: '確定刪除',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk: async () => {
+        try {
+          setLoading(true);
+          await meditationService.deleteCategory(element.key);
+          messageApi.open({
+            type: "success",
+            content: "刪除成功",
+          });
+          await getData();
+        } catch (error) {
+          messageApi.open({
+            type: "error",
+            content: "刪除失敗，請稍後再試",
+          });
+        } finally {
+          setLoading(false);
+        }
+      },
+    });
   };
 
   const openNew = () => {

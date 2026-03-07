@@ -785,7 +785,7 @@ function Course() {
                 <TextArea
                   rows={4}
                   placeholder="請輸入課程介紹"
-                  maxLength={200}
+                  maxLength={500}
                   showCount
                   style={{ borderRadius: '6px' }}
                 />

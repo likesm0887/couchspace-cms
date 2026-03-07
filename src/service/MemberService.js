@@ -205,4 +205,42 @@ export class MemberService {
         return res;
       });
   }
+
+  changeRole(email) {
+    const api = this.base_url + "/api/v1/admin/members/role";
+    const requestOptions = {
+      method: "PUT",
+      headers: {
+        Authorization: cookie.load("token"),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: email, role: "admin" }),
+    };
+
+    return fetch(api, requestOptions)
+      .then((res) => res.json())
+      .then((res) => {
+        return res;
+      });
+  }
+
+  getAdmins() {
+    if (cookie.load("token") === undefined) {
+      return;
+    }
+    const api = this.base_url + "/api/v1/admin/members/admins";
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        Authorization: cookie.load("token"),
+        "Content-Type": "application/json",
+      },
+    };
+
+    return fetch(api, requestOptions)
+      .then((res) => res.json())
+      .then((res) => {
+        return res;
+      });
+  }
 }
