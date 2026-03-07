@@ -308,6 +308,31 @@ export class MeditationService {
         return res;
       });
   }
+
+  deleteCategory(categoryId) {
+    if (cookie.load("token") === undefined) {
+      return;
+    }
+    const api = this.base_url + "/api/v1/meditation/categories/" + categoryId;
+    const requestOptions = {
+      method: "DELETE",
+      headers: {
+        Authorization: cookie.load("token"),
+        "Content-Type": "application/json",
+      },
+    };
+
+    return fetch(api, requestOptions)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((res) => {
+        return res;
+      });
+  }
   createTeacher(teacher) {
     console.log(teacher);
     if (cookie.load("token") === undefined) {
@@ -464,6 +489,47 @@ export class MeditationService {
       .catch((error) => {
         console.error("Failed to get audio duration:", error);
         throw error;
+      });
+  }
+
+  getRecommendations(includeInactive = true) {
+    if (cookie.load("token") === undefined) {
+      return;
+    }
+    const api = `${this.base_url}/api/v1/meditation/recommendations?include_inactive=${includeInactive}`;
+    const requestOptions = {
+      method: "Get",
+      headers: {
+        Authorization: cookie.load("token"),
+        "Content-Type": "application/json",
+      },
+    };
+
+    return fetch(api, requestOptions)
+      .then((res) => res.json())
+      .then((res) => {
+        return res;
+      });
+  }
+
+  updateRecommendations(recommendations) {
+    if (cookie.load("token") === undefined) {
+      return;
+    }
+    const api = `${this.base_url}/api/v1/meditation/recommendations`;
+    const requestOptions = {
+      method: "Put",
+      headers: {
+        Authorization: cookie.load("token"),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(recommendations),
+    };
+
+    return fetch(api, requestOptions)
+      .then((res) => res.json())
+      .then((res) => {
+        return res;
       });
   }
 }

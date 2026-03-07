@@ -1,6 +1,6 @@
 // 會員資格管理頁面 - 重新設計版本
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Input,
   DatePicker,
@@ -18,7 +18,7 @@ import {
   Typography,
   Form,
 } from "antd";
-import { UploadOutlined, CrownOutlined, UserOutlined, FileExcelOutlined } from "@ant-design/icons";
+import { UploadOutlined, CrownOutlined, UserOutlined, FileExcelOutlined, TeamOutlined } from "@ant-design/icons";
 import { memberService } from "../../../service/ServicePool";
 import dayjs from "dayjs";
 
@@ -33,7 +33,35 @@ const Membership = () => {
   const [loading, setLoading] = useState(false);
   const [successResultData, setSuccessResultData] = useState([]);
   const [failResultData, setFailResultData] = useState([]);
+  const [roleEmail, setRoleEmail] = useState("");
   const [form] = Form.useForm();
+  const [admins, setAdmins] = useState([]);
+  const [adminLoading, setAdminLoading] = useState(false);
+
+  useEffect(() => {
+    loadAdmins();
+  }, []);
+
+  const loadAdmins = async () => {
+    setAdminLoading(true);
+    try {
+      const result = await memberService.getAdmins();
+      if (Array.isArray(result)) {
+        setAdmins(result);
+      } else {
+        messageApi.open({
+          type: "error",
+          content: "載入管理員列表失敗",
+        });
+      }
+    } catch (error) {
+      messageApi.open({
+        type: "error",
+        content: "載入管理員列表時發生錯誤",
+      });
+    }
+    setAdminLoading(false);
+  };
 
   const handleMemberAccountChange = (e) => {
     setMemberAccount(e.target.value);
@@ -53,6 +81,33 @@ const Membership = () => {
 
   const handleCancel = () => {
     setIsModalOpen(false);
+  };
+
+  const handleChangeRole = async () => {
+    if (!roleEmail) {
+      messageApi.open({
+        type: "error",
+        content: "請輸入會員帳號",
+      });
+      return;
+    }
+
+    setLoading(true);
+    var result = await memberService.changeRole(roleEmail);
+    setLoading(false);
+
+    if (result.success) {
+      messageApi.open({
+        type: "success",
+        content: "已成功更改為Admin",
+      });
+      setRoleEmail("");
+    } else {
+      messageApi.open({
+        type: "error",
+        content: "操作失敗 失敗原因: " + (result.message || "未知錯誤"),
+      });
+    }
   };
 
   const handleSubmit = async (level) => {
@@ -188,6 +243,25 @@ const Membership = () => {
     },
   ];
 
+  const adminColumns = [
+    {
+      title: "管理員帳號",
+      dataIndex: "Mail",
+      key: "Mail",
+    },
+    {
+      title: "名稱",
+      dataIndex: ["Information", "UserName", "NickName"],
+      key: "name",
+    },
+    {
+      title: "角色",
+      dataIndex: "Role",
+      key: "Role",
+      render: (role) => <span>{role === 'admin' ? '管理員' : role}</span>,
+    },
+  ];
+
   return (
     <Spin spinning={loading}>
       <div style={{ padding: "24px" }}>
@@ -306,6 +380,27 @@ const Membership = () => {
                     </Button>
                   </Space>
                 </Form.Item>
+
+                <Divider />
+
+                <Form.Item label="更改角色為Admin">
+                  <Input
+                    placeholder="請輸入會員帳號"
+                    value={roleEmail}
+                    onChange={(e) => setRoleEmail(e.target.value)}
+                    size="large"
+                  />
+                </Form.Item>
+
+                <Form.Item>
+                  <Button
+                    type="primary"
+                    size="large"
+                    onClick={handleChangeRole}
+                  >
+                    更改為Admin
+                  </Button>
+                </Form.Item>
               </Form>
             </Card>
           </Col>
@@ -374,6 +469,31 @@ const Membership = () => {
                   </>
                 )}
               </Space>
+            </Card>
+          </Col>
+        </Row>
+
+        {/* 管理員列表卡片 */}
+        <Row gutter={[24, 24]} style={{ marginTop: "24px" }}>
+          <Col xs={24}>
+            <Card
+              title={
+                <>
+                  <TeamOutlined style={{ marginRight: "8px" }} />
+                  現有管理員列表
+                </>
+              }
+              bordered={false}
+            >
+              <Spin spinning={adminLoading}>
+                <Table
+                  dataSource={admins}
+                  columns={adminColumns}
+                  pagination={{ pageSize: 10 }}
+                  size="small"
+                  scroll={{ y: 300 }}
+                />
+              </Spin>
             </Card>
           </Col>
         </Row>

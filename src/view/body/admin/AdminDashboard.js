@@ -183,7 +183,7 @@ const stylesFunction = info => {
               valueStyle={{ color: '#cf1322' }}
             />
             <Paragraph style={{ marginTop: '8px', fontSize: '14px' }}>
-              管理音樂、課程和Banner
+              管理音樂、課程和主頁Banner
             </Paragraph>
           </Card>
         </Col>
