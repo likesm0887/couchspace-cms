@@ -41,7 +41,10 @@ const items = [
     getItem("Banner", "10", <PictureOutlined />),
   ]),
   getItem("優惠代碼", "12", <TagOutlined />),
-  getItem("報表", "13", <FileOutlined />),
+  getItem("報表", "sub-reports", <FileOutlined />, [
+    getItem("報表總覽", "13", <FileOutlined />),
+    getItem("觸發報表", "trigger-report", <FileOutlined />),
+  ]),
   getItem("營運管理", "sub-operations", <FolderOpenOutlined />, [
     getItem("每日推薦", "operations-recommendations", <SmileOutlined />),
     getItem("主頁Banner", "7", <PictureOutlined />),
@@ -110,6 +113,8 @@ function Admin() {
       setCurrent('operations-recommendations');
     } else if (location.pathname === '/admin/relaxBanner') {
       setCurrent('operations-relax-banner');
+    } else if (location.pathname === '/admin/trigger-report') {
+      setCurrent('trigger-report');
     }
   }, [location.pathname]);
 
@@ -168,6 +173,9 @@ function Admin() {
     }
     if (e.key == "operations-relax-banner") {
       navigate("relaxBanner", { replace: true });
+    }
+    if (e.key == "trigger-report") {
+      navigate("trigger-report", { replace: true });
     }
   };
 

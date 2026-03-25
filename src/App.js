@@ -40,6 +40,7 @@ const Appointments = React.lazy(() => import("./view/body/admin/Appointments"));
 const AppointmentDetailAdmin = React.lazy(() => import("./view/body/admin/AppointmentDetailAdmin"));
 const PromoCode = React.lazy(() => import("./view/body/admin/Promo_code"));
 const Reports = React.lazy(() => import("./view/body/admin/Reports"));
+const TriggerReport = React.lazy(() => import("./view/body/admin/TriggerReport"));
 const RecommendationManagement = React.lazy(() => import("./view/body/admin/RecommendationManagement"));
 const Register = React.lazy(() => import("./view/register/register"));
 function App() {
@@ -74,6 +75,7 @@ function App() {
             <Route path="appointments/:id" element={<Suspense fallback={<div>Loading...</div>}><AppointmentDetailAdmin /></Suspense>}></Route>
             <Route path="promocode" element={<Suspense fallback={<div>Loading...</div>}><PromoCode /></Suspense>}></Route>
             <Route path="reports" element={<Suspense fallback={<div>Loading...</div>}><Reports /></Suspense>}></Route>
+            <Route path="trigger-report" element={<Suspense fallback={<div>Loading...</div>}><TriggerReport /></Suspense>}></Route>
             <Route path="operations/recommendations" element={<Suspense fallback={<div>Loading...</div>}><RecommendationManagement /></Suspense>}></Route>
           </Route>
         </Route>
