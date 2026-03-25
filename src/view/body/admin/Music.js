@@ -268,6 +268,7 @@ function Music() {
     const result = res.map((item) => ({
       key: item.MusicID,
       name: item.Title,
+      description: item.Description,
       image: item.Image,
       series: item.Series,
       free: item.Free ? "Free" : "Premium",
@@ -335,6 +336,7 @@ function Music() {
         image: record.image,
         time: record.time, // 使用原有的時長
         path: record.path,
+        description: record.description || "",
         free: record.free,
         isDelete: record.isDelete === "N" || record.isDelete === "",
         teacherID: record.teacherID,
@@ -357,7 +359,7 @@ function Music() {
         const createData = {
           UploadUserName: "小幫手003",
           Title: form.getFieldValue("name"),
-          Description: "",
+          Description: form.getFieldValue("description") || "",
           Path: form.getFieldValue("path"),
           Type: "Course",
           Free: form.getFieldValue("free") === "Free",
@@ -373,7 +375,7 @@ function Music() {
           MusicId: selectMusic,
           UploadUserName: "小幫手003",
           Title: form.getFieldValue("name"),
-          Description: "",
+          Description: form.getFieldValue("description") || "",
           Path: form.getFieldValue("path"),
           Type: "Course",
           Free: form.getFieldValue("free") === "Free",
@@ -621,6 +623,17 @@ function Music() {
                     </Form.Item>
                   </Col>
                 </Row>
+                <Form.Item
+                  name="description"
+                  label="單堂描述"
+                >
+                  <Input.TextArea
+                    rows={4}
+                    placeholder="請輸入單堂描述"
+                    maxLength={500}
+                    showCount
+                  />
+                </Form.Item>
               </Form>
             </Card>
           )}

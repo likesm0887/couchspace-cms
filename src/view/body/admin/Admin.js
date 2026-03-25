@@ -40,9 +40,16 @@ const items = [
     getItem("預約訂單", "11", <CalendarOutlined />),
     getItem("Banner", "10", <PictureOutlined />),
   ]),
-  getItem("Banner", "7", <PictureOutlined />),
   getItem("優惠代碼", "12", <TagOutlined />),
-  getItem("報表", "13", <FileOutlined />),
+  getItem("報表", "sub-reports", <FileOutlined />, [
+    getItem("報表總覽", "13", <FileOutlined />),
+    getItem("觸發報表", "trigger-report", <FileOutlined />),
+  ]),
+  getItem("營運管理", "sub-operations", <FolderOpenOutlined />, [
+    getItem("每日推薦", "operations-recommendations", <SmileOutlined />),
+    getItem("主頁Banner", "7", <PictureOutlined />),
+    getItem("放鬆Banner", "operations-relax-banner", <PictureOutlined />),
+  ]),
   // getItem('放鬆專區', 'sub1', <UserOutlined />, [
   //   getItem('系列', '4'),
   //   getItem('音樂', '5'),
@@ -102,6 +109,12 @@ function Admin() {
       setCurrent('12');
     } else if (location.pathname === '/admin/reports') {
       setCurrent('13');
+    } else if (location.pathname === '/admin/operations/recommendations') {
+      setCurrent('operations-recommendations');
+    } else if (location.pathname === '/admin/relaxBanner') {
+      setCurrent('operations-relax-banner');
+    } else if (location.pathname === '/admin/trigger-report') {
+      setCurrent('trigger-report');
     }
   }, [location.pathname]);
 
@@ -154,6 +167,15 @@ function Admin() {
     }
     if (e.key == 13) {
       navigate("reports", { replace: true });
+    }
+    if (e.key == "operations-recommendations") {
+      navigate("operations/recommendations", { replace: true });
+    }
+    if (e.key == "operations-relax-banner") {
+      navigate("relaxBanner", { replace: true });
+    }
+    if (e.key == "trigger-report") {
+      navigate("trigger-report", { replace: true });
     }
   };
 

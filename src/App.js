@@ -34,11 +34,14 @@ const User = React.lazy(() => import("./view/body/admin/User"));
 const Membership = React.lazy(() => import("./view/body/admin/Membership"));
 const Counselor = React.lazy(() => import("./view/body/admin/Counselor"));
 const Banner = React.lazy(() => import("./view/body/admin/Banner"));
+const RelaxBanner = React.lazy(() => import("./view/body/admin/RelaxBanner"));
 const CounselorBanner = React.lazy(() => import("./view/body/admin/CounselorBanner"));
 const Appointments = React.lazy(() => import("./view/body/admin/Appointments"));
 const AppointmentDetailAdmin = React.lazy(() => import("./view/body/admin/AppointmentDetailAdmin"));
 const PromoCode = React.lazy(() => import("./view/body/admin/Promo_code"));
 const Reports = React.lazy(() => import("./view/body/admin/Reports"));
+const TriggerReport = React.lazy(() => import("./view/body/admin/TriggerReport"));
+const RecommendationManagement = React.lazy(() => import("./view/body/admin/RecommendationManagement"));
 const Register = React.lazy(() => import("./view/register/register"));
 function App() {
   // registerServiceWorker()
@@ -55,6 +58,7 @@ function App() {
             <Route index element={<Suspense fallback={<div>Loading...</div>}><AdminDashboard /></Suspense>}></Route>
             <Route path="course" element={<Suspense fallback={<div>Loading...</div>}><Course /></Suspense>}></Route>
             <Route path="banner" element={<Suspense fallback={<div>Loading...</div>}><Banner /></Suspense>}></Route>
+            <Route path="relaxBanner" element={<Suspense fallback={<div>Loading...</div>}><RelaxBanner /></Suspense>}></Route>
             <Route path="music" element={<Suspense fallback={<div>Loading...</div>}><Music /></Suspense>}>
               <Route index element={<Suspense fallback={<div>Loading...</div>}><Music /></Suspense>} />
               <Route path="meditation" element={<Suspense fallback={<div>Loading...</div>}><Music /></Suspense>} />
@@ -71,6 +75,8 @@ function App() {
             <Route path="appointments/:id" element={<Suspense fallback={<div>Loading...</div>}><AppointmentDetailAdmin /></Suspense>}></Route>
             <Route path="promocode" element={<Suspense fallback={<div>Loading...</div>}><PromoCode /></Suspense>}></Route>
             <Route path="reports" element={<Suspense fallback={<div>Loading...</div>}><Reports /></Suspense>}></Route>
+            <Route path="trigger-report" element={<Suspense fallback={<div>Loading...</div>}><TriggerReport /></Suspense>}></Route>
+            <Route path="operations/recommendations" element={<Suspense fallback={<div>Loading...</div>}><RecommendationManagement /></Suspense>}></Route>
           </Route>
         </Route>
         <Route path="couchspace-cms/register" element={<Suspense fallback={<div>Loading...</div>}><Register /></Suspense>} />

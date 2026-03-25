@@ -170,4 +170,16 @@ export class AppointmentService {
     };
     return (await fetch(api, requestOptions)).json();
   }
+
+  async getTriggerPrintAll(year, month) {
+    const api = `${this.base_url}/api/v1/trigger/printAll/${year}/${month}`;
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        Authorization: cookie.load("token"),
+        "Content-Type": "application/json",
+      },
+    };
+    return fetch(api, requestOptions);
+  }
 }
