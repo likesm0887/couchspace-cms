@@ -1,4 +1,4 @@
-import { PlusCircleOutlined, EditOutlined, SearchOutlined, ClearOutlined } from "@ant-design/icons";
+import { PlusCircleOutlined, EditOutlined, SearchOutlined, ClearOutlined, DeleteOutlined } from "@ant-design/icons";
 
 import {
   Table,
@@ -58,6 +58,20 @@ const PromoCode = () => {
           type="primary"
           onClick={(e) => {
             onEdit(element);
+          }}
+        ></Button>
+      ),
+    },
+    {
+      title: "刪除",
+      dataIndex: "deleteBtn",
+      key: "deleteBtn",
+      render: (_, element) => (
+        <Button
+          icon={<DeleteOutlined />}
+          danger
+          onClick={(e) => {
+            onDelete(element);
           }}
         ></Button>
       ),
@@ -165,6 +179,34 @@ const PromoCode = () => {
       dayjs(jsonData.EffectiveStartTime),
       dayjs(jsonData.EffectiveEndTime),
     ]);
+  };
+
+  const onDelete = (element) => {
+    Modal.confirm({
+      title: "確認刪除",
+      content: `確定要刪除優惠代碼「${element.Token}」嗎？此操作無法復原。`,
+      okText: "確定刪除",
+      okType: "danger",
+      cancelText: "取消",
+      onOk: async () => {
+        try {
+          setLoading(true);
+          const result = await memberService.deletePromoCode(element.ID);
+          setLoading(false);
+          
+          // 檢查 result 是否存在且有 error_code
+          if (result && result.error_code === "9999") {
+            message.error(result.message || "刪除失敗");
+          } else {
+            message.success("刪除成功");
+            getData();
+          }
+        } catch (error) {
+          setLoading(false);
+          message.error("刪除失敗：" + error.message);
+        }
+      },
+    });
   };
   const toAction = (e) => {
     if (e.Action.ActionCode == "MUL") {
