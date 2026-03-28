@@ -186,6 +186,26 @@ export class MemberService {
       });
   }
 
+  deletePromoCode(id) {
+    if (cookie.load("token") === undefined) {
+      return;
+    }
+    const api = this.base_url + "/api/v1/members/promo-code/" + id;
+    const requestOptions = {
+      method: "DELETE",
+      headers: {
+        Authorization: cookie.load("token"),
+        "Content-Type": "application/json",
+      },
+    };
+
+    return fetch(api, requestOptions)
+      .then((res) => res.json())
+      .then((res) => {
+        return res;
+      });
+  }
+
   uploadPhoto(file) {
     if (cookie.load("token") === undefined) {
       return;
