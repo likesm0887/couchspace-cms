@@ -309,6 +309,31 @@ export class MeditationService {
       });
   }
 
+  deleteMusic(musicId) {
+    if (cookie.load("token") === undefined) {
+      return;
+    }
+    const api = this.base_url + "/api/v1/meditation/musics/" + musicId;
+    const requestOptions = {
+      method: "DELETE",
+      headers: {
+        Authorization: cookie.load("token"),
+        "Content-Type": "application/json",
+      },
+    };
+
+    return fetch(api, requestOptions)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((res) => {
+        return res;
+      });
+  }
+
   deleteCategory(categoryId) {
     if (cookie.load("token") === undefined) {
       return;
@@ -468,6 +493,26 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions);
+  }
+
+  getMusicStreamURL(musicId) {
+    if (cookie.load("token") === undefined) {
+      return;
+    }
+    const api = this.base_url + "/api/v1/meditation/musics/" + musicId + "/stream-url";
+    const requestOptions = {
+      method: "Get",
+      headers: {
+        Authorization: cookie.load("token"),
+        "Content-Type": "application/json",
+      },
+    };
+
+    return fetch(api, requestOptions)
+      .then((res) => res.json())
+      .then((res) => {
+        return res;
+      });
   }
 
   getAudioDuration(audioUrl) {

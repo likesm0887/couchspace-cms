@@ -1,15 +1,22 @@
-import React, { Children, useEffect, useState } from "react";
-import Music from "./Music.js";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Outlet } from "react-router-dom";
-import { Space, Table, Input, Select, Image, Tag, List, Avatar } from "antd";
-import { meditationService } from "../../../service/ServicePool";
+import {
+  Avatar,
+  Button,
+  Layout,
+  Menu,
+  message,
+  theme,
+} from "antd";
 import {
   AudioOutlined,
   CalendarOutlined,
+  CameraOutlined,
   CrownOutlined,
   FileOutlined,
   FolderOpenOutlined,
+  LogoutOutlined,
   PictureOutlined,
   PieChartOutlined,
   SmileOutlined,
@@ -19,9 +26,16 @@ import {
   UserOutlined,
   UsergroupAddOutlined,
 } from "@ant-design/icons";
-import { Breadcrumb, Layout, Menu, theme } from "antd";
-import AdminHeader from "./AdminHeader.js";
-const { Header, Content, Footer, Sider } = Layout;
+import cookie from "react-cookies";
+import { memberService } from "../../../service/ServicePool";
+import { adminAuthentication } from "../../../utility/ProtectedRoute";
+import logoImg from "../../img/header/logo.png";
+
+const { Content, Sider } = Layout;
+
+function getItem(label, key, icon, children) {
+  return { key, icon, children, label };
+}
 
 const items = [
   getItem("首頁", "home", <FileOutlined />),
@@ -32,7 +46,6 @@ const items = [
     getItem("白噪音", "2-whitenoise", <SoundOutlined />),
   ]),
   getItem("導師", "3", <UserOutlined />),
-  // getItem("設定", "4", <DesktopOutlined />),
   getItem("用戶", "5", <UsergroupAddOutlined />),
   getItem("開通", "6", <CrownOutlined />),
   getItem("諮商專區", "sub2", <TeamOutlined />, [
@@ -49,162 +62,248 @@ const items = [
     getItem("每日推薦", "operations-recommendations", <SmileOutlined />),
     getItem("主頁Banner", "7", <PictureOutlined />),
     getItem("放鬆Banner", "operations-relax-banner", <PictureOutlined />),
+    getItem("挑戰管理", "operations-challenges", <TagOutlined />),
   ]),
-  // getItem('放鬆專區', 'sub1', <UserOutlined />, [
-  //   getItem('系列', '4'),
-  //   getItem('音樂', '5'),
-  //   getItem('分類', '6'),
-  // ]),
-  /*/getItem("行銷專區", "sub2", <TeamOutlined />, [
-    getItem("Team 1", "6"),
-    getItem("Team 2", "8"),
-  ]),*/
-  //getItem("系統設定", "9", <FileOutlined />),
 ];
 
-function getItem(label, key, icon, children) {
-  return {
-    key,
-    icon,
-    children,
-    label,
-  };
-}
 function Admin() {
-  let navigate = useNavigate();
+  const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
-  const [current, setCurrent] = useState("mail");
+  const [current, setCurrent] = useState("home");
+
+  // Admin info state
+  const [adminName, setAdminName] = useState("Admin");
+  const [adminPhoto, setAdminPhoto] = useState("");
+  const [isHover, setIsHover] = useState(false);
+  const fileInputRef = useRef(null);
+  const [messageApi, contextHolder] = message.useMessage();
+
   useEffect(() => {
-    if (location.pathname === '/admin') {
-      setCurrent('home');
-    } else if (location.pathname === '/admin/course') {
-      setCurrent('1');
-    } else if (location.pathname === '/admin/music') {
-      setCurrent('2');
-    } else if (location.pathname === '/admin/music/meditation') {
-      setCurrent('2-meditation');
-    } else if (location.pathname === '/admin/music/whitenoise') {
-      setCurrent('2-whitenoise');
-    } else if (location.pathname === '/admin/Category') {
-      setCurrent('0');
-    } else if (location.pathname === '/admin/teacher') {
-      setCurrent('3');
-    } else if (location.pathname === '/admin/user') {
-      setCurrent('5');
-    } else if (location.pathname === '/admin/membership') {
-      setCurrent('6');
-    } else if (location.pathname === '/admin/banner') {
-      setCurrent('7');
-    } else if (location.pathname === '/admin/counselor') {
-      setCurrent('8');
-    } else if (location.pathname === '/admin/counselorBanner') {
-      setCurrent('10');
-    } else if (location.pathname === '/admin/appointments') {
-      setCurrent('11');
-    } else if (location.pathname === '/admin/promocode') {
-      setCurrent('12');
-    } else if (location.pathname === '/admin/reports') {
-      setCurrent('13');
-    } else if (location.pathname === '/admin/operations/recommendations') {
-      setCurrent('operations-recommendations');
-    } else if (location.pathname === '/admin/relaxBanner') {
-      setCurrent('operations-relax-banner');
-    } else if (location.pathname === '/admin/trigger-report') {
-      setCurrent('trigger-report');
-    }
+    const path = location.pathname;
+    if (path === "/admin") setCurrent("home");
+    else if (path === "/admin/course") setCurrent("1");
+    else if (path === "/admin/music") setCurrent("2");
+    else if (path === "/admin/music/meditation") setCurrent("2-meditation");
+    else if (path === "/admin/music/whitenoise") setCurrent("2-whitenoise");
+    else if (path === "/admin/Category") setCurrent("0");
+    else if (path === "/admin/teacher") setCurrent("3");
+    else if (path === "/admin/user") setCurrent("5");
+    else if (path === "/admin/membership") setCurrent("6");
+    else if (path === "/admin/banner") setCurrent("7");
+    else if (path === "/admin/counselor") setCurrent("8");
+    else if (path === "/admin/counselorBanner") setCurrent("10");
+    else if (path === "/admin/appointments") setCurrent("11");
+    else if (path === "/admin/promocode") setCurrent("12");
+    else if (path === "/admin/reports") setCurrent("13");
+    else if (path === "/admin/operations/recommendations") setCurrent("operations-recommendations");
+    else if (path === "/admin/relaxBanner") setCurrent("operations-relax-banner");
+    else if (path === "/admin/trigger-report") setCurrent("trigger-report");
+    else if (path === "/admin/operations/challenges") setCurrent("operations-challenges");
   }, [location.pathname]);
 
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const adminUserId = cookie.load("admin_userId");
+        if (!adminUserId) return;
+        const info = await memberService.getGetUserById(adminUserId);
+        if (info?.UserName?.NickName) setAdminName(info.UserName.NickName);
+        if (info?.photo) setAdminPhoto(info.photo);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    getData();
+  }, []);
+
+  const handleLogout = () => {
+    const allCookies = cookie.loadAll();
+    Object.keys(allCookies).forEach((key) => cookie.remove(key));
+    adminAuthentication.updateAuthentication(false);
+    navigate("/login", { replace: true });
+  };
+
+  const handleAvatarClick = () => fileInputRef.current?.click();
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    try {
+      const result = await memberService.uploadPhoto(file);
+      if (result?.Photo) {
+        let photoUrl = result.Photo;
+        if (!photoUrl.startsWith("http")) photoUrl = memberService.base_url + photoUrl;
+        photoUrl = photoUrl + (photoUrl.includes("?") ? "&" : "?") + "t=" + Date.now();
+        setAdminPhoto(photoUrl);
+        messageApi.success("頭像更新成功");
+      } else {
+        messageApi.error("頭像更新失敗");
+      }
+    } catch (error) {
+      console.error(error);
+      messageApi.error("頭像更新失敗");
+    }
+  };
+
   const onClick = (e) => {
-    console.log("click ", e);
-    if (e.key == "home") {
-      navigate("", { replace: true });
-    }
-    if (e.key == 1) {
-      navigate("course", { replace: true });
-    }
-    if (e.key == 2) {
-      navigate("music", { replace: true });
-    }
-    if (e.key == "2-meditation") {
-      navigate("music/meditation", { replace: true });
-    }
-    if (e.key == "2-whitenoise") {
-      navigate("music/whitenoise", { replace: true });
-    }
-    if (e.key == 0) {
-      navigate("Category", { replace: true });
-    }
-    if (e.key == 3) {
-      navigate("teacher", { replace: true });
-    }
-    if (e.key == 4) {
-      navigate("setting", { replace: true });
-    }
-    if (e.key == 5) {
-      navigate("user", { replace: true });
-    }
-    if (e.key == 6) {
-      navigate("membership", { replace: true });
-    }
-    if (e.key == 7) {
-      navigate("banner", { replace: true });
-    }
-    if (e.key == 8) {
-      navigate("counselor", { replace: true });
-    }
-    if (e.key == 10) {
-      navigate("counselorBanner", { replace: true });
-    }
-    if (e.key == 11) {
-      navigate("appointments", { replace: true });
-    }
-    if (e.key == 12) {
-      navigate("promocode", { replace: true });
-    }
-    if (e.key == 13) {
-      navigate("reports", { replace: true });
-    }
-    if (e.key == "operations-recommendations") {
-      navigate("operations/recommendations", { replace: true });
-    }
-    if (e.key == "operations-relax-banner") {
-      navigate("relaxBanner", { replace: true });
-    }
-    if (e.key == "trigger-report") {
-      navigate("trigger-report", { replace: true });
-    }
+    if (e.key === "home") navigate("", { replace: true });
+    else if (e.key === "1") navigate("course", { replace: true });
+    else if (e.key === "2") navigate("music", { replace: true });
+    else if (e.key === "2-meditation") navigate("music/meditation", { replace: true });
+    else if (e.key === "2-whitenoise") navigate("music/whitenoise", { replace: true });
+    else if (e.key === "0") navigate("Category", { replace: true });
+    else if (e.key === "3") navigate("teacher", { replace: true });
+    else if (e.key === "4") navigate("setting", { replace: true });
+    else if (e.key === "5") navigate("user", { replace: true });
+    else if (e.key === "6") navigate("membership", { replace: true });
+    else if (e.key === "7") navigate("banner", { replace: true });
+    else if (e.key === "8") navigate("counselor", { replace: true });
+    else if (e.key === "10") navigate("counselorBanner", { replace: true });
+    else if (e.key === "11") navigate("appointments", { replace: true });
+    else if (e.key === "12") navigate("promocode", { replace: true });
+    else if (e.key === "13") navigate("reports", { replace: true });
+    else if (e.key === "operations-recommendations") navigate("operations/recommendations", { replace: true });
+    else if (e.key === "operations-relax-banner") navigate("relaxBanner", { replace: true });
+    else if (e.key === "trigger-report") navigate("trigger-report", { replace: true });
+    else if (e.key === "operations-challenges") navigate("operations/challenges", { replace: true });
   };
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
+      {contextHolder}
       <Sider
         collapsible
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
+        style={{ position: "relative" }}
       >
-        <div
-          style={{
-            height: 32,
-            margin: 16,
-            background: "rgba(255, 255, 255, 0.2)",
-          }}
-        />
-        <Menu
-          onClick={onClick}
-          selectedKeys={[current]}
-          theme="dark"
-          defaultSelectedKeys={["1"]}
-          mode="inline"
-          items={items}
-        />
+        {/* Inner flex container */}
+        <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+          {/* Logo */}
+          <div
+            style={{
+              padding: collapsed ? "12px 8px" : "16px",
+              textAlign: "center",
+              borderBottom: "1px solid rgba(255,255,255,0.08)",
+              flexShrink: 0,
+            }}
+          >
+            <img
+              src={logoImg}
+              alt="Couchspace"
+              style={{
+                width: collapsed ? 32 : 100,
+                height: "auto",
+                transition: "width 0.2s",
+                objectFit: "contain",
+              }}
+            />
+          </div>
+
+          {/* Menu - fills remaining space */}
+          <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
+            <Menu
+              onClick={onClick}
+              selectedKeys={[current]}
+              theme="dark"
+              defaultSelectedKeys={["home"]}
+              mode="inline"
+              items={items}
+            />
+          </div>
+
+          {/* Admin info at bottom */}
+          <div
+            style={{
+              padding: collapsed ? "12px 8px" : "12px 16px",
+              borderTop: "1px solid rgba(255,255,255,0.1)",
+              flexShrink: 0,
+              marginBottom: 36,
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                flexDirection: collapsed ? "column" : "row",
+              }}
+            >
+              {/* Avatar with upload hover */}
+              <div
+                style={{ position: "relative", cursor: "pointer", flexShrink: 0 }}
+                onClick={handleAvatarClick}
+                onMouseEnter={() => setIsHover(true)}
+                onMouseLeave={() => setIsHover(false)}
+              >
+                <Avatar size={36} src={adminPhoto} icon={<UserOutlined />} />
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    backgroundColor: "rgba(0,0,0,0.5)",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    opacity: isHover ? 1 : 0,
+                    transition: "opacity 0.3s",
+                  }}
+                >
+                  <CameraOutlined style={{ color: "#fff", fontSize: 14 }} />
+                </div>
+              </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+
+              {/* Name + logout (hidden when collapsed) */}
+              {!collapsed && (
+                <>
+                  <span
+                    style={{
+                      color: "rgba(255,255,255,0.85)",
+                      fontSize: 13,
+                      flex: 1,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {adminName}
+                  </span>
+                  <Button
+                    type="text"
+                    icon={<LogoutOutlined />}
+                    onClick={handleLogout}
+                    style={{ color: "rgba(255,255,255,0.65)", padding: "0 4px" }}
+                    title="登出"
+                  />
+                </>
+              )}
+
+              {/* Logout icon only when collapsed */}
+              {collapsed && (
+                <Button
+                  type="text"
+                  icon={<LogoutOutlined />}
+                  onClick={handleLogout}
+                  style={{ color: "rgba(255,255,255,0.65)", padding: "0 4px" }}
+                  title="登出"
+                />
+              )}
+            </div>
+          </div>
+        </div>
       </Sider>
-      <Layout className="site-layout">
-        <AdminHeader style={{ padding: 0, background: colorBgContainer }} />
-        <Content style={{ margin: "0 16px" }}>
+
+      <Layout>
+        <Content style={{ margin: "16px" }}>
           <Outlet />
         </Content>
       </Layout>

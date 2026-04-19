@@ -1,73 +1,36 @@
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  Alert,
-  Button,
-  Card,
-  DatePicker,
-  Form,
-  message,
-  Select,
-  Space,
-  Spin,
-  Switch,
-  Table,
-  Typography,
-} from "antd";
-import { MenuOutlined, ReloadOutlined, SaveOutlined } from "@ant-design/icons";
+import { Button, DatePicker, Form, message, Select, Spin, Switch, Table } from "antd";
+import { DeleteOutlined, MenuOutlined, PlusOutlined, ReloadOutlined, SaveOutlined } from "@ant-design/icons";
 import { DndContext } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import dayjs from "dayjs";
 import { meditationService } from "../../../service/ServicePool";
 
 const { RangePicker } = DatePicker;
 
-const tableRowStyles = `
-  .table-row-even {
-    background-color: #fafafa !important;
-  }
-  .table-row-odd {
-    background-color: #ffffff !important;
-  }
-  .table-row-even:hover,
-  .table-row-odd:hover {
-    background-color: #e6f7ff !important;
-  }
-`;
+/* ── Design tokens ── */
+const bg = "#F6F7F9";
+const panel = "#FFFFFF";
+const line = "#E6E8EC";
+const line2 = "#EEF0F3";
+const ink = "#10141B";
+const ink2 = "#3B414C";
+const muted = "#6B7280";
+const accent = "#4556f0";
+const accentSoft = "#EEF0FE";
+const danger = "#E84040";
 
+/* ── Drag-sortable row ── */
 const Row = ({ children, ...props }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    setActivatorNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
-    id: props["data-row-key"],
-  });
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } =
+    useSortable({ id: props["data-row-key"] });
   const style = {
     ...props.style,
-    transform: CSS.Transform.toString(
-      transform && {
-        ...transform,
-        scaleY: 1,
-      }
-    ),
+    transform: CSS.Transform.toString(transform && { ...transform, scaleY: 1 }),
     transition,
-    ...(isDragging
-      ? {
-          position: "relative",
-          zIndex: 9999,
-        }
-      : {}),
+    ...(isDragging ? { position: "relative", zIndex: 9999, background: "#F0F5FF" } : {}),
   };
   return (
     <tr {...props} ref={setNodeRef} style={style} {...attributes}>
@@ -77,10 +40,7 @@ const Row = ({ children, ...props }) => {
             children: (
               <MenuOutlined
                 ref={setActivatorNodeRef}
-                style={{
-                  touchAction: "none",
-                  cursor: "move",
-                }}
+                style={{ touchAction: "none", cursor: "move", color: muted }}
                 {...listeners}
               />
             ),
@@ -92,38 +52,41 @@ const Row = ({ children, ...props }) => {
   );
 };
 
+/* ── Helpers ── */
 const DEFAULT_RANGE = [dayjs().startOf("day"), dayjs().add(7, "day").endOf("day")];
+const normalizeDateValue = (v) => { if (!v) return null; const p = dayjs(v); return p.isValid() ? p : null; };
+const normalizeRecommendations = (list = []) =>
+  list.map((item, i) => ({
+    key: item.SeriesID || item.CourseID || `recommend-${i}`,
+    SeriesID: item.SeriesID || item.CourseID || "",
+    Sequence: typeof item.Sequence === "number" ? item.Sequence : i,
+    Enable: Boolean(item.Enable),
+    EnableStartTime: item.EnableStartTime || "",
+    EnableEndTime: item.EnableEndTime || "",
+  })).sort((a, b) => a.Sequence - b.Sequence);
 
-const buildMusicOptions = (musics = []) =>
-  musics.map((music) => ({
-    value: music.MusicID || music.id,
-    label: music.Title || music.name || music.MusicName || "未命名單堂",
-  }));
+/* ── Stat card ── */
+function StatCard({ label, value, unit, note, last }) {
+  return (
+    <div style={{ flex: 1, padding: "16px 20px", borderRight: last ? "none" : `1px solid ${line}` }}>
+      <div style={{ fontSize: 11, color: muted, textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</div>
+      <div style={{ marginTop: 6, fontSize: 22, fontWeight: 600, color: ink }}>
+        {value}
+        {unit && <span style={{ fontSize: 13, color: muted, fontWeight: 400, marginLeft: 3 }}>{unit}</span>}
+      </div>
+      {note && <div style={{ marginTop: 4, fontSize: 12, color: muted }}>{note}</div>}
+    </div>
+  );
+}
 
-const normalizeDateValue = (value) => {
-  if (!value) return null;
-  const parsed = dayjs(value);
-  return parsed.isValid() ? parsed : null;
-};
-
-const normalizeRecommendations = (recommendations = []) =>
-  recommendations
-    .map((item, index) => ({
-      key: item.SeriesID || item.CourseID || `recommend-${index}`,
-      SeriesID: item.SeriesID || item.CourseID || "",
-      Sequence: typeof item.Sequence === "number" ? item.Sequence : index,
-      Enable: Boolean(item.Enable),
-      EnableStartTime: item.EnableStartTime || "",
-      EnableEndTime: item.EnableEndTime || "",
-    }))
-    .sort((a, b) => a.Sequence - b.Sequence);
-
+/* ── Main component ── */
 function RecommendationManagement() {
   const [messageApi, contextHolder] = message.useMessage();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [musics, setMusics] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
+  const [filter, setFilter] = useState("all");
   const [form] = Form.useForm();
 
   const fetchData = async () => {
@@ -133,8 +96,7 @@ function RecommendationManagement() {
         meditationService.getRecommendations(true),
         meditationService.getAllMusic(),
       ]);
-      const normalized = normalizeRecommendations(recommendationList || []);
-      setRecommendations(normalized);
+      setRecommendations(normalizeRecommendations(recommendationList || []));
       setMusics(musicList || []);
     } catch (error) {
       console.error(error);
@@ -144,238 +106,193 @@ function RecommendationManagement() {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { form.setFieldsValue({ recommendations }); }, [form, recommendations]);
 
-  useEffect(() => {
-    form.setFieldsValue({ recommendations });
-  }, [form, recommendations]);
+  const musicOptions = useMemo(
+    () => musics.map((m) => ({ value: m.MusicID || m.id, label: m.Title || m.name || m.MusicName || "未命名單堂" })),
+    [musics]
+  );
 
-  const musicOptions = useMemo(() => buildMusicOptions(musics), [musics]);
+  const activeCount = recommendations.filter((r) => r.Enable).length;
+  const nextExpiry = useMemo(() => {
+    const dates = recommendations
+      .filter((r) => r.Enable && r.EnableEndTime)
+      .map((r) => dayjs(r.EnableEndTime)).filter((d) => d.isValid())
+      .sort((a, b) => a.unix() - b.unix());
+    return dates.length ? dates[0].format("YYYY/MM/DD") : "--";
+  }, [recommendations]);
 
-  const updateRecommendation = (index, patch) => {
-    setRecommendations((prev) =>
-      prev.map((item, idx) => (idx === index ? { ...item, ...patch } : item))
-    );
-  };
+  const displayItems = useMemo(() => {
+    if (filter === "active") return recommendations.filter((r) => r.Enable);
+    if (filter === "inactive") return recommendations.filter((r) => !r.Enable);
+    return recommendations;
+  }, [recommendations, filter]);
+
+  const updateRec = (key, patch) =>
+    setRecommendations((prev) => prev.map((r) => (r.key === key ? { ...r, ...patch } : r)));
 
   const handleDragEnd = ({ active, over }) => {
-    if (!over || active.id === over.id) {
-      return;
-    }
+    if (!over || active.id === over.id) return;
     setRecommendations((prev) => {
-      const oldIndex = prev.findIndex((item) => item.key === active.id);
-      const newIndex = prev.findIndex((item) => item.key === over.id);
-      const moved = arrayMove(prev, oldIndex, newIndex).map((item, index) => ({
-        ...item,
-        Sequence: index,
-      }));
-      return moved;
+      const oi = prev.findIndex((r) => r.key === active.id);
+      const ni = prev.findIndex((r) => r.key === over.id);
+      return arrayMove(prev, oi, ni).map((r, i) => ({ ...r, Sequence: i }));
     });
   };
 
-  const handleAdd = () => {
-    setRecommendations((prev) => {
-      const nextIndex = prev.length;
-      return [
-        ...prev,
-        {
-          key: `new-${Date.now()}`,
-          SeriesID: "",
-          Sequence: nextIndex,
-          Enable: true,
-          EnableStartTime: DEFAULT_RANGE[0].format("YYYY/MM/DD"),
-          EnableEndTime: DEFAULT_RANGE[1].format("YYYY/MM/DD"),
-        },
-      ];
-    });
-  };
+  const handleAdd = () =>
+    setRecommendations((prev) => [
+      ...prev,
+      { key: `new-${Date.now()}`, SeriesID: "", Sequence: prev.length, Enable: true,
+        EnableStartTime: DEFAULT_RANGE[0].format("YYYY/MM/DD"), EnableEndTime: DEFAULT_RANGE[1].format("YYYY/MM/DD") },
+    ]);
 
-  const handleRemove = (index) => {
-    setRecommendations((prev) =>
-      prev
-        .filter((_, idx) => idx !== index)
-        .map((item, idx) => ({ ...item, Sequence: idx }))
-    );
-  };
+  const handleRemove = (key) =>
+    setRecommendations((prev) => prev.filter((r) => r.key !== key).map((r, i) => ({ ...r, Sequence: i })));
 
   const handleSave = async () => {
-    const invalid = recommendations.some((item) => !item.SeriesID);
-    if (invalid) {
-      messageApi.warning("請先為每筆推薦選擇單堂");
-      return;
-    }
-
+    if (recommendations.some((r) => !r.SeriesID)) { messageApi.warning("請先為每筆推薦選擇單堂"); return; }
     setSaving(true);
     try {
-      const payload = recommendations.map((item) => ({
-        SeriesID: item.SeriesID,
-        Sequence: item.Sequence,
-        Enable: item.Enable,
-        EnableStartTime: item.EnableStartTime || "",
-        EnableEndTime: item.EnableEndTime || "",
-      }));
-      await meditationService.updateRecommendations(payload);
+      await meditationService.updateRecommendations(
+        recommendations.map((r) => ({ SeriesID: r.SeriesID, Sequence: r.Sequence, Enable: r.Enable,
+          EnableStartTime: r.EnableStartTime || "", EnableEndTime: r.EnableEndTime || "" }))
+      );
       messageApi.success("每日推薦已更新");
       await fetchData();
     } catch (error) {
       console.error(error);
       messageApi.error("更新失敗，請稍後再試");
-    } finally {
-      setSaving(false);
-    }
+    } finally { setSaving(false); }
   };
 
   const columns = [
+    { key: "sort", dataIndex: "sort", width: 44, render: () => null },
     {
-      key: "sort",
-      title: "排序",
-      dataIndex: "sort",
-      width: 70,
+      title: "#", dataIndex: "Sequence", key: "seq", width: 48,
+      render: (_, __, i) => <span style={{ fontFamily: "monospace", color: muted, fontSize: 12 }}>{i + 1}</span>,
     },
     {
-      title: "單堂",
-      dataIndex: "SeriesID",
-      key: "SeriesID",
-      render: (_, record, index) => (
-        <Select
-          placeholder="選擇單堂"
-          value={record.SeriesID || undefined}
-          style={{ width: "100%" }}
-          onChange={(value) => updateRecommendation(index, { SeriesID: value })}
-          options={musicOptions}
-          showSearch
-          filterOption={(input, option) =>
-            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-          }
-        />
+      title: "單堂", dataIndex: "SeriesID", key: "SeriesID",
+      render: (_, record) => (
+        <Select placeholder="選擇單堂" value={record.SeriesID || undefined} style={{ width: "100%", minWidth: 200 }}
+          onChange={(v) => updateRec(record.key, { SeriesID: v })} options={musicOptions} showSearch
+          filterOption={(input, opt) => (opt?.label ?? "").toLowerCase().includes(input.toLowerCase())} />
       ),
     },
     {
-      title: "生效",
-      dataIndex: "Enable",
-      key: "Enable",
-      width: 120,
-      render: (_, record, index) => (
-        <Switch
-          checked={record.Enable}
-          onChange={(value) => updateRecommendation(index, { Enable: value })}
-        />
+      title: "生效", dataIndex: "Enable", key: "Enable", width: 80,
+      render: (_, record) => (
+        <Switch checked={record.Enable} size="small" onChange={(v) => updateRec(record.key, { Enable: v })} />
       ),
     },
     {
-      title: "生效期間",
-      dataIndex: "EnableRange",
-      key: "EnableRange",
-      render: (_, record, index) => (
-        <RangePicker
-          value={[
-            normalizeDateValue(record.EnableStartTime),
-            normalizeDateValue(record.EnableEndTime),
-          ]}
-          format="YYYY/MM/DD"
-          onChange={(values) => {
-            const [start, end] = values || [];
-            updateRecommendation(index, {
-              EnableStartTime: start ? start.format("YYYY/MM/DD") : "",
-              EnableEndTime: end ? end.format("YYYY/MM/DD") : "",
-            });
-          }}
-          style={{ width: "100%" }}
-        />
+      title: "生效期間", key: "EnableRange",
+      render: (_, record) => (
+        <RangePicker value={[normalizeDateValue(record.EnableStartTime), normalizeDateValue(record.EnableEndTime)]}
+          format="YYYY/MM/DD" size="small"
+          onChange={(vals) => {
+            const [s, e] = vals || [];
+            updateRec(record.key, { EnableStartTime: s ? s.format("YYYY/MM/DD") : "", EnableEndTime: e ? e.format("YYYY/MM/DD") : "" });
+          }} />
       ),
     },
     {
-      title: "動作",
-      dataIndex: "actions",
-      key: "actions",
-      width: 120,
-      render: (_, __, index) => (
-        <Button danger onClick={() => handleRemove(index)}>
-          移除
-        </Button>
+      key: "actions", width: 52,
+      render: (_, record) => (
+        <button onClick={() => handleRemove(record.key)}
+          style={{ border: "none", background: "transparent", color: danger, cursor: "pointer", padding: "4px 8px", borderRadius: 5, display: "flex", alignItems: "center" }}>
+          <DeleteOutlined />
+        </button>
       ),
     },
   ];
 
-  const tableProps = {
-    loading,
-  };
+  const tabStyle = (key) => ({
+    padding: "6px 12px", border: "none", background: filter === key ? "#F2F4F7" : "transparent",
+    color: filter === key ? ink : ink2, fontWeight: filter === key ? 500 : 400,
+    fontSize: 13, cursor: "pointer", borderRight: `1px solid ${line}`,
+    display: "inline-flex", alignItems: "center", gap: 6,
+  });
 
   return (
     <>
-      <style>{tableRowStyles}</style>
       {contextHolder}
-      <div
-        style={{
-          background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
-          minHeight: "100vh",
-          padding: "20px",
-        }}
-      >
-        <Card
-          title={
-            <Typography.Title level={2} style={{ margin: 0, color: "#1890ff" }}>
-              營運管理 - 每日推薦
-            </Typography.Title>
-          }
-          bordered={false}
-          style={{
-            borderRadius: "12px",
-            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-            background: "white",
-          }}
-        >
-          <Alert
-            type="info"
-            showIcon
-            style={{ marginBottom: 16 }}
-            message="拖拉左側排序欄位可調整每日推薦順序，並設定生效期間與是否啟用。"
-          />
-          <Space style={{ marginBottom: 16 }}>
-            <Button icon={<ReloadOutlined />} onClick={fetchData}>
-              重新載入
-            </Button>
-            <Button type="primary" onClick={handleAdd}>
-              新增推薦
-            </Button>
-            <Button
-              type="primary"
-              icon={<SaveOutlined />}
-              loading={saving}
-              onClick={handleSave}
-            >
-              儲存設定
-            </Button>
-          </Space>
+      <div style={{ background: bg, minHeight: "100vh", padding: "28px 32px 64px" }}>
+
+        {/* Page header */}
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 20 }}>
+          <div>
+            <h1 style={{ fontSize: 22, fontWeight: 600, margin: "0 0 6px", color: ink, letterSpacing: "-0.01em" }}>每日推薦</h1>
+            <p style={{ margin: 0, fontSize: 13.5, color: muted }}>管理 App 首頁推薦內容，可拖移調整順序並設定上架期間。</p>
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <Button icon={<ReloadOutlined />} onClick={fetchData}>重新載入</Button>
+            <Button icon={<SaveOutlined />} loading={saving} onClick={handleSave}>儲存設定</Button>
+            <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>新增推薦</Button>
+          </div>
+        </div>
+
+        {/* Stats strip */}
+        <div style={{ display: "flex", background: panel, border: `1px solid ${line}`, borderRadius: 10, marginBottom: 20, overflow: "hidden" }}>
+          <StatCard label="目前上架" value={activeCount} unit={`/ ${recommendations.length}`} note="已啟用項目" />
+          <StatCard label="總推薦數" value={recommendations.length} note="所有排程項目" />
+          <StatCard label="上架率" value={recommendations.length ? Math.round((activeCount / recommendations.length) * 100) : 0} unit="%" note="已啟用佔比" />
+          <div style={{ flex: 1, padding: "16px 20px" }}>
+            <div style={{ fontSize: 11, color: muted, textTransform: "uppercase", letterSpacing: "0.05em" }}>下次自動下架</div>
+            <div style={{ marginTop: 6, fontSize: 17, fontWeight: 600, color: ink, fontFamily: "monospace" }}>{nextExpiry}</div>
+            <div style={{ marginTop: 4, fontSize: 12, color: muted }}>最近一筆到期日</div>
+          </div>
+        </div>
+
+        {/* Main card */}
+        <div style={{ background: panel, border: `1px solid ${line}`, borderRadius: 10, overflow: "hidden" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px", borderBottom: `1px solid ${line2}` }}>
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 600, color: ink }}>推薦清單</div>
+              <div style={{ fontSize: 12.5, color: muted, marginTop: 2 }}>拖拉 ≡ 圖示可調整排序，修改後請儲存設定</div>
+            </div>
+          </div>
+
+          {/* Filter toolbar */}
+          <div style={{ display: "flex", alignItems: "center", padding: "10px 14px", borderBottom: `1px solid ${line2}`, background: "#FBFCFD", gap: 10 }}>
+            <div style={{ display: "inline-flex", border: `1px solid ${line}`, borderRadius: 7, overflow: "hidden", background: "#fff" }}>
+              <button style={tabStyle("all")} onClick={() => setFilter("all")}>
+                全部 <span style={{ color: muted, fontFamily: "monospace", fontSize: 12 }}>{recommendations.length}</span>
+              </button>
+              <button style={tabStyle("active")} onClick={() => setFilter("active")}>
+                上架中 <span style={{ color: muted, fontFamily: "monospace", fontSize: 12 }}>{recommendations.filter((r) => r.Enable).length}</span>
+              </button>
+              <button style={{ ...tabStyle("inactive"), borderRight: "none" }} onClick={() => setFilter("inactive")}>
+                已停用 <span style={{ color: muted, fontFamily: "monospace", fontSize: 12 }}>{recommendations.filter((r) => !r.Enable).length}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Table */}
           <Spin spinning={loading}>
             <Form form={form} layout="vertical">
               <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={handleDragEnd}>
-                <SortableContext
-                  items={recommendations.map((item) => item.key)}
-                  strategy={verticalListSortingStrategy}
-                >
+                <SortableContext items={displayItems.map((r) => r.key)} strategy={verticalListSortingStrategy}>
                   <Table
-                    {...tableProps}
-                    components={{
-                      body: {
-                        row: Row,
-                      },
+                    components={{ body: { row: Row } }}
+                    rowKey="key" columns={columns} dataSource={displayItems} pagination={false}
+                    locale={{
+                      emptyText: (
+                        <div style={{ padding: "48px 20px", textAlign: "center", color: muted }}>
+                          <div style={{ width: 44, height: 44, borderRadius: 10, background: accentSoft, color: accent, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px", fontSize: 20 }}>✦</div>
+                          <div style={{ fontSize: 15, fontWeight: 600, color: ink, marginBottom: 6 }}>尚未建立任何推薦</div>
+                          <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} style={{ marginTop: 8 }}>新增推薦</Button>
+                        </div>
+                      ),
                     }}
-                    rowKey="key"
-                    columns={columns}
-                    dataSource={recommendations}
-                    pagination={false}
-                    rowClassName={(record, index) =>
-                      index % 2 === 0 ? "table-row-even" : "table-row-odd"
-                    }
                   />
                 </SortableContext>
               </DndContext>
             </Form>
           </Spin>
-        </Card>
+        </div>
       </div>
     </>
   );
