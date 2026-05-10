@@ -10,6 +10,7 @@ import {
   theme,
 } from "antd";
 import {
+  AlertOutlined,
   AudioOutlined,
   CalendarOutlined,
   CameraOutlined,
@@ -63,13 +64,13 @@ const items = [
     getItem("主頁Banner", "7", <PictureOutlined />),
     getItem("放鬆Banner", "operations-relax-banner", <PictureOutlined />),
     getItem("挑戰管理", "operations-challenges", <TagOutlined />),
+    getItem("SOS 管理", "sos", <AlertOutlined />),
   ]),
 ];
 
 function Admin() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [collapsed, setCollapsed] = useState(false);
   const [current, setCurrent] = useState("home");
 
   // Admin info state
@@ -100,6 +101,7 @@ function Admin() {
     else if (path === "/admin/relaxBanner") setCurrent("operations-relax-banner");
     else if (path === "/admin/trigger-report") setCurrent("trigger-report");
     else if (path === "/admin/operations/challenges") setCurrent("operations-challenges");
+    else if (path === "/admin/sos") setCurrent("sos");
   }, [location.pathname]);
 
   useEffect(() => {
@@ -167,15 +169,14 @@ function Admin() {
     else if (e.key === "operations-relax-banner") navigate("relaxBanner", { replace: true });
     else if (e.key === "trigger-report") navigate("trigger-report", { replace: true });
     else if (e.key === "operations-challenges") navigate("operations/challenges", { replace: true });
+    else if (e.key === "sos") navigate("sos", { replace: true });
   };
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
       {contextHolder}
       <Sider
-        collapsible
-        collapsed={collapsed}
-        onCollapse={(value) => setCollapsed(value)}
+        width={220}
         style={{ position: "relative" }}
       >
         {/* Inner flex container */}
@@ -183,7 +184,7 @@ function Admin() {
           {/* Logo */}
           <div
             style={{
-              padding: collapsed ? "12px 8px" : "16px",
+              padding: "16px",
               textAlign: "center",
               borderBottom: "1px solid rgba(255,255,255,0.08)",
               flexShrink: 0,
@@ -193,9 +194,8 @@ function Admin() {
               src={logoImg}
               alt="Couchspace"
               style={{
-                width: collapsed ? 32 : 100,
+                width: 100,
                 height: "auto",
-                transition: "width 0.2s",
                 objectFit: "contain",
               }}
             />
@@ -216,10 +216,9 @@ function Admin() {
           {/* Admin info at bottom */}
           <div
             style={{
-              padding: collapsed ? "12px 8px" : "12px 16px",
+              padding: "12px 16px",
               borderTop: "1px solid rgba(255,255,255,0.1)",
               flexShrink: 0,
-              marginBottom: 36,
             }}
           >
             <div
@@ -227,7 +226,6 @@ function Admin() {
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
-                flexDirection: collapsed ? "column" : "row",
               }}
             >
               {/* Avatar with upload hover */}
@@ -262,41 +260,25 @@ function Admin() {
                 onChange={handleFileChange}
               />
 
-              {/* Name + logout (hidden when collapsed) */}
-              {!collapsed && (
-                <>
-                  <span
-                    style={{
-                      color: "rgba(255,255,255,0.85)",
-                      fontSize: 13,
-                      flex: 1,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {adminName}
-                  </span>
-                  <Button
-                    type="text"
-                    icon={<LogoutOutlined />}
-                    onClick={handleLogout}
-                    style={{ color: "rgba(255,255,255,0.65)", padding: "0 4px" }}
-                    title="登出"
-                  />
-                </>
-              )}
-
-              {/* Logout icon only when collapsed */}
-              {collapsed && (
-                <Button
-                  type="text"
-                  icon={<LogoutOutlined />}
-                  onClick={handleLogout}
-                  style={{ color: "rgba(255,255,255,0.65)", padding: "0 4px" }}
-                  title="登出"
-                />
-              )}
+              <span
+                style={{
+                  color: "rgba(255,255,255,0.85)",
+                  fontSize: 13,
+                  flex: 1,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {adminName}
+              </span>
+              <Button
+                type="text"
+                icon={<LogoutOutlined />}
+                onClick={handleLogout}
+                style={{ color: "rgba(255,255,255,0.65)", padding: "0 4px" }}
+                title="登出"
+              />
             </div>
           </div>
         </div>

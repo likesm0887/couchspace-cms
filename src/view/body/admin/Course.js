@@ -38,6 +38,7 @@ import {
 import {
   PlusCircleOutlined,
   EditOutlined,
+  DeleteOutlined,
   CustomerServiceOutlined,
   BookOutlined,
 } from "@ant-design/icons";
@@ -58,6 +59,49 @@ const tableRowStyles = `
     background-color: #e6f7ff !important;
   }
 `;
+
+const SortableMusicItem = ({ id, title, onRemove }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform && { ...transform, scaleY: 1 }),
+    transition,
+    opacity: isDragging ? 0.8 : 1,
+    position: isDragging ? 'relative' : 'static',
+    zIndex: isDragging ? 9999 : 'auto',
+  };
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        ...style,
+        display: 'flex',
+        alignItems: 'center',
+        padding: '6px 10px',
+        marginBottom: '4px',
+        background: '#f0f5ff',
+        borderRadius: '6px',
+        border: '1px solid #adc6ff',
+      }}
+    >
+      <MenuOutlined
+        ref={setActivatorNodeRef}
+        style={{ touchAction: 'none', cursor: 'move', marginRight: '8px', color: '#8c8c8c' }}
+        {...listeners}
+        {...attributes}
+      />
+      <span style={{ flex: 1, fontSize: '13px' }}>{title}</span>
+      <Button size="small" type="text" danger icon={<DeleteOutlined />} onClick={() => onRemove(id)} />
+    </div>
+  );
+};
 
 const Row = ({ children, ...props }) => {
   const {
@@ -91,16 +135,17 @@ const Row = ({ children, ...props }) => {
     <tr {...props} ref={setNodeRef} style={style} {...attributes}>
       {React.Children.map(children, (child) => {
         if (child.key === "sort") {
+          const courseName = child.props.children;
           return React.cloneElement(child, {
             children: (
-              <MenuOutlined
-                ref={setActivatorNodeRef}
-                style={{
-                  touchAction: "none",
-                  cursor: "move",
-                }}
-                {...listeners}
-              />
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <MenuOutlined
+                  ref={setActivatorNodeRef}
+                  style={{ touchAction: "none", cursor: "move", color: "#8c8c8c" }}
+                  {...listeners}
+                />
+                <span style={{ fontSize: 13, color: "#595959" }}>{courseName}</span>
+              </div>
             ),
           });
         }
@@ -122,6 +167,7 @@ function Course() {
   const [sortModalOpen, setSortModalOpen] = useState(false);
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [selectedMusics, setSelectedMusics] = useState([]);
 
   const handleSearch = useCallback((selectedKeys, confirm, dataIndex) => {
     confirm();
@@ -167,18 +213,42 @@ function Course() {
     }),
     [handleSearch, handleReset]
   );
+  const onDragEnd = useCallback(({ active, over }) => {
+    if (active.id !== over?.id) {
+      setData((prev) => {
+        const oldIndex = prev.findIndex((i) => i.key === active.id);
+        const newIndex = prev.findIndex((i) => i.key === over.id);
+        return arrayMove(prev, oldIndex, newIndex);
+      });
+    }
+  }, []);
+
   const columns = useMemo(
     () => [
       {
-        title: "編輯",
+        key: "sort",
+        dataIndex: "courseName",
+        width: 200,
+        title: "排序 / 名稱",
+      },
+      {
+        title: "操作",
         dataIndex: "editBtn",
         key: "editBtn",
         render: (_, element) => (
-          <Button
-            icon={<EditOutlined />}
-            type="primary"
-            onClick={() => openEdit(element)}
-          ></Button>
+          <Space>
+            <Button
+              icon={<EditOutlined />}
+              type="primary"
+              onClick={() => openEdit(element)}
+            ></Button>
+            <Button
+              icon={<DeleteOutlined />}
+              type="primary"
+              danger
+              onClick={() => handleDelete(element)}
+            ></Button>
+          </Space>
         ),
       },
 
@@ -322,16 +392,46 @@ function Course() {
     setCourse(courseData);
     getDefaultMusic();
 
+    const musicList = e.musicIDs
+      ? e.musicIDs.map((music) => {
+          const id = music.MusicID || music.id;
+          const option = allOption.find((o) => o.value === id);
+          return { id, title: option?.label || id };
+        })
+      : [];
+    setSelectedMusics(musicList);
+
     form.setFieldValue("name", e.courseName);
     form.setFieldValue("image", e.image);
     form.setFieldValue("description", e.description);
     form.setFieldValue("Index", e.Index);
     form.setFieldValue("teacherName", e.teacherId);
     form.setFieldValue("display", e.display);
-    form.setFieldValue("musics", e.musicIDs ? e.musicIDs.map(music => music.id || music.MusicID) : []);
 
     console.log(courseData);
     setModal1Open(true);
+  };
+
+  const handleDelete = (element) => {
+    Modal.confirm({
+      title: "確認刪除",
+      content: `確定要刪除課程「${element.courseName}」嗎？此操作無法恢復。`,
+      okText: "確定刪除",
+      okType: "danger",
+      cancelText: "取消",
+      onOk: async () => {
+        try {
+          setLoading(true);
+          await meditationService.deleteCourse(element.key);
+          message.success("刪除成功");
+          await getData();
+        } catch (error) {
+          message.error("刪除失敗，請稍後再試");
+        } finally {
+          setLoading(false);
+        }
+      },
+    });
   };
 
   useEffect(() => {
@@ -392,6 +492,7 @@ function Course() {
   const openModal = (e) => {
     setCurrentModel("New");
     setCourse({});
+    setSelectedMusics([]);
     form.setFieldValue("image", "");
     form.setFieldValue("index", "");
     form.setFieldValue("name", "");
@@ -417,7 +518,7 @@ function Course() {
           meditationService
             .addMusicInCourse({
               CourseId: e,
-              MusicIds: form.getFieldValue("musics"),
+              MusicIds: selectedMusics.map((m) => m.id),
             })
             .then((e) => {
               messageApi.open({
@@ -461,7 +562,7 @@ function Course() {
           meditationService
             .addMusicInCourse({
               CourseId: course.key,
-              MusicIds: form.getFieldValue("musics"),
+              MusicIds: selectedMusics.map((m) => m.id),
             })
             .then((e) => {
               messageApi.open({
@@ -722,7 +823,6 @@ function Course() {
               </Form.Item>
 
               <Form.Item
-                name="musics"
                 label={
                   <span style={{ fontWeight: 'bold', color: '#1890ff', display: 'flex', alignItems: 'center' }}>
                     <BookOutlined style={{ marginRight: '6px' }} />
@@ -731,7 +831,7 @@ function Course() {
                 }
                 extra={
                   <div style={{ color: '#666', fontSize: '12px', marginTop: '4px' }}>
-                    選擇此課程包含的音樂，可多選
+                    搜尋並加入音樂，可拖拉調整播放順序
                   </div>
                 }
               >
@@ -742,39 +842,51 @@ function Course() {
                   border: '1px solid #d6e4ff'
                 }}>
                   <Select
-                    mode="multiple"
-                    placeholder="請選擇音樂..."
-                    onChange={onChangeMusic}
-                    size="large"
-                    tokenSeparators={[","]}
-                    style={{
-                      width: "100%",
-                      borderRadius: '6px'
+                    placeholder="搜尋並新增音樂..."
+                    value={null}
+                    onChange={(value, option) => {
+                      if (!selectedMusics.find((m) => m.id === value)) {
+                        setSelectedMusics((prev) => [...prev, { id: value, title: option.label }]);
+                      }
                     }}
-                    defaultValue={currentModel === "Edit" ? getDefault() : []}
+                    size="large"
+                    style={{ width: '100%', borderRadius: '6px', marginBottom: selectedMusics.length > 0 ? '10px' : 0 }}
                     options={allOption}
                     showSearch
                     filterOption={(input, option) =>
                       (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                     }
-                    tagRender={(props) => {
-                      const { label, closable, onClose } = props;
-                      return (
-                        <Tag
-                          color="blue"
-                          closable={closable}
-                          onClose={onClose}
-                          style={{
-                            margin: '2px',
-                            borderRadius: '12px',
-                            fontSize: '12px'
-                          }}
-                        >
-                          {label}
-                        </Tag>
-                      );
-                    }}
                   />
+                  {selectedMusics.length > 0 && (
+                    <DndContext
+                      modifiers={[restrictToVerticalAxis]}
+                      onDragEnd={({ active, over }) => {
+                        if (active.id !== over?.id) {
+                          setSelectedMusics((items) => {
+                            const oldIndex = items.findIndex((i) => i.id === active.id);
+                            const newIndex = items.findIndex((i) => i.id === over.id);
+                            return arrayMove(items, oldIndex, newIndex);
+                          });
+                        }
+                      }}
+                    >
+                      <SortableContext
+                        items={selectedMusics.map((m) => m.id)}
+                        strategy={verticalListSortingStrategy}
+                      >
+                        {selectedMusics.map((m) => (
+                          <SortableMusicItem
+                            key={m.id}
+                            id={m.id}
+                            title={m.title}
+                            onRemove={(id) =>
+                              setSelectedMusics((prev) => prev.filter((item) => item.id !== id))
+                            }
+                          />
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  )}
                 </div>
               </Form.Item>
 
@@ -827,22 +939,27 @@ function Course() {
               </Space>
             </div>
           </Drawer>
-          <Table
-            {...tableProps}
-            columns={columns}
-            dataSource={data}
-            pagination={{
-              pageSize: 7,
-              showSizeChanger: true,
-              showQuickJumper: true,
-              showTotal: (total, range) => `顯示 ${range[0]}-${range[1]} 共 ${total} 項`
-            }}
-            style={{
-              borderRadius: '8px',
-              overflow: 'hidden'
-            }}
-            rowClassName={(record, index) => index % 2 === 0 ? 'table-row-even' : 'table-row-odd'}
-          />
+          <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
+            <SortableContext items={data.map((i) => i.key)} strategy={verticalListSortingStrategy}>
+              <Table
+                components={{ body: { row: Row } }}
+                {...tableProps}
+                columns={columns}
+                dataSource={data}
+                pagination={{
+                  pageSize: 7,
+                  showSizeChanger: true,
+                  showQuickJumper: true,
+                  showTotal: (total, range) => `顯示 ${range[0]}-${range[1]} 共 ${total} 項`
+                }}
+                style={{
+                  borderRadius: '8px',
+                  overflow: 'hidden'
+                }}
+                rowClassName={(record, index) => index % 2 === 0 ? 'table-row-even' : 'table-row-odd'}
+              />
+            </SortableContext>
+          </DndContext>
         </Card>
       </div>
     </>

@@ -577,4 +577,138 @@ export class MeditationService {
         return res;
       });
   }
+
+  getBackgroundMusic() {
+    if (cookie.load("token") === undefined) return;
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        Authorization: cookie.load("token"),
+        "Content-Type": "application/json",
+      },
+    };
+    return fetch(
+      this.base_url + "/api/v1/meditation/musics/background",
+      requestOptions
+    ).then((res) => res.json());
+  }
+
+  deleteCourse(courseId) {
+    if (cookie.load("token") === undefined) {
+      return;
+    }
+    const api = this.base_url + "/api/v1/meditation/courses/" + courseId;
+    const requestOptions = {
+      method: "DELETE",
+      headers: {
+        Authorization: cookie.load("token"),
+        "Content-Type": "application/json",
+      },
+    };
+
+    return fetch(api, requestOptions)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((res) => {
+        return res;
+      });
+  }
+
+  getAllSos() {
+    if (cookie.load("token") === undefined) {
+      return;
+    }
+    return fetch(`${this.base_url}/api/v1/meditation/sos`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: cookie.load("token"),
+      },
+    })
+      .then((res) => res.json())
+      .then((result) => result);
+  }
+
+  getSosById(id) {
+    if (cookie.load("token") === undefined) {
+      return;
+    }
+    return fetch(`${this.base_url}/api/v1/meditation/sos/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: cookie.load("token"),
+      },
+    })
+      .then((res) => res.json())
+      .then((result) => result);
+  }
+
+  createSos(data) {
+    if (cookie.load("token") === undefined) {
+      return;
+    }
+    return fetch(`${this.base_url}/api/v1/meditation/sos`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: cookie.load("token"),
+      },
+      body: JSON.stringify(data),
+    })
+      .then((res) => res.json())
+      .then((result) => result);
+  }
+
+  updateSos(data) {
+    if (cookie.load("token") === undefined) {
+      return;
+    }
+    return fetch(`${this.base_url}/api/v1/meditation/sos`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: cookie.load("token"),
+      },
+      body: JSON.stringify(data),
+    })
+      .then((res) => res.json())
+      .then((result) => result);
+  }
+
+  deleteSos(id) {
+    if (cookie.load("token") === undefined) {
+      return;
+    }
+    return fetch(`${this.base_url}/api/v1/meditation/sos/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: cookie.load("token"),
+      },
+    })
+      .then((res) => res.json())
+      .then((result) => result);
+  }
+
+  uploadSosIcon(file) {
+    if (cookie.load("token") === undefined) {
+      return;
+    }
+    const formData = new FormData();
+    formData.append("myFile", file);
+    return fetch(`${this.base_url}/api/v1/meditation/sos/icon/upload`, {
+      method: "POST",
+      headers: {
+        Authorization: cookie.load("token"),
+      },
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((result) => result);
+  }
 }

@@ -182,6 +182,7 @@ function Music() {
       createDate: item.CreateDate,
       isDelete: item.IsDelete,
       teacherID: item.TeacherID,
+      isBackgroundMusic: item.IsBackgroundMusic || false,
     }));
     setData(result);
     setLoading(false);
@@ -258,6 +259,7 @@ function Music() {
         free: record.free,
         isDelete: record.isDelete === "N" || record.isDelete === "",
         teacherID: record.teacherID,
+        isBackgroundMusic: record.isBackgroundMusic || false,
       });
       setModalOpen(true);
     },
@@ -285,6 +287,7 @@ function Music() {
           Time: Math.floor(duration),
           IsDelete: form.getFieldValue("isDelete") ? "N" : "Y",
           TeacherID: teacherID,
+          IsBackgroundMusic: form.getFieldValue("isBackgroundMusic") || false,
         };
         console.log("Creating music with data:", createData);
         await meditationService.createMusic(createData);
@@ -301,6 +304,7 @@ function Music() {
           Time: Math.floor(duration),
           IsDelete: form.getFieldValue("isDelete") ? "N" : "Y",
           TeacherID: teacherID,
+          IsBackgroundMusic: form.getFieldValue("isBackgroundMusic") || false,
         };
         console.log("Updating music with data:", updateData);
         await meditationService.updateMusic(updateData);
@@ -541,7 +545,8 @@ function Music() {
   const filteredData = useMemo(() => {
     const meditation = data.filter(item => !isWhiteNoise(item.path));
     const whiteNoise = data.filter(item => isWhiteNoise(item.path));
-    return { meditation, whiteNoise };
+    const backgroundMusic = whiteNoise.filter(item => item.isBackgroundMusic);
+    return { meditation, whiteNoise, backgroundMusic };
   }, [data, isWhiteNoise]);
 
   useEffect(() => {
@@ -684,6 +689,19 @@ function Music() {
                       <Switch
                         checkedChildren="啟用"
                         unCheckedChildren="停用"
+                        size="default"
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      name="isBackgroundMusic"
+                      label="背景音樂"
+                      valuePropName="checked"
+                    >
+                      <Switch
+                        checkedChildren="是"
+                        unCheckedChildren="否"
                         size="default"
                       />
                     </Form.Item>
@@ -868,6 +886,9 @@ function Music() {
         </Tabs.TabPane>
         <Tabs.TabPane tab={<span><SoundOutlined /> 白噪音</span>} key="whiteNoise">
           <Table columns={columns} dataSource={filteredData.whiteNoise} loading={loading} />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab={<span><AudioOutlined /> 背景音樂</span>} key="backgroundMusic">
+          <Table columns={columns} dataSource={filteredData.backgroundMusic} loading={loading} />
         </Tabs.TabPane>
       </Tabs>
 
