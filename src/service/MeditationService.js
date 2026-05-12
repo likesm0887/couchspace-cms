@@ -661,7 +661,12 @@ export class MeditationService {
       body: JSON.stringify(data),
     })
       .then((res) => res.json())
-      .then((result) => result);
+      .then((result) => {
+        if (result && result.success === false) {
+          throw new Error(result.status_text || result.error_code || "新增失敗");
+        }
+        return result;
+      });
   }
 
   updateSos(data) {
@@ -677,7 +682,12 @@ export class MeditationService {
       body: JSON.stringify(data),
     })
       .then((res) => res.json())
-      .then((result) => result);
+      .then((result) => {
+        if (result && result.success === false) {
+          throw new Error(result.status_text || result.error_code || "更新失敗");
+        }
+        return result;
+      });
   }
 
   deleteSos(id) {

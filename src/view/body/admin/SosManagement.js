@@ -101,7 +101,7 @@ function SosManagement() {
     setLoading(true);
     try {
       if (editingSos) {
-        await meditationService.updateSos({ ...values, SosID: editingSos.SosID });
+        await meditationService.updateSos({ ...values, SosID: editingSos.SosId });
         messageApi.success("更新成功");
       } else {
         await meditationService.createSos(values);
@@ -111,7 +111,7 @@ function SosManagement() {
       form.resetFields();
       fetchData();
     } catch (e) {
-      messageApi.error("操作失敗");
+      messageApi.error(e?.message || "操作失敗");
     } finally {
       setLoading(false);
     }
@@ -124,7 +124,7 @@ function SosManagement() {
   };
 
   const handleToggle = async (record) => {
-    await meditationService.updateSos({ ...record, SosID: record.SosID, IsActive: !record.IsActive });
+    await meditationService.updateSos({ ...record, SosID: record.SosId, IsActive: !record.IsActive });
     fetchData();
   };
 
@@ -194,7 +194,7 @@ function SosManagement() {
             title="確認刪除此 SOS 項目？"
             okText="確定"
             cancelText="取消"
-            onConfirm={() => handleDelete(record.SosID)}
+            onConfirm={() => handleDelete(record.SosId)}
           >
             <Button danger icon={<DeleteOutlined />} />
           </Popconfirm>
@@ -243,7 +243,7 @@ function SosManagement() {
             <Table
               columns={columns}
               dataSource={sosList}
-              rowKey="SosID"
+              rowKey="SosId"
               pagination={{ pageSize: 10 }}
             />
           </Spin>
