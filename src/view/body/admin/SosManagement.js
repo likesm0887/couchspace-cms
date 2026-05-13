@@ -118,9 +118,19 @@ function SosManagement() {
   };
 
   const handleDelete = async (sosId) => {
-    await meditationService.deleteSos(sosId);
-    messageApi.success("刪除成功");
-    fetchData();
+    setLoading(true);
+    try {
+      const result = await meditationService.deleteSos(sosId);
+      if (!result || result.success === false) {
+        throw new Error("delete failed");
+      }
+      messageApi.success("刪除成功");
+      fetchData();
+    } catch (e) {
+      messageApi.error("刪除失敗");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleToggle = async (record) => {
