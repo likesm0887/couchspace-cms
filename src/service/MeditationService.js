@@ -692,7 +692,7 @@ export class MeditationService {
 
   deleteSos(id) {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     return fetch(`${this.base_url}/api/v1/meditation/sos/${id}`, {
       method: "DELETE",
