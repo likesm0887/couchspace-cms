@@ -451,6 +451,41 @@ export class CounselorService {
       });
   }
   /**
+   * Verify admin identity by re-login (used as 2FA before sensitive actions)
+   */
+  async verifyAdminIdentity(account, password) {
+    const api = this.base_url + "/api/v1/login";
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ Account: account, Password: password }),
+    };
+    const res = await fetch(api, requestOptions);
+    if (!res.ok) return { ok: false, message: "帳號或密碼錯誤" };
+    const result = await res.json();
+    if (!result || !result.Role || String(result.Role).toLowerCase() !== "admin") {
+      return { ok: false, message: "此帳號不是管理員" };
+    }
+    return { ok: true };
+  }
+  /**
+   * Admin set counselor password (custom or reset to fixed value)
+   */
+  adminSetCounselorPassword(counselorId, newPassword) {
+    if (cookie.load("token") === undefined) return;
+    const api =
+      this.base_url + "/api/v1/admin/counselors/" + counselorId + "/password";
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        Authorization: cookie.load("token"),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ NewPassword: newPassword }),
+    };
+    return fetch(api, requestOptions).then((res) => res.json());
+  }
+  /**
    * Delete Counselor by ID, called by Admin
    * @param {*} id Counselor ID
    * @returns

@@ -42,6 +42,8 @@ const PromoCode = React.lazy(() => import("./view/body/admin/Promo_code"));
 const Reports = React.lazy(() => import("./view/body/admin/Reports"));
 const TriggerReport = React.lazy(() => import("./view/body/admin/TriggerReport"));
 const RecommendationManagement = React.lazy(() => import("./view/body/admin/RecommendationManagement"));
+const ChallengeManagement = React.lazy(() => import("./view/body/admin/ChallengeManagement"));
+const SosManagement = React.lazy(() => import("./view/body/admin/SosManagement"));
 const Register = React.lazy(() => import("./view/register/register"));
 function App() {
   // registerServiceWorker()
@@ -77,6 +79,8 @@ function App() {
             <Route path="reports" element={<Suspense fallback={<div>Loading...</div>}><Reports /></Suspense>}></Route>
             <Route path="trigger-report" element={<Suspense fallback={<div>Loading...</div>}><TriggerReport /></Suspense>}></Route>
             <Route path="operations/recommendations" element={<Suspense fallback={<div>Loading...</div>}><RecommendationManagement /></Suspense>}></Route>
+            <Route path="operations/challenges" element={<Suspense fallback={<div>Loading...</div>}><ChallengeManagement /></Suspense>}></Route>
+            <Route path="sos" element={<Suspense fallback={<div>Loading...</div>}><SosManagement /></Suspense>}></Route>
           </Route>
         </Route>
         <Route path="couchspace-cms/register" element={<Suspense fallback={<div>Loading...</div>}><Register /></Suspense>} />

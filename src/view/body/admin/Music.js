@@ -23,6 +23,8 @@ import {
   Typography,
   Alert,
   Modal,
+  Popconfirm,
+  Spin,
 } from "antd";
 import {
   SearchOutlined,
@@ -39,6 +41,7 @@ import {
   PauseCircleOutlined,
   LoadingOutlined,
   UserOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import ReactAudioPlayer from "react-audio-player";
 import { meditationService } from "../../../service/ServicePool";
@@ -69,6 +72,8 @@ function Music() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [teacherModalVisible, setTeacherModalVisible] = useState(false);
   const [selectedTeacher, setSelectedTeacher] = useState(null);
+  const [streamURLs, setStreamURLs] = useState({});       // { musicId: url }
+  const [loadingMusicId, setLoadingMusicId] = useState(null);
 
   const handleSearch = useCallback((selectedKeys, confirm, dataIndex) => {
     confirm();
@@ -160,113 +165,12 @@ function Music() {
     [handleSearch, handleReset]
   );
 
-  const columns = useMemo(
-    () => [
-      {
-        title: "編輯",
-        dataIndex: "editBtn",
-        key: "editBtn",
-        render: (_, element) => (
-          <Button
-            icon={<EditOutlined />}
-            type="primary"
-            onClick={() => openEdit(element)}
-          />
-        ),
-      },
-      {
-        title: "圖片",
-        dataIndex: "image",
-        key: "image",
-        render: (image) => (
-          <Image
-            crossOrigin="anonymous"
-            src={image}
-            width="70px"
-            preview={false}
-          />
-        ),
-      },
-      {
-        title: "啟用",
-        dataIndex: "isDelete",
-        key: "isDelete",
-        render: (_, { isDelete }) => (isDelete === "Y" ? "未啟用" : "啟用中"),
-        ...getColumnSelectProps("isDelete", [
-          { label: "啟用", value: "enabled" },
-          { label: "非啟用", value: "disabled" },
-        ]),
-        onFilter: (value, record) => {
-          if (value === "enabled") return record.isDelete !== "Y";
-          if (value === "disabled") return record.isDelete === "Y";
-          return false;
-        },
-      },
-      {
-        title: "名稱",
-        dataIndex: "name",
-        key: "name",
-        ...getColumnSearchProps("name"),
-        onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
-      },
-      {
-        title: "系列",
-        dataIndex: "series",
-        key: "series",
-        render: (_, { tags }) => (
-          <>
-            {tags?.map((tag) => (
-              <Tag key={tag}>{tag.toUpperCase()}</Tag>
-            ))}
-          </>
-        ),
-      },
-      {
-        title: "收費",
-        dataIndex: "free",
-        key: "free",
-        ...getColumnSelectProps("free", [
-          { label: "Free", value: "Free" },
-          { label: "Premium", value: "Premium" },
-        ]),
-        onFilter: (value, record) => record.free === value,
-      },
-      {
-        title: "收聽",
-        dataIndex: "views",
-        key: "views",
-        sorter: (a, b) => a.views - b.views,
-      },
-      {
-        title: "音檔",
-        dataIndex: "path",
-        key: "path",
-        render: (path) => <ReactAudioPlayer src={path} controls />,
-      },
-      {
-        title: "老師",
-        dataIndex: "teacherID",
-        key: "teacherID",
-        render: (teacherID) => {
-          const teacher = teachers.find((t) => t.value === teacherID);
-          return teacher ? teacher.label : "未指定";
-        },
-      },
-      {
-        title: "新增日期",
-        dataIndex: "createDate",
-        key: "createDate",
-        sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
-      },
-    ],
-    [getColumnSearchProps, getColumnSelectProps, teachers]
-  );
-
   const fetchData = useCallback(async () => {
     setLoading(true);
     const res = await meditationService.getAllMusic();
     const result = res.map((item) => ({
       key: item.MusicID,
+      musicID: item.MusicID,
       name: item.Title,
       description: item.Description,
       image: item.Image,
@@ -278,6 +182,7 @@ function Music() {
       createDate: item.CreateDate,
       isDelete: item.IsDelete,
       teacherID: item.TeacherID,
+      isBackgroundMusic: item.IsBackgroundMusic || false,
     }));
     setData(result);
     setLoading(false);
@@ -312,6 +217,20 @@ function Music() {
     }
   }, []);
 
+  const handleDelete = useCallback(
+    async (musicId) => {
+      try {
+        await meditationService.deleteMusic(musicId);
+        messageApi.success("音檔已成功刪除");
+        await fetchData();
+      } catch (error) {
+        messageApi.error("刪除失敗，請稍後再試");
+        console.error("Delete music failed:", error);
+      }
+    },
+    [fetchData, messageApi]
+  );
+
   const openEdit = useCallback(
     (record) => {
       setCurrentModel("Edit");
@@ -340,6 +259,7 @@ function Music() {
         free: record.free,
         isDelete: record.isDelete === "N" || record.isDelete === "",
         teacherID: record.teacherID,
+        isBackgroundMusic: record.isBackgroundMusic || false,
       });
       setModalOpen(true);
     },
@@ -367,6 +287,7 @@ function Music() {
           Time: Math.floor(duration),
           IsDelete: form.getFieldValue("isDelete") ? "N" : "Y",
           TeacherID: teacherID,
+          IsBackgroundMusic: form.getFieldValue("isBackgroundMusic") || false,
         };
         console.log("Creating music with data:", createData);
         await meditationService.createMusic(createData);
@@ -383,6 +304,7 @@ function Music() {
           Time: Math.floor(duration),
           IsDelete: form.getFieldValue("isDelete") ? "N" : "Y",
           TeacherID: teacherID,
+          IsBackgroundMusic: form.getFieldValue("isBackgroundMusic") || false,
         };
         console.log("Updating music with data:", updateData);
         await meditationService.updateMusic(updateData);
@@ -472,10 +394,159 @@ function Music() {
     setTeacherModalVisible(false);
   }, [form]);
 
+  const handlePlayMusic = useCallback(async (musicId) => {
+    if (streamURLs[musicId]) {
+      // 已有 URL，直接播放（ReactAudioPlayer 的 src 已是最新值）
+      return;
+    }
+    setLoadingMusicId(musicId);
+    try {
+      const response = await meditationService.getMusicStreamURL(musicId);
+      setStreamURLs(prev => ({ ...prev, [musicId]: response.URL }));
+    } catch (e) {
+      console.error('Failed to get stream URL', e);
+    } finally {
+      setLoadingMusicId(null);
+    }
+  }, [streamURLs]);
+
+  const columns = useMemo(
+    () => [
+      {
+        title: "操作",
+        dataIndex: "editBtn",
+        key: "editBtn",
+        render: (_, element) => (
+          <Space>
+            <Button
+              icon={<EditOutlined />}
+              type="primary"
+              onClick={() => openEdit(element)}
+            />
+            <Popconfirm
+              title="確定要刪除此音檔嗎？刪除後無法復原。"
+              onConfirm={() => handleDelete(element.key)}
+              okText="確定"
+              cancelText="取消"
+              okButtonProps={{ danger: true }}
+            >
+              <Button icon={<DeleteOutlined />} danger />
+            </Popconfirm>
+          </Space>
+        ),
+      },
+      {
+        title: "圖片",
+        dataIndex: "image",
+        key: "image",
+        render: (image) => (
+          <Image
+            crossOrigin="anonymous"
+            src={image}
+            width="70px"
+            preview={false}
+          />
+        ),
+      },
+      {
+        title: "啟用",
+        dataIndex: "isDelete",
+        key: "isDelete",
+        render: (_, { isDelete }) => (isDelete === "Y" ? "未啟用" : "啟用中"),
+        ...getColumnSelectProps("isDelete", [
+          { label: "啟用", value: "enabled" },
+          { label: "非啟用", value: "disabled" },
+        ]),
+        onFilter: (value, record) => {
+          if (value === "enabled") return record.isDelete !== "Y";
+          if (value === "disabled") return record.isDelete === "Y";
+          return false;
+        },
+      },
+      {
+        title: "名稱",
+        dataIndex: "name",
+        key: "name",
+        ...getColumnSearchProps("name"),
+        onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
+      },
+      {
+        title: "系列",
+        dataIndex: "series",
+        key: "series",
+        render: (_, { tags }) => (
+          <>
+            {tags?.map((tag) => (
+              <Tag key={tag}>{tag.toUpperCase()}</Tag>
+            ))}
+          </>
+        ),
+      },
+      {
+        title: "收費",
+        dataIndex: "free",
+        key: "free",
+        ...getColumnSelectProps("free", [
+          { label: "Free", value: "Free" },
+          { label: "Premium", value: "Premium" },
+        ]),
+        onFilter: (value, record) => record.free === value,
+      },
+      {
+        title: "收聽",
+        dataIndex: "views",
+        key: "views",
+        sorter: (a, b) => a.views - b.views,
+      },
+      {
+        title: "音檔",
+        dataIndex: "musicID",
+        key: "path",
+        render: (musicID) => {
+          if (streamURLs[musicID]) {
+            return (
+              <ReactAudioPlayer
+                src={streamURLs[musicID]}
+                autoPlay
+                controls
+              />
+            );
+          }
+          return (
+            <Button
+              icon={loadingMusicId === musicID ? <Spin size="small" /> : <PlayCircleOutlined />}
+              onClick={() => handlePlayMusic(musicID)}
+              disabled={loadingMusicId === musicID}
+            >
+              {loadingMusicId === musicID ? "載入中..." : "播放"}
+            </Button>
+          );
+        },
+      },
+      {
+        title: "老師",
+        dataIndex: "teacherID",
+        key: "teacherID",
+        render: (teacherID) => {
+          const teacher = teachers.find((t) => t.value === teacherID);
+          return teacher ? teacher.label : "未指定";
+        },
+      },
+      {
+        title: "新增日期",
+        dataIndex: "createDate",
+        key: "createDate",
+        sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
+      },
+    ],
+    [getColumnSearchProps, getColumnSelectProps, teachers, handleDelete, openEdit, streamURLs, handlePlayMusic]
+  );
+
   const filteredData = useMemo(() => {
     const meditation = data.filter(item => !isWhiteNoise(item.path));
     const whiteNoise = data.filter(item => isWhiteNoise(item.path));
-    return { meditation, whiteNoise };
+    const backgroundMusic = whiteNoise.filter(item => item.isBackgroundMusic);
+    return { meditation, whiteNoise, backgroundMusic };
   }, [data, isWhiteNoise]);
 
   useEffect(() => {
@@ -618,6 +689,19 @@ function Music() {
                       <Switch
                         checkedChildren="啟用"
                         unCheckedChildren="停用"
+                        size="default"
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      name="isBackgroundMusic"
+                      label="背景音樂"
+                      valuePropName="checked"
+                    >
+                      <Switch
+                        checkedChildren="是"
+                        unCheckedChildren="否"
                         size="default"
                       />
                     </Form.Item>
@@ -802,6 +886,9 @@ function Music() {
         </Tabs.TabPane>
         <Tabs.TabPane tab={<span><SoundOutlined /> 白噪音</span>} key="whiteNoise">
           <Table columns={columns} dataSource={filteredData.whiteNoise} loading={loading} />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab={<span><AudioOutlined /> 背景音樂</span>} key="backgroundMusic">
+          <Table columns={columns} dataSource={filteredData.backgroundMusic} loading={loading} />
         </Tabs.TabPane>
       </Tabs>
 

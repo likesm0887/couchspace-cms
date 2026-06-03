@@ -4,6 +4,7 @@ import { AppointmentService } from "./AppointmentService";
 import { CounselorService } from "./CounselorService";
 import { MeditationService } from "./MeditationService";
 import { MemberService } from "./MemberService";
+import { ChallengeService } from "./ChallengeService";
 import cookie from 'react-cookies'
 import { createStore } from "redux"
 import { Provider } from "react-redux"
@@ -30,6 +31,8 @@ export const counselorService = new CounselorService(baseUrl);
 export const meditationService = new MeditationService(baseUrl);
 
 export const memberService = new MemberService(baseUrl);
+
+export const challengeService = new ChallengeService(baseUrl);
 
 export const boot = () => {
     // service.login("admin@gmail.com", "admin");
