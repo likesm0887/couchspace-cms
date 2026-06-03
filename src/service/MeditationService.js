@@ -11,7 +11,7 @@ export class MeditationService {
     //     return JSON.parse(info)
     // }
 
-    const api = this.base_url + "/api/v1//meditation/musics";
+    const api = this.base_url + "/api/v1/meditation/musics";
     const requestOptions = {
       method: "Get",
       headers: {
@@ -21,7 +21,12 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((res) => {
         return res;
       });
@@ -39,7 +44,12 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((result) => {
         return result;
       });
@@ -58,7 +68,7 @@ export class MeditationService {
 
     return fetch(api, requestOptions)
       .then((res) => res.json())
-      .then((result) => {});
+      .then((result) => result);
   }
 
   createMusic(music) {
@@ -73,8 +83,13 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions)
-      .then((res) => res.json())
-      .then((result) => {});
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((result) => result);
   }
 
   updateMusic(music) {
@@ -91,13 +106,18 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions)
-      .then((res) => res.json())
-      .then((result) => {});
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((result) => result);
   }
 
   getAllCourse() {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     const api =
       this.base_url +
@@ -111,7 +131,12 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((res) => {
         return res;
       });
@@ -119,7 +144,7 @@ export class MeditationService {
 
   getMusicTrend(musicId) {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     const api = this.base_url + "/api/v1/log/record/" + musicId;
     const requestOptions = {
@@ -131,14 +156,19 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((res) => {
         return res;
       });
   }
   getMusicById(musicId) {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     const api = this.base_url + "/api/v1/meditation/musics/" + musicId;
 
@@ -151,14 +181,19 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((res) => {
         return res;
       });
   }
   getCourseById(courseId) {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     const api = this.base_url + "/api/v1/meditation/courses/" + courseId;
 
@@ -171,7 +206,12 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((res) => {
         return res;
       });
@@ -189,7 +229,12 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((result) => {
         return result;
       });
@@ -197,7 +242,7 @@ export class MeditationService {
 
   batchQueryMusic(musicIds) {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     const api = this.base_url + "/api/v1/meditation/musics/batch";
     const requestOptions = {
@@ -210,16 +255,21 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions)
-      .catch((err) => console.log(err))
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((res) => {
         return res;
-      });
+      })
+      .catch((err) => console.log(err));
   }
 
   batchQueryCourses(courseIds) {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     const api = this.base_url + "/api/v1/meditation/courses/batch";
     const requestOptions = {
@@ -232,11 +282,16 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions)
-      .catch((err) => console.log(err))
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((res) => {
         return res;
-      });
+      })
+      .catch((err) => console.log(err));
   }
 
   getAllCategory() {
@@ -245,77 +300,11 @@ export class MeditationService {
     //     return JSON.parse(info)
     // }
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     const api = this.base_url + "/api/v1/meditation/categories";
     const requestOptions = {
       method: "Get",
-      headers: {
-        Authorization: cookie.load("token"),
-        "Content-Type": "application/json",
-      },
-    };
-
-    return fetch(api, requestOptions)
-      .then((res) => res.json())
-      .then((res) => {
-        return res;
-      });
-  }
-
-  createCategory(category) {
-    // const info = cookie.load("Info");
-    // if (info !== undefined) {
-    //     return JSON.parse(info)
-    // }
-    if (cookie.load("token") === undefined) {
-      return;
-    }
-    const api = this.base_url + "/api/v1/meditation/categories";
-    const requestOptions = {
-      method: "Post",
-      headers: {
-        Authorization: cookie.load("token"),
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(category),
-    };
-
-    return fetch(api, requestOptions)
-      .then((res) => res.json())
-      .then((res) => {
-        return res;
-      });
-  }
-  updateCategory(category) {
-    console.log(category);
-    if (cookie.load("token") === undefined) {
-      return;
-    }
-    const api = this.base_url + "/api/v1/meditation/categories";
-    const requestOptions = {
-      method: "Put",
-      headers: {
-        Authorization: cookie.load("token"),
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(category),
-    };
-
-    return fetch(api, requestOptions)
-      .then((res) => res.json())
-      .then((res) => {
-        return res;
-      });
-  }
-
-  deleteMusic(musicId) {
-    if (cookie.load("token") === undefined) {
-      return;
-    }
-    const api = this.base_url + "/api/v1/meditation/musics/" + musicId;
-    const requestOptions = {
-      method: "DELETE",
       headers: {
         Authorization: cookie.load("token"),
         "Content-Type": "application/json",
@@ -334,17 +323,48 @@ export class MeditationService {
       });
   }
 
-  deleteCategory(categoryId) {
+  createCategory(category) {
+    // const info = cookie.load("Info");
+    // if (info !== undefined) {
+    //     return JSON.parse(info)
+    // }
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
-    const api = this.base_url + "/api/v1/meditation/categories/" + categoryId;
+    const api = this.base_url + "/api/v1/meditation/categories";
     const requestOptions = {
-      method: "DELETE",
+      method: "Post",
       headers: {
         Authorization: cookie.load("token"),
         "Content-Type": "application/json",
       },
+      body: JSON.stringify(category),
+    };
+
+    return fetch(api, requestOptions)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((res) => {
+        return res;
+      });
+  }
+  updateCategory(category) {
+    console.log(category);
+    if (cookie.load("token") === undefined) {
+      return Promise.reject(new Error("unauthorized"));
+    }
+    const api = this.base_url + "/api/v1/meditation/categories";
+    const requestOptions = {
+      method: "Put",
+      headers: {
+        Authorization: cookie.load("token"),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(category),
     };
 
     return fetch(api, requestOptions)
@@ -361,7 +381,7 @@ export class MeditationService {
   createTeacher(teacher) {
     console.log(teacher);
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     const api = this.base_url + "/api/v1/meditation/teachers";
     const requestOptions = {
@@ -374,7 +394,12 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((res) => {
         return res;
       });
@@ -382,7 +407,7 @@ export class MeditationService {
 
   getAllTeacher() {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     const api = this.base_url + "/api/v1/meditation/teachers";
     const requestOptions = {
@@ -394,14 +419,19 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((res) => {
         return res;
       });
   }
   getTeacherById(teacherId) {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     const api = this.base_url + "/api/v1/meditation/teachers/" + teacherId;
     const requestOptions = {
@@ -413,14 +443,19 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((res) => {
         return res;
       });
   }
   updateTeacher(teacher) {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     const api = this.base_url + "/api/v1/meditation/teachers";
     const requestOptions = {
@@ -433,7 +468,12 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((res) => {
         return res;
       });
@@ -441,7 +481,7 @@ export class MeditationService {
 
   getCommonData() {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     const api = this.base_url + "/api/v1/meditation/noFilterBanner";
     const requestOptions = {
@@ -453,7 +493,12 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((res) => {
         return res;
       });
@@ -461,7 +506,7 @@ export class MeditationService {
 
   updateCommonData(commonData) {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     const api = this.base_url + "/api/v1/meditation/common";
     const requestOptions = {
@@ -474,14 +519,17 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions).then((res) => {
-      return res;
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      return res.json();
     });
   }
 
   getMusicRecordExcel() {
     console.log("HIHIH");
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     const api = this.base_url + "/api/v1/trigger/printAll";
     console.log(api);
@@ -492,12 +540,17 @@ export class MeditationService {
       },
     };
 
-    return fetch(api, requestOptions);
+    return fetch(api, requestOptions).then((res) => {
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      return res;
+    });
   }
 
   getMusicStreamURL(musicId) {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     const api = this.base_url + "/api/v1/meditation/musics/" + musicId + "/stream-url";
     const requestOptions = {
@@ -509,7 +562,12 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((res) => {
         return res;
       });
@@ -539,7 +597,7 @@ export class MeditationService {
 
   getRecommendations(includeInactive = true) {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     const api = `${this.base_url}/api/v1/meditation/recommendations?include_inactive=${includeInactive}`;
     const requestOptions = {
@@ -551,7 +609,12 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((res) => {
         return res;
       });
@@ -559,7 +622,7 @@ export class MeditationService {
 
   updateRecommendations(recommendations) {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     const api = `${this.base_url}/api/v1/meditation/recommendations`;
     const requestOptions = {
@@ -572,14 +635,19 @@ export class MeditationService {
     };
 
     return fetch(api, requestOptions)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((res) => {
         return res;
       });
   }
 
   getBackgroundMusic() {
-    if (cookie.load("token") === undefined) return;
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
     const requestOptions = {
       method: "GET",
       headers: {
@@ -590,12 +658,17 @@ export class MeditationService {
     return fetch(
       this.base_url + "/api/v1/meditation/musics/background",
       requestOptions
-    ).then((res) => res.json());
+    ).then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      });
   }
 
   deleteCourse(courseId) {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     const api = this.base_url + "/api/v1/meditation/courses/" + courseId;
     const requestOptions = {
@@ -620,7 +693,7 @@ export class MeditationService {
 
   getAllSos() {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     return fetch(`${this.base_url}/api/v1/meditation/sos`, {
       method: "GET",
@@ -629,13 +702,18 @@ export class MeditationService {
         Authorization: cookie.load("token"),
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((result) => result);
   }
 
   getSosById(id) {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     return fetch(`${this.base_url}/api/v1/meditation/sos/${id}`, {
       method: "GET",
@@ -644,13 +722,18 @@ export class MeditationService {
         Authorization: cookie.load("token"),
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((result) => result);
   }
 
   createSos(data) {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     return fetch(`${this.base_url}/api/v1/meditation/sos`, {
       method: "POST",
@@ -671,7 +754,7 @@ export class MeditationService {
 
   updateSos(data) {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     return fetch(`${this.base_url}/api/v1/meditation/sos`, {
       method: "PUT",
@@ -701,13 +784,18 @@ export class MeditationService {
         Authorization: cookie.load("token"),
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((result) => result);
   }
 
   uploadSosIcon(file) {
     if (cookie.load("token") === undefined) {
-      return;
+      return Promise.reject(new Error("unauthorized"));
     }
     const formData = new FormData();
     formData.append("myFile", file);
@@ -718,7 +806,12 @@ export class MeditationService {
       },
       body: formData,
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((result) => result);
   }
 }

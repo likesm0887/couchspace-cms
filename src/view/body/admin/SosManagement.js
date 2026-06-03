@@ -134,8 +134,12 @@ function SosManagement() {
   };
 
   const handleToggle = async (record) => {
-    await meditationService.updateSos({ ...record, SosID: record.SosId, IsActive: !record.IsActive });
-    fetchData();
+    try {
+      await meditationService.updateSos({ ...record, SosID: record.SosId, IsActive: !record.IsActive });
+      fetchData();
+    } catch (e) {
+      messageApi.error("更新失敗");
+    }
   };
 
   const handleIconUpload = async ({ file, onSuccess, onError }) => {
