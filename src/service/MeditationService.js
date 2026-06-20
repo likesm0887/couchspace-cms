@@ -814,4 +814,21 @@ export class MeditationService {
       })
       .then((result) => result);
   }
+
+  getRelaxTeacherRecommendations() {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/relax/teacher-recommendations`, {
+      method: "GET",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+  }
+
+  updateRelaxTeacherRecommendations(recommendations) {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/relax/teacher-recommendations`, {
+      method: "PUT",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+      body: JSON.stringify(recommendations),
+    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+  }
 }

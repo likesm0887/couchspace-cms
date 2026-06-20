@@ -65,6 +65,7 @@ const items = [
     getItem("放鬆Banner", "operations-relax-banner", <PictureOutlined />),
     getItem("挑戰管理", "operations-challenges", <TagOutlined />),
     getItem("SOS 管理", "sos", <AlertOutlined />),
+    getItem("放鬆老師推薦", "operations-relax-teacher", <TeamOutlined />),
   ]),
 ];
 
@@ -102,6 +103,7 @@ function Admin() {
     else if (path === "/admin/trigger-report") setCurrent("trigger-report");
     else if (path === "/admin/operations/challenges") setCurrent("operations-challenges");
     else if (path === "/admin/sos") setCurrent("sos");
+    else if (path === "/admin/operations/relax-teacher-recommendations") setCurrent("operations-relax-teacher");
   }, [location.pathname]);
 
   useEffect(() => {
@@ -170,6 +172,7 @@ function Admin() {
     else if (e.key === "trigger-report") navigate("trigger-report", { replace: true });
     else if (e.key === "operations-challenges") navigate("operations/challenges", { replace: true });
     else if (e.key === "sos") navigate("sos", { replace: true });
+    else if (e.key === "operations-relax-teacher") navigate("operations/relax-teacher-recommendations", { replace: true });
   };
 
   return (
