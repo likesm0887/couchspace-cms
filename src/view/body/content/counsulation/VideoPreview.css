@@ -1,0 +1,379 @@
+/* ── Base (Desktop ≥ 1025px) ─────────────────────────────── */
+.vp-wrapper {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #2A2B2E;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.vp-back-btn {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  background: transparent;
+  border: 1.5px solid #555;
+  border-radius: 8px;
+  color: #D8D8D8;
+  font-size: 14px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  z-index: 10;
+}
+
+.vp-back-btn:hover {
+  border-color: #89A2D0;
+  color: #89A2D0;
+}
+
+.vp-video-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+}
+
+.vp-video-container {
+  width: 100%;
+  max-width: 520px;
+  aspect-ratio: 4 / 3;
+  background-color: #1A1B1E;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vp-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  border-radius: 16px;
+}
+
+.vp-video-off {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.vp-video-off-icon {
+  height: 60px;
+  width: 60px;
+}
+
+.vp-video-off-text {
+  color: #D8D8D8;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.vp-controls {
+  display: flex;
+  flex-direction: row;
+  gap: 36px;
+  margin-top: 24px;
+}
+
+.vp-ctrl-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.vp-ctrl-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.vp-ctrl-icon {
+  height: 52px;
+  width: 52px;
+}
+
+.vp-ctrl-label {
+  color: #D8D8D8;
+  font-size: 12px;
+  margin-top: 6px;
+  text-align: center;
+}
+
+.vp-settings-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.vp-card {
+  background-color: #1A1B1E;
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 420px;
+  box-sizing: border-box;
+}
+
+.vp-title {
+  color: #FFFFFF;
+  font-size: 22px;
+  font-weight: bold;
+  margin: 0 0 32px 0;
+  text-align: center;
+}
+
+.vp-field {
+  margin-bottom: 24px;
+}
+
+.vp-label {
+  display: block;
+  color: #D8D8D8;
+  font-size: 13px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.vp-input {
+  width: 100%;
+  padding: 12px 14px;
+  background-color: #2A2B2E;
+  border: 1.5px solid #444;
+  border-radius: 8px;
+  color: #FFFFFF;
+  font-size: 15px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.vp-input::placeholder {
+  color: #666;
+}
+
+.vp-input:focus {
+  border-color: #89A2D0;
+}
+
+.vp-mic-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.vp-mic-icon {
+  height: 24px;
+  width: 24px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.vp-audio-bars {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex: 1;
+}
+
+.vp-audio-bar {
+  flex: 1;
+  min-width: 0;
+  height: 18px;
+  border-radius: 3px;
+  transition: background-color 0.08s;
+}
+
+.vp-hint {
+  color: #777;
+  font-size: 12px;
+}
+
+.vp-camera-row {
+  display: flex;
+  align-items: center;
+}
+
+.vp-camera-icon {
+  height: 24px;
+  width: 24px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.vp-camera-status-text {
+  font-size: 14px;
+}
+
+.vp-join-btn {
+  width: 100%;
+  padding: 14px;
+  background-color: #89A2D0;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background-color 0.2s;
+}
+
+.vp-join-btn:hover:not(:disabled) {
+  background-color: #7090BE;
+}
+
+.vp-join-btn:disabled {
+  background-color: #444;
+  color: #888;
+  cursor: not-allowed;
+}
+
+/* ── Tablet (769px – 1024px) ─────────────────────────────── */
+@media screen and (max-width: 1024px) {
+  .vp-video-section {
+    padding: 40px 24px 24px;
+  }
+
+  .vp-settings-section {
+    padding: 40px 24px 24px;
+  }
+
+  .vp-card {
+    padding: 32px 28px;
+  }
+}
+
+/* ── Tablet portrait / Large mobile (≤ 768px) ────────────── */
+@media screen and (max-width: 768px) {
+  .vp-wrapper {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    overflow-y: auto;
+    padding-top: 60px;
+    padding-bottom: 32px;
+  }
+
+  .vp-back-btn {
+    top: 14px;
+    left: 14px;
+  }
+
+  .vp-video-section {
+    width: 100%;
+    max-width: 560px;
+    padding: 12px 20px 8px;
+  }
+
+  .vp-video-container {
+    max-width: 100%;
+  }
+
+  .vp-settings-section {
+    width: 100%;
+    max-width: 560px;
+    padding: 8px 20px 16px;
+    justify-content: flex-start;
+  }
+
+  .vp-card {
+    padding: 28px 24px;
+    max-width: 100%;
+    border-radius: 12px;
+  }
+
+  .vp-title {
+    font-size: 20px;
+    margin-bottom: 24px;
+  }
+}
+
+/* ── Small mobile (≤ 480px) ──────────────────────────────── */
+@media screen and (max-width: 480px) {
+  .vp-wrapper {
+    padding-top: 52px;
+    padding-bottom: 24px;
+  }
+
+  .vp-back-btn {
+    top: 10px;
+    left: 10px;
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+
+  .vp-video-section {
+    padding: 10px 12px 6px;
+  }
+
+  .vp-video-off-icon {
+    height: 44px;
+    width: 44px;
+  }
+
+  .vp-video-off-text {
+    font-size: 13px;
+    margin-top: 8px;
+  }
+
+  .vp-controls {
+    gap: 28px;
+    margin-top: 16px;
+  }
+
+  .vp-ctrl-icon {
+    height: 44px;
+    width: 44px;
+  }
+
+  .vp-ctrl-label {
+    font-size: 11px;
+  }
+
+  .vp-settings-section {
+    padding: 6px 12px 20px;
+  }
+
+  .vp-card {
+    padding: 20px 16px;
+    border-radius: 10px;
+  }
+
+  .vp-title {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+
+  .vp-field {
+    margin-bottom: 18px;
+  }
+
+  .vp-input {
+    font-size: 16px; /* prevent iOS zoom on focus */
+    padding: 11px 12px;
+  }
+
+  .vp-audio-bar {
+    height: 14px;
+  }
+
+  .vp-join-btn {
+    padding: 13px;
+    font-size: 15px;
+  }
+}

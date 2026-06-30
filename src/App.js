@@ -26,6 +26,7 @@ const AdminDashboard = React.lazy(() => import("./view/body/admin/AdminDashboard
 const Consultation = React.lazy(() => import("./view/body/content/counsulation/Consultation"));
 const AppointmentDetail = React.lazy(() => import("./view/body/content/counsulation/AppointmentDetail"));
 const Counseling = React.lazy(() => import("./view/body/content/counsulation/Counseling"));
+const VideoPreview = React.lazy(() => import("./view/body/content/counsulation/VideoPreview"));
 const Course = React.lazy(() => import("./view/body/admin/Course.js"));
 const Category = React.lazy(() => import("./view/body/admin/Category"));
 const Teacher = React.lazy(() => import("./view/body/admin/Teacher"));
@@ -91,6 +92,7 @@ function App() {
 
         <Route path="couchspace-cms/" element={<Login />} />
         <Route element={<ProtectedRoute redirectPath={"/couchspace-cms"} isAdmin={false} />}>
+          <Route path="couchspace-cms/home/consultation/counseling/:id/preview" element={<Suspense fallback={<div>Loading...</div>}><VideoPreview /></Suspense>} />
           <Route path="couchspace-cms/home/consultation/counseling/:id" element={<Suspense fallback={<div>Loading...</div>}><Counseling /></Suspense>} />
           <Route path="couchspace-cms/home" element={<Home />}>
             <Route>

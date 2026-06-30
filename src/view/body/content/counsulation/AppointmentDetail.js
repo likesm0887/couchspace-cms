@@ -99,7 +99,7 @@ function AppointmentDetail() {
     }
     const start = (ID) => {
         console.log(ID)
-        navigate("/couchspace-cms/home/consultation/counseling/" + ID, { replace: false, state: { appointmentID: ID } });
+        navigate("/couchspace-cms/home/consultation/counseling/" + ID + "/preview", { replace: false, state: { appointmentID: ID, counselorName: appointment.CounselorName } });
     }
     function num2Time(number) {
         var minute = parseInt(number / 60)
