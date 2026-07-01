@@ -22,6 +22,7 @@ import {
   PieChartOutlined,
   SmileOutlined,
   SoundOutlined,
+  StarOutlined,
   TagOutlined,
   TeamOutlined,
   UserOutlined,
@@ -66,7 +67,8 @@ const items = [
     getItem("挑戰管理", "operations-challenges", <TagOutlined />),
     getItem("SOS 管理", "sos", <AlertOutlined />),
     getItem("放鬆老師推薦", "operations-relax-teacher", <TeamOutlined />),
-    getItem("諮詢老師推薦", "operations-counseling-teacher", <TeamOutlined />),
+    getItem("精選心理師推薦", "operations-counseling-teacher", <TeamOutlined />),
+    getItem("名人指南推薦", "operations-celebrity-guide", <StarOutlined />),
   ]),
 ];
 
@@ -106,6 +108,7 @@ function Admin() {
     else if (path === "/admin/sos") setCurrent("sos");
     else if (path === "/admin/operations/relax-teacher-recommendations") setCurrent("operations-relax-teacher");
     else if (path === "/admin/operations/counseling-teacher-recommendations") setCurrent("operations-counseling-teacher");
+    else if (path === "/admin/operations/celebrity-guide-recommendations") setCurrent("operations-celebrity-guide");
   }, [location.pathname]);
 
   useEffect(() => {
@@ -176,6 +179,7 @@ function Admin() {
     else if (e.key === "sos") navigate("sos", { replace: true });
     else if (e.key === "operations-relax-teacher") navigate("operations/relax-teacher-recommendations", { replace: true });
     else if (e.key === "operations-counseling-teacher") navigate("operations/counseling-teacher-recommendations", { replace: true });
+    else if (e.key === "operations-celebrity-guide") navigate("operations/celebrity-guide-recommendations", { replace: true });
   };
 
   return (

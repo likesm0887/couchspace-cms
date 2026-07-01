@@ -111,11 +111,13 @@ function CounselingTeacherRecommendation() {
 
   const counselorOptions = useMemo(
     () =>
-      counselors.map((c) => ({
-        value: c.ID,
-        label: getCounselorName(c),
-        photo: c?.Photo || "",
-      })),
+      counselors
+        .filter((c) => c.IsBookable === true)
+        .map((c) => ({
+          value: c.ID,
+          label: getCounselorName(c),
+          photo: c?.Photo || "",
+        })),
     [counselors]
   );
 
@@ -160,7 +162,7 @@ function CounselingTeacherRecommendation() {
       await meditationService.updateCounselingTeacherRecommendations(
         recommendations.map((r) => ({ CounselorID: r.CounselorID, Sequence: r.Sequence }))
       );
-      messageApi.success("諮詢老師推薦已更新");
+      messageApi.success("精選心理師推薦已更新");
       await fetchData();
     } catch (error) {
       messageApi.error("更新失敗，請稍後再試");
@@ -239,8 +241,8 @@ function CounselingTeacherRecommendation() {
         {/* Page header */}
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 20 }}>
           <div>
-            <h1 style={{ fontSize: 22, fontWeight: 600, margin: "0 0 6px", color: ink, letterSpacing: "-0.01em" }}>諮詢老師推薦管理</h1>
-            <p style={{ margin: 0, fontSize: 13.5, color: muted }}>管理諮詢專區推薦老師，可拖移調整順序。</p>
+            <h1 style={{ fontSize: 22, fontWeight: 600, margin: "0 0 6px", color: ink, letterSpacing: "-0.01em" }}>精選心理師推薦管理</h1>
+            <p style={{ margin: 0, fontSize: 13.5, color: muted }}>管理精選推薦老師，可拖移調整順序。</p>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             <Button icon={<ReloadOutlined />} onClick={fetchData}>重新載入</Button>
