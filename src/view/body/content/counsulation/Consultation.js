@@ -112,9 +112,9 @@ function Consultation() {
     const clickItem = (appointment) => {
         navigate("/couchspace-cms/home/consultation/" + appointment.AppointmentID, { replace: false, state: { appointment: appointment } });
     }
-    const start = (ID) => {
+    const start = (ID, CounselorName) => {
         console.log(ID)
-        navigate("/couchspace-cms/home/consultation/counseling/" + ID, { replace: false, state: { appointmentID: ID } });
+        navigate("/couchspace-cms/home/consultation/counseling/" + ID + "/preview", { replace: false, state: { appointmentID: ID, counselorName: CounselorName } });
     }
     function getStatusDesc(code) {
         if (code.toUpperCase() === 'NEW') {
@@ -187,7 +187,7 @@ function Consultation() {
                             </div>
                             <div className="content-col">
                                 {allAppointment.Status.toUpperCase() === "ROOMCREATED" ?
-                                    <button className={"startButton-enabled startButton-enabled_hover"} onClick={() => start(allAppointment.AppointmentID)} >
+                                    <button className={"startButton-enabled startButton-enabled_hover"} onClick={() => start(allAppointment.AppointmentID, allAppointment.CounselorName)} >
                                         <span style={{ verticalAlign: 'center' }}>進入房間</span>
                                     </button>
                                     :

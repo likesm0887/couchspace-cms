@@ -31,8 +31,8 @@ console.log("IsSafari", IsSafari);
 const VideoChat = (props) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [showCamera, setShowCamera] = useState(true);
-  const [showMic, setShowMic] = useState(false);
+  const [showCamera, setShowCamera] = useState(props.initialCameraOn ?? true);
+  const [showMic, setShowMic] = useState(props.initialMicOn ?? false);
   const [showBlur, setShowBlur] = useState(false);
   const [showBG, setShowBG] = useState(false);
   const [mirror, setMirror] = useState(false);
@@ -62,7 +62,7 @@ const VideoChat = (props) => {
       // start join session
       if (ZoomVideo.checkSystemRequirements().video && ZoomVideo.checkSystemRequirements().audio) {
         await client.init('en-US', 'Global', { patchJsMedia: true, stayAwake: true, enforceMultipleVideos: true }).then(async () => {
-          await client.join(tempAppointment.RoomID, token, tempAppointment.CounselorName, "").then(() => {
+          await client.join(tempAppointment.RoomID, token, props.nickname, "").then(() => {
             stream = client.getMediaStream();
             var isVirtualBG = stream.isSupportVirtualBackground();
             console.log("isVirtualBG", isVirtualBG);
@@ -92,20 +92,31 @@ const VideoChat = (props) => {
       supportHD = await stream.isSupportHDVideo();
       console.log("supportHD", supportHD);
       // start video streaming & audio
-      await stream.startVideo({ hd: supportHD, fullHd: supportHD });
+      console.log("props.initialCameraOn", props.initialCameraOn);
+      console.log("props.initialMicOn", props.initialMicOn);
 
-      await stream.mirrorVideo(true);
+      if (props.initialCameraOn === true) {
+        await stream.startVideo({ hd: supportHD, fullHd: supportHD });
+        setShowCamera(true);
+      }
       console.log("stream", stream);
       console.log("client", client);
       console.log("session info", client.getSessionInfo());
       if (!IsSafari) {
         await stream.startAudio()
+      }
+      else {
+        await stream.startAudio({ autoStartAudioInSafari: IsSafari })
+      }
+      if (props.initialMicOn === true) {
         stream.unmuteAudio(client.getCurrentUserInfo().userId).then(() => {
           setShowMic(true);
         });
       }
       else {
-        stream.startAudio({ autoStartAudioInSafari: IsSafari })
+        stream.muteAudio(client.getCurrentUserInfo().userId).then(() => {
+          setShowMic(false);
+        });
       }
       // calculate elapsed time
       startDateTime = tempAppointment.Time.Date;
@@ -524,6 +535,7 @@ const VideoChat = (props) => {
                           </div>
                         </div>
                         <video-player class="video-player align-items-center" style={{ borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} node-id={user.userId}></video-player>
+                        <div style={{ position: "absolute", bottom: 8, right: 8, backgroundColor: "rgba(0,0,0,0.55)", color: "#FFFFFF", fontSize: 12, padding: "2px 8px", borderRadius: 4, pointerEvents: "none", zIndex: 1, maxWidth: "calc(100% - 16px)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.displayName}</div>
                       </video-player-container>
                     </Draggable>
                   )
@@ -543,6 +555,7 @@ const VideoChat = (props) => {
                             <div style={{ fontSize: 16, color: "#D8D8D8" }}> 已關閉鏡頭</div>
                           </div>
                         </div>
+                        <div style={{ position: "absolute", bottom: 8, right: 8, backgroundColor: "rgba(0,0,0,0.55)", color: "#FFFFFF", fontSize: 12, padding: "2px 8px", borderRadius: 4, pointerEvents: "none", zIndex: 1, maxWidth: "calc(100% - 16px)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.displayName}</div>
                       </div>
                     </Draggable>
                   )
@@ -555,19 +568,20 @@ const VideoChat = (props) => {
               {participants.map((user) => { // Users Video
                 if (user.bVideoOn && user.userId !== client.getCurrentUserInfo().userId) {
                   return (
-                    <video-player-container key={user.useId} style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants() }}>
+                    <video-player-container key={user.useId} style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), position: "relative" }}>
                       <div style={{ width: "100%" }}>
                         <div className="screen-mic">
                           <img style={{ height: 24, width: 24 }} src={user.muted ? img_mic_off : img_mic_on} alt="Mic" />
                         </div>
                       </div>
                       <video-player class="video-player align-items-center" style={{ borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} node-id={user.userId}></video-player>
+                      <div style={{ position: "absolute", bottom: 8, right: 8, backgroundColor: "rgba(0,0,0,0.55)", color: "#FFFFFF", fontSize: 12, padding: "2px 8px", borderRadius: 4, pointerEvents: "none", zIndex: 1, maxWidth: "calc(100% - 16px)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.displayName}</div>
                     </video-player-container>
                   )
                 }
                 else if (!user.bVideoOn && user.userId !== client.getCurrentUserInfo().userId) {
                   return (
-                    <div key={user.useId} class="empty-screen-container" style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants() }}>
+                    <div key={user.useId} class="empty-screen-container" style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), position: "relative" }}>
                       <div style={{ width: "100%" }}>
                         <div className="screen-mic">
                           <img style={{ height: 24, width: 24 }} src={user.muted ? img_mic_off : img_mic_on} alt="Mic" />
@@ -579,6 +593,7 @@ const VideoChat = (props) => {
                           <div style={{ fontSize: 16, color: "#D8D8D8" }}> 對方已關閉鏡頭</div>
                         </div>
                       </div>
+                      <div style={{ position: "absolute", bottom: 8, right: 8, backgroundColor: "rgba(0,0,0,0.55)", color: "#FFFFFF", fontSize: 12, padding: "2px 8px", borderRadius: 4, pointerEvents: "none", zIndex: 1, maxWidth: "calc(100% - 16px)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.displayName}</div>
                     </div>
                   )
                 }
@@ -602,6 +617,7 @@ const VideoChat = (props) => {
                           </div>
                         </div>
                         <video-player class="video-player align-items-center" style={{ borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} node-id={user.userId}></video-player>
+                        <div style={{ position: "absolute", bottom: 8, right: 8, backgroundColor: "rgba(0,0,0,0.55)", color: "#FFFFFF", fontSize: 10, padding: "2px 6px", borderRadius: 4, pointerEvents: "none", zIndex: 1, maxWidth: "calc(100% - 12px)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.displayName}</div>
                       </video-player-container>
                     </Draggable>
                   )
@@ -621,6 +637,7 @@ const VideoChat = (props) => {
                             <div style={{ fontSize: 16, color: "#D8D8D8" }}> 已關閉鏡頭</div>
                           </div>
                         </div>
+                        <div style={{ position: "absolute", bottom: 8, right: 8, backgroundColor: "rgba(0,0,0,0.55)", color: "#FFFFFF", fontSize: 10, padding: "2px 6px", borderRadius: 4, pointerEvents: "none", zIndex: 1, maxWidth: "calc(100% - 12px)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.displayName}</div>
                       </div>
                     </Draggable>
                   )
@@ -633,19 +650,20 @@ const VideoChat = (props) => {
               {participants.map((user) => { // Users Video
                 if (user.bVideoOn && user.userId !== client.getCurrentUserInfo().userId) {
                   return (
-                    <video-player-container key={user.useId} style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants() }}>
+                    <video-player-container key={user.useId} style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), position: "relative" }}>
                       <div style={{ width: "100%" }}>
                         <div class="screen-mic">
                           <img style={{ height: 24, width: 24 }} src={user.muted ? img_mic_off : img_mic_on} alt="Mic" />
                         </div>
                       </div>
                       <video-player class="video-player align-items-center" style={{ borderColor: activeSpeakerId === user.userId ? "#89A2D0" : "#000000" }} node-id={user.userId}></video-player>
+                      <div style={{ position: "absolute", bottom: 8, right: 8, backgroundColor: "rgba(0,0,0,0.55)", color: "#FFFFFF", fontSize: 10, padding: "2px 6px", borderRadius: 4, pointerEvents: "none", zIndex: 1, maxWidth: "calc(100% - 12px)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.displayName}</div>
                     </video-player-container>
                   )
                 }
                 else if (!user.bVideoOn && user.userId !== client.getCurrentUserInfo().userId) {
                   return (
-                    <div key={user.useId} class="empty-screen-container" style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants() }}>
+                    <div key={user.useId} class="empty-screen-container" style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), position: "relative" }}>
                       <div style={{ width: "100%" }}>
                         <div class="screen-mic">
                           <img style={{ height: 24, width: 24 }} src={user.muted ? img_mic_off : img_mic_on} alt="Mic" />
@@ -657,6 +675,7 @@ const VideoChat = (props) => {
                           <div style={{ fontSize: 16, color: "#D8D8D8" }}> 對方已關閉鏡頭</div>
                         </div>
                       </div>
+                      <div style={{ position: "absolute", bottom: 8, right: 8, backgroundColor: "rgba(0,0,0,0.55)", color: "#FFFFFF", fontSize: 10, padding: "2px 6px", borderRadius: 4, pointerEvents: "none", zIndex: 1, maxWidth: "calc(100% - 12px)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.displayName}</div>
                     </div>
                   )
                 }

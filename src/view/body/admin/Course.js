@@ -394,9 +394,9 @@ function Course() {
 
     const musicList = e.musicIDs
       ? e.musicIDs.map((music) => {
-          const id = music.MusicID || music.id;
-          const option = allOption.find((o) => o.value === id);
-          return { id, title: option?.label || id };
+          const id = typeof music === 'string' ? music : (music.MusicID || music.id);
+          const musicData = allMusics.find((m) => (m.MusicID || m.id) === id);
+          return { id, title: musicData?.Title || allOption.find((o) => o.value === id)?.label || id };
         })
       : [];
     setSelectedMusics(musicList);

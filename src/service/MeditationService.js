@@ -518,11 +518,12 @@ export class MeditationService {
       body: JSON.stringify(commonData),
     };
 
-    return fetch(api, requestOptions).then((res) => {
+    return fetch(api, requestOptions).then(async (res) => {
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      return res.json();
+      const text = await res.text();
+      return text ? JSON.parse(text) : {};
     });
   }
 
@@ -813,5 +814,39 @@ export class MeditationService {
         return res.json();
       })
       .then((result) => result);
+  }
+
+  getRelaxTeacherRecommendations() {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/relax/teacher-recommendations`, {
+      method: "GET",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+  }
+
+  updateRelaxTeacherRecommendations(recommendations) {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/relax/teacher-recommendations`, {
+      method: "PUT",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+      body: JSON.stringify(recommendations),
+    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+  }
+
+  getCounselingTeacherRecommendations() {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/counseling/teacher-recommendations`, {
+      method: "GET",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+  }
+
+  updateCounselingTeacherRecommendations(recommendations) {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/counseling/teacher-recommendations`, {
+      method: "PUT",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+      body: JSON.stringify(recommendations),
+    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
   }
 }
