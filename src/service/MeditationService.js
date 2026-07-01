@@ -518,11 +518,12 @@ export class MeditationService {
       body: JSON.stringify(commonData),
     };
 
-    return fetch(api, requestOptions).then((res) => {
+    return fetch(api, requestOptions).then(async (res) => {
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      return res.json();
+      const text = await res.text();
+      return text ? JSON.parse(text) : {};
     });
   }
 
