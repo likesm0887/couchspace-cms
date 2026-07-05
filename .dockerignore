@@ -1,0 +1,13 @@
+node_modules
+build
+.git
+.gitignore
+.claude
+.opencode
+.vscode
+npm-debug.log*
+*.md
+log
+"Couchspace · 營運管理.pdf"
+payment-flow.html
+AGENTS.md

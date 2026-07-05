@@ -9,7 +9,7 @@ ENV NODE_ENV development
 WORKDIR /app
 
 # Installing dependencies
-COPY package.json ./
+COPY package.json package-lock.json ./
 COPY .env   ./
 COPY nginx.conf ./
 RUN npm install --legacy-peer-deps
