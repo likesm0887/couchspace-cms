@@ -58,7 +58,7 @@ const items = [
   getItem("優惠代碼", "12", <TagOutlined />),
   getItem("報表", "sub-reports", <FileOutlined />, [
     getItem("報表總覽", "13", <FileOutlined />),
-    getItem("觸發報表", "trigger-report", <FileOutlined />),
+    getItem("收聽次數報表", "trigger-report", <FileOutlined />),
   ]),
   getItem("營運管理", "sub-operations", <FolderOpenOutlined />, [
     getItem("每日推薦", "operations-recommendations", <SmileOutlined />),
