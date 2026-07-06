@@ -1,4 +1,4 @@
-import React, { Children, useEffect, useState, useCallback, useMemo } from "react";
+import React, { Children, useEffect, useState, useCallback, useMemo, useRef } from "react";
 import {
   message,
   Space,
@@ -168,6 +168,7 @@ function Course() {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [selectedMusics, setSelectedMusics] = useState([]);
+  const openEditRef = useRef(null);
 
   const handleSearch = useCallback((selectedKeys, confirm, dataIndex) => {
     confirm();
@@ -240,7 +241,7 @@ function Course() {
             <Button
               icon={<EditOutlined />}
               type="primary"
-              onClick={() => openEdit(element)}
+              onClick={() => openEditRef.current(element)}
             ></Button>
             <Button
               icon={<DeleteOutlined />}
@@ -341,6 +342,20 @@ function Course() {
         ),
       },
       {
+        title: "類型",
+        dataIndex: "courseType",
+        key: "courseType",
+        render: (courseType) => {
+          if (!courseType) return null;
+          const isCollection = courseType === "collection";
+          return (
+            <Tag color={isCollection ? "orange" : "blue"}>
+              {isCollection ? "合集" : "系列"}
+            </Tag>
+          );
+        },
+      },
+      {
         title: "系列介紹",
         dataIndex: "description",
         key: "description",
@@ -407,10 +422,14 @@ function Course() {
     form.setFieldValue("Index", e.Index);
     form.setFieldValue("teacherName", e.teacherId);
     form.setFieldValue("display", e.display);
+    form.setFieldValue("courseType", e.courseType || "series");
 
     console.log(courseData);
     setModal1Open(true);
   };
+
+  // 每次 render 同步最新的 openEdit，讓 useMemo columns 不會用到 stale closure
+  openEditRef.current = openEdit;
 
   const handleDelete = (element) => {
     Modal.confirm({
@@ -458,13 +477,7 @@ function Course() {
         res[i].Musics.push(...musics);
       }
       console.log(res[i].TeacherID);
-      var teacher = null;
-      if (res[i].TeacherID != "") {
-        console.log(res[i].TeacherID);
-        teacher = teacherMap.get(res[i].TeacherID);
-        console.log(teacher.Name);
-        console.log(res[i]);
-      }
+      const teacher = res[i].TeacherID ? teacherMap.get(res[i].TeacherID) : null;
 
       result.push({
         CourseID: res[i].CourseID,
@@ -477,11 +490,12 @@ function Course() {
         tags: res[i]?.Tags,
         description: res[i].Description,
         musicIDs: res[i].MusicIDs,
-        teacherName: teacher === null ? "" : teacher.Name,
-        teacherId: teacher === null ? "" : teacher.TeacherId,
+        teacherName: teacher?.Name ?? "",
+        teacherId: teacher?.TeacherId ?? "",
         child: res[i].Musics,
         display: res[i].Display,
         createDate: res[i].CreateDate,
+        courseType: res[i].CourseType || "",
       });
     }
 
@@ -498,6 +512,7 @@ function Course() {
     form.setFieldValue("name", "");
     form.setFieldValue("description", "");
     form.setFieldValue("Index", 0);
+    form.setFieldValue("courseType", "series");
     setModal1Open(true);
   };
   const onFinish = () => {
@@ -512,6 +527,7 @@ function Course() {
           Display: form.getFieldValue("display"),
           TeacherID: form.getFieldValue("teacherName"),
           Tags: ["幫助睡眠", "正念", "紓解壓力"],
+          CourseType: form.getFieldValue("courseType") || "series",
         })
         .then((e) => {
           console.log(e);
@@ -557,6 +573,7 @@ function Course() {
           Index: Number(form.getFieldValue("Index")),
           Description: form.getFieldValue("description"),
           Tags: ["幫助睡眠", "正念", "紓解壓力"],
+          CourseType: form.getFieldValue("courseType") || "series",
         })
         .then((e) => {
           meditationService
@@ -564,12 +581,12 @@ function Course() {
               CourseId: course.key,
               MusicIds: selectedMusics.map((m) => m.id),
             })
-            .then((e) => {
+            .finally(() => {
               messageApi.open({
                 type: "success",
-                content: "新增成功",
+                content: "更新成功",
               });
-              getData().then((e) => e);
+              getData();
               setModal1Open(false);
             });
         })
@@ -805,6 +822,20 @@ function Course() {
                     { value: 0, label: "Standard" },
                     { value: 1, label: "One" },
                     { value: 2, label: "Three" },
+                  ]}
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="courseType"
+                label={<span style={{ fontWeight: 'bold', color: '#1890ff' }}>課程類型</span>}
+              >
+                <Select
+                  size="large"
+                  style={{ borderRadius: '6px' }}
+                  options={[
+                    { value: "series", label: "系列（同一位老師）" },
+                    { value: "collection", label: "合集（不同老師）" },
                   ]}
                 />
               </Form.Item>
