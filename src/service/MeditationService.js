@@ -886,4 +886,12 @@ export class MeditationService {
       headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
     }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
   }
+
+  refreshDailyRecommendations() {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/daily-session/stored-recommendation/refresh`, {
+      method: "POST",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+  }
 }

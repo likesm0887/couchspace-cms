@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, message, Select, Spin, Tag } from "antd";
-import { DeleteOutlined, PlusOutlined, ReloadOutlined, SaveOutlined, CalendarOutlined } from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined, ReloadOutlined, SaveOutlined, CalendarOutlined, ThunderboltOutlined } from "@ant-design/icons";
 import { meditationService } from "../../../service/ServicePool";
 
 /* ── Design tokens ── */
@@ -129,6 +129,7 @@ function DailySessionRecommendation() {
   const [messageApi, contextHolder] = message.useMessage();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [musicOptions, setMusicOptions] = useState([]);
   const [pool, setPool] = useState({ Morning: [], Noon: [], Evening: [] });
   const [stored, setStored] = useState(null);
@@ -169,6 +170,19 @@ function DailySessionRecommendation() {
     setPool((prev) => ({ ...prev, [slotKey]: ids }));
   }, []);
 
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const rec = await meditationService.refreshDailyRecommendations();
+      setStored(rec);
+      messageApi.success("推薦已刷新");
+    } catch {
+      messageApi.error("刷新失敗，請稍後再試");
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const handleSave = async () => {
     const hasEmpty = Object.values(pool).some((ids) => ids.includes(""));
     if (hasEmpty) {
@@ -202,6 +216,7 @@ function DailySessionRecommendation() {
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             <Button icon={<ReloadOutlined />} onClick={fetchData}>重新載入</Button>
+            <Button icon={<ThunderboltOutlined />} loading={refreshing} onClick={handleRefresh} type="default">立即刷新推薦</Button>
             <Button icon={<SaveOutlined />} loading={saving} onClick={handleSave}>儲存設定</Button>
           </div>
         </div>
