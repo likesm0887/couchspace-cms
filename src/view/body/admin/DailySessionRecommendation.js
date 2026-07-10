@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, message, Select, Spin } from "antd";
-import { DeleteOutlined, PlusOutlined, ReloadOutlined, SaveOutlined } from "@ant-design/icons";
+import { Button, message, Select, Spin, Tag } from "antd";
+import { DeleteOutlined, PlusOutlined, ReloadOutlined, SaveOutlined, CalendarOutlined } from "@ant-design/icons";
 import { meditationService } from "../../../service/ServicePool";
 
 /* ── Design tokens ── */
@@ -92,6 +92,38 @@ function SlotPanel({ slotKey, label, emoji, musicIDs, musicOptions, onChange }) 
   );
 }
 
+/* ── Today recommendation card ── */
+function TodayCard({ stored, musicOptions }) {
+  if (!stored?.Date) return null;
+  const getTitle = (id) => musicOptions.find((o) => o.value === id)?.label || id || "—";
+  const slots = [
+    { key: "Morning", label: "早上 08:00", emoji: "🌅", id: stored.Morning },
+    { key: "Noon",    label: "中午 12:00", emoji: "☀️", id: stored.Noon },
+    { key: "Evening", label: "晚上 20:00", emoji: "🌙", id: stored.Evening },
+  ];
+  return (
+    <div style={{ background: panel, border: `1px solid ${line}`, borderRadius: 10, marginBottom: 20, overflow: "hidden" }}>
+      <div style={{ padding: "14px 18px", borderBottom: `1px solid ${line2}`, background: "#FAFAFA", display: "flex", alignItems: "center", gap: 8 }}>
+        <CalendarOutlined style={{ color: accent }} />
+        <span style={{ fontWeight: 600, color: ink }}>今日推薦結果</span>
+        <Tag color="blue" style={{ marginLeft: 4 }}>{stored.Date}</Tag>
+        <span style={{ fontSize: 12, color: muted, marginLeft: 4 }}>由排程自動產生（08:00 / 12:00 / 20:00）</span>
+      </div>
+      <div style={{ display: "flex" }}>
+        {slots.map((s, i) => (
+          <div key={s.key} style={{ flex: 1, padding: "16px 20px", borderRight: i < 2 ? `1px solid ${line}` : "none" }}>
+            <div style={{ fontSize: 11, color: muted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>{s.emoji} {s.label}</div>
+            <div style={{ fontSize: 14, fontWeight: 500, color: s.id ? ink : muted }}>
+              {s.id ? getTitle(s.id) : "尚未推薦"}
+            </div>
+            {s.id && <div style={{ fontSize: 11, color: muted, marginTop: 4, fontFamily: "monospace" }}>{s.id.slice(-8)}</div>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ── Main component ── */
 function DailySessionRecommendation() {
   const [messageApi, contextHolder] = message.useMessage();
@@ -99,6 +131,7 @@ function DailySessionRecommendation() {
   const [saving, setSaving] = useState(false);
   const [musicOptions, setMusicOptions] = useState([]);
   const [pool, setPool] = useState({ Morning: [], Noon: [], Evening: [] });
+  const [stored, setStored] = useState(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -119,6 +152,12 @@ function DailySessionRecommendation() {
       });
     } catch {
       // 新 API 尚未部署時靜默忽略
+    }
+    try {
+      const rec = await meditationService.getStoredDailyRecommendation();
+      setStored(rec);
+    } catch {
+      // 靜默忽略
     } finally {
       setLoading(false);
     }
@@ -166,6 +205,9 @@ function DailySessionRecommendation() {
             <Button icon={<SaveOutlined />} loading={saving} onClick={handleSave}>儲存設定</Button>
           </div>
         </div>
+
+        {/* Today recommendation */}
+        <TodayCard stored={stored} musicOptions={musicOptions} />
 
         {/* Stats strip */}
         <div style={{ display: "flex", background: panel, border: `1px solid ${line}`, borderRadius: 10, marginBottom: 20, overflow: "hidden" }}>
