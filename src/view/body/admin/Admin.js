@@ -120,7 +120,11 @@ function Admin() {
         if (!adminUserId) return;
         const info = await memberService.getGetUserById(adminUserId);
         if (info?.UserName?.NickName) setAdminName(info.UserName.NickName);
-        if (info?.photo) setAdminPhoto(info.photo);
+        if (info?.Photo) {
+          let photoUrl = info.Photo;
+          if (!photoUrl.startsWith("http")) photoUrl = memberService.base_url + photoUrl;
+          setAdminPhoto(photoUrl);
+        }
       } catch (e) {
         console.error(e);
       }
