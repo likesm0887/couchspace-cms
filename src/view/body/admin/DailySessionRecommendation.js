@@ -93,13 +93,12 @@ function SlotPanel({ slotKey, label, emoji, musicIDs, musicOptions, onChange }) 
 }
 
 /* ── Today recommendation card ── */
-function TodayCard({ stored, musicOptions }) {
+function TodayCard({ stored }) {
   if (!stored?.Date) return null;
-  const getTitle = (id) => musicOptions.find((o) => o.value === id)?.label || id || "—";
   const slots = [
-    { key: "Morning", label: "早上 08:00", emoji: "🌅", id: stored.Morning },
-    { key: "Noon",    label: "中午 12:00", emoji: "☀️", id: stored.Noon },
-    { key: "Evening", label: "晚上 20:00", emoji: "🌙", id: stored.Evening },
+    { key: "Morning", label: "早上 08:00", emoji: "🌅", id: stored.Morning, title: stored.MorningTitle },
+    { key: "Noon",    label: "中午 12:00", emoji: "☀️", id: stored.Noon,    title: stored.NoonTitle },
+    { key: "Evening", label: "晚上 20:00", emoji: "🌙", id: stored.Evening, title: stored.EveningTitle },
   ];
   return (
     <div style={{ background: panel, border: `1px solid ${line}`, borderRadius: 10, marginBottom: 20, overflow: "hidden" }}>
@@ -113,8 +112,8 @@ function TodayCard({ stored, musicOptions }) {
         {slots.map((s, i) => (
           <div key={s.key} style={{ flex: 1, padding: "16px 20px", borderRight: i < 2 ? `1px solid ${line}` : "none" }}>
             <div style={{ fontSize: 11, color: muted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>{s.emoji} {s.label}</div>
-            <div style={{ fontSize: 14, fontWeight: 500, color: s.id ? ink : muted }}>
-              {s.id ? getTitle(s.id) : "尚未推薦"}
+            <div style={{ fontSize: 15, fontWeight: 600, color: s.title ? ink : muted }}>
+              {s.title || (s.id ? s.id : "尚未推薦")}
             </div>
             {s.id && <div style={{ fontSize: 11, color: muted, marginTop: 4, fontFamily: "monospace" }}>{s.id.slice(-8)}</div>}
           </div>
@@ -222,7 +221,7 @@ function DailySessionRecommendation() {
         </div>
 
         {/* Today recommendation */}
-        <TodayCard stored={stored} musicOptions={musicOptions} />
+        <TodayCard stored={stored} />
 
         {/* Stats strip */}
         <div style={{ display: "flex", background: panel, border: `1px solid ${line}`, borderRadius: 10, marginBottom: 20, overflow: "hidden" }}>
