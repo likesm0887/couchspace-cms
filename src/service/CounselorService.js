@@ -370,6 +370,30 @@ export class CounselorService {
       });
   }
   /**
+   * Upload Audio to Blob and Get Url, called by User
+   * @param {*} file
+   * @returns
+   */
+  uploadAudio(file) {
+    if (this.token === undefined) {
+      return;
+    }
+    var data = new FormData();
+    data.append("myFile", file);
+    data.append("baseUrl", this.base_url);
+    const api = this.base_url + "/api/v1/counselors/audio";
+    const requestOptions = {
+      method: "POST",
+      headers: { Authorization: this.token },
+      body: data,
+    };
+    return fetch(api, requestOptions)
+      .then((res) => res.json())
+      .then((res) => {
+        return res;
+      });
+  }
+  /**
    * Get User's Info, called by User
    * @param {*} userId
    * @returns
