@@ -115,6 +115,7 @@ export class Counselor {
         this.Gender = ""; // 性別
         this.ShortIntroduction = ""; // 簡介
         this.LongIntroduction = ""; // 詳細自我介紹
+        this.SelfIntroAudio = ""; // 語音自我介紹
         this.Phone = ""; // 機構電話
         this.Email = "";
         this.InstitutionTemp = ""; // 機構名稱
@@ -159,6 +160,7 @@ export class Counselor {
         this.Gender = info.Gender;
         this.ShortIntroduction = info.ShortIntroduction;
         this.LongIntroduction = info.LongIntroduction;
+        this.SelfIntroAudio = info.SelfIntroAudio;
         this.Phone = info.Phone;
         this.Email = info.Email;
         this.InstitutionTemp = info.InstitutionTemp;
@@ -191,6 +193,7 @@ export class Counselor {
         this.Gender = info.Gender;
         this.ShortIntroduction = info.ShortIntroduction;
         this.LongIntroduction = info.LongIntroduction;
+        this.SelfIntroAudio = info.SelfIntroAudio;
         this.Email = info.Email;
     }
     set updateCounselorInfo(info: Counselor) {
@@ -239,6 +242,7 @@ export class Counselor {
         this.Gender = ""; // 性別
         this.ShortIntroduction = ""; // 簡介
         this.LongIntroduction = ""; // 詳細自我介紹
+        this.SelfIntroAudio = ""; // 語音自我介紹
         this.Phone = ""; // 機構電話
         this.Email = "";
         this.InstitutionTemp = ""; // 機構名稱
@@ -271,6 +275,9 @@ export class Counselor {
     set updatePhoto(imageUrl) {
         this.Photo = imageUrl;
         this.CoverImage = imageUrl;
+    }
+    set updateSelfIntroAudio(audioUrl) {
+        this.SelfIntroAudio = audioUrl;
     }
     set updateAppointmentID(appointmentTimeID) {
         this.AppointmentTimeID = appointmentTimeID;

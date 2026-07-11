@@ -1,12 +1,14 @@
 import "./basicInfo.css";
 import { Grid, TextField, FormHelperText, IconButton, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import Typography from "@mui/material/Typography";
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Counselor, counselorInfo } from '../../../../dataContract/counselor';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import { checkEmail, showToast, toastType, calTextLength } from "../../../../common/method";
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
+import AudiotrackIcon from '@mui/icons-material/Audiotrack';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useEffect } from "react";
 import { counselorService } from "../../../../service/ServicePool";
 import Cropper from "react-cropper";
@@ -24,6 +26,21 @@ const BasicInfo = () => {
             binaryData.push(event.target.files[0]);
             setTempPhoto(URL.createObjectURL(new File(binaryData, "newAvatar.png", { type: "image/png" })));
             setIsOpen(true);
+        }
+    }
+    const selfIntroAudioInputRef = useRef(null);
+    const uploadSelfIntroAudio = (event) => {
+        if (event.target.files && event.target.files[0]) {
+            const file = event.target.files[0];
+            setSelfIntroAudio(file);
+            setBindingSelfIntroAudio(URL.createObjectURL(file));
+        }
+    }
+    const removeSelfIntroAudio = () => {
+        setSelfIntroAudio("");
+        setBindingSelfIntroAudio("");
+        if (selfIntroAudioInputRef.current) {
+            selfIntroAudioInputRef.current.value = "";
         }
     }
     const [isOpen, setIsOpen] = useState(false);
@@ -53,6 +70,8 @@ const BasicInfo = () => {
     const [gender, setGender] = useState(counselorInfo.Gender);
     const [shortIntro, setShortIntro] = useState(counselorInfo.ShortIntroduction);
     const [longIntro, setLongIntro] = useState(counselorInfo.LongIntroduction);
+    const [selfIntroAudio, setSelfIntroAudio] = useState(counselorInfo.SelfIntroAudio);
+    const [bindingSelfIntroAudio, setBindingSelfIntroAudio] = useState(counselorInfo.SelfIntroAudio);
 
     // error message
     const [errorFirstName, setErrorFirstName] = useState("");
@@ -99,6 +118,8 @@ const BasicInfo = () => {
             setBindingPhoto(counselorInfo.Photo);
             setShortIntro(counselorInfo.ShortIntroduction);
             setLongIntro(counselorInfo.LongIntroduction);
+            setSelfIntroAudio(counselorInfo.SelfIntroAudio);
+            setBindingSelfIntroAudio(counselorInfo.SelfIntroAudio);
         })
     }
     const handleBack = () => {
@@ -158,6 +179,18 @@ const BasicInfo = () => {
             else {
                 info.updatePhoto = counselorInfo.Photo;
             }
+            if (selfIntroAudio !== counselorInfo.SelfIntroAudio) {
+                if (selfIntroAudio) {
+                    let audioResult = await counselorService.uploadAudio(selfIntroAudio);
+                    info.updateSelfIntroAudio = audioResult.SelfIntroAudio;
+                }
+                else {
+                    info.updateSelfIntroAudio = "";
+                }
+            }
+            else {
+                info.updateSelfIntroAudio = counselorInfo.SelfIntroAudio;
+            }
             info.UserName.Name.FirstName = firstName;
             info.UserName.Name.LastName = lastName;
             info.Location = selectedCity;
@@ -195,13 +228,14 @@ const BasicInfo = () => {
             email !== counselorInfo.Email ||
             gender !== counselorInfo.Gender ||
             shortIntro !== counselorInfo.ShortIntroduction ||
-            longIntro !== counselorInfo.LongIntroduction) {
+            longIntro !== counselorInfo.LongIntroduction ||
+            selfIntroAudio !== counselorInfo.SelfIntroAudio) {
             setDisabledSaveBtn(false);
         }
         else {
             setDisabledSaveBtn(true);
         }
-    }, [firstName, lastName, selectedCity, photo, email, gender, shortIntro, longIntro])
+    }, [firstName, lastName, selectedCity, photo, email, gender, shortIntro, longIntro, selfIntroAudio])
 
     const handleClose = () => {
         setIsOpen(false);
@@ -387,6 +421,27 @@ const BasicInfo = () => {
                             </label>
                         </div>
                         <FormHelperText error={errorPhoto !== ""}>{errorPhoto}</FormHelperText>
+                    </div>
+                </Grid>
+                <Grid item xs={12}>
+                    <div>
+                        <span style={{ color: 'rgba(0, 0, 0, 0.6)' }}>{"上傳語音自我介紹"}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', marginTop: 8 }}>
+                            <input ref={selfIntroAudioInputRef} accept="audio/*" onChange={(e) => uploadSelfIntroAudio(e)} id="icon-button-audio-file" type="file" style={{ display: 'none' }} />
+                            <label htmlFor="icon-button-audio-file">
+                                <IconButton color="primary" aria-label="upload self intro audio" component="span">
+                                    <AudiotrackIcon />
+                                </IconButton>
+                            </label>
+                            {bindingSelfIntroAudio && (
+                                <>
+                                    <audio controls src={bindingSelfIntroAudio} style={{ height: 40 }}></audio>
+                                    <IconButton color="error" aria-label="remove self intro audio" onClick={removeSelfIntroAudio}>
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </Grid>
                 <Grid item xs={12}>
