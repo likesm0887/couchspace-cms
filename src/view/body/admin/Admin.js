@@ -69,6 +69,7 @@ const items = [
     getItem("放鬆老師推薦", "operations-relax-teacher", <TeamOutlined />),
     getItem("精選心理師推薦", "operations-counseling-teacher", <TeamOutlined />),
     getItem("名人指南推薦", "operations-celebrity-guide", <StarOutlined />),
+    getItem("每日課程推薦", "operations-daily-session", <AudioOutlined />),
   ]),
 ];
 
@@ -109,6 +110,7 @@ function Admin() {
     else if (path === "/admin/operations/relax-teacher-recommendations") setCurrent("operations-relax-teacher");
     else if (path === "/admin/operations/counseling-teacher-recommendations") setCurrent("operations-counseling-teacher");
     else if (path === "/admin/operations/celebrity-guide-recommendations") setCurrent("operations-celebrity-guide");
+    else if (path === "/admin/operations/daily-session-recommendations") setCurrent("operations-daily-session");
   }, [location.pathname]);
 
   useEffect(() => {
@@ -118,7 +120,11 @@ function Admin() {
         if (!adminUserId) return;
         const info = await memberService.getGetUserById(adminUserId);
         if (info?.UserName?.NickName) setAdminName(info.UserName.NickName);
-        if (info?.photo) setAdminPhoto(info.photo);
+        if (info?.Photo) {
+          let photoUrl = info.Photo;
+          if (!photoUrl.startsWith("http")) photoUrl = memberService.base_url + photoUrl;
+          setAdminPhoto(photoUrl);
+        }
       } catch (e) {
         console.error(e);
       }
@@ -180,6 +186,7 @@ function Admin() {
     else if (e.key === "operations-relax-teacher") navigate("operations/relax-teacher-recommendations", { replace: true });
     else if (e.key === "operations-counseling-teacher") navigate("operations/counseling-teacher-recommendations", { replace: true });
     else if (e.key === "operations-celebrity-guide") navigate("operations/celebrity-guide-recommendations", { replace: true });
+    else if (e.key === "operations-daily-session") navigate("operations/daily-session-recommendations", { replace: true });
   };
 
   return (
