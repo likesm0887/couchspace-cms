@@ -31,9 +31,19 @@ import {
   CustomerServiceOutlined,
   BookOutlined,
   DeleteOutlined,
+  MenuOutlined,
 } from "@ant-design/icons";
 import { meditationService } from "../../../service/ServicePool";
 import AdminHeader from "./AdminHeader";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { DndContext } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 const tableRowStyles = `
   .table-row-even {
@@ -48,11 +58,55 @@ const tableRowStyles = `
   }
 `;
 
+const SortableCourseItem = ({ id, title, onRemove }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform && { ...transform, scaleY: 1 }),
+    transition,
+    opacity: isDragging ? 0.8 : 1,
+    position: isDragging ? "relative" : "static",
+    zIndex: isDragging ? 9999 : "auto",
+  };
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        ...style,
+        display: "flex",
+        alignItems: "center",
+        padding: "6px 10px",
+        marginBottom: "4px",
+        background: "#f0f5ff",
+        borderRadius: "6px",
+        border: "1px solid #adc6ff",
+      }}
+    >
+      <MenuOutlined
+        ref={setActivatorNodeRef}
+        style={{ touchAction: "none", cursor: "move", marginRight: "8px", color: "#8c8c8c" }}
+        {...listeners}
+        {...attributes}
+      />
+      <span style={{ flex: 1, fontSize: "13px" }}>{title}</span>
+      <Button size="small" type="text" danger icon={<DeleteOutlined />} onClick={() => onRemove(id)} />
+    </div>
+  );
+};
+
 function Category() {
   const [data, setData] = useState([]);
   const [allCourse, setAllCourse] = useState([]);
   const [allCourseOption, setAllCourseOption] = useState([]);
   const [selectCategory, setSeleteCategory] = useState([]);
+  const [selectedCourses, setSelectedCourses] = useState([]);
   const [currentModel, setCurrentModel] = useState("New");
   const [messageApi, contextHolder] = message.useMessage();
   const [modal1Open, setModal1Open] = useState(false);
@@ -177,9 +231,10 @@ function Category() {
 
     const result = [];
     for (let i = 0; i < res.length; i++) {
-      const categoryCourses = courses?.filter((course) =>
-        res[i]?.CourseIds?.includes(course.CourseID)
-      );
+      // 依照 CourseIds 的順序（即分類內系列的排序）組出對應課程，而非依 courses 原始清單順序
+      const categoryCourses = (res[i]?.CourseIds || [])
+        .map((courseId) => courses.find((course) => course.CourseID === courseId))
+        .filter(Boolean);
       result.push({
         key: res[i]._id,
         Name: res[i].Name,
@@ -198,13 +253,12 @@ function Category() {
       let bigCategories = form.getFieldValue("BigCategories");
       let name = form.getFieldValue("Name");
       let seq = form.getFieldValue("Seq");
-      let course = form.getFieldValue("Courses");
       console.log(selectCategory);
       let body = {
         CategoryId: selectCategory._id,
         Name: name,
         Seq: seq,
-        CourseIds: course,
+        CourseIds: selectedCourses.map((c) => c.id),
         BigCategories: bigCategories.map((e) => parseInt(e, 10)),
       };
       setLoading(true);
@@ -228,13 +282,12 @@ function Category() {
         });
     }
     if (currentModel === "New") {
-      console.log(form.getFieldValue("Courses"));
       console.log(selectCategory);
       let body = {
         CategoryId: selectCategory._id,
         Name: form.getFieldValue("Name"),
         Seq: form.getFieldValue("Seq"),
-        CourseIds: form.getFieldValue("Courses"),
+        CourseIds: selectedCourses.map((c) => c.id),
         BigCategories: form
           .getFieldValue("BigCategories")
           .map((e) => parseInt(e, 10)),
@@ -275,9 +328,6 @@ function Category() {
       description: course.Description || '暫無描述'
     }));
   };
-  const onCourseChange = (e) => {
-    form.setFieldValue("Courses", e);
-  };
   const onBigCategoriesChange = (e) => {
     form.setFieldValue("BigCategories", e);
   };
@@ -303,11 +353,20 @@ function Category() {
       BigCategories: e.BigCategories,
     });
 
+    // 依照 e.Courses 既有順序（來自 CourseIds）還原已選系列，保留排序
+    setSelectedCourses(
+      (e.Courses || [])
+        .map((courseId) => {
+          const option = allCourseOption.find((o) => o.value === courseId);
+          return option ? { id: option.value, title: option.label } : null;
+        })
+        .filter(Boolean)
+    );
+
     // 設置表單值
     form.setFieldsValue({
       Name: e.Name,
       Seq: e.Seq,
-      Courses: e.Courses || [], // 直接設置課程ID列表
       BigCategories: getBigCategoriesDefault("Edit", e.BigCategories)
     });
   };
@@ -336,35 +395,6 @@ function Category() {
 
     return result.map((r) => r.value);
   }
-
-  const getDefault = () => {
-    console.log(selectCategory.Courses);
-    if (currentModel == "New") {
-      return [];
-    }
-    const result = [];
-
-    if (selectCategory.Courses == null) {
-      return [];
-    }
-
-    for (let index = 0; index < allCourseOption.length; index++) {
-      for (let index2 = 0; index2 < selectCategory.Courses.length; index2++) {
-        if (result.includes(allCourseOption[index].value)) {
-          continue;
-        }
-
-        if (allCourseOption[index].value === selectCategory.Courses[index2]) {
-          result.push(allCourseOption[index].value);
-        }
-      }
-    }
-    if (result.size == 0) {
-      form.setFieldsValue({ Courses: [] });
-    }
-    form.setFieldsValue({ Courses: result });
-    return result;
-  };
 
   const handleDelete = (element) => {
     Modal.confirm({
@@ -400,10 +430,10 @@ function Category() {
     // 重置表單
     form.setFieldsValue({
       Name: "",
-      Courses: [],
       Seq: 0,
       BigCategories: []
     });
+    setSelectedCourses([]);
 
     setModal1Open(true);
   };
@@ -496,7 +526,6 @@ function Category() {
           </Form.Item>
 
           <Form.Item
-            name="Courses"
             label={
               <span style={{ fontWeight: 'bold', color: '#1890ff', display: 'flex', alignItems: 'center' }}>
                 <BookOutlined style={{ marginRight: '6px' }} />
@@ -505,7 +534,7 @@ function Category() {
             }
             extra={
               <div style={{ color: '#666', fontSize: '12px', marginTop: '4px' }}>
-                選擇此類別所屬的系列課程，可多選
+                選擇此類別所屬的系列課程，並拖曳調整顯示順序（後端讀取時將依此順序回傳）
               </div>
             }
           >
@@ -516,39 +545,51 @@ function Category() {
               border: '1px solid #d6e4ff'
             }}>
               <Select
-                placeholder="請選擇系列課程..."
-                mode="multiple"
-                size="large"
-                onChange={onCourseChange}
-                tokenSeparators={[","]}
-                options={allCourseOption}
-                defaultValue={getDefault}
-                style={{
-                  width: "100%",
-                  borderRadius: '6px'
+                placeholder="搜尋並新增系列課程..."
+                value={null}
+                onChange={(value, option) => {
+                  if (!selectedCourses.find((c) => c.id === value)) {
+                    setSelectedCourses((prev) => [...prev, { id: value, title: option.label }]);
+                  }
                 }}
+                size="large"
+                style={{ width: "100%", borderRadius: '6px', marginBottom: selectedCourses.length > 0 ? '10px' : 0 }}
+                options={allCourseOption.filter((o) => !selectedCourses.find((c) => c.id === o.value))}
                 showSearch
                 filterOption={(input, option) =>
                   (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                 }
-                tagRender={(props) => {
-                  const { label, closable, onClose } = props;
-                  return (
-                    <Tag
-                      color="blue"
-                      closable={closable}
-                      onClose={onClose}
-                      style={{
-                        margin: '2px',
-                        borderRadius: '12px',
-                        fontSize: '12px'
-                      }}
-                    >
-                      {label}
-                    </Tag>
-                  );
-                }}
               />
+              {selectedCourses.length > 0 && (
+                <DndContext
+                  modifiers={[restrictToVerticalAxis]}
+                  onDragEnd={({ active, over }) => {
+                    if (active.id !== over?.id) {
+                      setSelectedCourses((items) => {
+                        const oldIndex = items.findIndex((i) => i.id === active.id);
+                        const newIndex = items.findIndex((i) => i.id === over.id);
+                        return arrayMove(items, oldIndex, newIndex);
+                      });
+                    }
+                  }}
+                >
+                  <SortableContext
+                    items={selectedCourses.map((c) => c.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {selectedCourses.map((c) => (
+                      <SortableCourseItem
+                        key={c.id}
+                        id={c.id}
+                        title={c.title}
+                        onRemove={(id) =>
+                          setSelectedCourses((prev) => prev.filter((item) => item.id !== id))
+                        }
+                      />
+                    ))}
+                  </SortableContext>
+                </DndContext>
+              )}
             </div>
           </Form.Item>
 
