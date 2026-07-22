@@ -1015,7 +1015,7 @@ const Counselor = () => {
         style={{ top: 20 }}
         bodyStyle={{ maxHeight: "80vh", overflow: "auto" }}
       >
-        <CounselorDetailModal counselorData={detail} counselorPhoto={Array.isArray(detail) ? detail.find(item => item.key === "3")?.children : null} />
+        <Tabs defaultActiveKey="information" items={items2} />
       </Modal>
     </>
   );
