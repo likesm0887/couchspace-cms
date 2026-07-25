@@ -783,7 +783,7 @@ const Counselor = () => {
           <h1>可預約時間</h1>
           <List
             grid={{ gutter: 16, column: 7 }}
-            dataSource={currentSelectCounselorAppointmentTime?.BusinessTimes}
+            dataSource={currentSelectCounselorAppointmentTime?.BusinessTimes || []}
             renderItem={(item) => (
               <List.Item>
                 <Card
@@ -793,7 +793,7 @@ const Counselor = () => {
                 >
                   <div style={{ flex: 2 }}>
                     <List
-                      dataSource={item.Periods}
+                      dataSource={item.Periods || []}
                       renderItem={(period) => (
                         <List.Item>
                           {period.StartTime} ~ {period.EndTime}
