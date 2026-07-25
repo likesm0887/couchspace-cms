@@ -618,8 +618,14 @@ const Counselor = () => {
       dataIndex: "LatestLoginTime",
       key: "LatestLoginTime",
       defaultSortOrder: "descend",
-      sorter: (a, b) =>
-        moment(b.LatestLoginTime).unix() - moment(a.LatestLoginTime).unix(),
+      sorter: (a, b) => {
+        if (a.isBookable !== b.isBookable) {
+          // antd 在 descend（預設排序方向）時會把 compare 結果反轉，這裡先反過來寫
+          // 讓「不可預約」的諮商師在預設畫面中確實排到後面
+          return a.isBookable ? 1 : -1;
+        }
+        return moment(b.LatestLoginTime).unix() - moment(a.LatestLoginTime).unix();
+      },
     },
     {
       title: "是否通過認證",
@@ -651,7 +657,8 @@ const Counselor = () => {
         account: u.Email,
         isverify: u.IsVerify ? "已認證" : "未認證",
         LatestLoginTime:u.LatestLoginTime,
-        subRole: u.SubRole
+        subRole: u.SubRole,
+        isBookable: u.IsBookable
       };
     });
     setUserData(form);
