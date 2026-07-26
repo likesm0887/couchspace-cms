@@ -4,6 +4,8 @@ import { Outlet } from "react-router-dom";
 import {
   Avatar,
   Button,
+  Drawer,
+  Grid,
   Layout,
   Menu,
   message,
@@ -18,6 +20,7 @@ import {
   FileOutlined,
   FolderOpenOutlined,
   LogoutOutlined,
+  MenuOutlined,
   PictureOutlined,
   PieChartOutlined,
   SmileOutlined,
@@ -33,7 +36,8 @@ import { memberService } from "../../../service/ServicePool";
 import { adminAuthentication } from "../../../utility/ProtectedRoute";
 import logoImg from "../../img/header/logo.png";
 
-const { Content, Sider } = Layout;
+const { Content, Sider, Header } = Layout;
+const { useBreakpoint } = Grid;
 
 function getItem(label, key, icon, children) {
   return { key, icon, children, label };
@@ -77,6 +81,9 @@ function Admin() {
   const navigate = useNavigate();
   const location = useLocation();
   const [current, setCurrent] = useState("home");
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Admin info state
   const [adminName, setAdminName] = useState("Admin");
@@ -187,122 +194,177 @@ function Admin() {
     else if (e.key === "operations-counseling-teacher") navigate("operations/counseling-teacher-recommendations", { replace: true });
     else if (e.key === "operations-celebrity-guide") navigate("operations/celebrity-guide-recommendations", { replace: true });
     else if (e.key === "operations-daily-session") navigate("operations/daily-session-recommendations", { replace: true });
+    setMobileMenuOpen(false);
   };
+
+  const isCollapsedSider = !isMobile && !screens.lg;
+
+  const sidebarContent = (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      {/* Logo */}
+      <div
+        style={{
+          padding: "16px",
+          textAlign: "center",
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          flexShrink: 0,
+        }}
+      >
+        <img
+          src={logoImg}
+          alt="Couchspace"
+          style={{
+            width: isCollapsedSider ? 40 : 100,
+            height: "auto",
+            objectFit: "contain",
+          }}
+        />
+      </div>
+
+      {/* Menu - fills remaining space */}
+      <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
+        <Menu
+          onClick={onClick}
+          selectedKeys={[current]}
+          theme="dark"
+          defaultSelectedKeys={["home"]}
+          mode="inline"
+          items={items}
+        />
+      </div>
+
+      {/* Admin info at bottom */}
+      <div
+        style={{
+          padding: isCollapsedSider ? "12px 8px" : "12px 16px",
+          borderTop: "1px solid rgba(255,255,255,0.1)",
+          flexShrink: 0,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: isCollapsedSider ? "column" : "row",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          {/* Avatar with upload hover */}
+          <div
+            style={{ position: "relative", cursor: "pointer", flexShrink: 0 }}
+            onClick={handleAvatarClick}
+            onMouseEnter={() => setIsHover(true)}
+            onMouseLeave={() => setIsHover(false)}
+          >
+            <Avatar size={36} src={adminPhoto} icon={<UserOutlined />} />
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                backgroundColor: "rgba(0,0,0,0.5)",
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                opacity: isHover ? 1 : 0,
+                transition: "opacity 0.3s",
+              }}
+            >
+              <CameraOutlined style={{ color: "#fff", fontSize: 14 }} />
+            </div>
+          </div>
+          <input
+            type="file"
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            accept="image/*"
+            onChange={handleFileChange}
+          />
+
+          {!isCollapsedSider && (
+            <span
+              style={{
+                color: "rgba(255,255,255,0.85)",
+                fontSize: 13,
+                flex: 1,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {adminName}
+            </span>
+          )}
+          <Button
+            type="text"
+            icon={<LogoutOutlined />}
+            onClick={handleLogout}
+            style={{ color: "rgba(255,255,255,0.65)", padding: "0 4px" }}
+            title="登出"
+          />
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
       {contextHolder}
-      <Sider
-        width={220}
-        style={{ position: "relative" }}
-      >
-        {/* Inner flex container */}
-        <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-          {/* Logo */}
-          <div
+      {isMobile ? (
+        <>
+          <Header
             style={{
-              padding: "16px",
-              textAlign: "center",
-              borderBottom: "1px solid rgba(255,255,255,0.08)",
-              flexShrink: 0,
+              background: "#001529",
+              display: "flex",
+              alignItems: "center",
+              padding: "0 12px",
+              position: "sticky",
+              top: 0,
+              zIndex: 10,
+              height: 56,
+              lineHeight: "56px",
             }}
           >
+            <Button
+              type="text"
+              icon={<MenuOutlined style={{ color: "#fff", fontSize: 18 }} />}
+              onClick={() => setMobileMenuOpen(true)}
+            />
             <img
               src={logoImg}
               alt="Couchspace"
-              style={{
-                width: 100,
-                height: "auto",
-                objectFit: "contain",
-              }}
+              style={{ height: 32, marginLeft: 8, objectFit: "contain" }}
             />
-          </div>
-
-          {/* Menu - fills remaining space */}
-          <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
-            <Menu
-              onClick={onClick}
-              selectedKeys={[current]}
-              theme="dark"
-              defaultSelectedKeys={["home"]}
-              mode="inline"
-              items={items}
-            />
-          </div>
-
-          {/* Admin info at bottom */}
-          <div
-            style={{
-              padding: "12px 16px",
-              borderTop: "1px solid rgba(255,255,255,0.1)",
-              flexShrink: 0,
-            }}
+          </Header>
+          <Drawer
+            placement="left"
+            open={mobileMenuOpen}
+            onClose={() => setMobileMenuOpen(false)}
+            closable={false}
+            width={240}
+            styles={{ body: { padding: 0, background: "#001529" } }}
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
-              {/* Avatar with upload hover */}
-              <div
-                style={{ position: "relative", cursor: "pointer", flexShrink: 0 }}
-                onClick={handleAvatarClick}
-                onMouseEnter={() => setIsHover(true)}
-                onMouseLeave={() => setIsHover(false)}
-              >
-                <Avatar size={36} src={adminPhoto} icon={<UserOutlined />} />
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    backgroundColor: "rgba(0,0,0,0.5)",
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    opacity: isHover ? 1 : 0,
-                    transition: "opacity 0.3s",
-                  }}
-                >
-                  <CameraOutlined style={{ color: "#fff", fontSize: 14 }} />
-                </div>
-              </div>
-              <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: "none" }}
-                accept="image/*"
-                onChange={handleFileChange}
-              />
-
-              <span
-                style={{
-                  color: "rgba(255,255,255,0.85)",
-                  fontSize: 13,
-                  flex: 1,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {adminName}
-              </span>
-              <Button
-                type="text"
-                icon={<LogoutOutlined />}
-                onClick={handleLogout}
-                style={{ color: "rgba(255,255,255,0.65)", padding: "0 4px" }}
-                title="登出"
-              />
-            </div>
-          </div>
-        </div>
-      </Sider>
+            {sidebarContent}
+          </Drawer>
+        </>
+      ) : (
+        <Sider
+          width={220}
+          collapsedWidth={80}
+          collapsed={!screens.lg}
+          style={{ position: "relative" }}
+        >
+          {sidebarContent}
+        </Sider>
+      )}
 
       <Layout>
-        <Content style={{ margin: "16px" }}>
+        <Content
+          style={{
+            margin: isMobile ? "12px 8px" : "16px",
+            overflowX: "auto",
+          }}
+        >
           <Outlet />
         </Content>
       </Layout>

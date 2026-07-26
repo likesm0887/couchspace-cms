@@ -66,3 +66,28 @@ code {
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(135deg, #764ba2 0%, #f093fb 100%);
 }
+
+/* RWD safety net for admin pages: let wide tables/forms scroll inside their
+   own box instead of breaking the page layout on narrow screens. */
+.ant-table-wrapper .ant-table-content {
+  overflow-x: auto;
+}
+
+.ant-drawer-content-wrapper {
+  max-width: 100vw;
+}
+
+.ant-modal {
+  max-width: calc(100vw - 32px);
+}
+
+@media (max-width: 576px) {
+  .ant-modal {
+    max-width: calc(100vw - 16px);
+    margin: 0 auto;
+  }
+
+  .ant-drawer-content-wrapper {
+    width: 100vw !important;
+  }
+}
