@@ -632,6 +632,18 @@ const Counselor = () => {
         }
       },
     },
+    {
+      title: "是否可預約",
+      dataIndex: "isBookable",
+      key: "isBookable",
+      render: (isBookable) => {
+        if (isBookable) {
+          return <span><CheckCircleOutlined style={{ color: 'green' }} /> 可預約</span>;
+        } else {
+          return <span><CloseCircleOutlined style={{ color: 'red' }} /> 不可預約</span>;
+        }
+      },
+    },
 
   ];
 
@@ -650,7 +662,8 @@ const Counselor = () => {
         account: u.Email,
         isverify: u.IsVerify ? "已認證" : "未認證",
         LatestLoginTime:u.LatestLoginTime,
-        subRole: u.SubRole
+        subRole: u.SubRole,
+        isBookable: u.IsBookable
       };
     });
     setUserData(form);
