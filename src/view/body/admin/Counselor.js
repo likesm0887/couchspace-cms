@@ -617,7 +617,6 @@ const Counselor = () => {
       title: "最後登入日期",
       dataIndex: "LatestLoginTime",
       key: "LatestLoginTime",
-      defaultSortOrder: "descend",
       sorter: (a, b) =>
         moment(b.LatestLoginTime).unix() - moment(a.LatestLoginTime).unix(),
     },
