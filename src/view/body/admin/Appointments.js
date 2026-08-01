@@ -63,10 +63,10 @@ const CounselorDetailModal = ({ counselorData, counselorPhoto }) => {
   }, {});
 
   return (
-    <div style={{ padding: "16px", backgroundColor: "#f5f5f5" }}>
+    <div style={{ padding: "16px", backgroundColor: "var(--cms-bg)" }}>
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         {/* Header */}
-        <div style={{ textAlign: "center", padding: "16px", backgroundColor: "#fff", borderRadius: "8px" }}>
+        <div style={{ textAlign: "center", padding: "16px", backgroundColor: "var(--cms-panel)", borderRadius: "8px" }}>
           <Typography.Title level={4} style={{ margin: 0 }}>
             諮商師詳情
             {counselorInfo["21"]?.children && (
@@ -92,7 +92,7 @@ const CounselorDetailModal = ({ counselorData, counselorPhoto }) => {
                   <div style={{
                     width: '120px',
                     height: '120px',
-                    backgroundColor: '#f0f0f0',
+                    backgroundColor: 'var(--cms-subtle)',
                     borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center',
@@ -573,9 +573,8 @@ const Appointments = () => {
   // 分頁狀態
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
+  const { token } = theme.useToken();
+  const { colorBgContainer } = token;
 
   const columns = (showAdminFlag) => {
     let result = [
@@ -1459,7 +1458,7 @@ const Appointments = () => {
     }
 
     return (
-      <Card style={{ marginBottom: 16, backgroundColor: '#f9f9f9', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+      <Card style={{ marginBottom: 16, backgroundColor: token.colorBgContainer, borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
           <Input
             value={localFilters.searchTerm}
@@ -1768,7 +1767,7 @@ const Appointments = () => {
       <Tabs
         activeKey={activeTab}
         onChange={handleTabChange}
-        tabBarStyle={{ backgroundColor: '#fafafa', borderRadius: '8px', padding: '8px', marginBottom: '16px' }}
+        tabBarStyle={{ backgroundColor: token.colorFillTertiary, borderRadius: '8px', padding: '8px', marginBottom: '16px' }}
         items={tabItems}
       />
       <DrawerForm

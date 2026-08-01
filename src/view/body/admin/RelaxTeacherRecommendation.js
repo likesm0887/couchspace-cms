@@ -8,15 +8,15 @@ import { CSS } from "@dnd-kit/utilities";
 import { meditationService, counselorService } from "../../../service/ServicePool";
 
 /* ── Design tokens ── */
-const bg = "#F6F7F9";
-const panel = "#FFFFFF";
-const line = "#E6E8EC";
-const line2 = "#EEF0F3";
-const ink = "#10141B";
-const ink2 = "#3B414C";
-const muted = "#6B7280";
+const bg = "var(--cms-bg)";
+const panel = "var(--cms-panel)";
+const line = "var(--cms-line)";
+const line2 = "var(--cms-line2)";
+const ink = "var(--cms-ink)";
+const ink2 = "var(--cms-ink2)";
+const muted = "var(--cms-muted)";
 const accent = "#4556f0";
-const accentSoft = "#EEF0FE";
+const accentSoft = "var(--cms-accent-soft)";
 const danger = "#E84040";
 
 /* ── Drag-sortable row ── */
@@ -27,7 +27,7 @@ const Row = ({ children, ...props }) => {
     ...props.style,
     transform: CSS.Transform.toString(transform && { ...transform, scaleY: 1 }),
     transition,
-    ...(isDragging ? { position: "relative", zIndex: 9999, background: "#F0F5FF" } : {}),
+    ...(isDragging ? { position: "relative", zIndex: 9999, background: "var(--cms-drag)" } : {}),
   };
   return (
     <tr {...props} ref={setNodeRef} style={style} {...attributes}>
@@ -269,7 +269,7 @@ function RelaxTeacherRecommendation() {
               <SortableContext items={recommendations.map((r) => r.key)} strategy={verticalListSortingStrategy}>
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
-                    <tr style={{ borderBottom: `1px solid ${line2}`, background: "#FAFAFA" }}>
+                    <tr style={{ borderBottom: `1px solid ${line2}`, background: "var(--cms-subtle)" }}>
                       <th style={{ width: 44, padding: "10px 8px" }}></th>
                       <th style={{ width: 48, padding: "10px 8px", textAlign: "left", fontSize: 12, color: muted, fontWeight: 500 }}>#</th>
                       <th style={{ padding: "10px 12px", textAlign: "left", fontSize: 12, color: muted, fontWeight: 500 }}>諮商師</th>
@@ -327,7 +327,7 @@ function SortableRow({ record, index, counselors, counselorOptions, onRemove, on
   const style = {
     transform: CSS.Transform.toString(transform && { ...transform, scaleY: 1 }),
     transition,
-    background: isDragging ? "#F0F5FF" : index % 2 === 0 ? "#FFFFFF" : "#FAFAFA",
+    background: isDragging ? "var(--cms-drag)" : index % 2 === 0 ? "var(--cms-panel)" : "var(--cms-subtle)",
     position: isDragging ? "relative" : undefined,
     zIndex: isDragging ? 9999 : undefined,
     borderBottom: `1px solid ${line2}`,

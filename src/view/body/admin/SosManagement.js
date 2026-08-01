@@ -25,13 +25,13 @@ import {
 import { meditationService } from "../../../service/ServicePool";
 
 /* ── Design tokens ── */
-const bg = "#F6F7F9";
-const panel = "#FFFFFF";
-const line = "#E6E8EC";
-const line2 = "#EEF0F3";
-const ink = "#10141B";
-const ink2 = "#3B414C";
-const muted = "#6B7280";
+const bg = "var(--cms-bg)";
+const panel = "var(--cms-panel)";
+const line = "var(--cms-line)";
+const line2 = "var(--cms-line2)";
+const ink = "var(--cms-ink)";
+const ink2 = "var(--cms-ink2)";
+const muted = "var(--cms-muted)";
 
 /* ── Stat card ── */
 function StatCard({ label, value, unit, note, last }) {
@@ -169,7 +169,7 @@ function SosManagement() {
         url ? (
           <Image src={url} width={60} />
         ) : (
-          <div style={{ width: 60, height: 60, background: "#eee", borderRadius: 4 }} />
+          <div style={{ width: 60, height: 60, background: line2, borderRadius: 4 }} />
         ),
     },
     { title: "名稱", dataIndex: "Name", key: "Name", ellipsis: true },

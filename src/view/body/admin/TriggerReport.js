@@ -150,7 +150,7 @@ const TriggerReport = () => {
   };
 
   return (
-    <div style={{ padding: "24px", background: "#f5f5f5", minHeight: "100vh" }}>
+    <div style={{ padding: "24px", background: "var(--cms-bg)", minHeight: "100vh" }}>
       <div style={{ marginBottom: "24px" }}>
         <h1 style={{ margin: 0, color: "#1890ff" }}>收聽次數報表</h1>
         <p style={{ color: "#666", marginTop: "8px" }}>選擇年月並下載對應的收聽次數報表</p>

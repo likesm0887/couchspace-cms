@@ -119,7 +119,7 @@ const Reports = () => {
 
 
   return (
-    <div style={{ padding: "24px", background: "#f5f5f5", minHeight: "100vh" }}>
+    <div style={{ padding: "24px", background: "var(--cms-bg)", minHeight: "100vh" }}>
       <div style={{ marginBottom: "24px" }}>
         <h1 style={{ margin: 0, color: "#1890ff" }}>報表管理</h1>
         <p style={{ color: "#666", marginTop: "8px" }}>下載各種數據報表以進行分析和管理</p>

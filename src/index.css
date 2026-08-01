@@ -91,3 +91,104 @@ code {
     width: 100vw !important;
   }
 }
+
+/* ==========================================================================
+   Admin dark mode
+   --------------------------------------------------------------------------
+   Antd components are themed by ConfigProvider's darkAlgorithm in Admin.js.
+   Admin pages additionally hardcode their own light surfaces, which inline
+   styles put out of the theme's reach — those are handled by the shared
+   palette variables below plus the class-based overrides further down.
+   ========================================================================== */
+
+/* Shared admin page palette. The 營運管理 pages import these as JS consts
+   (const panel = "var(--cms-panel)"), so redefining the variables under
+   body.cms-dark reskins them with no re-render and no per-page branching. */
+:root {
+  --cms-bg: #f6f7f9;
+  --cms-panel: #ffffff;
+  --cms-line: #e6e8ec;
+  --cms-line2: #eef0f3;
+  --cms-ink: #10141b;
+  --cms-ink2: #3b414c;
+  --cms-muted: #6b7280;
+  --cms-accent-soft: #eef0fe;
+  --cms-subtle: #fafafa;
+  --cms-drag: #f0f5ff;
+  --cms-danger-soft: #fff2f0;
+  --cms-danger-border: #ffccc7;
+}
+
+body.cms-dark {
+  background: #1f1f1f;
+  color: rgba(255, 255, 255, 0.85);
+
+  --cms-bg: #1f1f1f;
+  --cms-panel: #262626;
+  --cms-line: #3a3a3a;
+  --cms-line2: #303030;
+  --cms-ink: rgba(255, 255, 255, 0.88);
+  --cms-ink2: rgba(255, 255, 255, 0.72);
+  --cms-muted: rgba(255, 255, 255, 0.5);
+  --cms-accent-soft: #2b2f45;
+  --cms-subtle: #2a2a2a;
+  --cms-drag: #2b3450;
+  --cms-danger-soft: #3a2321;
+  --cms-danger-border: #5c2b28;
+}
+
+/* Antd's dark algorithm uses pure #000 for the layout backdrop, which reads
+   as harsh next to the #1f1f1f surfaces. Soften it to match. */
+body.cms-dark .ant-layout {
+  background: #1f1f1f;
+}
+
+body.cms-dark .ant-layout-content > div {
+  background: #1f1f1f !important;
+  background-image: none !important;
+}
+
+/* NOTE ON APPROACH: do NOT reach for [style*="background: white"]-style
+   attribute selectors here. Chromium does not reliably re-run attribute
+   selector invalidation when React mutates inline styles through the CSSOM,
+   so such rules apply to some elements and silently skip others. Class-based
+   selectors below invalidate correctly; anything a class cannot reach is
+   fixed at source with theme tokens in the page component instead. */
+
+/* Antd surfaces that pages override with an inline light colour. */
+body.cms-dark .ant-card,
+body.cms-dark .ant-card-head,
+body.cms-dark .ant-tabs-nav,
+body.cms-dark .ant-collapse-content-box,
+body.cms-dark .ant-modal-content,
+body.cms-dark .ant-modal-header {
+  background-color: #262626 !important;
+  background-image: none !important;
+}
+
+/* Semantic surfaces that must keep their tint despite the blanket rule above. */
+body.cms-dark .ant-card.cms-danger-card {
+  background-color: var(--cms-danger-soft) !important;
+}
+
+/* Default (non-primary) buttons are often given a hardcoded white face with
+   grey text. Primary/danger buttons keep their brand colour. */
+body.cms-dark .ant-btn-default {
+  background-color: #2a2a2a !important;
+  border-color: #434343 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Page-level zebra striping is written with !important, so it survives the
+   theme and only "goes dark" on hover. Hand rows back to the theme. */
+body.cms-dark .table-row-even,
+body.cms-dark .table-row-odd {
+  background-color: transparent !important;
+}
+
+body.cms-dark .table-row-even:hover,
+body.cms-dark .table-row-odd:hover,
+body.cms-dark .table-row-even:hover > td,
+body.cms-dark .table-row-odd:hover > td {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}

@@ -11,15 +11,15 @@ import { meditationService } from "../../../service/ServicePool";
 const { RangePicker } = DatePicker;
 
 /* ── Design tokens ── */
-const bg = "#F6F7F9";
-const panel = "#FFFFFF";
-const line = "#E6E8EC";
-const line2 = "#EEF0F3";
-const ink = "#10141B";
-const ink2 = "#3B414C";
-const muted = "#6B7280";
+const bg = "var(--cms-bg)";
+const panel = "var(--cms-panel)";
+const line = "var(--cms-line)";
+const line2 = "var(--cms-line2)";
+const ink = "var(--cms-ink)";
+const ink2 = "var(--cms-ink2)";
+const muted = "var(--cms-muted)";
 const accent = "#4556f0";
-const accentSoft = "#EEF0FE";
+const accentSoft = "var(--cms-accent-soft)";
 const danger = "#E84040";
 
 /* ── Drag-sortable row ── */
@@ -30,7 +30,7 @@ const Row = ({ children, ...props }) => {
     ...props.style,
     transform: CSS.Transform.toString(transform && { ...transform, scaleY: 1 }),
     transition,
-    ...(isDragging ? { position: "relative", zIndex: 9999, background: "#F0F5FF" } : {}),
+    ...(isDragging ? { position: "relative", zIndex: 9999, background: "var(--cms-drag)" } : {}),
   };
   return (
     <tr {...props} ref={setNodeRef} style={style} {...attributes}>
@@ -210,7 +210,7 @@ function RecommendationManagement() {
   ];
 
   const tabStyle = (key) => ({
-    padding: "6px 12px", border: "none", background: filter === key ? "#F2F4F7" : "transparent",
+    padding: "6px 12px", border: "none", background: filter === key ? line2 : "transparent",
     color: filter === key ? ink : ink2, fontWeight: filter === key ? 500 : 400,
     fontSize: 13, cursor: "pointer", borderRight: `1px solid ${line}`,
     display: "inline-flex", alignItems: "center", gap: 6,
@@ -256,8 +256,8 @@ function RecommendationManagement() {
           </div>
 
           {/* Filter toolbar */}
-          <div style={{ display: "flex", alignItems: "center", padding: "10px 14px", borderBottom: `1px solid ${line2}`, background: "#FBFCFD", gap: 10 }}>
-            <div style={{ display: "inline-flex", border: `1px solid ${line}`, borderRadius: 7, overflow: "hidden", background: "#fff" }}>
+          <div style={{ display: "flex", alignItems: "center", padding: "10px 14px", borderBottom: `1px solid ${line2}`, background: line2, gap: 10 }}>
+            <div style={{ display: "inline-flex", border: `1px solid ${line}`, borderRadius: 7, overflow: "hidden", background: panel }}>
               <button style={tabStyle("all")} onClick={() => setFilter("all")}>
                 全部 <span style={{ color: muted, fontFamily: "monospace", fontSize: 12 }}>{recommendations.length}</span>
               </button>

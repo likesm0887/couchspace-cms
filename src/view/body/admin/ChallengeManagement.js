@@ -6,15 +6,15 @@ import { challengeService, meditationService } from "../../../service/ServicePoo
 const { TextArea } = Input;
 
 /* ── Design tokens ── */
-const bg = "#F6F7F9";
-const panel = "#FFFFFF";
-const line = "#E6E8EC";
-const line2 = "#EEF0F3";
-const ink = "#10141B";
-const ink2 = "#3B414C";
-const muted = "#6B7280";
+const bg = "var(--cms-bg)";
+const panel = "var(--cms-panel)";
+const line = "var(--cms-line)";
+const line2 = "var(--cms-line2)";
+const ink = "var(--cms-ink)";
+const ink2 = "var(--cms-ink2)";
+const muted = "var(--cms-muted)";
 const accent = "#4556f0";
-const accentSoft = "#EEF0FE";
+const accentSoft = "var(--cms-accent-soft)";
 
 /* ── Stat card ── */
 function StatCard({ label, value, unit, note, last }) {
@@ -131,7 +131,7 @@ function ChallengeManagement() {
           <Image src={url} alt="挑戰圖片" crossOrigin="anonymous" style={{ width: 160, height: 120, objectFit: "cover" }} />
         </div>
       ) : (
-        <div style={{ width: 160, height: 120, background: "#f0f0f0", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 4, fontSize: 12, color: "#999" }}>無圖片</div>
+        <div style={{ width: 160, height: 120, background: line2, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 4, fontSize: 12, color: muted }}>無圖片</div>
       ),
     },
     { title: "描述", dataIndex: "description", key: "description", ellipsis: true },
@@ -210,7 +210,7 @@ function ChallengeManagement() {
           <Form.Item name="description" label="挑戰描述" rules={[{ required: true, message: "請輸入挑戰描述" }]}>
             <TextArea rows={4} placeholder="請輸入挑戰描述" />
           </Form.Item>
-          <div style={{ background: "#f8f9ff", padding: "12px", borderRadius: "8px", border: "1px solid #d6e4ff", marginBottom: "16px" }}>
+          <div style={{ background: accentSoft, padding: "12px", borderRadius: "8px", border: `1px solid ${line}`, marginBottom: "16px" }}>
             <Image crossOrigin="anonymous" width="100px" src={form.getFieldValue("imageUrl")} style={{ marginBottom: "8px" }} />
             <Form.Item name="imageUrl" label={<span style={{ fontWeight: "bold", color: "#1890ff" }}>挑戰圖片</span>}>
               <Input allowClear placeholder="請輸入圖片URL" size="large" style={{ borderRadius: "6px" }} />
