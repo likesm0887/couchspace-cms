@@ -659,7 +659,7 @@ const Counselor = () => {
         email: u.Email,
         expertises: u.Expertises.map((r) => r.Skill),
         photo: u.Photo == "" ? img_account : u.Photo,
-        account: u.Email,
+        account: u.Account,
         isverify: u.IsVerify ? "已認證" : "未認證",
         LatestLoginTime:u.LatestLoginTime,
         subRole: u.SubRole,
