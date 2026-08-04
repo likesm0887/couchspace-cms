@@ -11,14 +11,14 @@ import { meditationService } from "../../../service/ServicePool";
 const { RangePicker } = DatePicker;
 
 /* ── Design tokens ── */
-const bg = "#F6F7F9";
-const panel = "#FFFFFF";
-const line = "#E6E8EC";
-const line2 = "#EEF0F3";
-const ink = "#10141B";
-const muted = "#6B7280";
+const bg = "var(--cms-bg)";
+const panel = "var(--cms-panel)";
+const line = "var(--cms-line)";
+const line2 = "var(--cms-line2)";
+const ink = "var(--cms-ink)";
+const muted = "var(--cms-muted)";
 const accent = "#4556f0";
-const accentSoft = "#EEF0FE";
+const accentSoft = "var(--cms-accent-soft)";
 const danger = "#E84040";
 
 /* ── Helpers ── */
@@ -56,7 +56,7 @@ function SortableRow({ record, index, musicOptions, onRemove, onChangeSeriesID, 
   const style = {
     transform: CSS.Transform.toString(transform && { ...transform, scaleY: 1 }),
     transition,
-    background: isDragging ? "#F0F5FF" : index % 2 === 0 ? "#FFFFFF" : "#FAFAFA",
+    background: isDragging ? "var(--cms-drag)" : index % 2 === 0 ? "var(--cms-panel)" : "var(--cms-subtle)",
     position: isDragging ? "relative" : undefined,
     zIndex: isDragging ? 9999 : undefined,
     borderBottom: `1px solid ${line2}`,
@@ -214,7 +214,7 @@ function CelebrityGuideRecommendation() {
 
   const tabStyle = (key) => ({
     padding: "6px 12px", border: "none",
-    background: filter === key ? "#F2F4F7" : "transparent",
+    background: filter === key ? line2 : "transparent",
     color: filter === key ? ink : muted,
     fontWeight: filter === key ? 500 : 400,
     fontSize: 13, cursor: "pointer", borderRight: `1px solid ${line}`,
@@ -256,8 +256,8 @@ function CelebrityGuideRecommendation() {
           </div>
 
           {/* Filter toolbar */}
-          <div style={{ padding: "10px 14px", borderBottom: `1px solid ${line2}`, background: "#FBFCFD" }}>
-            <div style={{ display: "inline-flex", border: `1px solid ${line}`, borderRadius: 7, overflow: "hidden", background: "#fff" }}>
+          <div style={{ padding: "10px 14px", borderBottom: `1px solid ${line2}`, background: line2 }}>
+            <div style={{ display: "inline-flex", border: `1px solid ${line}`, borderRadius: 7, overflow: "hidden", background: panel }}>
               <button style={tabStyle("all")} onClick={() => setFilter("all")}>
                 全部 <span style={{ color: muted, fontFamily: "monospace", fontSize: 12 }}>{recommendations.length}</span>
               </button>
@@ -276,7 +276,7 @@ function CelebrityGuideRecommendation() {
               <SortableContext items={displayItems.map((r) => r.key)} strategy={verticalListSortingStrategy}>
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
-                    <tr style={{ borderBottom: `1px solid ${line2}`, background: "#FAFAFA" }}>
+                    <tr style={{ borderBottom: `1px solid ${line2}`, background: "var(--cms-subtle)" }}>
                       <th style={{ width: 44, padding: "10px 8px" }}></th>
                       <th style={{ width: 48, padding: "10px 8px", textAlign: "left", fontSize: 12, color: muted, fontWeight: 500 }}>#</th>
                       <th style={{ padding: "10px 12px", textAlign: "left", fontSize: 12, color: muted, fontWeight: 500 }}>名人指南內容</th>

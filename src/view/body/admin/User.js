@@ -159,10 +159,10 @@ const UserDetailModal = ({ userData, userPhoto }) => {
   }, {});
 
   return (
-    <div style={{ padding: "16px", backgroundColor: "#f5f5f5" }}>
+    <div style={{ padding: "16px", backgroundColor: "var(--cms-bg)" }}>
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         {/* Header */}
-        <div style={{ textAlign: "center", padding: "16px", backgroundColor: "#fff", borderRadius: "8px" }}>
+        <div style={{ textAlign: "center", padding: "16px", backgroundColor: "var(--cms-panel)", borderRadius: "8px" }}>
           <Typography.Title level={4} style={{ margin: 0 }}>
             用戶詳情
             {userInfo["membership"] && (
@@ -188,7 +188,7 @@ const UserDetailModal = ({ userData, userPhoto }) => {
                   <div style={{
                     width: '120px',
                     height: '120px',
-                    backgroundColor: '#f0f0f0',
+                    backgroundColor: 'var(--cms-subtle)',
                     borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center',
@@ -601,7 +601,7 @@ const UserPage = () => {
     );
   };
   return (
-    <div style={{ padding: '24px', background: '#f0f2f5', minHeight: '100vh' }}>
+    <div style={{ padding: '24px', background: 'var(--cms-bg)', minHeight: '100vh' }}>
       {/* Statistics Section */}
       <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
         <Col xs={24} sm={8}>
@@ -668,7 +668,7 @@ const UserPage = () => {
         style={{
           borderRadius: '8px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          background: 'white',
+          background: 'var(--cms-panel)',
         }}
         bodyStyle={{ padding: '0' }}
         title={<span style={{ fontSize: '18px', fontWeight: 'bold' }}>用戶管理</span>}

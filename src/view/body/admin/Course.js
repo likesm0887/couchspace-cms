@@ -22,6 +22,7 @@ import {
   Drawer,
   Card,
   Typography,
+  theme,
 } from "antd";
 import { CopyOutlined, SearchOutlined } from "@ant-design/icons";
 import AdminHeader from "./AdminHeader";
@@ -61,6 +62,7 @@ const tableRowStyles = `
 `;
 
 const SortableMusicItem = ({ id, title, onRemove }) => {
+  const { token } = theme.useToken();
   const {
     attributes,
     listeners,
@@ -86,9 +88,9 @@ const SortableMusicItem = ({ id, title, onRemove }) => {
         alignItems: 'center',
         padding: '6px 10px',
         marginBottom: '4px',
-        background: '#f0f5ff',
+        background: token.colorFillTertiary,
         borderRadius: '6px',
-        border: '1px solid #adc6ff',
+        border: `1px solid ${token.colorBorderSecondary}`,
       }}
     >
       <MenuOutlined
@@ -155,6 +157,7 @@ const Row = ({ children, ...props }) => {
   );
 };
 function Course() {
+  const { token } = theme.useToken();
   const [data, setData] = useState([]);
   const [modal1Open, setModal1Open] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
@@ -688,7 +691,7 @@ function Course() {
     <>
       <style>{tableRowStyles}</style>
       <div style={{
-        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+        background: token.colorBgLayout,
         minHeight: '100vh',
         padding: '20px'
       }}>
@@ -704,7 +707,7 @@ function Course() {
           style={{
             borderRadius: '12px',
             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-            background: 'white'
+            background: token.colorBgContainer
           }}
         >
           <FloatButton
@@ -746,7 +749,7 @@ function Course() {
               onFinish={onFinish}
               layout="vertical"
               style={{
-                background: 'white',
+                background: token.colorBgContainer,
                 padding: '20px',
                 borderRadius: '12px',
                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
@@ -783,10 +786,10 @@ function Course() {
               </Form.Item>
 
               <div style={{
-                background: 'linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%)',
+                background: token.colorFillTertiary,
                 padding: '12px',
                 borderRadius: '8px',
-                border: '1px solid #d6e4ff',
+                border: `1px solid ${token.colorBorderSecondary}`,
                 marginBottom: '16px'
               }}>
                 <Image
@@ -867,10 +870,10 @@ function Course() {
                 }
               >
                 <div style={{
-                  background: 'linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%)',
+                  background: token.colorFillTertiary,
                   padding: '12px',
                   borderRadius: '8px',
-                  border: '1px solid #d6e4ff'
+                  border: `1px solid ${token.colorBorderSecondary}`
                 }}>
                   <Select
                     placeholder="搜尋並新增音樂..."
@@ -942,8 +945,8 @@ function Course() {
                 right: "0",
                 left: "0",
                 padding: "16px 24px",
-                background: 'white',
-                borderTop: '1px solid #f0f0f0',
+                background: token.colorBgContainer,
+                borderTop: `1px solid ${token.colorBorderSecondary}`,
                 borderRadius: '0 0 12px 12px'
               }}
             >

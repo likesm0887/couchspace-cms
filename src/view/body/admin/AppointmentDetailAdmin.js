@@ -224,10 +224,10 @@ const AppointmentDetailAdmin = ({ appointmentId, onClose }) => {
   const statusInfo = getStatusDesc(appointment.Status);
 
   return (
-    <div style={{ padding: "16px", backgroundColor: "#f5f5f5" }}>
+    <div style={{ padding: "16px", backgroundColor: "var(--cms-bg)" }}>
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         {/* Header */}
-        <div style={{ textAlign: "center", padding: "16px", backgroundColor: "#fff", borderRadius: "8px" }}>
+        <div style={{ textAlign: "center", padding: "16px", backgroundColor: "var(--cms-panel)", borderRadius: "8px" }}>
           <Title level={4} style={{ margin: 0 }}>
             預約詳情 - {appointment.AppointmentID?.slice(-8).toUpperCase()}
           </Title>

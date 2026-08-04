@@ -49,10 +49,10 @@ const CounselorDetailModal = ({ counselorData, counselorPhoto }) => {
   }, {});
 
   return (
-    <div style={{ padding: "16px", backgroundColor: "#f5f5f5" }}>
+    <div style={{ padding: "16px", backgroundColor: "var(--cms-bg)" }}>
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         {/* Header */}
-        <div style={{ textAlign: "center", padding: "16px", backgroundColor: "#fff", borderRadius: "8px" }}>
+        <div style={{ textAlign: "center", padding: "16px", backgroundColor: "var(--cms-panel)", borderRadius: "8px" }}>
           <Typography.Title level={4} style={{ margin: 0 }}>
             諮商師詳情
             {counselorInfo["21"]?.children && (
@@ -78,7 +78,7 @@ const CounselorDetailModal = ({ counselorData, counselorPhoto }) => {
                   <div style={{
                     width: '120px',
                     height: '120px',
-                    backgroundColor: '#f0f0f0',
+                    backgroundColor: 'var(--cms-subtle)',
                     borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center',
@@ -443,7 +443,7 @@ const DrawerForm = ({ id, visible, onClose, record, callback }) => {
         <Divider />
 
         {/* 警告區域 */}
-        <Card size="small" style={{ borderColor: '#ffccc7', backgroundColor: '#fff2f0' }}>
+        <Card size="small" className="cms-danger-card" style={{ borderColor: 'var(--cms-danger-border)' }}>
           <Space>
             <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />
             <div>
@@ -659,7 +659,7 @@ const Counselor = () => {
         email: u.Email,
         expertises: u.Expertises.map((r) => r.Skill),
         photo: u.Photo == "" ? img_account : u.Photo,
-        account: u.Email,
+        account: u.Account,
         isverify: u.IsVerify ? "已認證" : "未認證",
         LatestLoginTime:u.LatestLoginTime,
         subRole: u.SubRole,

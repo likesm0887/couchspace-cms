@@ -20,6 +20,7 @@ import {
   Button,
   InputNumber,
   Drawer,
+  theme,
 } from "antd";
 import CountUp from "react-countup";
 import * as XLSX from "xlsx";
@@ -43,6 +44,7 @@ const customInputStyle = `
 `;
 const PromoCode = () => {
   const { RangePicker } = DatePicker;
+  const { token } = theme.useToken();
 
   const columns = [
     {
@@ -457,11 +459,11 @@ const PromoCode = () => {
         {/* 美化搜尋列 */}
         <Flex gap="small" vertical>
           <div style={{
-            backgroundColor: '#f8f9fa',
+            backgroundColor: token.colorFillTertiary,
             borderRadius: '12px',
             padding: '12px 16px',
             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            border: '1px solid #e9ecef'
+            border: `1px solid ${token.colorBorderSecondary}`
           }}>
             <Flex gap="small" align="center">
               <Input.Search
@@ -492,9 +494,9 @@ const PromoCode = () => {
               />
               <Button
                 style={{
-                  backgroundColor: "#ffffff",
-                  borderColor: "#d9d9d9",
-                  color: "#666",
+                  backgroundColor: token.colorBgContainer,
+                  borderColor: token.colorBorder,
+                  color: token.colorText,
                   borderRadius: "6px",
                   height: "32px",
                   boxShadow: "0 1px 3px rgba(0,0,0,0.1)"

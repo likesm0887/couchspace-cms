@@ -4,14 +4,14 @@ import { DeleteOutlined, PlusOutlined, ReloadOutlined, SaveOutlined, CalendarOut
 import { meditationService } from "../../../service/ServicePool";
 
 /* ── Design tokens ── */
-const bg = "#F6F7F9";
-const panel = "#FFFFFF";
-const line = "#E6E8EC";
-const line2 = "#EEF0F3";
-const ink = "#10141B";
-const muted = "#6B7280";
+const bg = "var(--cms-bg)";
+const panel = "var(--cms-panel)";
+const line = "var(--cms-line)";
+const line2 = "var(--cms-line2)";
+const ink = "var(--cms-ink)";
+const muted = "var(--cms-muted)";
 const accent = "#4556f0";
-const accentSoft = "#EEF0FE";
+const accentSoft = "var(--cms-accent-soft)";
 const danger = "#E84040";
 
 const SLOTS = [
@@ -42,7 +42,7 @@ function SlotPanel({ slotKey, label, emoji, musicIDs, musicOptions, onChange }) 
   return (
     <div style={{ background: panel, border: `1px solid ${line}`, borderRadius: 10, overflow: "hidden", marginBottom: 16 }}>
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px", borderBottom: `1px solid ${line2}`, background: "#FAFAFA" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px", borderBottom: `1px solid ${line2}`, background: "var(--cms-subtle)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 20 }}>{emoji}</span>
           <div>
@@ -102,7 +102,7 @@ function TodayCard({ stored }) {
   ];
   return (
     <div style={{ background: panel, border: `1px solid ${line}`, borderRadius: 10, marginBottom: 20, overflow: "hidden" }}>
-      <div style={{ padding: "14px 18px", borderBottom: `1px solid ${line2}`, background: "#FAFAFA", display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ padding: "14px 18px", borderBottom: `1px solid ${line2}`, background: "var(--cms-subtle)", display: "flex", alignItems: "center", gap: 8 }}>
         <CalendarOutlined style={{ color: accent }} />
         <span style={{ fontWeight: 600, color: ink }}>今日推薦結果</span>
         <Tag color="blue" style={{ marginLeft: 4 }}>{stored.Date}</Tag>

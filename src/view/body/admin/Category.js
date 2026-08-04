@@ -84,7 +84,7 @@ const SortableCourseItem = ({ id, title, onRemove }) => {
         alignItems: "center",
         padding: "6px 10px",
         marginBottom: "4px",
-        background: "#f0f5ff",
+        background: "var(--cms-drag)",
         borderRadius: "6px",
         border: "1px solid #adc6ff",
       }}
@@ -460,7 +460,7 @@ function Category() {
         style={{
           borderRadius: '12px',
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-          background: 'white'
+          background: 'var(--cms-panel)'
         }}
       >
         <FloatButton
@@ -505,7 +505,7 @@ function Category() {
           onSubmit={onFinish}
           layout="vertical"
           style={{
-            background: 'white',
+            background: 'var(--cms-panel)',
             padding: '20px',
             borderRadius: '12px',
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
@@ -632,7 +632,7 @@ function Category() {
             right: "0",
             left: "0",
             padding: "16px 24px",
-            background: 'white',
+            background: 'var(--cms-panel)',
             borderTop: '1px solid #f0f0f0',
             borderRadius: '0 0 12px 12px'
           }}
@@ -724,7 +724,7 @@ function Category() {
                       style={{
                         borderRadius: '10px',
                         border: '1px solid #b7d4ff',
-                        background: 'white',
+                        background: 'var(--cms-panel)',
                         boxShadow: '0 4px 12px rgba(24, 144, 255, 0.08)',
                         transition: 'all 0.3s ease',
                         cursor: 'default'

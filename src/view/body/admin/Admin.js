@@ -4,11 +4,13 @@ import { Outlet } from "react-router-dom";
 import {
   Avatar,
   Button,
+  ConfigProvider,
   Drawer,
   Grid,
   Layout,
   Menu,
   message,
+  Switch,
   theme,
 } from "antd";
 import {
@@ -21,11 +23,13 @@ import {
   FolderOpenOutlined,
   LogoutOutlined,
   MenuOutlined,
+  MoonOutlined,
   PictureOutlined,
   PieChartOutlined,
   SmileOutlined,
   SoundOutlined,
   StarOutlined,
+  SunOutlined,
   TagOutlined,
   TeamOutlined,
   UserOutlined,
@@ -38,6 +42,7 @@ import logoImg from "../../img/header/logo.png";
 
 const { Content, Sider, Header } = Layout;
 const { useBreakpoint } = Grid;
+const DARK_MODE_STORAGE_KEY = "cms_dark_mode";
 
 function getItem(label, key, icon, children) {
   return { key, icon, children, label };
@@ -84,6 +89,14 @@ function Admin() {
   const screens = useBreakpoint();
   const isMobile = !screens.md;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(
+    () => localStorage.getItem(DARK_MODE_STORAGE_KEY) === "true"
+  );
+
+  useEffect(() => {
+    localStorage.setItem(DARK_MODE_STORAGE_KEY, isDarkMode);
+    document.body.classList.toggle("cms-dark", isDarkMode);
+  }, [isDarkMode]);
 
   // Admin info state
   const [adminName, setAdminName] = useState("Admin");
@@ -307,7 +320,20 @@ function Admin() {
     </div>
   );
 
+  const darkModeToggle = (
+    <Switch
+      checked={isDarkMode}
+      onChange={setIsDarkMode}
+      checkedChildren={<MoonOutlined />}
+      unCheckedChildren={<SunOutlined />}
+      title="切換深色模式"
+    />
+  );
+
   return (
+    <ConfigProvider
+      theme={{ algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm }}
+    >
     <Layout style={{ minHeight: "100vh" }}>
       {contextHolder}
       {isMobile ? (
@@ -335,6 +361,7 @@ function Admin() {
               alt="Couchspace"
               style={{ height: 32, marginLeft: 8, objectFit: "contain" }}
             />
+            <div style={{ marginLeft: "auto" }}>{darkModeToggle}</div>
           </Header>
           <Drawer
             placement="left"
@@ -359,6 +386,25 @@ function Admin() {
       )}
 
       <Layout>
+        {!isMobile && (
+          <Header
+            style={{
+              background: isDarkMode ? "#1f1f1f" : "#fff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              padding: "0 24px",
+              position: "sticky",
+              top: 0,
+              zIndex: 9,
+              height: 56,
+              lineHeight: "56px",
+              borderBottom: isDarkMode ? "1px solid #303030" : "1px solid #f0f0f0",
+            }}
+          >
+            {darkModeToggle}
+          </Header>
+        )}
         <Content
           style={{
             margin: isMobile ? "12px 8px" : "16px",
@@ -369,6 +415,7 @@ function Admin() {
         </Content>
       </Layout>
     </Layout>
+    </ConfigProvider>
   );
 }
 
