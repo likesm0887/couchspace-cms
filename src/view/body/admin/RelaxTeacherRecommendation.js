@@ -6,6 +6,13 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { meditationService, counselorService } from "../../../service/ServicePool";
+import {
+  getCounselorDetail,
+  getCounselorName,
+  normalizeRecommendations,
+  resolveCounselor,
+  toRecommendationPayload,
+} from "./recommendationData";
 
 /* ── Design tokens ── */
 const bg = "#F6F7F9";
@@ -33,51 +40,6 @@ function StatCard({ label, value, unit, note, last }) {
   );
 }
 
-/* ── Helpers ── */
-const normalizeRecommendations = (list = []) =>
-  list
-    .map((item, i) => ({
-      key: item.CounselorID ? `rec-${item.CounselorID}` : `rec-new-${i}`,
-      CounselorID: item.CounselorID || "",
-      Sequence: typeof item.Sequence === "number" ? item.Sequence : i,
-    }))
-    .sort((a, b) => a.Sequence - b.Sequence);
-
-const getCounselorName = (counselor) => {
-  const nick = counselor?.UserName?.NickName || "";
-  const last = counselor?.UserName?.Name?.LastName || "";
-  const first = counselor?.UserName?.Name?.FirstName || "";
-  const full = (last + first).trim();
-  return nick || full || "未命名";
-};
-
-const getCounselorFullName = (counselor) => {
-  const last = counselor?.UserName?.Name?.LastName || "";
-  const first = counselor?.UserName?.Name?.FirstName || "";
-  return (last + first).trim();
-};
-
-/* 推薦清單只存 CounselorID，這裡用 ID 串出老師完整資料供畫面顯示 */
-const getCounselorDetail = (counselor) => ({
-  name: getCounselorName(counselor),
-  fullName: getCounselorFullName(counselor),
-  photo: counselor?.Photo || "",
-  position: counselor?.Position || "",
-  subRole: counselor?.SubRole || "",
-  email: counselor?.Email || "",
-  phone: counselor?.Phone || "",
-  location: counselor?.Location || "",
-  languages: counselor?.Languages || [],
-  expertises: [
-    ...new Set(
-      (counselor?.Expertises || [])
-        .map((e) => (typeof e === "string" ? e : e?.Skill))
-        .filter(Boolean)
-    ),
-  ],
-  isVerify: !!counselor?.IsVerify,
-});
-
 /* ── Main component ── */
 function RelaxTeacherRecommendation() {
   const [messageApi, contextHolder] = message.useMessage();
@@ -85,6 +47,7 @@ function RelaxTeacherRecommendation() {
   const [saving, setSaving] = useState(false);
   const [counselors, setCounselors] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -97,8 +60,12 @@ function RelaxTeacherRecommendation() {
     try {
       const recList = await meditationService.getRelaxTeacherRecommendations();
       setRecommendations(normalizeRecommendations(recList || []));
+      setLoadFailed(false);
     } catch (error) {
-      // 新 API 尚未部署時靜默忽略，保留空清單
+      // 讀取失敗時不跳錯誤訊息（新 API 可能尚未部署），但要記下來擋住儲存，
+      // 否則使用者會把「載入失敗的空清單」存回後端，直接清掉線上設定。
+      setRecommendations([]);
+      setLoadFailed(true);
     } finally {
       setLoading(false);
     }
@@ -127,10 +94,15 @@ function RelaxTeacherRecommendation() {
     [recommendations]
   );
 
-  /* 推薦中的 ID 在諮商師清單裡找不到（例如老師已被刪除） */
+  /* 本地清單與後端 embed 的資料都串不出老師（例如老師已被刪除） */
   const missingCount = useMemo(
     () =>
-      recommendations.filter((r) => r.CounselorID && !counselorMap.has(r.CounselorID)).length,
+      recommendations.filter((r) => r.CounselorID && !resolveCounselor(r, counselorMap)).length,
+    [recommendations, counselorMap]
+  );
+
+  const verifiedCount = useMemo(
+    () => recommendations.filter((r) => resolveCounselor(r, counselorMap)?.IsVerify).length,
     [recommendations, counselorMap]
   );
 
@@ -157,6 +129,10 @@ function RelaxTeacherRecommendation() {
   }, []);
 
   const handleSave = async () => {
+    if (loadFailed) {
+      messageApi.warning("目前讀不到現有設定，請先重新載入成功再儲存");
+      return;
+    }
     if (recommendations.some((r) => !r.CounselorID)) {
       messageApi.warning("請先為每筆推薦選擇諮商師");
       return;
@@ -164,7 +140,7 @@ function RelaxTeacherRecommendation() {
     setSaving(true);
     try {
       await meditationService.updateRelaxTeacherRecommendations(
-        recommendations.map((r) => ({ CounselorID: r.CounselorID, Sequence: r.Sequence }))
+        toRecommendationPayload(recommendations)
       );
       messageApi.success("放鬆老師推薦已更新");
       await fetchData();
@@ -188,15 +164,21 @@ function RelaxTeacherRecommendation() {
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             <Button icon={<ReloadOutlined />} onClick={fetchData}>重新載入</Button>
-            <Button icon={<SaveOutlined />} loading={saving} onClick={handleSave}>儲存設定</Button>
+            <Button icon={<SaveOutlined />} loading={saving} disabled={loadFailed} onClick={handleSave}>儲存設定</Button>
             <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>新增推薦</Button>
           </div>
         </div>
 
+        {loadFailed && (
+          <div style={{ background: "#FFF4F4", border: `1px solid ${danger}`, color: danger, borderRadius: 10, padding: "12px 16px", marginBottom: 20, fontSize: 13 }}>
+            讀取放鬆老師推薦設定失敗，畫面顯示的是空清單而非實際設定。已暫時停用「儲存設定」以免覆蓋線上資料，請按「重新載入」重試。
+          </div>
+        )}
+
         {/* Stats strip */}
         <div style={{ display: "flex", flexWrap: "wrap", background: panel, border: `1px solid ${line}`, borderRadius: 10, marginBottom: 20, overflow: "hidden" }}>
           <StatCard label="推薦總數" value={recommendations.length} note="所有推薦老師" />
-          <StatCard label="已認證" value={recommendations.filter((r) => counselorMap.get(r.CounselorID)?.IsVerify).length} note="推薦中已認證的老師" />
+          <StatCard label="已認證" value={verifiedCount} note="推薦中已認證的老師" />
           <StatCard label="查無資料" value={missingCount} note={missingCount > 0 ? "ID 對不到諮商師" : "資料一致"} last />
         </div>
 
@@ -241,7 +223,7 @@ function RelaxTeacherRecommendation() {
                         key={record.key}
                         record={record}
                         index={index}
-                        counselor={counselorMap.get(record.CounselorID)}
+                        counselor={resolveCounselor(record, counselorMap)}
                         counselorOptions={counselorOptions.filter(
                           (opt) => !selectedIDs.has(opt.value) || opt.value === record.CounselorID
                         )}

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Avatar, Button, message, Select, Spin } from "antd";
 import { DeleteOutlined, MenuOutlined, PlusOutlined, ReloadOutlined, SaveOutlined } from "@ant-design/icons";
 import { DndContext } from "@dnd-kit/core";
@@ -6,6 +6,12 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { meditationService, counselorService } from "../../../service/ServicePool";
+import {
+  getCounselorName,
+  normalizeRecommendations,
+  resolveCounselor,
+  toRecommendationPayload,
+} from "./recommendationData";
 
 /* ── Design tokens ── */
 const bg = "#F6F7F9";
@@ -13,41 +19,10 @@ const panel = "#FFFFFF";
 const line = "#E6E8EC";
 const line2 = "#EEF0F3";
 const ink = "#10141B";
-const ink2 = "#3B414C";
 const muted = "#6B7280";
 const accent = "#4556f0";
 const accentSoft = "#EEF0FE";
 const danger = "#E84040";
-
-/* ── Drag-sortable row ── */
-const Row = ({ children, ...props }) => {
-  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } =
-    useSortable({ id: props["data-row-key"] });
-  const style = {
-    ...props.style,
-    transform: CSS.Transform.toString(transform && { ...transform, scaleY: 1 }),
-    transition,
-    ...(isDragging ? { position: "relative", zIndex: 9999, background: "#F0F5FF" } : {}),
-  };
-  return (
-    <tr {...props} ref={setNodeRef} style={style} {...attributes}>
-      {React.Children.map(children, (child) => {
-        if (child && child.key === "sort") {
-          return React.cloneElement(child, {
-            children: (
-              <MenuOutlined
-                ref={setActivatorNodeRef}
-                style={{ touchAction: "none", cursor: "move", color: muted }}
-                {...listeners}
-              />
-            ),
-          });
-        }
-        return child;
-      })}
-    </tr>
-  );
-};
 
 /* ── Stat card ── */
 function StatCard({ label, value, unit, note, last }) {
@@ -63,24 +38,6 @@ function StatCard({ label, value, unit, note, last }) {
   );
 }
 
-/* ── Helpers ── */
-const normalizeRecommendations = (list = []) =>
-  list
-    .map((item, i) => ({
-      key: item.CounselorID ? `rec-${item.CounselorID}` : `rec-new-${i}`,
-      CounselorID: item.CounselorID || "",
-      Sequence: typeof item.Sequence === "number" ? item.Sequence : i,
-    }))
-    .sort((a, b) => a.Sequence - b.Sequence);
-
-const getCounselorName = (counselor) => {
-  const nick = counselor?.UserName?.NickName || "";
-  const last = counselor?.UserName?.Name?.LastName || "";
-  const first = counselor?.UserName?.Name?.FirstName || "";
-  const full = (last + first).trim();
-  return nick || full || "未命名";
-};
-
 /* ── Main component ── */
 function CounselingTeacherRecommendation() {
   const [messageApi, contextHolder] = message.useMessage();
@@ -88,6 +45,7 @@ function CounselingTeacherRecommendation() {
   const [saving, setSaving] = useState(false);
   const [counselors, setCounselors] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -100,8 +58,12 @@ function CounselingTeacherRecommendation() {
     try {
       const recList = await meditationService.getCounselingTeacherRecommendations();
       setRecommendations(normalizeRecommendations(recList || []));
+      setLoadFailed(false);
     } catch (error) {
-      // 新 API 尚未部署時靜默忽略，保留空清單
+      // 讀取失敗時不跳錯誤訊息（新 API 可能尚未部署），但要記下來擋住儲存，
+      // 否則使用者會把「載入失敗的空清單」存回後端，直接清掉線上設定。
+      setRecommendations([]);
+      setLoadFailed(true);
     } finally {
       setLoading(false);
     }
@@ -121,14 +83,16 @@ function CounselingTeacherRecommendation() {
     [counselors]
   );
 
+  /* CounselorID -> 老師資料，供每列查表 */
+  const counselorMap = useMemo(
+    () => new Map(counselors.map((c) => [c.ID, c])),
+    [counselors]
+  );
+
   const selectedIDs = useMemo(
     () => new Set(recommendations.map((r) => r.CounselorID).filter(Boolean)),
     [recommendations]
   );
-
-  const updateRec = useCallback((key, patch) => {
-    setRecommendations((prev) => prev.map((r) => (r.key === key ? { ...r, ...patch } : r)));
-  }, []);
 
   const handleDragEnd = useCallback(({ active, over }) => {
     if (!over || active.id === over.id) return;
@@ -153,6 +117,10 @@ function CounselingTeacherRecommendation() {
   }, []);
 
   const handleSave = async () => {
+    if (loadFailed) {
+      messageApi.warning("目前讀不到現有設定，請先重新載入成功再儲存");
+      return;
+    }
     if (recommendations.some((r) => !r.CounselorID)) {
       messageApi.warning("請先為每筆推薦選擇諮商師");
       return;
@@ -160,7 +128,7 @@ function CounselingTeacherRecommendation() {
     setSaving(true);
     try {
       await meditationService.updateCounselingTeacherRecommendations(
-        recommendations.map((r) => ({ CounselorID: r.CounselorID, Sequence: r.Sequence }))
+        toRecommendationPayload(recommendations)
       );
       messageApi.success("精選心理師推薦已更新");
       await fetchData();
@@ -170,68 +138,6 @@ function CounselingTeacherRecommendation() {
       setSaving(false);
     }
   };
-
-  const columns = useMemo(() => [
-    { key: "sort", dataIndex: "sort", width: 44, render: () => null },
-    {
-      title: "#", dataIndex: "Sequence", key: "seq", width: 48,
-      render: (_, __, i) => (
-        <span style={{ fontFamily: "monospace", color: muted, fontSize: 12 }}>{i + 1}</span>
-      ),
-    },
-    {
-      title: "諮商師", dataIndex: "CounselorID", key: "CounselorID",
-      render: (_, record) => {
-        const selected = counselors.find((c) => c.ID === record.CounselorID);
-        return (
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            {selected && (
-              <Avatar
-                src={selected?.Photo || undefined}
-                size={28}
-                style={{ background: accentSoft, color: accent, fontSize: 12, flexShrink: 0 }}
-              >
-                {getCounselorName(selected).charAt(0)}
-              </Avatar>
-            )}
-            <Select
-              placeholder="選擇諮商師"
-              value={record.CounselorID || undefined}
-              style={{ flex: 1, minWidth: 200 }}
-              onChange={(v) => {
-                const newKey = `rec-${v}`;
-                setRecommendations((prev) =>
-                  prev.map((r) =>
-                    r.key === record.key ? { ...r, CounselorID: v, key: newKey } : r
-                  )
-                );
-              }}
-              showSearch
-              filterOption={(input, opt) =>
-                (opt?.label ?? "").toLowerCase().includes(input.toLowerCase())
-              }
-              options={counselorOptions}
-            />
-          </div>
-        );
-      },
-    },
-    {
-      key: "actions", width: 52,
-      render: (_, record) => (
-        <button
-          onClick={() => handleRemove(record.key)}
-          style={{
-            border: "none", background: "transparent", color: danger,
-            cursor: "pointer", padding: "4px 8px", borderRadius: 5,
-            display: "flex", alignItems: "center",
-          }}
-        >
-          <DeleteOutlined />
-        </button>
-      ),
-    },
-  ], [counselors, counselorOptions, handleRemove]);
 
   return (
     <>
@@ -246,10 +152,16 @@ function CounselingTeacherRecommendation() {
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             <Button icon={<ReloadOutlined />} onClick={fetchData}>重新載入</Button>
-            <Button icon={<SaveOutlined />} loading={saving} onClick={handleSave}>儲存設定</Button>
+            <Button icon={<SaveOutlined />} loading={saving} disabled={loadFailed} onClick={handleSave}>儲存設定</Button>
             <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>新增推薦</Button>
           </div>
         </div>
+
+        {loadFailed && (
+          <div style={{ background: "#FFF4F4", border: `1px solid ${danger}`, color: danger, borderRadius: 10, padding: "12px 16px", marginBottom: 20, fontSize: 13 }}>
+            讀取精選心理師推薦設定失敗，畫面顯示的是空清單而非實際設定。已暫時停用「儲存設定」以免覆蓋線上資料，請按「重新載入」重試。
+          </div>
+        )}
 
         {/* Stats strip */}
         <div style={{ display: "flex", background: panel, border: `1px solid ${line}`, borderRadius: 10, marginBottom: 20, overflow: "hidden" }}>
@@ -295,7 +207,7 @@ function CounselingTeacherRecommendation() {
                         key={record.key}
                         record={record}
                         index={index}
-                        counselors={counselors}
+                        counselor={resolveCounselor(record, counselorMap)}
                         counselorOptions={counselorOptions.filter(
                           (opt) => !selectedIDs.has(opt.value) || opt.value === record.CounselorID
                         )}
@@ -322,7 +234,7 @@ function CounselingTeacherRecommendation() {
 }
 
 /* ── Sortable table row ── */
-function SortableRow({ record, index, counselors, counselorOptions, onRemove, onChange }) {
+function SortableRow({ record, index, counselor, counselorOptions, onRemove, onChange }) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } =
     useSortable({ id: record.key });
 
@@ -335,7 +247,7 @@ function SortableRow({ record, index, counselors, counselorOptions, onRemove, on
     borderBottom: `1px solid ${line2}`,
   };
 
-  const selected = counselors.find((c) => c.ID === record.CounselorID);
+  const selected = counselor;
 
   return (
     <tr ref={setNodeRef} style={style} {...attributes}>
