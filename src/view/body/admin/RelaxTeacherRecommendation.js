@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Avatar, Button, message, Select, Spin } from "antd";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Avatar, Button, message, Select, Spin, Tag } from "antd";
 import { DeleteOutlined, MenuOutlined, PlusOutlined, ReloadOutlined, SaveOutlined } from "@ant-design/icons";
 import { DndContext } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
@@ -18,36 +18,6 @@ const muted = "#6B7280";
 const accent = "#4556f0";
 const accentSoft = "#EEF0FE";
 const danger = "#E84040";
-
-/* ── Drag-sortable row ── */
-const Row = ({ children, ...props }) => {
-  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } =
-    useSortable({ id: props["data-row-key"] });
-  const style = {
-    ...props.style,
-    transform: CSS.Transform.toString(transform && { ...transform, scaleY: 1 }),
-    transition,
-    ...(isDragging ? { position: "relative", zIndex: 9999, background: "#F0F5FF" } : {}),
-  };
-  return (
-    <tr {...props} ref={setNodeRef} style={style} {...attributes}>
-      {React.Children.map(children, (child) => {
-        if (child && child.key === "sort") {
-          return React.cloneElement(child, {
-            children: (
-              <MenuOutlined
-                ref={setActivatorNodeRef}
-                style={{ touchAction: "none", cursor: "move", color: muted }}
-                {...listeners}
-              />
-            ),
-          });
-        }
-        return child;
-      })}
-    </tr>
-  );
-};
 
 /* ── Stat card ── */
 function StatCard({ label, value, unit, note, last }) {
@@ -81,6 +51,33 @@ const getCounselorName = (counselor) => {
   return nick || full || "未命名";
 };
 
+const getCounselorFullName = (counselor) => {
+  const last = counselor?.UserName?.Name?.LastName || "";
+  const first = counselor?.UserName?.Name?.FirstName || "";
+  return (last + first).trim();
+};
+
+/* 推薦清單只存 CounselorID，這裡用 ID 串出老師完整資料供畫面顯示 */
+const getCounselorDetail = (counselor) => ({
+  name: getCounselorName(counselor),
+  fullName: getCounselorFullName(counselor),
+  photo: counselor?.Photo || "",
+  position: counselor?.Position || "",
+  subRole: counselor?.SubRole || "",
+  email: counselor?.Email || "",
+  phone: counselor?.Phone || "",
+  location: counselor?.Location || "",
+  languages: counselor?.Languages || [],
+  expertises: [
+    ...new Set(
+      (counselor?.Expertises || [])
+        .map((e) => (typeof e === "string" ? e : e?.Skill))
+        .filter(Boolean)
+    ),
+  ],
+  isVerify: !!counselor?.IsVerify,
+});
+
 /* ── Main component ── */
 function RelaxTeacherRecommendation() {
   const [messageApi, contextHolder] = message.useMessage();
@@ -109,6 +106,12 @@ function RelaxTeacherRecommendation() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  /* CounselorID -> 老師完整資料，讓每列可以用 ID 直接查表 */
+  const counselorMap = useMemo(
+    () => new Map(counselors.map((c) => [c.ID, c])),
+    [counselors]
+  );
+
   const counselorOptions = useMemo(
     () =>
       counselors.map((c) => ({
@@ -124,9 +127,12 @@ function RelaxTeacherRecommendation() {
     [recommendations]
   );
 
-  const updateRec = useCallback((key, patch) => {
-    setRecommendations((prev) => prev.map((r) => (r.key === key ? { ...r, ...patch } : r)));
-  }, []);
+  /* 推薦中的 ID 在諮商師清單裡找不到（例如老師已被刪除） */
+  const missingCount = useMemo(
+    () =>
+      recommendations.filter((r) => r.CounselorID && !counselorMap.has(r.CounselorID)).length,
+    [recommendations, counselorMap]
+  );
 
   const handleDragEnd = useCallback(({ active, over }) => {
     if (!over || active.id === over.id) return;
@@ -169,68 +175,6 @@ function RelaxTeacherRecommendation() {
     }
   };
 
-  const columns = useMemo(() => [
-    { key: "sort", dataIndex: "sort", width: 44, render: () => null },
-    {
-      title: "#", dataIndex: "Sequence", key: "seq", width: 48,
-      render: (_, __, i) => (
-        <span style={{ fontFamily: "monospace", color: muted, fontSize: 12 }}>{i + 1}</span>
-      ),
-    },
-    {
-      title: "諮商師", dataIndex: "CounselorID", key: "CounselorID",
-      render: (_, record) => {
-        const selected = counselors.find((c) => c.ID === record.CounselorID);
-        return (
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            {selected && (
-              <Avatar
-                src={selected?.Photo || undefined}
-                size={28}
-                style={{ background: accentSoft, color: accent, fontSize: 12, flexShrink: 0 }}
-              >
-                {getCounselorName(selected).charAt(0)}
-              </Avatar>
-            )}
-            <Select
-              placeholder="選擇諮商師"
-              value={record.CounselorID || undefined}
-              style={{ flex: 1, minWidth: 200 }}
-              onChange={(v) => {
-                const newKey = `rec-${v}`;
-                setRecommendations((prev) =>
-                  prev.map((r) =>
-                    r.key === record.key ? { ...r, CounselorID: v, key: newKey } : r
-                  )
-                );
-              }}
-              showSearch
-              filterOption={(input, opt) =>
-                (opt?.label ?? "").toLowerCase().includes(input.toLowerCase())
-              }
-              options={counselorOptions}
-            />
-          </div>
-        );
-      },
-    },
-    {
-      key: "actions", width: 52,
-      render: (_, record) => (
-        <button
-          onClick={() => handleRemove(record.key)}
-          style={{
-            border: "none", background: "transparent", color: danger,
-            cursor: "pointer", padding: "4px 8px", borderRadius: 5,
-            display: "flex", alignItems: "center",
-          }}
-        >
-          <DeleteOutlined />
-        </button>
-      ),
-    },
-  ], [counselors, counselorOptions, handleRemove]);
-
   return (
     <>
       {contextHolder}
@@ -250,8 +194,10 @@ function RelaxTeacherRecommendation() {
         </div>
 
         {/* Stats strip */}
-        <div style={{ display: "flex", background: panel, border: `1px solid ${line}`, borderRadius: 10, marginBottom: 20, overflow: "hidden" }}>
-          <StatCard label="推薦總數" value={recommendations.length} note="所有推薦老師" last />
+        <div style={{ display: "flex", flexWrap: "wrap", background: panel, border: `1px solid ${line}`, borderRadius: 10, marginBottom: 20, overflow: "hidden" }}>
+          <StatCard label="推薦總數" value={recommendations.length} note="所有推薦老師" />
+          <StatCard label="已認證" value={recommendations.filter((r) => counselorMap.get(r.CounselorID)?.IsVerify).length} note="推薦中已認證的老師" />
+          <StatCard label="查無資料" value={missingCount} note={missingCount > 0 ? "ID 對不到諮商師" : "資料一致"} last />
         </div>
 
         {/* Main card */}
@@ -267,19 +213,21 @@ function RelaxTeacherRecommendation() {
           <Spin spinning={loading}>
             <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={handleDragEnd}>
               <SortableContext items={recommendations.map((r) => r.key)} strategy={verticalListSortingStrategy}>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 720 }}>
                   <thead>
                     <tr style={{ borderBottom: `1px solid ${line2}`, background: "#FAFAFA" }}>
                       <th style={{ width: 44, padding: "10px 8px" }}></th>
                       <th style={{ width: 48, padding: "10px 8px", textAlign: "left", fontSize: 12, color: muted, fontWeight: 500 }}>#</th>
-                      <th style={{ padding: "10px 12px", textAlign: "left", fontSize: 12, color: muted, fontWeight: 500 }}>諮商師</th>
+                      <th style={{ width: 280, padding: "10px 12px", textAlign: "left", fontSize: 12, color: muted, fontWeight: 500 }}>諮商師</th>
+                      <th style={{ padding: "10px 12px", textAlign: "left", fontSize: 12, color: muted, fontWeight: 500 }}>老師資料</th>
                       <th style={{ width: 52 }}></th>
                     </tr>
                   </thead>
                   <tbody>
                     {recommendations.length === 0 && (
                       <tr>
-                        <td colSpan={4}>
+                        <td colSpan={5}>
                           <div style={{ padding: "48px 20px", textAlign: "center", color: muted }}>
                             <div style={{ width: 44, height: 44, borderRadius: 10, background: accentSoft, color: accent, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px", fontSize: 20 }}>✦</div>
                             <div style={{ fontSize: 15, fontWeight: 600, color: ink, marginBottom: 6 }}>尚未建立任何推薦</div>
@@ -293,7 +241,7 @@ function RelaxTeacherRecommendation() {
                         key={record.key}
                         record={record}
                         index={index}
-                        counselors={counselors}
+                        counselor={counselorMap.get(record.CounselorID)}
                         counselorOptions={counselorOptions.filter(
                           (opt) => !selectedIDs.has(opt.value) || opt.value === record.CounselorID
                         )}
@@ -310,6 +258,7 @@ function RelaxTeacherRecommendation() {
                     ))}
                   </tbody>
                 </table>
+                </div>
               </SortableContext>
             </DndContext>
           </Spin>
@@ -320,7 +269,7 @@ function RelaxTeacherRecommendation() {
 }
 
 /* ── Sortable table row ── */
-function SortableRow({ record, index, counselors, counselorOptions, onRemove, onChange }) {
+function SortableRow({ record, index, counselor, counselorOptions, onRemove, onChange }) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } =
     useSortable({ id: record.key });
 
@@ -333,7 +282,8 @@ function SortableRow({ record, index, counselors, counselorOptions, onRemove, on
     borderBottom: `1px solid ${line2}`,
   };
 
-  const selected = counselors.find((c) => c.ID === record.CounselorID);
+  const detail = counselor ? getCounselorDetail(counselor) : null;
+  const missing = !!record.CounselorID && !counselor;
 
   return (
     <tr ref={setNodeRef} style={style} {...attributes}>
@@ -347,21 +297,21 @@ function SortableRow({ record, index, counselors, counselorOptions, onRemove, on
       <td style={{ width: 48, padding: "10px 8px" }}>
         <span style={{ fontFamily: "monospace", color: "#6B7280", fontSize: 12 }}>{index + 1}</span>
       </td>
-      <td style={{ padding: "10px 12px" }}>
+      <td style={{ width: 280, padding: "10px 12px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          {selected && (
+          {detail && (
             <Avatar
-              src={selected?.Photo || undefined}
-              size={28}
-              style={{ background: accentSoft, color: accent, fontSize: 12, flexShrink: 0 }}
+              src={detail.photo || undefined}
+              size={36}
+              style={{ background: accentSoft, color: accent, fontSize: 14, flexShrink: 0 }}
             >
-              {getCounselorName(selected).charAt(0)}
+              {detail.name.charAt(0)}
             </Avatar>
           )}
           <Select
             placeholder="選擇諮商師"
             value={record.CounselorID || undefined}
-            style={{ flex: 1, minWidth: 200 }}
+            style={{ flex: 1, minWidth: 180 }}
             onChange={onChange}
             showSearch
             filterOption={(input, opt) =>
@@ -371,6 +321,50 @@ function SortableRow({ record, index, counselors, counselorOptions, onRemove, on
           />
         </div>
       </td>
+
+      {/* 用 CounselorID 串出的老師完整資料 */}
+      <td style={{ padding: "10px 12px" }}>
+        {missing && (
+          <div style={{ fontSize: 12.5, color: danger }}>
+            查無此諮商師（ID: <span style={{ fontFamily: "monospace" }}>{record.CounselorID}</span>）
+          </div>
+        )}
+        {!record.CounselorID && (
+          <span style={{ fontSize: 12.5, color: muted }}>尚未選擇諮商師</span>
+        )}
+        {detail && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 14, fontWeight: 600, color: ink }}>{detail.name}</span>
+              {detail.fullName && detail.fullName !== detail.name && (
+                <span style={{ fontSize: 12.5, color: muted }}>{detail.fullName}</span>
+              )}
+              <Tag color={detail.isVerify ? "green" : "orange"} style={{ marginInlineEnd: 0 }}>
+                {detail.isVerify ? "已認證" : "未認證"}
+              </Tag>
+              {detail.subRole && <Tag color="blue" style={{ marginInlineEnd: 0 }}>{detail.subRole}</Tag>}
+            </div>
+
+            <div style={{ fontSize: 12.5, color: ink2 }}>
+              {[detail.position, detail.location].filter(Boolean).join(" · ") || "—"}
+            </div>
+
+            {detail.expertises.length > 0 && (
+              <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                {detail.expertises.map((skill) => (
+                  <Tag key={skill} color="purple" style={{ marginInlineEnd: 0, fontSize: 11 }}>{skill}</Tag>
+                ))}
+              </div>
+            )}
+
+            <div style={{ fontSize: 12, color: muted }}>
+              {[detail.email, detail.phone].filter(Boolean).join(" · ")}
+              {detail.languages.length > 0 && ` · ${detail.languages.join("/")}`}
+            </div>
+          </div>
+        )}
+      </td>
+
       <td style={{ width: 52, padding: "10px 8px" }}>
         <button
           onClick={() => onRemove(record.key)}
