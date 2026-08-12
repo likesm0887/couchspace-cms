@@ -1,4 +1,16 @@
 import cookie from "react-cookies";
+
+/**
+ * 解析回應內容，允許空 body。
+ * 後端在 PUT 成功時可能回 204 或空字串，直接呼叫 res.json() 會丟解析錯誤，
+ * 讓呼叫端把「已經存檔成功」誤判成失敗。
+ */
+const parseJsonBody = async (res, fallback) => {
+  if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+  const text = await res.text();
+  return text ? JSON.parse(text) : fallback;
+};
+
 export class MeditationService {
   constructor(base_url) {
     this.base_url = base_url;
@@ -821,7 +833,7 @@ export class MeditationService {
     return fetch(`${this.base_url}/api/v1/meditation/relax/teacher-recommendations`, {
       method: "GET",
       headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
-    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+    }).then((res) => parseJsonBody(res, []));
   }
 
   updateRelaxTeacherRecommendations(recommendations) {
@@ -830,7 +842,7 @@ export class MeditationService {
       method: "PUT",
       headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
       body: JSON.stringify(recommendations),
-    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+    }).then((res) => parseJsonBody(res, {}));
   }
 
   getCounselingTeacherRecommendations() {
@@ -838,7 +850,7 @@ export class MeditationService {
     return fetch(`${this.base_url}/api/v1/meditation/counseling/teacher-recommendations`, {
       method: "GET",
       headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
-    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+    }).then((res) => parseJsonBody(res, []));
   }
 
   updateCounselingTeacherRecommendations(recommendations) {
@@ -847,7 +859,7 @@ export class MeditationService {
       method: "PUT",
       headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
       body: JSON.stringify(recommendations),
-    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+    }).then((res) => parseJsonBody(res, {}));
   }
 
   getDailySessionPool() {
