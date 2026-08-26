@@ -23,6 +23,7 @@ import {
   FolderOpenOutlined,
   LogoutOutlined,
   MenuOutlined,
+  MessageOutlined,
   MoonOutlined,
   PictureOutlined,
   PieChartOutlined,
@@ -79,6 +80,7 @@ const items = [
     getItem("精選心理師推薦", "operations-counseling-teacher", <TeamOutlined />),
     getItem("名人指南推薦", "operations-celebrity-guide", <StarOutlined />),
     getItem("每日課程推薦", "operations-daily-session", <AudioOutlined />),
+    getItem("每日一句", "operations-daily-quote", <MessageOutlined />),
   ]),
 ];
 
@@ -131,6 +133,7 @@ function Admin() {
     else if (path === "/admin/operations/counseling-teacher-recommendations") setCurrent("operations-counseling-teacher");
     else if (path === "/admin/operations/celebrity-guide-recommendations") setCurrent("operations-celebrity-guide");
     else if (path === "/admin/operations/daily-session-recommendations") setCurrent("operations-daily-session");
+    else if (path === "/admin/operations/daily-quotes") setCurrent("operations-daily-quote");
   }, [location.pathname]);
 
   useEffect(() => {
@@ -207,6 +210,7 @@ function Admin() {
     else if (e.key === "operations-counseling-teacher") navigate("operations/counseling-teacher-recommendations", { replace: true });
     else if (e.key === "operations-celebrity-guide") navigate("operations/celebrity-guide-recommendations", { replace: true });
     else if (e.key === "operations-daily-session") navigate("operations/daily-session-recommendations", { replace: true });
+    else if (e.key === "operations-daily-quote") navigate("operations/daily-quotes", { replace: true });
     setMobileMenuOpen(false);
   };
 

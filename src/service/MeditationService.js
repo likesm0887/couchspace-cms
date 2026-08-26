@@ -894,4 +894,52 @@ export class MeditationService {
       headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
     }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
   }
+
+  getDailyQuotes() {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/daily-quotes`, {
+      method: "GET",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+  }
+
+  updateDailyQuotes(quotes) {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/daily-quotes`, {
+      method: "PUT",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+      body: JSON.stringify(quotes),
+    }).then(async res => {
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const text = await res.text();
+      return text ? JSON.parse(text) : {};
+    });
+  }
+
+  getTodayDailyQuote() {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/daily-quote`, {
+      method: "GET",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+  }
+
+  refreshDailyQuote() {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/daily-quotes/refresh`, {
+      method: "POST",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+  }
+
+  uploadDailyQuoteImage(file) {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    const formData = new FormData();
+    formData.append("myFile", file);
+    return fetch(`${this.base_url}/api/v1/meditation/daily-quotes/image/upload`, {
+      method: "POST",
+      headers: { Authorization: cookie.load("token") },
+      body: formData,
+    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+  }
 }
