@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Button, DatePicker, Empty, Image, Input, Spin, Table, Tag, Upload, message } from "antd";
+import { Button, DatePicker, Empty, Image, Input, Modal, Spin, Table, Tag, Upload, message } from "antd";
 import {
   DeleteOutlined,
+  ImportOutlined,
   PlusOutlined,
   ReloadOutlined,
   SaveOutlined,
@@ -72,6 +73,8 @@ function DailyQuoteManagement() {
   const [uploadingKey, setUploadingKey] = useState(null);
   const [quotes, setQuotes] = useState([]);
   const [today, setToday] = useState(null);
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkText, setBulkText] = useState("");
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -115,6 +118,54 @@ function DailyQuoteManagement() {
 
   const handleRemove = (key) => {
     setQuotes((prev) => prev.filter((q) => q.key !== key));
+  };
+
+  // 以逗號（半形／全形）或換行分隔，批量新增純文字句子（不含圖片與指定日期）
+  const parseBulk = (text) =>
+    text
+      .split(/[,，\r\n]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+  const handleBulkAdd = () => {
+    const parsed = parseBulk(bulkText);
+    if (parsed.length === 0) {
+      messageApi.warning("請先貼上句子內容");
+      return;
+    }
+    const existing = new Set(quotes.map((q) => q.Content.trim()));
+    const fresh = [];
+    let duplicated = 0;
+    parsed.forEach((content) => {
+      if (existing.has(content)) {
+        duplicated += 1;
+        return;
+      }
+      existing.add(content);
+      fresh.push(content);
+    });
+    if (fresh.length === 0) {
+      messageApi.warning("貼上的句子皆已存在");
+      return;
+    }
+    setQuotes((prev) => [
+      ...prev,
+      ...fresh.map((content, i) => ({
+        key: `bulk-${Date.now()}-${i}`,
+        QuoteID: "",
+        Content: content,
+        Author: "",
+        ImageUrl: "",
+        Date: "",
+      })),
+    ]);
+    setBulkText("");
+    setBulkOpen(false);
+    messageApi.success(
+      duplicated > 0
+        ? `已新增 ${fresh.length} 句，略過 ${duplicated} 句重複`
+        : `已新增 ${fresh.length} 句，請記得按「儲存設定」`
+    );
   };
 
   const handleUpload = async (key, file) => {
@@ -299,7 +350,10 @@ function DailyQuoteManagement() {
         <div style={{ background: panel, border: `1px solid ${line}`, borderRadius: 10, overflow: "hidden" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px", borderBottom: `1px solid ${line2}`, background: "#FAFAFA" }}>
             <div style={{ fontSize: 15, fontWeight: 600, color: ink }}>句子清單</div>
-            <Button type="primary" icon={<PlusOutlined />} size="small" onClick={handleAdd}>新增一句</Button>
+            <div style={{ display: "flex", gap: 8 }}>
+              <Button icon={<ImportOutlined />} size="small" onClick={() => setBulkOpen(true)}>批量新增</Button>
+              <Button type="primary" icon={<PlusOutlined />} size="small" onClick={handleAdd}>新增一句</Button>
+            </div>
           </div>
           <Spin spinning={loading}>
             <Table
@@ -310,6 +364,43 @@ function DailyQuoteManagement() {
             />
           </Spin>
         </div>
+
+        {/* 批量新增 */}
+        <Modal
+          title="批量新增每日一句"
+          open={bulkOpen}
+          onCancel={() => setBulkOpen(false)}
+          onOk={handleBulkAdd}
+          okText={`新增${parseBulk(bulkText).length > 0 ? ` ${parseBulk(bulkText).length} 句` : ""}`}
+          cancelText="取消"
+          width={640}
+        >
+          <p style={{ fontSize: 13, color: muted, marginTop: 0 }}>
+            以<b>逗號</b>（半形 <code>,</code> 或全形 <code>，</code>）或<b>換行</b>分隔多個句子。
+            批量新增的句子不含圖片與指定日期，會直接納入每日 12:00 的隨機池；重複的句子會自動略過。
+          </p>
+          <Input.TextArea
+            value={bulkText}
+            onChange={(e) => setBulkText(e.target.value)}
+            placeholder="例如：今天也要好好照顧自己，休息不是偷懶，慢慢來比較快"
+            autoSize={{ minRows: 6, maxRows: 14 }}
+          />
+          {parseBulk(bulkText).length > 0 && (
+            <div style={{ marginTop: 12 }}>
+              <div style={{ fontSize: 12, color: muted, marginBottom: 6 }}>
+                預覽（共 {parseBulk(bulkText).length} 句）
+              </div>
+              <div style={{ maxHeight: 180, overflowY: "auto", border: `1px solid ${line}`, borderRadius: 6, padding: "8px 10px" }}>
+                {parseBulk(bulkText).map((s, i) => (
+                  <div key={i} style={{ fontSize: 13, color: ink, padding: "3px 0" }}>
+                    <span style={{ color: muted, fontFamily: "monospace", marginRight: 8 }}>{i + 1}</span>
+                    {s}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </Modal>
       </div>
     </>
   );
