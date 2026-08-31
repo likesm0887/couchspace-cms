@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./VideoChat.css";
 import { appointmentService } from "../../../../service/ServicePool";
 import { useNavigate } from "react-router-dom";
@@ -28,8 +28,10 @@ let startTime = null;
 let bgImgUrl = "";
 const IsSafari = /^((?!chrome|android).)*safari/i.test(window.navigator.userAgent);
 console.log("IsSafari", IsSafari);
+const JOIN_TIMEOUT_MS = 20000;
 const VideoChat = (props) => {
   const navigate = useNavigate();
+  const isMountedRef = useRef(true);
   const [loading, setLoading] = useState(false);
   const [showCamera, setShowCamera] = useState(props.initialCameraOn ?? true);
   const [showMic, setShowMic] = useState(props.initialMicOn ?? false);
@@ -54,85 +56,100 @@ const VideoChat = (props) => {
   const [participants, setParticipants] = useState(client.getAllUser());
   const handleJoin = async () => {
     setLoading(true);
+    let timeoutId;
     try {
-      const tempAppointment = await appointmentService.getAppointment(props.appointmentID);
-      const token = await appointmentService.getAppointmentRoomToken(props.appointmentID, "zoom");
-      console.log("roomToken", token);
+      const timeout = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => {
+          reject(new Error("連線逾時，請確認網路連線後重試。"));
+        }, JOIN_TIMEOUT_MS);
+      });
+      await Promise.race([joinSession(), timeout]);
+    } catch (err) {
+      console.warn("err", err);
+      console.warn("errorMsg", errorMsg);
+      if (isMountedRef.current) {
+        showVideoErrorDialog();
+      }
+    } finally {
+      clearTimeout(timeoutId);
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
+    }
+  }
+  const joinSession = async () => {
+    const tempAppointment = await appointmentService.getAppointment(props.appointmentID);
+    const token = await appointmentService.getAppointmentRoomToken(props.appointmentID, "zoom");
+    console.log("roomToken", token);
 
-      // start join session
-      if (ZoomVideo.checkSystemRequirements().video && ZoomVideo.checkSystemRequirements().audio) {
-        await client.init('en-US', 'Global', { patchJsMedia: true, stayAwake: true, enforceMultipleVideos: true }).then(async () => {
-          await client.join(tempAppointment.RoomID, token, props.nickname, "").then(() => {
-            stream = client.getMediaStream();
-            var isVirtualBG = stream.isSupportVirtualBackground();
-            console.log("isVirtualBG", isVirtualBG);
-            setIsSupportVirtualBG(isVirtualBG);
-          }).catch((error) => {
-            console.warn(error);
-            errorMsg = "目前瀏覽器不支援視訊功能，請更換其他瀏覽器以確保順暢使用。";
-            throw new Error(errorMsg);
-          })
+    // start join session
+    if (ZoomVideo.checkSystemRequirements().video && ZoomVideo.checkSystemRequirements().audio) {
+      await client.init('en-US', 'Global', { patchJsMedia: true, stayAwake: true, enforceMultipleVideos: true }).then(async () => {
+        await client.join(tempAppointment.RoomID, token, props.nickname, "").then(() => {
+          stream = client.getMediaStream();
+          var isVirtualBG = stream.isSupportVirtualBackground();
+          console.log("isVirtualBG", isVirtualBG);
+          setIsSupportVirtualBG(isVirtualBG);
         }).catch((error) => {
           console.warn(error);
           errorMsg = "目前瀏覽器不支援視訊功能，請更換其他瀏覽器以確保順暢使用。";
           throw new Error(errorMsg);
         })
-      }
-      else {
-        errorMsg = "請授權存取鏡頭與麥克風，以提供完整功能的體驗。";
+      }).catch((error) => {
+        console.warn(error);
+        errorMsg = "目前瀏覽器不支援視訊功能，請更換其他瀏覽器以確保順暢使用。";
         throw new Error(errorMsg);
-      }
-
-      // subscribe events
-      client.on('user-added', handleUserAdd);
-      client.on('user-removed', handleUserRemoved);
-      client.on('user-updated', handleUserUpdated);
-      client.on('active-speaker', handleActiveSpeaker);
-      client.on('auto-play-audio-failed', handleAutoPlayAudioFailed);
-      supportHD = await stream.isSupportHDVideo();
-      console.log("supportHD", supportHD);
-      // start video streaming & audio
-      console.log("props.initialCameraOn", props.initialCameraOn);
-      console.log("props.initialMicOn", props.initialMicOn);
-
-      if (props.initialCameraOn === true) {
-        await stream.startVideo({ hd: supportHD, fullHd: supportHD });
-        setShowCamera(true);
-      }
-      console.log("stream", stream);
-      console.log("client", client);
-      console.log("session info", client.getSessionInfo());
-      if (!IsSafari) {
-        await stream.startAudio()
-      }
-      else {
-        await stream.startAudio({ autoStartAudioInSafari: IsSafari })
-      }
-      if (props.initialMicOn === true) {
-        stream.unmuteAudio(client.getCurrentUserInfo().userId).then(() => {
-          setShowMic(true);
-        });
-      }
-      else {
-        stream.muteAudio(client.getCurrentUserInfo().userId).then(() => {
-          setShowMic(false);
-        });
-      }
-      // calculate elapsed time
-      startDateTime = tempAppointment.Time.Date;
-      startTime = tempAppointment.Time.StartTime;
-      updateCountDown();
-
-      // attach all users (local + remote)
-      client.getAllUser().forEach((user) => {
-        stream.attachVideo(user.userId, VideoQuality.Video_1080P);
       })
-    } catch (err) {
-      console.warn("err", err);
-      console.warn("errorMsg", errorMsg);
-      showVideoErrorDialog();
     }
-    setLoading(false);
+    else {
+      errorMsg = "請授權存取鏡頭與麥克風，以提供完整功能的體驗。";
+      throw new Error(errorMsg);
+    }
+
+    // subscribe events
+    client.on('user-added', handleUserAdd);
+    client.on('user-removed', handleUserRemoved);
+    client.on('user-updated', handleUserUpdated);
+    client.on('active-speaker', handleActiveSpeaker);
+    client.on('auto-play-audio-failed', handleAutoPlayAudioFailed);
+    supportHD = await stream.isSupportHDVideo();
+    console.log("supportHD", supportHD);
+    // start video streaming & audio
+    console.log("props.initialCameraOn", props.initialCameraOn);
+    console.log("props.initialMicOn", props.initialMicOn);
+
+    if (props.initialCameraOn === true) {
+      await stream.startVideo({ hd: supportHD, fullHd: supportHD });
+      setShowCamera(true);
+    }
+    console.log("stream", stream);
+    console.log("client", client);
+    console.log("session info", client.getSessionInfo());
+    if (!IsSafari) {
+      await stream.startAudio()
+    }
+    else {
+      await stream.startAudio({ autoStartAudioInSafari: IsSafari })
+    }
+    if (props.initialMicOn === true) {
+      stream.unmuteAudio(client.getCurrentUserInfo().userId).then(() => {
+        setShowMic(true);
+      });
+    }
+    else {
+      stream.muteAudio(client.getCurrentUserInfo().userId).then(() => {
+        setShowMic(false);
+      });
+    }
+    // calculate elapsed time
+    startDateTime = tempAppointment.Time.Date;
+    startTime = tempAppointment.Time.StartTime;
+    updateCountDown();
+
+    // attach all users (local + remote)
+    client.getAllUser().forEach((user) => {
+      stream.attachVideo(user.userId, VideoQuality.Video_1080P);
+    })
   }
   const handleUserAdd = (payload) => {
     console.log("handleUserAdd", payload);
@@ -185,6 +202,10 @@ const VideoChat = (props) => {
     navigate("/couchspace-cms/home/consultation");
   };
 
+  const handleMediaActionError = (err) => {
+    console.warn("media action failed", err);
+    showToast(toastType.error, "操作失敗，請重試一次。");
+  }
   const onClickCamera = async () => {
     const stream = client.getMediaStream();
     const localUser = await client.getUser(client.getCurrentUserInfo().userId);
@@ -193,20 +214,20 @@ const VideoChat = (props) => {
       stream.stopVideo().then(() => {
         // stream.detachVideo(client.getCurrentUserInfo().userId)
         setShowCamera(false);
-      })
+      }).catch(handleMediaActionError)
     }
     else {
       if (bgImgUrl) {
         stream.startVideo({ hd: supportHD, fullHd: supportHD, virtualBackground: bgImgUrl }).then(() => {
           // stream.attachVideo(client.getCurrentUserInfo().userId, 3, document.querySelector('#my-self-view'));
           setShowCamera(true);
-        })
+        }).catch(handleMediaActionError)
       }
       else {
         stream.startVideo({ hd: supportHD, fullHd: supportHD }).then(() => {
           // stream.attachVideo(client.getCurrentUserInfo().userId, 3, document.querySelector('#my-self-view'));
           setShowCamera(true);
-        })
+        }).catch(handleMediaActionError)
       }
 
     }
@@ -218,12 +239,12 @@ const VideoChat = (props) => {
     if (isAudioMuted) {
       stream.unmuteAudio(client.getCurrentUserInfo().userId).then(() => {
         setShowMic(true);
-      });
+      }).catch(handleMediaActionError);
     }
     else {
       stream.muteAudio(client.getCurrentUserInfo().userId).then(() => {
         setShowMic(false);
-      });
+      }).catch(handleMediaActionError);
     }
 
   }
@@ -239,13 +260,13 @@ const VideoChat = (props) => {
       bgImgUrl = "";
       stream.startVideo({ hd: supportHD, fullHd: supportHD, virtualBackground: { imageUrl: bgImgUrl } }).then(() => {
         setShowBlur(false);
-      })
+      }).catch(handleMediaActionError)
     }
     else {
       bgImgUrl = "blur";
       stream.startVideo({ hd: supportHD, fullHd: supportHD, virtualBackground: { imageUrl: bgImgUrl } }).then(() => {
         setShowBlur(true);
-      })
+      }).catch(handleMediaActionError)
     }
     setShowCamera(true);
     setShowBG(false);
@@ -262,20 +283,20 @@ const VideoChat = (props) => {
       bgImgUrl = "";
       stream.startVideo({ hd: supportHD, fullHd: supportHD, virtualBackground: { imageUrl: bgImgUrl } }).then(() => {
         setShowBG(false);
-      })
+      }).catch(handleMediaActionError)
     }
     else {
       bgImgUrl = "https://couchspace.blob.core.windows.net/dev/profile/20241002-98bc6a7a-5e17-4e55-b980-305bef5de2d5.jpg";
       stream.startVideo({ hd: supportHD, fullHd: supportHD, virtualBackground: { imageUrl: bgImgUrl } }).then(() => {
         setShowBG(true);
-      })
+      }).catch(handleMediaActionError)
     }
     setShowCamera(true);
     setShowBlur(false);
   }
   const onClickMirror = async () => {
     const stream = client.getMediaStream();
-    stream.mirrorVideo(!mirror).then(() => setMirror(!mirror));
+    stream.mirrorVideo(!mirror).then(() => setMirror(!mirror)).catch(handleMediaActionError);
   }
   const parseDateTime = (dateString, timeString) => {
     [dateString,] = dateString.split(" ");
@@ -492,6 +513,7 @@ const VideoChat = (props) => {
     client.off('active-speaker', handleActiveSpeaker);
     handleJoin();
     return () => {
+      isMountedRef.current = false;
       client.off('user-added', handleUserAdd);
       client.off('user-removed', handleUserRemoved);
       client.off('user-updated', handleUserUpdated);
