@@ -1,4 +1,4 @@
-
+#
 # Fetching the latest node image on alpine linux
 FROM node:20-alpine as build-stage
 
