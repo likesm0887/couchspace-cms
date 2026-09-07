@@ -15,6 +15,7 @@ import img_bg_photo_off from "../../../img/content/btn_bg_photo_off.svg";
 import img_time from "../../../img/content/ic_time.svg";
 import img_screen_off from "../../../img/content/ic_screen_camera_turn_off.svg";
 import { showToast, toastType } from "../../../../common/method";
+import { getMediaDeviceError } from "./mediaSupport";
 import {
   Dialog,
   DialogActions,
@@ -27,12 +28,40 @@ let startDateTime = null;
 let startTime = null;
 let bgImgUrl = "";
 const IsSafari = /^((?!chrome|android).)*safari/i.test(window.navigator.userAgent);
-console.log("IsSafari", IsSafari);
-const JOIN_TIMEOUT_MS = 20000;
+// iPadOS 13+ reports a desktop Mac user agent, so fall back to touch points for it.
+const IsMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(window.navigator.userAgent)
+  || (/Macintosh/.test(window.navigator.userAgent) && window.navigator.maxTouchPoints > 1);
+console.log("IsSafari", IsSafari, "IsMobile", IsMobile);
+// client.init downloads several MB of wasm from Zoom's CDN, which takes far longer
+// on a mobile network, so phones get a larger budget before we give up.
+const JOIN_TIMEOUT_MS = IsMobile ? 60000 : 30000;
+// Phones cannot decode 1080p tiles; asking for it makes attachVideo fail there.
+const RENDER_QUALITY = IsMobile ? VideoQuality.Video_360P : VideoQuality.Video_1080P;
+const getViewport = () => ({
+  width: window.innerWidth,
+  height: (window.visualViewport && window.visualViewport.height) || window.innerHeight,
+});
 const VideoChat = (props) => {
   const navigate = useNavigate();
   const isMountedRef = useRef(true);
+  const clientRef = useRef(null);
+  if (clientRef.current === null) {
+    clientRef.current = ZoomVideo.createClient();
+  }
+  const client = clientRef.current;
+  // Kept in refs so they survive re-renders; as plain locals they were reset to
+  // undefined on every render, so every later startVideo silently lost HD.
+  const streamRef = useRef(null);
+  const supportHDRef = useRef(false);
+  const joinedRef = useRef(false);
+  const audioStartedRef = useRef(false);
+  const audioGestureRef = useRef(null);
+  const audioStartPromiseRef = useRef(null);
+  const countDownRef = useRef(null);
+  const listenersRef = useRef([]);
   const [loading, setLoading] = useState(false);
+  const [joined, setJoined] = useState(false);
+  const [needAudioGesture, setNeedAudioGesture] = useState(false);
   const [showCamera, setShowCamera] = useState(props.initialCameraOn ?? true);
   const [showMic, setShowMic] = useState(props.initialMicOn ?? false);
   const [showBlur, setShowBlur] = useState(false);
@@ -43,17 +72,20 @@ const VideoChat = (props) => {
   const [activeSpeakerId, setActiveSpeakerId] = useState("");
   const [isSupportVirtualBG, setIsSupportVirtualBG] = useState(false);
   const [open, setOpen] = useState(false);
-  const screenHeight = window.innerHeight;
-  const screenWidth = window.innerWidth;
+  const [errorMessage, setErrorMessage] = useState("");
+  const [viewport, setViewport] = useState(getViewport);
+  const screenHeight = viewport.height;
+  const screenWidth = viewport.width;
   const counterHeight = 60;
-  const counterPadding = screenWidth - 150;
+  const counterPadding = Math.max(screenWidth - 150, 0);
   const footerHeight = 100;
-  const videoHeight = screenHeight - counterHeight - footerHeight - 20;
-  let client = ZoomVideo.createClient();
-  let stream;
-  let supportHD;
-  let errorMsg = "";
-  const [participants, setParticipants] = useState(client.getAllUser());
+  const videoHeight = Math.max(screenHeight - counterHeight - footerHeight - 20, 200);
+  const [participants, setParticipants] = useState(() => client.getAllUser());
+  const captureVideoOption = (extra) => {
+    const hd = supportHDRef.current;
+    // fullHd asks the camera for 1080p, which phones cannot deliver.
+    return Object.assign({ hd: hd, fullHd: hd && !IsMobile }, extra || {});
+  }
   const handleJoin = async () => {
     setLoading(true);
     let timeoutId;
@@ -64,92 +96,211 @@ const VideoChat = (props) => {
         }, JOIN_TIMEOUT_MS);
       });
       await Promise.race([joinSession(), timeout]);
+      if (!isMountedRef.current) {
+        return;
+      }
+      // Entering the room is the only fatal step. Camera and microphone are set
+      // up afterwards, so a media failure no longer throws the user back out.
+      setLoading(false);
+      setJoined(true);
     } catch (err) {
-      console.warn("err", err);
-      console.warn("errorMsg", errorMsg);
+      console.warn("join failed", err);
       if (isMountedRef.current) {
+        setErrorMessage(err?.reason || err?.message || "");
+        setLoading(false);
         showVideoErrorDialog();
       }
     } finally {
       clearTimeout(timeoutId);
-      if (isMountedRef.current) {
-        setLoading(false);
-      }
     }
   }
   const joinSession = async () => {
+    // Must come first: checkSystemRequirements reads navigator.mediaDevices without
+    // guarding it, so on a page without media access it throws a TypeError rather
+    // than reporting the feature as unsupported.
+    const deviceError = getMediaDeviceError();
+    if (deviceError) {
+      throw new Error(deviceError);
+    }
+    let requirements;
+    try {
+      requirements = ZoomVideo.checkSystemRequirements();
+    } catch (error) {
+      console.warn("checkSystemRequirements failed", error);
+      throw new Error("目前瀏覽器不支援視訊功能，請更換其他瀏覽器以確保順暢使用。");
+    }
+    if (!requirements.video || !requirements.audio) {
+      throw new Error("目前瀏覽器不支援視訊功能，請更換其他瀏覽器以確保順暢使用。");
+    }
     const tempAppointment = await appointmentService.getAppointment(props.appointmentID);
     const token = await appointmentService.getAppointmentRoomToken(props.appointmentID, "zoom");
     console.log("roomToken", token);
 
-    // start join session
-    if (ZoomVideo.checkSystemRequirements().video && ZoomVideo.checkSystemRequirements().audio) {
-      await client.init('en-US', 'Global', { patchJsMedia: true, stayAwake: true, enforceMultipleVideos: true }).then(async () => {
-        await client.join(tempAppointment.RoomID, token, props.nickname, "").then(() => {
-          stream = client.getMediaStream();
-          var isVirtualBG = stream.isSupportVirtualBackground();
-          console.log("isVirtualBG", isVirtualBG);
-          setIsSupportVirtualBG(isVirtualBG);
-        }).catch((error) => {
-          console.warn(error);
-          errorMsg = "目前瀏覽器不支援視訊功能，請更換其他瀏覽器以確保順暢使用。";
-          throw new Error(errorMsg);
-        })
-      }).catch((error) => {
-        console.warn(error);
-        errorMsg = "目前瀏覽器不支援視訊功能，請更換其他瀏覽器以確保順暢使用。";
-        throw new Error(errorMsg);
-      })
+    try {
+      await client.init('en-US', 'Global', { patchJsMedia: true, stayAwake: true, enforceMultipleVideos: true });
+    } catch (error) {
+      console.warn("init failed", error);
+      throw new Error("目前瀏覽器不支援視訊功能，請更換其他瀏覽器以確保順暢使用。");
     }
-    else {
-      errorMsg = "請授權存取鏡頭與麥克風，以提供完整功能的體驗。";
-      throw new Error(errorMsg);
-    }
-
-    // subscribe events
-    client.on('user-added', handleUserAdd);
-    client.on('user-removed', handleUserRemoved);
-    client.on('user-updated', handleUserUpdated);
-    client.on('active-speaker', handleActiveSpeaker);
-    client.on('auto-play-audio-failed', handleAutoPlayAudioFailed);
-    supportHD = await stream.isSupportHDVideo();
-    console.log("supportHD", supportHD);
-    // start video streaming & audio
-    console.log("props.initialCameraOn", props.initialCameraOn);
-    console.log("props.initialMicOn", props.initialMicOn);
-
-    if (props.initialCameraOn === true) {
-      await stream.startVideo({ hd: supportHD, fullHd: supportHD });
-      setShowCamera(true);
-    }
-    console.log("stream", stream);
-    console.log("client", client);
+    await client.join(tempAppointment.RoomID, token, props.nickname, "");
+    joinedRef.current = true;
+    streamRef.current = client.getMediaStream();
     console.log("session info", client.getSessionInfo());
-    if (!IsSafari) {
-      await stream.startAudio()
-    }
-    else {
-      await stream.startAudio({ autoStartAudioInSafari: IsSafari })
-    }
-    if (props.initialMicOn === true) {
-      stream.unmuteAudio(client.getCurrentUserInfo().userId).then(() => {
-        setShowMic(true);
-      });
-    }
-    else {
-      stream.muteAudio(client.getCurrentUserInfo().userId).then(() => {
-        setShowMic(false);
-      });
-    }
+    setParticipants(client.getAllUser());
     // calculate elapsed time
     startDateTime = tempAppointment.Time.Date;
     startTime = tempAppointment.Time.StartTime;
     updateCountDown();
+  }
+  // A tap fires both click and touchend, and it can land on the mic button too,
+  // so every caller shares one in-flight startAudio instead of racing others.
+  const startAudioSafely = () => {
+    if (audioStartedRef.current) {
+      return Promise.resolve();
+    }
+    if (audioStartPromiseRef.current) {
+      return audioStartPromiseRef.current;
+    }
+    const stream = streamRef.current;
+    if (!stream) {
+      return Promise.resolve();
+    }
+    const pending = Promise.resolve(stream.startAudio(IsSafari ? { autoStartAudioInSafari: true } : {}))
+      .then(() => {
+        audioStartedRef.current = true;
+        if (isMountedRef.current) {
+          setNeedAudioGesture(false);
+        }
+      })
+      .finally(() => {
+        audioStartPromiseRef.current = null;
+      });
+    audioStartPromiseRef.current = pending;
+    return pending;
+  }
+  const applyInitialMicState = async () => {
+    const stream = streamRef.current;
+    const userId = client.getCurrentUserInfo()?.userId;
+    if (!stream || userId === undefined) {
+      return;
+    }
+    if (props.initialMicOn === true) {
+      await stream.unmuteAudio(userId);
+      if (isMountedRef.current) {
+        setShowMic(true);
+      }
+    }
+    else {
+      await stream.muteAudio(userId);
+      if (isMountedRef.current) {
+        setShowMic(false);
+      }
+    }
+  }
+  // Mobile browsers refuse to start audio outside a user gesture, and the join
+  // runs on mount after a navigation, so there is no gesture left in the stack.
+  // Retry on the first tap anywhere instead of failing the whole session.
+  const armAudioGestureRetry = () => {
+    if (audioGestureRef.current) {
+      return;
+    }
+    const retry = () => {
+      if (audioStartedRef.current) {
+        disarmAudioGestureRetry();
+        return;
+      }
+      startAudioSafely()
+        .then(applyInitialMicState)
+        .then(disarmAudioGestureRetry)
+        .catch((err) => console.warn("audio retry failed", err));
+    };
+    audioGestureRef.current = retry;
+    document.addEventListener("click", retry);
+    document.addEventListener("touchend", retry);
+  }
+  const disarmAudioGestureRetry = () => {
+    if (!audioGestureRef.current) {
+      return;
+    }
+    document.removeEventListener("click", audioGestureRef.current);
+    document.removeEventListener("touchend", audioGestureRef.current);
+    audioGestureRef.current = null;
+  }
+  const setupMedia = async () => {
+    const stream = streamRef.current;
+    if (!stream) {
+      return;
+    }
+    // subscribe events, keeping the exact handler identities so they can be removed
+    const listeners = [
+      ['user-added', handleUserAdd],
+      ['user-removed', handleUserRemoved],
+      ['user-updated', handleUserUpdated],
+      ['active-speaker', handleActiveSpeaker],
+      ['auto-play-audio-failed', handleAutoPlayAudioFailed],
+    ];
+    listenersRef.current.forEach(([event, handler]) => client.off(event, handler));
+    listeners.forEach(([event, handler]) => client.on(event, handler));
+    listenersRef.current = listeners;
 
-    // attach all users (local + remote)
+    try {
+      const isVirtualBG = stream.isSupportVirtualBackground();
+      console.log("isVirtualBG", isVirtualBG);
+      setIsSupportVirtualBG(isVirtualBG);
+    } catch (error) {
+      console.warn("virtual background check failed", error);
+      setIsSupportVirtualBG(false);
+    }
+    try {
+      supportHDRef.current = !IsMobile && await stream.isSupportHDVideo();
+    } catch (error) {
+      console.warn("isSupportHDVideo failed", error);
+      supportHDRef.current = false;
+    }
+    console.log("supportHD", supportHDRef.current);
+
+    if (props.initialCameraOn === true) {
+      try {
+        await stream.startVideo(captureVideoOption());
+        if (isMountedRef.current) {
+          setShowCamera(true);
+        }
+      } catch (error) {
+        console.warn("startVideo failed", error);
+        if (isMountedRef.current) {
+          setShowCamera(false);
+        }
+        showToast(toastType.warning, "無法開啟鏡頭，請點選下方鏡頭按鈕重試。");
+      }
+    }
+    else if (isMountedRef.current) {
+      setShowCamera(false);
+    }
+
+    try {
+      await startAudioSafely();
+      await applyInitialMicState();
+    } catch (error) {
+      console.warn("startAudio failed", error);
+      if (isMountedRef.current) {
+        setShowMic(false);
+        setNeedAudioGesture(true);
+      }
+      armAudioGestureRetry();
+    }
+
+    // attachVideo rejects with STREAM_MISMATCH_USER for anyone not sending video
     client.getAllUser().forEach((user) => {
-      stream.attachVideo(user.userId, VideoQuality.Video_1080P);
+      if (!user.bVideoOn) {
+        return;
+      }
+      stream.attachVideo(user.userId, RENDER_QUALITY).catch((error) => {
+        console.warn("attachVideo failed", user.userId, error);
+      });
     })
+    if (isMountedRef.current) {
+      setParticipants(client.getAllUser());
+    }
   }
   const handleUserAdd = (payload) => {
     console.log("handleUserAdd", payload);
@@ -175,30 +326,43 @@ const VideoChat = (props) => {
     }
   }
   const handleAutoPlayAudioFailed = () => {
-    console.log("handleAutoPlayAudioFailed")
+    console.log("handleAutoPlayAudioFailed");
+    // The browser blocked playback; the next tap can start it.
+    if (isMountedRef.current) {
+      setNeedAudioGesture(true);
+    }
+    armAudioGestureRetry();
   }
   const attachOrDetachRemoteUser = (user) => {
     console.log("user", user);
-    if ((user === null) || (user === undefined) || (client.getCurrentUserInfo() === null)) return;
+    if ((user === null) || (user === undefined) || (!client.getCurrentUserInfo())) return;
     console.log("all users", client.getAllUser());
     setParticipants(client.getAllUser());
+    const stream = streamRef.current ?? client.getMediaStream();
+    if (!stream) return;
     if (user.bVideoOn) {
-      const stream = client.getMediaStream();
-      stream.attachVideo(user.userId, VideoQuality.Video_1080P).then((userVideo) => {
+      stream.attachVideo(user.userId, RENDER_QUALITY).then((userVideo) => {
         console.log("userVideo", userVideo);
+      }).catch((error) => {
+        console.warn("attachVideo failed", user.userId, error);
       });
     }
     else if (user.bVideoOn === false) {
-      const stream = client.getMediaStream();
-      stream.detachVideo(user.userId);
+      Promise.resolve(stream.detachVideo(user.userId)).catch((error) => {
+        console.warn("detachVideo failed", user.userId, error);
+      });
     }
-    else if (user.audio && client.getCurrentUserInfo().userId === user.userId) {
+    else if (user.audio && client.getCurrentUserInfo()?.userId === user.userId) {
       setShowMic(true);
     }
   }
   const handleLeave = () => {
     console.log("leave");
-    client.leave();
+    disarmAudioGestureRetry();
+    if (joinedRef.current) {
+      joinedRef.current = false;
+      Promise.resolve(client.leave()).catch((error) => console.warn("leave failed", error));
+    }
     navigate("/couchspace-cms/home/consultation");
   };
 
@@ -207,64 +371,85 @@ const VideoChat = (props) => {
     showToast(toastType.error, "操作失敗，請重試一次。");
   }
   const onClickCamera = async () => {
-    const stream = client.getMediaStream();
-    const localUser = await client.getUser(client.getCurrentUserInfo().userId);
-    const isVideoOn = localUser.bVideoOn;
+    const stream = streamRef.current ?? client.getMediaStream();
+    const currentUser = client.getCurrentUserInfo();
+    if (!stream || !currentUser) {
+      return;
+    }
+    let localUser;
+    try {
+      localUser = await client.getUser(currentUser.userId);
+    } catch (err) {
+      handleMediaActionError(err);
+      return;
+    }
+    const isVideoOn = localUser?.bVideoOn;
     if (isVideoOn) {
       stream.stopVideo().then(() => {
-        // stream.detachVideo(client.getCurrentUserInfo().userId)
         setShowCamera(false);
       }).catch(handleMediaActionError)
     }
     else {
-      if (bgImgUrl) {
-        stream.startVideo({ hd: supportHD, fullHd: supportHD, virtualBackground: bgImgUrl }).then(() => {
-          // stream.attachVideo(client.getCurrentUserInfo().userId, 3, document.querySelector('#my-self-view'));
-          setShowCamera(true);
-        }).catch(handleMediaActionError)
-      }
-      else {
-        stream.startVideo({ hd: supportHD, fullHd: supportHD }).then(() => {
-          // stream.attachVideo(client.getCurrentUserInfo().userId, 3, document.querySelector('#my-self-view'));
-          setShowCamera(true);
-        }).catch(handleMediaActionError)
-      }
-
+      const option = bgImgUrl
+        ? captureVideoOption({ virtualBackground: { imageUrl: bgImgUrl } })
+        : captureVideoOption();
+      stream.startVideo(option).then(() => {
+        setShowCamera(true);
+      }).catch(handleMediaActionError)
     }
   }
   const onClickMic = async () => {
-    const stream = client.getMediaStream();
+    const stream = streamRef.current ?? client.getMediaStream();
+    const currentUser = client.getCurrentUserInfo();
+    if (!stream || !currentUser) {
+      return;
+    }
+    // This click is a user gesture, which is exactly what a mobile browser wants
+    // before it will let the session open the microphone.
+    if (!audioStartedRef.current) {
+      try {
+        await startAudioSafely();
+        disarmAudioGestureRetry();
+      } catch (error) {
+        handleMediaActionError(error);
+        return;
+      }
+    }
     const isAudioMuted = await stream.isAudioMuted();
     console.log("isAudioMuted", isAudioMuted);
     if (isAudioMuted) {
-      stream.unmuteAudio(client.getCurrentUserInfo().userId).then(() => {
+      stream.unmuteAudio(currentUser.userId).then(() => {
         setShowMic(true);
       }).catch(handleMediaActionError);
     }
     else {
-      stream.muteAudio(client.getCurrentUserInfo().userId).then(() => {
+      stream.muteAudio(currentUser.userId).then(() => {
         setShowMic(false);
       }).catch(handleMediaActionError);
     }
 
   }
   const onClickBlur = async () => {
-    const stream = client.getMediaStream();
-    const localUser = await client.getUser(client.getCurrentUserInfo().userId);
-    const isVideoOn = localUser.bVideoOn;
+    const stream = streamRef.current ?? client.getMediaStream();
+    const currentUser = client.getCurrentUserInfo();
+    if (!stream || !currentUser) {
+      return;
+    }
+    const localUser = await client.getUser(currentUser.userId);
+    const isVideoOn = localUser?.bVideoOn;
     if (isVideoOn) {
       await stream.stopVideo();
     }
 
     if (showBlur) {
       bgImgUrl = "";
-      stream.startVideo({ hd: supportHD, fullHd: supportHD, virtualBackground: { imageUrl: bgImgUrl } }).then(() => {
+      stream.startVideo(captureVideoOption({ virtualBackground: { imageUrl: bgImgUrl } })).then(() => {
         setShowBlur(false);
       }).catch(handleMediaActionError)
     }
     else {
       bgImgUrl = "blur";
-      stream.startVideo({ hd: supportHD, fullHd: supportHD, virtualBackground: { imageUrl: bgImgUrl } }).then(() => {
+      stream.startVideo(captureVideoOption({ virtualBackground: { imageUrl: bgImgUrl } })).then(() => {
         setShowBlur(true);
       }).catch(handleMediaActionError)
     }
@@ -272,22 +457,26 @@ const VideoChat = (props) => {
     setShowBG(false);
   }
   const onClickChangeBG = async () => {
-    const stream = client.getMediaStream();
-    const localUser = await client.getUser(client.getCurrentUserInfo().userId);
-    const isVideoOn = localUser.bVideoOn;
+    const stream = streamRef.current ?? client.getMediaStream();
+    const currentUser = client.getCurrentUserInfo();
+    if (!stream || !currentUser) {
+      return;
+    }
+    const localUser = await client.getUser(currentUser.userId);
+    const isVideoOn = localUser?.bVideoOn;
     if (isVideoOn) {
       await stream.stopVideo();
     }
 
     if (showBG) {
       bgImgUrl = "";
-      stream.startVideo({ hd: supportHD, fullHd: supportHD, virtualBackground: { imageUrl: bgImgUrl } }).then(() => {
+      stream.startVideo(captureVideoOption({ virtualBackground: { imageUrl: bgImgUrl } })).then(() => {
         setShowBG(false);
       }).catch(handleMediaActionError)
     }
     else {
       bgImgUrl = "https://couchspace.blob.core.windows.net/dev/profile/20241002-98bc6a7a-5e17-4e55-b980-305bef5de2d5.jpg";
-      stream.startVideo({ hd: supportHD, fullHd: supportHD, virtualBackground: { imageUrl: bgImgUrl } }).then(() => {
+      stream.startVideo(captureVideoOption({ virtualBackground: { imageUrl: bgImgUrl } })).then(() => {
         setShowBG(true);
       }).catch(handleMediaActionError)
     }
@@ -318,8 +507,9 @@ const VideoChat = (props) => {
     return hour + ":" + minute + ":" + second;
   }
   function updateCountDown() {
-    setTimeout(() => {
-      if (startDateTime === null || startTime === null) {
+    clearTimeout(countDownRef.current);
+    countDownRef.current = setTimeout(() => {
+      if (!isMountedRef.current || startDateTime === null || startTime === null) {
         return;
       }
       var startTimeStamp = parseInt(parseDateTime(startDateTime, startTime).valueOf() / 1000); // ms to second
@@ -487,6 +677,9 @@ const VideoChat = (props) => {
               <p style={{ color: "#000000", margin: 0 }}>{"重新啟動設備\n"}</p>
               <span style={{ color: "#565656" }}>{"若連線問題仍未解決，請嘗試重新開機您的裝置後再次連線。"}</span>
             </div>
+            {errorMessage ?
+              <div style={{ marginTop: 20, fontSize: 14, fontWeight: "normal", color: "#8A8A8A" }}>{errorMessage}</div>
+              : null}
           </div>
         </DialogContentText>
       </DialogContent>
@@ -507,20 +700,45 @@ const VideoChat = (props) => {
     handleLeave();
   }
   useEffect(() => {
-    client.off('user-added', handleUserAdd);
-    client.off('user-removed', handleUserRemoved);
-    client.off('user-updated', handleUserUpdated);
-    client.off('active-speaker', handleActiveSpeaker);
+    isMountedRef.current = true;
+    // A phone changes size when it rotates or when the URL bar slides away, and
+    // the layout below is measured in pixels, so it has to be re-measured.
+    const onResize = () => setViewport(getViewport());
+    window.addEventListener("resize", onResize);
+    window.addEventListener("orientationchange", onResize);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", onResize);
+    }
     handleJoin();
     return () => {
       isMountedRef.current = false;
-      client.off('user-added', handleUserAdd);
-      client.off('user-removed', handleUserRemoved);
-      client.off('user-updated', handleUserUpdated);
-      client.off('active-speaker', handleActiveSpeaker);
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("orientationchange", onResize);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", onResize);
+      }
+      clearTimeout(countDownRef.current);
+      disarmAudioGestureRetry();
+      listenersRef.current.forEach(([event, handler]) => client.off(event, handler));
+      listenersRef.current = [];
+      if (joinedRef.current) {
+        joinedRef.current = false;
+        Promise.resolve(client.leave()).catch((error) => console.warn("leave failed", error));
+      }
       ZoomVideo.destroyClient();
     }
   }, []);
+
+  useEffect(() => {
+    if (!joined) {
+      return;
+    }
+    // Runs after the video-player-container elements have been committed to the
+    // DOM, which is what attachVideo needs in order to find them.
+    setupMedia();
+  }, [joined]);
+
+  const currentUserId = client.getCurrentUserInfo()?.userId;
 
   return (
     <div class="row align-items-center main-wrapper" style={{ backgroundColor: "#2A2B2E" }}>
@@ -538,6 +756,11 @@ const VideoChat = (props) => {
           </div>
         </div> :
         <div class="container" style={{ width: "100%", height: "100%" }}>
+          {needAudioGesture ?
+            <div onClick={onClickMic} style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, backgroundColor: "#89A2D0", color: "#FFFFFF", textAlign: "center", padding: "10px 16px", fontSize: 14, cursor: "pointer" }}>
+              {"點一下畫面以開啟聲音"}
+            </div>
+            : null}
           <div class="col" style={{ height: counterHeight }}>
             <div style={{ margin: 5, marginLeft: counterPadding, textAlign: "center", width: 120, backgroundColor: "#FFFFFF", borderRadius: 4 }}>
               <img style={{ verticalAlign: 'middle', width: 24 }} src={img_time} alt="time" />
@@ -547,7 +770,7 @@ const VideoChat = (props) => {
           {screenWidth > 500 ?
             <div class="room" style={{ height: videoHeight }}>
               {participants.map((user) => { // Counselor Video
-                if (showCamera && user.userId === client.getCurrentUserInfo().userId) {
+                if (showCamera && user.userId === currentUserId) {
                   return (
                     <Draggable>
                       <video-player-container key={user.useId} className='dragdiv' style={{ zIndex: "999", position: "absolute", right: 40, bottom: 132, height: 183, width: 245 }}>
@@ -562,7 +785,7 @@ const VideoChat = (props) => {
                     </Draggable>
                   )
                 }
-                else if (!showCamera && user.userId === client.getCurrentUserInfo().userId) {
+                else if (!showCamera && user.userId === currentUserId) {
                   return (
                     <Draggable>
                       <div key={user.useId} className='dragdiv' class="empty-screen-container" style={{ zIndex: "999", position: "absolute", right: 40, bottom: 132, height: 183, width: 245 }} >
@@ -588,7 +811,7 @@ const VideoChat = (props) => {
               })
               }
               {participants.map((user) => { // Users Video
-                if (user.bVideoOn && user.userId !== client.getCurrentUserInfo().userId) {
+                if (user.bVideoOn && user.userId !== currentUserId) {
                   return (
                     <video-player-container key={user.useId} style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), position: "relative" }}>
                       <div style={{ width: "100%" }}>
@@ -601,7 +824,7 @@ const VideoChat = (props) => {
                     </video-player-container>
                   )
                 }
-                else if (!user.bVideoOn && user.userId !== client.getCurrentUserInfo().userId) {
+                else if (!user.bVideoOn && user.userId !== currentUserId) {
                   return (
                     <div key={user.useId} class="empty-screen-container" style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), position: "relative" }}>
                       <div style={{ width: "100%" }}>
@@ -629,7 +852,7 @@ const VideoChat = (props) => {
             : // Phone View
             <div class="room" style={{ height: videoHeight }}>
               {participants.map((user) => { // Counselor Video
-                if (showCamera && user.userId === client.getCurrentUserInfo().userId) {
+                if (showCamera && user.userId === currentUserId) {
                   return (
                     <Draggable>
                       <video-player-container key={user.useId} className='dragdiv' style={{ zIndex: "999", position: "absolute", right: 18, bottom: 137, height: 150, width: 112 }}>
@@ -644,7 +867,7 @@ const VideoChat = (props) => {
                     </Draggable>
                   )
                 }
-                else if (!showCamera && user.userId === client.getCurrentUserInfo().userId) {
+                else if (!showCamera && user.userId === currentUserId) {
                   return (
                     <Draggable>
                       <div key={user.useId} className='dragdiv' class="empty-screen-container" style={{ zIndex: "999", position: "absolute", right: 18, bottom: 137, height: 150, width: 112 }} >
@@ -670,7 +893,7 @@ const VideoChat = (props) => {
               })
               }
               {participants.map((user) => { // Users Video
-                if (user.bVideoOn && user.userId !== client.getCurrentUserInfo().userId) {
+                if (user.bVideoOn && user.userId !== currentUserId) {
                   return (
                     <video-player-container key={user.useId} style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), position: "relative" }}>
                       <div style={{ width: "100%" }}>
@@ -683,7 +906,7 @@ const VideoChat = (props) => {
                     </video-player-container>
                   )
                 }
-                else if (!user.bVideoOn && user.userId !== client.getCurrentUserInfo().userId) {
+                else if (!user.bVideoOn && user.userId !== currentUserId) {
                   return (
                     <div key={user.useId} class="empty-screen-container" style={{ maxHeight: getMaxHeightWidthByParticipants(), width: getWidthByParticipants(), position: "relative" }}>
                       <div style={{ width: "100%" }}>
