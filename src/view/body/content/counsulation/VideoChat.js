@@ -62,8 +62,8 @@ const VideoChat = (props) => {
   const [loading, setLoading] = useState(false);
   const [joined, setJoined] = useState(false);
   const [needAudioGesture, setNeedAudioGesture] = useState(false);
-  const [showCamera, setShowCamera] = useState(props.initialCameraOn ?? true);
-  const [showMic, setShowMic] = useState(props.initialMicOn ?? false);
+  const [showCamera, setShowCamera] = useState(false);
+  const [showMic, setShowMic] = useState(false);
   const [showBlur, setShowBlur] = useState(false);
   const [showBG, setShowBG] = useState(false);
   const [mirror, setMirror] = useState(false);
@@ -101,7 +101,6 @@ const VideoChat = (props) => {
       }
       // Entering the room is the only fatal step. Camera and microphone are set
       // up afterwards, so a media failure no longer throws the user back out.
-      setLoading(false);
       setJoined(true);
     } catch (err) {
       console.warn("join failed", err);
@@ -301,6 +300,7 @@ const VideoChat = (props) => {
     if (isMountedRef.current) {
       setParticipants(client.getAllUser());
     }
+    setLoading(false);
   }
   const handleUserAdd = (payload) => {
     console.log("handleUserAdd", payload);
