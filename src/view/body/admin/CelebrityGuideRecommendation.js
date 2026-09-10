@@ -132,8 +132,8 @@ function CelebrityGuideRecommendation() {
       messageApi.error("取得系列資料失敗");
     }
     try {
-      const common = await meditationService.getCommonData();
-      setRecommendations(normalizeRecommendations(common?.CelebrityMeditation || []));
+      const items = await meditationService.getCelebrityRecommendations();
+      setRecommendations(normalizeRecommendations(items || []));
     } catch {
       // 靜默忽略，保留空清單
     } finally {
@@ -194,15 +194,15 @@ function CelebrityGuideRecommendation() {
     }
     setSaving(true);
     try {
-      const common = await meditationService.getCommonData();
-      common.CelebrityMeditation = recommendations.map((r, i) => ({
-        SeriesID: r.SeriesID,
-        Sequence: i,
-        Enable: r.Enable,
-        EnableStartTime: r.EnableStartTime || "",
-        EnableEndTime: r.EnableEndTime || "",
-      }));
-      await meditationService.updateCommonData(common);
+      await meditationService.updateCelebrityRecommendations(
+        recommendations.map((r, i) => ({
+          SeriesID: r.SeriesID,
+          Sequence: i,
+          Enable: r.Enable,
+          EnableStartTime: r.EnableStartTime || "",
+          EnableEndTime: r.EnableEndTime || "",
+        }))
+      );
       messageApi.success("名人指南推薦已更新");
       await fetchData();
     } catch {

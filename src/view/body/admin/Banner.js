@@ -3,7 +3,7 @@ import { DndContext } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Table, Image, Space, Input, Select, Spin, Form, Button, Drawer, Carousel } from "antd";
+import { Table, Image, Space, Input, Select, Spin, Form, Button, Drawer, Carousel, message } from "antd";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { counselorService, meditationService } from "../../../service/ServicePool";
 
@@ -53,6 +53,8 @@ const Row = React.memo(({ children, ...props }) => {
   );
 });
 
+const BANNER_KEY = "NewBanners";
+
 const typeMap = { EXTERNAL_LINK: "外部連結", SINGLE_AUDIO: "單首音檔", SERIES: "系列專輯", CONSULTANT_PAGE: "諮詢師介紹頁" };
 const typeOptions = [
   { label: "外部連結", value: "EXTERNAL_LINK" },
@@ -71,10 +73,11 @@ const Banner = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
-  const [oriCommonData, setOriCommonData] = useState([]);
+  const [banners, setBanners] = useState([]);
   const [selectedType, setSelectedType] = useState(null);
+  const [messageApi, contextHolder] = message.useMessage();
 
-  const processData = useCallback(async (commonData) => {
+  const processData = useCallback(async (bannerList) => {
     const [courses, musics, counselors] = await Promise.all([
       meditationService.getAllCourse(),
       meditationService.getAllMusic(),
@@ -83,14 +86,14 @@ const Banner = () => {
     const coursesMap = new Map(courses.map(c => [c.CourseID, c.CourseName]));
     const musicsMap = new Map(musics.map(m => [m.MusicID, m.Title]));
     const counselorsMap = new Map(counselors.map(c => [c.ID, `${c?.UserName?.Name?.LastName || ""}${c?.UserName?.Name?.FirstName || ""}`]));
-    const banner = commonData.NewBanners?.map((e) => {
+    const banner = (bannerList || []).map((e) => {
       let linkSourceName = "";
       if (e.Type === "SERIES") linkSourceName = coursesMap.get(e.LinkSourceID) || "";
       else if (e.Type === "SINGLE_AUDIO") linkSourceName = musicsMap.get(e.LinkSourceID) || "";
       else if (e.Type === "CONSULTANT_PAGE") linkSourceName = counselorsMap.get(e.LinkSourceID) || "";
       else if (e.Type === "EXTERNAL_LINK") linkSourceName = e.LinkSourceID;
       return { key: e.Seq, imageUrl: e.ImageUrl, linkSourceID: linkSourceName, type: e.Type, seq: e.Seq };
-    }) || [];
+    });
     setAllCourses(courses.map(c => ({ label: c.CourseName, value: c.CourseID })));
     setAllMusics(musics.map(m => ({ label: m.Title, value: m.MusicID })));
     setAllCounselor(counselors.map(c => ({ label: `${c?.UserName?.Name?.LastName || ""}${c?.UserName?.Name?.FirstName || ""}`, value: c.ID })));
@@ -100,64 +103,83 @@ const Banner = () => {
   const getData = useCallback(async () => {
     setLoading2(true);
     try {
-      const commonData = await meditationService.getCommonData();
-      setOriCommonData(commonData);
-      await processData(commonData);
-    } catch (e) { console.error(e); } finally { setLoading2(false); }
-  }, [processData]);
+      const bannerList = await meditationService.getBannersByKey(BANNER_KEY);
+      const safeList = Array.isArray(bannerList) ? bannerList : [];
+      setBanners(safeList);
+      await processData(safeList);
+    } catch (e) {
+      console.error(e);
+      messageApi.error("取得 Banner 資料失敗，請稍後再試");
+    } finally { setLoading2(false); }
+  }, [processData, messageApi]);
 
   useEffect(() => { getData(); }, []);
 
   const onBannerDelete = useCallback(async (e) => {
-    if (!oriCommonData?.NewBanners) return;
-    const idx = oriCommonData.NewBanners.findIndex(o => o.Seq === e.seq && o.ImageUrl === e.imageUrl);
+    const idx = banners.findIndex(o => o.Seq === e.seq && o.ImageUrl === e.imageUrl);
     if (idx === -1) return;
-    const updated = JSON.parse(JSON.stringify(oriCommonData));
-    updated.NewBanners.splice(idx, 1);
-    updated.NewBanners.forEach((item, i) => { item.Seq = i + 1; });
+    const updated = banners
+      .filter((_, i) => i !== idx)
+      .map((item, i) => ({ ...item, Seq: i + 1 }));
     setLoading2(true);
     try {
-      await meditationService.updateCommonData(updated);
-      const fresh = await meditationService.getCommonData();
-      setOriCommonData(fresh);
-      await processData(fresh);
-    } catch (e) { console.error(e); } finally { setLoading2(false); }
-  }, [oriCommonData, processData]);
+      await meditationService.updateBannersByKey(BANNER_KEY, updated);
+      messageApi.success("Banner 已刪除");
+      await getData();
+    } catch (e) {
+      console.error(e);
+      messageApi.error("刪除失敗，請稍後再試");
+    } finally { setLoading2(false); }
+  }, [banners, getData, messageApi]);
 
   const onDragEnd = useCallback(async ({ active, over }) => {
-    if (!oriCommonData?.NewBanners || active.id === over?.id) return;
+    if (!banners.length || active.id === over?.id) return;
     const ai = dataSource.findIndex(i => i.key === active.id);
     const oi = dataSource.findIndex(i => i.key === over?.id);
     if (ai === -1 || oi === -1) return;
-    const result = arrayMove(dataSource, ai, oi).map((item, i) => ({ ...item, seq: i + 1, key: i + 1 }));
-    const updatedBanners = result.map(item => {
-      const orig = oriCommonData.NewBanners.find(o => o.ImageUrl === item.imageUrl);
-      return { Seq: item.seq, ImageUrl: orig?.ImageUrl, Type: orig?.Type, LinkSourceID: orig?.LinkSourceID };
+    // 依原本的 Seq 對應回原始資料，保留 Enable / 上架期間 / Code 等欄位
+    const reordered = arrayMove(dataSource, ai, oi);
+    const updatedBanners = reordered.map((item, i) => {
+      const orig = banners.find(o => o.Seq === item.seq) || {};
+      return { ...orig, Seq: i + 1 };
     });
-    const updatedCommonData = { ...oriCommonData, NewBanners: updatedBanners };
+    const result = reordered.map((item, i) => ({ ...item, seq: i + 1, key: i + 1 }));
     setDataSource(result);
-    setOriCommonData(updatedCommonData);
+    setBanners(updatedBanners);
     setLoading2(true);
-    try { await meditationService.updateCommonData(updatedCommonData); }
-    catch (e) { console.error(e); await getData(); }
+    try { await meditationService.updateBannersByKey(BANNER_KEY, updatedBanners); }
+    catch (e) {
+      console.error(e);
+      messageApi.error("排序儲存失敗，已還原");
+      await getData();
+    }
     finally { setLoading2(false); }
-  }, [oriCommonData, dataSource, getData]);
+  }, [banners, dataSource, getData, messageApi]);
 
   const onFinish = useCallback(async () => {
     const image = form.getFieldValue("image");
     const linkSourceID = form.getFieldValue("LinkSourceID");
-    if (!image || !linkSourceID || !oriCommonData?.NewBanners) return;
-    const updated = JSON.parse(JSON.stringify(oriCommonData));
-    updated.NewBanners.push({ Seq: updated.NewBanners.length + 1, Type: selectedType, ImageUrl: image, LinkSourceID: linkSourceID });
+    if (!image) { messageApi.warning("請先上傳 Banner 圖片"); return; }
+    if (!selectedType) { messageApi.warning("請先選擇連結類型"); return; }
+    if (!linkSourceID) { messageApi.warning("請填寫或選擇連結內容"); return; }
+    const updated = [...banners, {
+      Seq: banners.length + 1,
+      Type: selectedType,
+      ImageUrl: image,
+      LinkSourceID: linkSourceID,
+    }];
     setLoading(true);
     try {
-      await meditationService.updateCommonData(updated);
+      await meditationService.updateBannersByKey(BANNER_KEY, updated);
+      messageApi.success("Banner 已新增");
       setModal1Open(false);
-      const fresh = await meditationService.getCommonData();
-      setOriCommonData(fresh);
-      await processData(fresh);
-    } catch (e) { console.error(e); } finally { setLoading(false); }
-  }, [oriCommonData, selectedType, processData, form]);
+      form.resetFields();
+      await getData();
+    } catch (e) {
+      console.error(e);
+      messageApi.error("新增失敗，請稍後再試");
+    } finally { setLoading(false); }
+  }, [banners, selectedType, getData, form, messageApi]);
 
   const columns = useMemo(() => [
     { key: "sort" },
@@ -175,6 +197,7 @@ const Banner = () => {
 
   return (
     <>
+      {contextHolder}
       <div style={{ background: bg, minHeight: "100vh", padding: "28px 32px 64px" }}>
 
         {/* Page header */}

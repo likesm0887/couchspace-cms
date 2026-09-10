@@ -895,6 +895,58 @@ export class MeditationService {
     }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
   }
 
+  /**
+   * 取得指定種類的 Banner 清單（後台用，不套用上架期間過濾）
+   * @param {"NewBanners"|"MeditationBanner"|"CounselorBanners"} bannerKey
+   */
+  getBannersByKey(bannerKey) {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/banners/${bannerKey}`, {
+      method: "GET",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+  }
+
+  /**
+   * 只更新指定種類的 Banner，不會影響 CommonData 的其他設定
+   * @param {"NewBanners"|"MeditationBanner"|"CounselorBanners"} bannerKey
+   * @param {Array} banners
+   */
+  updateBannersByKey(bannerKey, banners) {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/banners/${bannerKey}`, {
+      method: "PUT",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+      body: JSON.stringify(banners ?? []),
+    }).then(async res => {
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const text = await res.text();
+      return text ? JSON.parse(text) : {};
+    });
+  }
+
+  getCelebrityRecommendations() {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/celebrity-recommendations`, {
+      method: "GET",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+  }
+
+  /** 只更新名人指南推薦，不會影響 CommonData 的其他設定 */
+  updateCelebrityRecommendations(items) {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/celebrity-recommendations`, {
+      method: "PUT",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+      body: JSON.stringify(items ?? []),
+    }).then(async res => {
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const text = await res.text();
+      return text ? JSON.parse(text) : {};
+    });
+  }
+
   getDailyQuotes() {
     if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
     return fetch(`${this.base_url}/api/v1/meditation/daily-quotes`, {
