@@ -2,6 +2,12 @@
   min-height: 100vh;
   height: 100vh;
   max-height: 100vh;
+  /* On a phone 100vh is the height with the URL bar hidden, so the footer
+     controls end up under it. dvh tracks the space actually on screen. */
+  min-height: 100dvh;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
 }
 
 .video-loader-container {
