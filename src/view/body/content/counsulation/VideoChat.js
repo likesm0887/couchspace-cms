@@ -327,6 +327,9 @@ const VideoChat = (props) => {
   }
   const handleAutoPlayAudioFailed = () => {
     console.log("handleAutoPlayAudioFailed");
+    // startAudio may already have resolved, but the browser still blocked playback
+    // of remote audio. Forget that so the next tap calls startAudio again.
+    audioStartedRef.current = false;
     // The browser blocked playback; the next tap can start it.
     if (isMountedRef.current) {
       setNeedAudioGesture(true);
@@ -397,6 +400,14 @@ const VideoChat = (props) => {
         setShowCamera(true);
       }).catch(handleMediaActionError)
     }
+  }
+  // The banner only needs to satisfy the browser's gesture requirement; it must
+  // not flip the microphone the way the mic button does.
+  const onClickEnableAudio = () => {
+    startAudioSafely()
+      .then(applyInitialMicState)
+      .then(disarmAudioGestureRetry)
+      .catch(handleMediaActionError);
   }
   const onClickMic = async () => {
     const stream = streamRef.current ?? client.getMediaStream();
@@ -757,7 +768,7 @@ const VideoChat = (props) => {
         </div> :
         <div class="container" style={{ width: "100%", height: "100%" }}>
           {needAudioGesture ?
-            <div onClick={onClickMic} style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, backgroundColor: "#89A2D0", color: "#FFFFFF", textAlign: "center", padding: "10px 16px", fontSize: 14, cursor: "pointer" }}>
+            <div onClick={onClickEnableAudio} style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, backgroundColor: "#89A2D0", color: "#FFFFFF", textAlign: "center", padding: "10px 16px", fontSize: 14, cursor: "pointer" }}>
               {"點一下畫面以開啟聲音"}
             </div>
             : null}
