@@ -273,3 +273,45 @@ body.cms-dark .table-row-odd:hover > td {
   border-top: 1px solid var(--cms-line);
   margin: 1.2em 0;
 }
+
+/* ── 文章預覽：沉浸式（模擬 App 閱讀畫面）──
+   深色底白字、置中、行距放寬；內容自帶的 text-align 仍可覆蓋 */
+.article-preview-immersive {
+  color: #fff;
+  font-size: 16px;
+  line-height: 2;
+  text-align: center;
+}
+
+.article-preview-immersive h2,
+.article-preview-immersive h3 {
+  color: #fff;
+}
+
+.article-preview-immersive blockquote {
+  border-left-color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.article-preview-immersive a {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.article-preview-immersive hr {
+  border-top-color: rgba(255, 255, 255, 0.3);
+}
+
+/* 置中排版時，清單若維持預設縮排會看起來偏移 */
+.article-preview-immersive ul,
+.article-preview-immersive ol {
+  display: inline-block;
+  text-align: left;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 捲動條在深色底上不要太搶眼 */
+.article-preview-immersive::-webkit-scrollbar {
+  width: 4px;
+}

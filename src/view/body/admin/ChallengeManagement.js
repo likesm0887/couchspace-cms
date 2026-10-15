@@ -1,6 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { Button, Form, Input, message, Modal, Select, Space, Switch, Table, Image, Spin } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined } from "@ant-design/icons";
+import React, { useEffect, useMemo, useState } from "react";
+import { Button, Form, Input, message, Modal, Select, Space, Switch, Table, Image, Spin, Tag } from "antd";
+import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined, MenuOutlined } from "@ant-design/icons";
+import { DndContext } from "@dnd-kit/core";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { challengeService, meditationService } from "../../../service/ServicePool";
 
 const { TextArea } = Input;
@@ -30,11 +34,85 @@ function StatCard({ label, value, unit, note, last }) {
   );
 }
 
+/* ── 可拖拉排序的系列項目 ── */
+function SortableSeriesItem({ id, index, title, onRemove }) {
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } =
+    useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform && { ...transform, scaleY: 1 }),
+    transition,
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    padding: "8px 10px",
+    marginBottom: 6,
+    borderRadius: 6,
+    background: isDragging ? "var(--cms-drag)" : panel,
+    border: `1px solid ${line}`,
+    position: isDragging ? "relative" : undefined,
+    zIndex: isDragging ? 9999 : undefined,
+  };
+  return (
+    <div ref={setNodeRef} style={style} {...attributes}>
+      <MenuOutlined
+        ref={setActivatorNodeRef}
+        style={{ touchAction: "none", cursor: "move", color: muted }}
+        {...listeners}
+      />
+      <Tag color="blue" style={{ margin: 0, minWidth: 34, textAlign: "center" }}>
+        {index + 1}
+      </Tag>
+      <span style={{ flex: 1, fontSize: 13, color: ink }}>{title}</span>
+      <Button size="small" type="text" danger icon={<DeleteOutlined />} onClick={() => onRemove(id)} />
+    </div>
+  );
+}
+
+/* ── 成就顯示：秀出達成後的圖片與名稱 ── */
+function BadgeCell({ badge }) {
+  if (!badge) {
+    return <span style={{ fontSize: 12, color: muted }}>未綁定</span>;
+  }
+  return (
+    <Space size={8}>
+      {badge.AchievedImage ? (
+        <Image
+          src={badge.AchievedImage}
+          alt={badge.Name}
+          crossOrigin="anonymous"
+          width={64}
+          height={64}
+          style={{ objectFit: "contain", borderRadius: 8 }}
+        />
+      ) : (
+        <div
+          style={{
+            width: 64,
+            height: 64,
+            borderRadius: 8,
+            background: line2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 11,
+            color: muted,
+          }}
+        >
+          無圖
+        </div>
+      )}
+      <span style={{ fontSize: 13, color: ink }}>{badge.Name}</span>
+    </Space>
+  );
+}
+
 function ChallengeManagement() {
   const [messageApi, contextHolder] = message.useMessage();
   const [loading, setLoading] = useState(false);
   const [challenges, setChallenges] = useState([]);
   const [series, setSeries] = useState([]);
+  const [badges, setBadges] = useState([]);
+  const [selectedSeries, setSelectedSeries] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingChallenge, setEditingChallenge] = useState(null);
   const [form] = Form.useForm();
@@ -54,11 +132,23 @@ function ChallengeManagement() {
     } finally {
       setLoading(false);
     }
+    // 成就為選配，載入失敗不影響挑戰主畫面
+    try {
+      const badgeList = await meditationService.getAllBadges(false);
+      setBadges(Array.isArray(badgeList) ? badgeList : []);
+    } catch (error) {
+      console.warn("載入成就清單失敗", error);
+    }
   };
 
   useEffect(() => { fetchData(); }, []);
 
-  const handleAdd = () => { setEditingChallenge(null); form.resetFields(); setIsModalVisible(true); };
+  const handleAdd = () => {
+    setEditingChallenge(null);
+    form.resetFields();
+    setSelectedSeries([]);
+    setIsModalVisible(true);
+  };
 
   const handleEdit = (record) => {
     setEditingChallenge(record);
@@ -67,10 +157,36 @@ function ChallengeManagement() {
       title: record.title,
       description: record.description,
       imageUrl: record.imageUrl || "",
-      courseIds: record.courseIds || [],
+      badgeID: record.badgeID || undefined,
       isEnabled: record.isEnabled,
     });
+    // 依儲存的順序還原系列清單
+    setSelectedSeries(
+      (record.courseIds || []).map((id) => {
+        const s = series.find((x) => x.CourseID === id);
+        return { id, title: s?.CourseName || s?.Name || id };
+      })
+    );
     setIsModalVisible(true);
+  };
+
+  const handleAddSeries = (courseId, option) => {
+    if (selectedSeries.some((s) => s.id === courseId)) return;
+    setSelectedSeries((prev) => [...prev, { id: courseId, title: option.label }]);
+  };
+
+  const handleRemoveSeries = (courseId) => {
+    setSelectedSeries((prev) => prev.filter((s) => s.id !== courseId));
+  };
+
+  const handleSeriesDragEnd = ({ active, over }) => {
+    if (!over || active.id === over.id) return;
+    setSelectedSeries((prev) => {
+      const from = prev.findIndex((s) => s.id === active.id);
+      const to = prev.findIndex((s) => s.id === over.id);
+      if (from === -1 || to === -1) return prev;
+      return arrayMove(prev, from, to);
+    });
   };
 
   const handleDelete = async (challengeId) => {
@@ -90,17 +206,29 @@ function ChallengeManagement() {
   };
 
   const handleSave = async () => {
+    let values;
     try {
-      const values = await form.validateFields();
+      values = await form.validateFields();
+    } catch (error) {
+      return;
+    }
+    if (selectedSeries.length === 0) {
+      messageApi.warning("請至少加入一個系列");
+      return;
+    }
+    // 送出時以清單目前的排列順序為準
+    const payload = { ...values, courseIds: selectedSeries.map((s) => s.id) };
+    try {
       if (editingChallenge) {
-        await challengeService.updateChallenge({ ...values, challengeId: editingChallenge._id });
+        await challengeService.updateChallenge({ ...payload, challengeId: editingChallenge._id });
         messageApi.success("挑戰已更新");
       } else {
-        await challengeService.createChallenge(values);
+        await challengeService.createChallenge(payload);
         messageApi.success("挑戰已新增");
       }
       setIsModalVisible(false);
       form.resetFields();
+      setSelectedSeries([]);
       fetchData();
     } catch (error) {
       console.error(error);
@@ -120,6 +248,7 @@ function ChallengeManagement() {
   };
 
   const enabledCount = challenges.filter((c) => c.isEnabled).length;
+  const badgeById = useMemo(() => new Map(badges.map((b) => [b._id, b])), [badges]);
 
   const columns = [
     { title: "辨認ID", dataIndex: "identifierID", key: "identifierID", width: 180, ellipsis: true },
@@ -136,6 +265,13 @@ function ChallengeManagement() {
     },
     { title: "描述", dataIndex: "description", key: "description", ellipsis: true },
     { title: "系列數量", dataIndex: "courseIds", key: "courseIds", width: 100, render: (ids) => ids ? ids.length : 0 },
+    {
+      title: "成就",
+      dataIndex: "badgeID",
+      key: "badgeID",
+      width: 180,
+      render: (badgeID) => <BadgeCell badge={badgeById.get(badgeID)} />,
+    },
     {
       title: "啟用", dataIndex: "isEnabled", key: "isEnabled", width: 100,
       render: (enabled, record) => <Switch checked={enabled} onChange={() => handleToggleEnabled(record)} />,
@@ -216,10 +352,90 @@ function ChallengeManagement() {
               <Input allowClear placeholder="請輸入圖片URL" size="large" style={{ borderRadius: "6px" }} />
             </Form.Item>
           </div>
-          <Form.Item name="courseIds" label="選擇系列（可多選）" rules={[{ required: true, message: "請至少選擇一個系列" }]}>
-            <Select mode="multiple" placeholder="請選擇系列"
-              options={series.map((item) => ({ value: item.CourseID, label: item.CourseName || item.Name || "未命名系列" }))}
-              showSearch filterOption={(input, option) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase())} />
+          <Form.Item
+            label={
+              <Space>
+                <span>挑戰系列</span>
+                <Tag color="blue">{selectedSeries.length} 個</Tag>
+              </Space>
+            }
+            required
+            extra={<span style={{ fontSize: 12, color: muted }}>拖曳左側圖示可調整系列順序，順序即為挑戰的進行順序</span>}
+          >
+            <div
+              style={{
+                background: accentSoft,
+                padding: 12,
+                borderRadius: 8,
+                border: `1px solid ${line}`,
+              }}
+            >
+              <Select
+                placeholder="搜尋並加入系列..."
+                value={null}
+                onChange={handleAddSeries}
+                showSearch
+                optionFilterProp="label"
+                style={{ width: "100%", marginBottom: selectedSeries.length > 0 ? 10 : 0 }}
+                options={series
+                  .filter((item) => !selectedSeries.some((s) => s.id === item.CourseID))
+                  .map((item) => ({
+                    value: item.CourseID,
+                    label: item.CourseName || item.Name || "未命名系列",
+                  }))}
+              />
+              {selectedSeries.length > 0 && (
+                <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={handleSeriesDragEnd}>
+                  <SortableContext
+                    items={selectedSeries.map((s) => s.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {selectedSeries.map((s, i) => (
+                      <SortableSeriesItem
+                        key={s.id}
+                        id={s.id}
+                        index={i}
+                        title={s.title}
+                        onRemove={handleRemoveSeries}
+                      />
+                    ))}
+                  </SortableContext>
+                </DndContext>
+              )}
+            </div>
+          </Form.Item>
+          <Form.Item
+            name="badgeID"
+            label="綁定成就"
+            tooltip="完成此挑戰後可獲得的成就勳章，顯示的是達成後的圖片"
+          >
+            <Select
+              allowClear
+              placeholder="不綁定成就"
+              showSearch
+              optionFilterProp="label"
+              options={badges.map((b) => ({ value: b._id, label: b.Name, badge: b }))}
+              listItemHeight={52}
+              listHeight={280}
+              optionRender={(option) => (
+                <Space>
+                  {option.data.badge.AchievedImage ? (
+                    <Image
+                      src={option.data.badge.AchievedImage}
+                      alt={option.data.badge.Name}
+                      crossOrigin="anonymous"
+                      width={44}
+                      height={44}
+                      preview={false}
+                      style={{ objectFit: "contain" }}
+                    />
+                  ) : (
+                    <div style={{ width: 44, height: 44, background: line2, borderRadius: 6 }} />
+                  )}
+                  <span>{option.data.badge.Name}</span>
+                </Space>
+              )}
+            />
           </Form.Item>
           <Form.Item name="isEnabled" label="啟用" valuePropName="checked" initialValue={true}>
             <Switch />

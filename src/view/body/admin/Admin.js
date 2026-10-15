@@ -25,6 +25,7 @@ import {
   MenuOutlined,
   MessageOutlined,
   FileTextOutlined,
+  TrophyOutlined,
   MoonOutlined,
   PictureOutlined,
   PieChartOutlined,
@@ -59,6 +60,7 @@ const items = [
     getItem("白噪音", "2-whitenoise", <SoundOutlined />),
   ]),
   getItem("文章", "article", <FileTextOutlined />),
+  getItem("成就勳章", "badge", <TrophyOutlined />),
   getItem("導師", "3", <UserOutlined />),
   getItem("用戶", "5", <UsergroupAddOutlined />),
   getItem("開通", "6", <CrownOutlined />),
@@ -137,6 +139,7 @@ function Admin() {
     else if (path === "/admin/operations/daily-session-recommendations") setCurrent("operations-daily-session");
     else if (path === "/admin/operations/daily-quotes") setCurrent("operations-daily-quote");
     else if (path === "/admin/article") setCurrent("article");
+    else if (path === "/admin/badge") setCurrent("badge");
   }, [location.pathname]);
 
   useEffect(() => {
@@ -215,6 +218,7 @@ function Admin() {
     else if (e.key === "operations-daily-session") navigate("operations/daily-session-recommendations", { replace: true });
     else if (e.key === "operations-daily-quote") navigate("operations/daily-quotes", { replace: true });
     else if (e.key === "article") navigate("article", { replace: true });
+    else if (e.key === "badge") navigate("badge", { replace: true });
     setMobileMenuOpen(false);
   };
 

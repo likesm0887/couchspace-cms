@@ -1044,4 +1044,71 @@ export class MeditationService {
       return text ? JSON.parse(text) : {};
     });
   }
+
+  getAllBadges(showDelete = false) {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/badges?showDelete=${showDelete}`, {
+      method: "GET",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+  }
+
+  getBadgeById(badgeId) {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/badges/${badgeId}`, {
+      method: "GET",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+  }
+
+  createBadge(badge) {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/badges`, {
+      method: "POST",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+      body: JSON.stringify(badge),
+    }).then(async res => {
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP error! status: ${res.status}`);
+      }
+      return res.json();
+    });
+  }
+
+  updateBadge(badge) {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/badges`, {
+      method: "PUT",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+      body: JSON.stringify(badge),
+    }).then(async res => {
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const text = await res.text();
+      return text ? JSON.parse(text) : {};
+    });
+  }
+
+  deleteBadge(badgeId) {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/badges/${badgeId}`, {
+      method: "DELETE",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+    }).then(async res => {
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const text = await res.text();
+      return text ? JSON.parse(text) : {};
+    });
+  }
+
+  uploadBadgeImage(file) {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    const formData = new FormData();
+    formData.append("myFile", file);
+    return fetch(`${this.base_url}/api/v1/meditation/badges/image/upload`, {
+      method: "POST",
+      headers: { Authorization: cookie.load("token") },
+      body: formData,
+    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+  }
 }
