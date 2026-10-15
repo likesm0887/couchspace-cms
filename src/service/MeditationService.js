@@ -994,4 +994,54 @@ export class MeditationService {
       body: formData,
     }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
   }
+
+  getAllArticles(showDelete = false) {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/articles?showDelete=${showDelete}`, {
+      method: "GET",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+  }
+
+  getArticleById(articleId) {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/articles/${articleId}`, {
+      method: "GET",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+  }
+
+  createArticle(article) {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/articles`, {
+      method: "POST",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+      body: JSON.stringify(article),
+    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+  }
+
+  updateArticle(article) {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/articles`, {
+      method: "PUT",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+      body: JSON.stringify(article),
+    }).then(async res => {
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const text = await res.text();
+      return text ? JSON.parse(text) : {};
+    });
+  }
+
+  deleteArticle(articleId) {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/articles/${articleId}`, {
+      method: "DELETE",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+    }).then(async res => {
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const text = await res.text();
+      return text ? JSON.parse(text) : {};
+    });
+  }
 }

@@ -50,6 +50,7 @@ const CounselingTeacherRecommendation = React.lazy(() => import("./view/body/adm
 const CelebrityGuideRecommendation = React.lazy(() => import("./view/body/admin/CelebrityGuideRecommendation"));
 const DailySessionRecommendation = React.lazy(() => import("./view/body/admin/DailySessionRecommendation"));
 const DailyQuoteManagement = React.lazy(() => import("./view/body/admin/DailyQuoteManagement"));
+const ArticleManagement = React.lazy(() => import("./view/body/admin/ArticleManagement"));
 const Register = React.lazy(() => import("./view/register/register"));
 function App() {
   // registerServiceWorker()
@@ -92,6 +93,7 @@ function App() {
             <Route path="operations/celebrity-guide-recommendations" element={<Suspense fallback={<div>Loading...</div>}><CelebrityGuideRecommendation /></Suspense>}></Route>
             <Route path="operations/daily-session-recommendations" element={<Suspense fallback={<div>Loading...</div>}><DailySessionRecommendation /></Suspense>}></Route>
             <Route path="operations/daily-quotes" element={<Suspense fallback={<div>Loading...</div>}><DailyQuoteManagement /></Suspense>}></Route>
+            <Route path="article" element={<Suspense fallback={<div>Loading...</div>}><ArticleManagement /></Suspense>}></Route>
           </Route>
         </Route>
         <Route path="couchspace-cms/register" element={<Suspense fallback={<div>Loading...</div>}><Register /></Suspense>} />

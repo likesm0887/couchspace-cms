@@ -192,3 +192,84 @@ body.cms-dark .table-row-even:hover > td,
 body.cms-dark .table-row-odd:hover > td {
   background-color: rgba(255, 255, 255, 0.08) !important;
 }
+
+/* ── 文章編輯器（TipTap）與預覽 ──
+   編輯區與預覽區共用一組排版規則，確保所見即所得。 */
+.article-editor-content .ProseMirror {
+  outline: none;
+  min-height: 160px;
+}
+
+/* 空白時顯示提示文字 */
+.article-editor-content .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: var(--cms-muted);
+}
+
+.article-editor-content .ProseMirror,
+.article-preview-body {
+  word-break: break-word;
+}
+
+.article-editor-content .ProseMirror > *:first-child,
+.article-preview-body > *:first-child {
+  margin-top: 0;
+}
+
+.article-editor-content .ProseMirror h2,
+.article-preview-body h2 {
+  font-size: 1.35em;
+  font-weight: 600;
+  margin: 1.1em 0 0.5em;
+  line-height: 1.4;
+}
+
+.article-editor-content .ProseMirror h3,
+.article-preview-body h3 {
+  font-size: 1.15em;
+  font-weight: 600;
+  margin: 1em 0 0.45em;
+  line-height: 1.45;
+}
+
+.article-editor-content .ProseMirror p,
+.article-preview-body p {
+  margin: 0 0 0.85em;
+}
+
+.article-editor-content .ProseMirror ul,
+.article-editor-content .ProseMirror ol,
+.article-preview-body ul,
+.article-preview-body ol {
+  margin: 0 0 0.85em;
+  padding-left: 1.6em;
+}
+
+.article-editor-content .ProseMirror li,
+.article-preview-body li {
+  margin: 0.25em 0;
+}
+
+.article-editor-content .ProseMirror blockquote,
+.article-preview-body blockquote {
+  margin: 0 0 0.85em;
+  padding: 0.3em 0 0.3em 1em;
+  border-left: 3px solid var(--cms-line);
+  color: var(--cms-ink2);
+}
+
+.article-editor-content .ProseMirror a,
+.article-preview-body a {
+  color: #4556f0;
+  text-decoration: underline;
+}
+
+.article-editor-content .ProseMirror hr,
+.article-preview-body hr {
+  border: none;
+  border-top: 1px solid var(--cms-line);
+  margin: 1.2em 0;
+}

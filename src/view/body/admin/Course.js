@@ -61,7 +61,7 @@ const tableRowStyles = `
   }
 `;
 
-const SortableMusicItem = ({ id, title, onRemove }) => {
+const SortableMusicItem = ({ id, title, type, onRemove }) => {
   const { token } = theme.useToken();
   const {
     attributes,
@@ -99,6 +99,9 @@ const SortableMusicItem = ({ id, title, onRemove }) => {
         {...listeners}
         {...attributes}
       />
+      <Tag color={type === 'article' ? 'purple' : 'blue'} style={{ marginRight: 8, flexShrink: 0 }}>
+        {type === 'article' ? '文章' : '音樂'}
+      </Tag>
       <span style={{ flex: 1, fontSize: '13px' }}>{title}</span>
       <Button size="small" type="text" danger icon={<DeleteOutlined />} onClick={() => onRemove(id)} />
     </div>
@@ -164,8 +167,8 @@ function Course() {
   const [course, setCourse] = useState(false);
   const [allOption, setAllOption] = useState([]);
   const [allMusics, setAllMusics] = useState([]);
+  const [allArticles, setAllArticles] = useState([]);
   const [allTeacherOption, setAllTeacherOption] = useState([]);
-  const options = [];
   const [currentModel, setCurrentModel] = useState("New");
   const [sortModalOpen, setSortModalOpen] = useState(false);
   const [form] = Form.useForm();
@@ -413,8 +416,14 @@ function Course() {
     const musicList = e.musicIDs
       ? e.musicIDs.map((music) => {
           const id = typeof music === 'string' ? music : (music.MusicID || music.id);
+          // 後端未給 Type 的舊資料一律視為音樂
+          const type = (typeof music === 'object' && music.Type === 'article') ? 'article' : 'music';
+          if (type === 'article') {
+            const articleData = allArticles.find((a) => a._id === id);
+            return { id, title: articleData?.Title || id, type };
+          }
           const musicData = allMusics.find((m) => (m.MusicID || m.id) === id);
-          return { id, title: musicData?.Title || allOption.find((o) => o.value === id)?.label || id };
+          return { id, title: musicData?.Title || id, type };
         })
       : [];
     setSelectedMusics(musicList);
@@ -465,8 +474,16 @@ function Course() {
     const res = await meditationService.getAllCourse();
     const allMusics = await meditationService.getAllMusic();
     const allTeachers = await meditationService.getAllTeacher();
+    // 文章為選配內容，載入失敗不應擋住整個課程頁
+    let allArticles = [];
+    try {
+      allArticles = (await meditationService.getAllArticles(false)) || [];
+    } catch (e) {
+      console.warn("載入文章清單失敗", e);
+    }
+    setAllArticles(allArticles);
     const teacherMap = new Map(allTeachers.map(t => [t.TeacherId, t]));
-    createOptions(allMusics);
+    createOptions(allMusics, allArticles);
     setAllMusics(allMusics);
     setAllTeacherOption(allTeachers.map(t => ({ value: t.TeacherId, label: t.Name })));
     const result = [];
@@ -537,7 +554,7 @@ function Course() {
           meditationService
             .addMusicInCourse({
               CourseId: e,
-              MusicIds: selectedMusics.map((m) => m.id),
+              Items: selectedMusics.map((m) => ({ ID: m.id, Type: m.type || "music" })),
             })
             .then((e) => {
               messageApi.open({
@@ -582,7 +599,7 @@ function Course() {
           meditationService
             .addMusicInCourse({
               CourseId: course.key,
-              MusicIds: selectedMusics.map((m) => m.id),
+              Items: selectedMusics.map((m) => ({ ID: m.id, Type: m.type || "music" })),
             })
             .finally(() => {
               messageApi.open({
@@ -602,11 +619,23 @@ function Course() {
     }
   };
 
-  const createOptions = (musics) => {
-    musics.forEach((m) => {
-      options.push({ value: m.MusicID || m.id, label: m.Title });
-    });
-    setAllOption(options);
+  // 下拉選項同時包含音樂與文章，用 itemType 區分，並以 group 分區顯示
+  const createOptions = (musics, articles = []) => {
+    const musicOptions = (musics || []).map((m) => ({
+      value: m.MusicID || m.id,
+      label: m.Title,
+      itemType: "music",
+    }));
+    const articleOptions = (articles || []).map((a) => ({
+      value: a._id,
+      label: a.Title,
+      itemType: "article",
+    }));
+    // 文章數量遠少於音樂，放前面才不會被整串音樂淹沒而找不到
+    setAllOption([
+      { label: "文章", options: articleOptions },
+      { label: "音樂", options: musicOptions },
+    ]);
   };
 
   const getDefault = () => {
@@ -876,17 +905,28 @@ function Course() {
                   border: `1px solid ${token.colorBorderSecondary}`
                 }}>
                   <Select
-                    placeholder="搜尋並新增音樂..."
+                    placeholder="搜尋並新增音樂或文章..."
                     value={null}
                     onChange={(value, option) => {
                       if (!selectedMusics.find((m) => m.id === value)) {
-                        setSelectedMusics((prev) => [...prev, { id: value, title: option.label }]);
+                        setSelectedMusics((prev) => [
+                          ...prev,
+                          { id: value, title: option.label, type: option.itemType || 'music' },
+                        ]);
                       }
                     }}
                     size="large"
                     style={{ width: '100%', borderRadius: '6px', marginBottom: selectedMusics.length > 0 ? '10px' : 0 }}
                     options={allOption}
                     showSearch
+                    optionRender={(option) => (
+                      <Space>
+                        <Tag color={option.data.itemType === 'article' ? 'purple' : 'blue'} style={{ margin: 0 }}>
+                          {option.data.itemType === 'article' ? '文章' : '音樂'}
+                        </Tag>
+                        <span>{option.data.label}</span>
+                      </Space>
+                    )}
                     filterOption={(input, option) =>
                       (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                     }
@@ -913,6 +953,7 @@ function Course() {
                             key={m.id}
                             id={m.id}
                             title={m.title}
+                            type={m.type}
                             onRemove={(id) =>
                               setSelectedMusics((prev) => prev.filter((item) => item.id !== id))
                             }

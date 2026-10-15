@@ -24,6 +24,7 @@ import {
   LogoutOutlined,
   MenuOutlined,
   MessageOutlined,
+  FileTextOutlined,
   MoonOutlined,
   PictureOutlined,
   PieChartOutlined,
@@ -57,6 +58,7 @@ const items = [
     getItem("冥想", "2-meditation", <SmileOutlined />),
     getItem("白噪音", "2-whitenoise", <SoundOutlined />),
   ]),
+  getItem("文章", "article", <FileTextOutlined />),
   getItem("導師", "3", <UserOutlined />),
   getItem("用戶", "5", <UsergroupAddOutlined />),
   getItem("開通", "6", <CrownOutlined />),
@@ -134,6 +136,7 @@ function Admin() {
     else if (path === "/admin/operations/celebrity-guide-recommendations") setCurrent("operations-celebrity-guide");
     else if (path === "/admin/operations/daily-session-recommendations") setCurrent("operations-daily-session");
     else if (path === "/admin/operations/daily-quotes") setCurrent("operations-daily-quote");
+    else if (path === "/admin/article") setCurrent("article");
   }, [location.pathname]);
 
   useEffect(() => {
@@ -211,6 +214,7 @@ function Admin() {
     else if (e.key === "operations-celebrity-guide") navigate("operations/celebrity-guide-recommendations", { replace: true });
     else if (e.key === "operations-daily-session") navigate("operations/daily-session-recommendations", { replace: true });
     else if (e.key === "operations-daily-quote") navigate("operations/daily-quotes", { replace: true });
+    else if (e.key === "article") navigate("article", { replace: true });
     setMobileMenuOpen(false);
   };
 
