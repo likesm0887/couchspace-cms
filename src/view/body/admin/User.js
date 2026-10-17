@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { Drawer, Button, Table, Statistic, Input, Space, Tooltip, message, Row, Col, Card, Modal, Typography, Image, Descriptions, Badge, Tag } from "antd";
-import { memberService } from "../../../service/ServicePool";
+import { Drawer, Button, Table, Statistic, Input, Space, Tooltip, message, Row, Col, Card, Modal, Typography, Image, Descriptions, Badge, Tag, Empty, Progress } from "antd";
+import { memberService, meditationService } from "../../../service/ServicePool";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import CountUp from "react-countup";
@@ -8,6 +8,8 @@ import {
   LaptopOutlined,
   NotificationOutlined,
   UserOutlined,
+  TrophyOutlined,
+  FlagOutlined,
   DownloadOutlined,
   SearchOutlined,
   CopyOutlined,
@@ -146,8 +148,160 @@ const DrawerForm = ({ visible, onClose, record }) => {
   );
 };
 
+// UserBadgeCard 組件 - 顯示用戶已獲得的成就勳章
+const UserBadgeCard = ({ badges }) => {
+  const list = Array.isArray(badges) ? badges : [];
+  return (
+    <Card
+      title={
+        <Space>
+          <TrophyOutlined />
+          個人成就
+          <Tag color="blue">{list.length} 枚</Tag>
+        </Space>
+      }
+      bordered={false}
+    >
+      {list.length === 0 ? (
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description="此用戶尚未獲得任何成就"
+          style={{ margin: "12px 0" }}
+        />
+      ) : (
+        <Row gutter={[16, 16]}>
+          {list.map((b) => (
+            <Col xs={12} sm={8} md={6} key={b.BadgeID}>
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "14px 10px",
+                  border: "1px solid var(--cms-line)",
+                  borderRadius: 10,
+                  height: "100%",
+                  background: "var(--cms-panel)",
+                }}
+              >
+                {b.AchievedImage ? (
+                  <Image
+                    src={b.AchievedImage}
+                    alt={b.Name}
+                    crossOrigin="anonymous"
+                    width={76}
+                    height={76}
+                    style={{ objectFit: "contain" }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: 76,
+                      height: 76,
+                      margin: "0 auto",
+                      borderRadius: 8,
+                      background: "var(--cms-line2)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 12,
+                      color: "var(--cms-muted)",
+                    }}
+                  >
+                    無圖
+                  </div>
+                )}
+                <div style={{ marginTop: 8, fontWeight: 600, fontSize: 13 }}>{b.Name}</div>
+                {b.Condition && (
+                  <div style={{ marginTop: 2, fontSize: 12, color: "var(--cms-muted)" }}>{b.Condition}</div>
+                )}
+                {b.AchievedAt && (
+                  <div style={{ marginTop: 6, fontSize: 11, color: "var(--cms-muted)" }}>
+                    {b.AchievedAt}
+                  </div>
+                )}
+              </div>
+            </Col>
+          ))}
+        </Row>
+      )}
+    </Card>
+  );
+};
+
+// UserChallengeCard 組件 - 顯示用戶的挑戰完成紀錄
+const UserChallengeCard = ({ progress }) => {
+  const list = Array.isArray(progress) ? progress : [];
+  const completedCount = list.filter((p) => p.IsCompleted).length;
+  return (
+    <Card
+      title={
+        <Space>
+          <FlagOutlined />
+          挑戰完成紀錄
+          <Tag color="green">{completedCount} / {list.length} 已完成</Tag>
+        </Space>
+      }
+      bordered={false}
+    >
+      {list.length === 0 ? (
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description="目前沒有啟用中的挑戰"
+          style={{ margin: "12px 0" }}
+        />
+      ) : (
+        <Space direction="vertical" size={12} style={{ width: "100%" }}>
+          {list.map((p) => {
+            const percent = p.TotalCourses > 0
+              ? Math.round((p.CompletedCount / p.TotalCourses) * 100)
+              : 0;
+            return (
+              <div
+                key={p.ChallengeID}
+                style={{
+                  padding: "12px 14px",
+                  border: "1px solid var(--cms-line)",
+                  borderRadius: 8,
+                  background: "var(--cms-panel)",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                  <Space>
+                    <span style={{ fontWeight: 600 }}>{p.ChallengeTitle}</span>
+                    {p.IsCompleted ? (
+                      <Tag color="success">已完成</Tag>
+                    ) : p.CompletedCount > 0 ? (
+                      <Tag color="processing">進行中</Tag>
+                    ) : (
+                      <Tag>未開始</Tag>
+                    )}
+                  </Space>
+                  <span style={{ fontSize: 13, color: "var(--cms-muted)" }}>
+                    {p.CompletedCount} / {p.TotalCourses} 系列
+                  </span>
+                </div>
+                <Progress
+                  percent={percent}
+                  size="small"
+                  status={p.IsCompleted ? "success" : "active"}
+                  style={{ marginTop: 6, marginBottom: 0 }}
+                />
+                {p.IsCompleted && p.CompletedAt && (
+                  <div style={{ marginTop: 4, fontSize: 12, color: "var(--cms-muted)" }}>
+                    完成於 {p.CompletedAt}
+                    {p.BadgeName && <> ・取得成就「{p.BadgeName}」</>}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </Space>
+      )}
+    </Card>
+  );
+};
+
 // UserDetailModal 組件 - 用戶詳情模態框
-const UserDetailModal = ({ userData, userPhoto }) => {
+const UserDetailModal = ({ userData, userPhoto, userBadges, userChallenges }) => {
   if (!userData || userData.length === 0) {
     return <div>載入中...</div>;
   }
@@ -236,6 +390,12 @@ const UserDetailModal = ({ userData, userPhoto }) => {
           </Col>
         </Row>
 
+        {/* 個人成就 */}
+        <UserBadgeCard badges={userBadges} />
+
+        {/* 挑戰完成紀錄 */}
+        <UserChallengeCard progress={userChallenges} />
+
         {/* 地址資訊 */}
         {(userInfo["8"] || userInfo["9"]) && (
           <Card title="地址資訊" bordered={false}>
@@ -268,6 +428,8 @@ const UserPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentUserDetail, setCurrentUserDetail] = useState([]);
   const [currentUserPhoto, setCurrentUserPhoto] = useState(null);
+  const [currentUserBadges, setCurrentUserBadges] = useState([]);
+  const [currentUserChallenges, setCurrentUserChallenges] = useState([]);
 
   const handleSearch = useCallback((selectedKeys, confirm, dataIndex) => {
     confirm();
@@ -473,16 +635,28 @@ const UserPage = () => {
     // 清空之前的數據，確保不會顯示舊的照片
     setCurrentUserDetail([]);
     setCurrentUserPhoto(null);
+    setCurrentUserBadges([]);
+    setCurrentUserChallenges([]);
 
     try {
       const userInfo = await memberService.getGetUserById(userId);
       console.log("User info:", userInfo);
       console.log("Photo URL:", userInfo?.information?.photo || userInfo?.Photo || userInfo?.photo);
       createUserDescription(userInfo, userId);
+      setCurrentUserBadges(userInfo?.Badges || []);
       setIsModalOpen(true);
     } catch (error) {
       console.error('獲取用戶資訊失敗:', error);
       message.error('獲取用戶資訊失敗');
+      return;
+    }
+
+    // 挑戰進度為附加資訊，載入失敗不影響用戶詳情顯示
+    try {
+      const progress = await meditationService.getUserChallengeProgress(userId);
+      setCurrentUserChallenges(Array.isArray(progress) ? progress : []);
+    } catch (error) {
+      console.warn('獲取挑戰進度失敗:', error);
     }
   };
 
@@ -700,7 +874,12 @@ const UserPage = () => {
         style={{ top: 20 }}
         bodyStyle={{ maxHeight: "70vh", overflow: "auto" }}
       >
-        <UserDetailModal userData={currentUserDetail} userPhoto={currentUserPhoto} />
+        <UserDetailModal
+          userData={currentUserDetail}
+          userPhoto={currentUserPhoto}
+          userBadges={currentUserBadges}
+          userChallenges={currentUserChallenges}
+        />
       </Modal>
     </div>
   );

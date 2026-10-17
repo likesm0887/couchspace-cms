@@ -1101,6 +1101,14 @@ export class MeditationService {
     });
   }
 
+  getUserChallengeProgress(userId) {
+    if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
+    return fetch(`${this.base_url}/api/v1/meditation/challenges/progress/${userId}`, {
+      method: "GET",
+      headers: { Authorization: cookie.load("token"), "Content-Type": "application/json" },
+    }).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); });
+  }
+
   uploadBadgeImage(file) {
     if (cookie.load("token") === undefined) return Promise.reject(new Error("unauthorized"));
     const formData = new FormData();
