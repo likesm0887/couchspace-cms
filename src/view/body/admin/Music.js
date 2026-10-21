@@ -25,6 +25,7 @@ import {
   Modal,
   Popconfirm,
   Spin,
+  Tooltip,
 } from "antd";
 import {
   SearchOutlined,
@@ -183,6 +184,7 @@ function Music() {
       isDelete: item.IsDelete,
       teacherID: item.TeacherID,
       isBackgroundMusic: item.IsBackgroundMusic || false,
+      remark: item.Remark || "",
     }));
     setData(result);
     setLoading(false);
@@ -260,6 +262,7 @@ function Music() {
         isDelete: record.isDelete === "N" || record.isDelete === "",
         teacherID: record.teacherID,
         isBackgroundMusic: record.isBackgroundMusic || false,
+        remark: record.remark || "",
       });
       setModalOpen(true);
     },
@@ -288,6 +291,7 @@ function Music() {
           IsDelete: form.getFieldValue("isDelete") ? "N" : "Y",
           TeacherID: teacherID,
           IsBackgroundMusic: form.getFieldValue("isBackgroundMusic") || false,
+          Remark: form.getFieldValue("remark") || "",
         };
         console.log("Creating music with data:", createData);
         await meditationService.createMusic(createData);
@@ -305,6 +309,7 @@ function Music() {
           IsDelete: form.getFieldValue("isDelete") ? "N" : "Y",
           TeacherID: teacherID,
           IsBackgroundMusic: form.getFieldValue("isBackgroundMusic") || false,
+          Remark: form.getFieldValue("remark") || "",
         };
         console.log("Updating music with data:", updateData);
         await meditationService.updateMusic(updateData);
@@ -434,6 +439,29 @@ function Music() {
             </Popconfirm>
           </Space>
         ),
+      },
+      {
+        title: "備註",
+        dataIndex: "remark",
+        key: "remark",
+        width: 180,
+        render: (remark) =>
+          remark ? (
+            <Tooltip title={remark}>
+              <span
+                style={{
+                  display: "inline-block",
+                  maxWidth: 180,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  verticalAlign: "bottom",
+                }}
+              >
+                {remark}
+              </span>
+            </Tooltip>
+          ) : null,
       },
       {
         title: "圖片",
@@ -714,6 +742,18 @@ function Music() {
                   <Input.TextArea
                     rows={4}
                     placeholder="請輸入單堂描述"
+                    maxLength={500}
+                    showCount
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  name="remark"
+                  label="備註"
+                >
+                  <Input.TextArea
+                    rows={2}
+                    placeholder="供後台辨識用的備註"
                     maxLength={500}
                     showCount
                   />

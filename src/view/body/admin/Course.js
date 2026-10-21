@@ -258,6 +258,29 @@ function Course() {
           </Space>
         ),
       },
+      {
+        title: "備註",
+        dataIndex: "remark",
+        key: "remark",
+        width: 180,
+        render: (remark) =>
+          remark ? (
+            <Tooltip title={remark}>
+              <span
+                style={{
+                  display: "inline-block",
+                  maxWidth: 180,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  verticalAlign: "bottom",
+                }}
+              >
+                {remark}
+              </span>
+            </Tooltip>
+          ) : null,
+      },
 
       {
         title: "圖片",
@@ -435,6 +458,7 @@ function Course() {
     form.setFieldValue("teacherName", e.teacherId);
     form.setFieldValue("display", e.display);
     form.setFieldValue("courseType", e.courseType || "series");
+    form.setFieldValue("remark", e.remark || "");
 
     console.log(courseData);
     setModal1Open(true);
@@ -516,6 +540,7 @@ function Course() {
         display: res[i].Display,
         createDate: res[i].CreateDate,
         courseType: res[i].CourseType || "",
+        remark: res[i].Remark || "",
       });
     }
 
@@ -533,6 +558,7 @@ function Course() {
     form.setFieldValue("description", "");
     form.setFieldValue("Index", 0);
     form.setFieldValue("courseType", "series");
+    form.setFieldValue("remark", "");
     setModal1Open(true);
   };
   const onFinish = () => {
@@ -548,6 +574,7 @@ function Course() {
           TeacherID: form.getFieldValue("teacherName"),
           Tags: ["幫助睡眠", "正念", "紓解壓力"],
           CourseType: form.getFieldValue("courseType") || "series",
+          Remark: form.getFieldValue("remark") || "",
         })
         .then((e) => {
           console.log(e);
@@ -594,6 +621,7 @@ function Course() {
           Description: form.getFieldValue("description"),
           Tags: ["幫助睡眠", "正念", "紓解壓力"],
           CourseType: form.getFieldValue("courseType") || "series",
+          Remark: form.getFieldValue("remark") || "",
         })
         .then((e) => {
           meditationService
@@ -689,6 +717,12 @@ function Course() {
       return {
         value: 2,
         label: "Three",
+      };
+    }
+    if (course.display == 3) {
+      return {
+        value: 3,
+        label: "Challenge",
       };
     }
   };
@@ -854,6 +888,7 @@ function Course() {
                     { value: 0, label: "Standard" },
                     { value: 1, label: "One" },
                     { value: 2, label: "Three" },
+                    { value: 3, label: "Challenge" },
                   ]}
                 />
               </Form.Item>
@@ -881,6 +916,18 @@ function Course() {
                   allowClear={true}
                   placeholder="請輸入順序"
                   size="large"
+                  style={{ borderRadius: '6px' }}
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="remark"
+                label={<span style={{ fontWeight: 'bold', color: '#1890ff' }}>備註</span>}
+              >
+                <Input.TextArea
+                  allowClear={true}
+                  placeholder="供後台辨識用的備註"
+                  autoSize={{ minRows: 2, maxRows: 4 }}
                   style={{ borderRadius: '6px' }}
                 />
               </Form.Item>
