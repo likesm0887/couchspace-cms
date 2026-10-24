@@ -172,7 +172,7 @@ function ChallengeManagement() {
 
   const handleAddSeries = (courseId, option) => {
     if (selectedSeries.some((s) => s.id === courseId)) return;
-    setSelectedSeries((prev) => [...prev, { id: courseId, title: option.label }]);
+    setSelectedSeries((prev) => [...prev, { id: courseId, title: option.name }]);
   };
 
   const handleRemoveSeries = (courseId) => {
@@ -375,14 +375,28 @@ function ChallengeManagement() {
                 value={null}
                 onChange={handleAddSeries}
                 showSearch
-                optionFilterProp="label"
+                optionFilterProp="searchText"
                 style={{ width: "100%", marginBottom: selectedSeries.length > 0 ? 10 : 0 }}
                 options={series
                   .filter((item) => !selectedSeries.some((s) => s.id === item.CourseID))
-                  .map((item) => ({
-                    value: item.CourseID,
-                    label: item.CourseName || item.Name || "未命名系列",
-                  }))}
+                  .map((item) => {
+                    const name = item.CourseName || item.Name || "未命名系列";
+                    const remark = item.Remark || "";
+                    return {
+                      value: item.CourseID,
+                      name,
+                      // 名稱與備註都能搜尋
+                      searchText: remark ? `${name} ${remark}` : name,
+                      label: (
+                        <span>
+                          {name}
+                          {remark && (
+                            <span style={{ color: "#999", marginLeft: 8 }}>（{remark}）</span>
+                          )}
+                        </span>
+                      ),
+                    };
+                  })}
               />
               {selectedSeries.length > 0 && (
                 <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={handleSeriesDragEnd}>

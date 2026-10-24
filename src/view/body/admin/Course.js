@@ -652,6 +652,7 @@ function Course() {
     const musicOptions = (musics || []).map((m) => ({
       value: m.MusicID || m.id,
       label: m.Title,
+      remark: m.Remark || "",
       itemType: "music",
     }));
     const articleOptions = (articles || []).map((a) => ({
@@ -972,10 +973,16 @@ function Course() {
                           {option.data.itemType === 'article' ? '文章' : '音樂'}
                         </Tag>
                         <span>{option.data.label}</span>
+                        {option.data.remark && (
+                          <span style={{ color: '#999' }}>（{option.data.remark}）</span>
+                        )}
                       </Space>
                     )}
                     filterOption={(input, option) =>
-                      (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                      // 名稱與備註都能搜尋
+                      `${option?.label ?? ''} ${option?.remark ?? ''}`
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
                     }
                   />
                   {selectedMusics.length > 0 && (

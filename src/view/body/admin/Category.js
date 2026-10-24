@@ -314,7 +314,7 @@ function Category() {
   const createOptions = (courses) => {
     let result = [];
     courses.forEach((m) => {
-      result.push({ value: m.CourseID, label: m.CourseName });
+      result.push({ value: m.CourseID, label: m.CourseName, remark: m.Remark || "" });
     });
 
     setAllCourseOption(result);
@@ -556,8 +556,19 @@ function Category() {
                 style={{ width: "100%", borderRadius: '6px', marginBottom: selectedCourses.length > 0 ? '10px' : 0 }}
                 options={allCourseOption.filter((o) => !selectedCourses.find((c) => c.id === o.value))}
                 showSearch
+                optionRender={(option) => (
+                  <span>
+                    {option.data.label}
+                    {option.data.remark && (
+                      <span style={{ color: '#999', marginLeft: 8 }}>（{option.data.remark}）</span>
+                    )}
+                  </span>
+                )}
                 filterOption={(input, option) =>
-                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  // 名稱與備註都能搜尋
+                  `${option?.label ?? ''} ${option?.remark ?? ''}`
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
                 }
               />
               {selectedCourses.length > 0 && (
